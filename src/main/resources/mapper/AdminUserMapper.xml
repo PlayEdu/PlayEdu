@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.playedu.api.mapper.AdminUserMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.AdminUser">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="email" column="email" jdbcType="VARCHAR"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="loginIp" column="login_ip" jdbcType="VARCHAR"/>
+            <result property="loginAt" column="login_at" jdbcType="TIMESTAMP"/>
+            <result property="isBanLogin" column="is_ban_login" jdbcType="TINYINT"/>
+            <result property="loginTimes" column="login_times" jdbcType="INTEGER"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,email,
+        password,login_ip,login_at,
+        is_ban_login,login_times,created_at,
+        updated_at
+    </sql>
+</mapper>
