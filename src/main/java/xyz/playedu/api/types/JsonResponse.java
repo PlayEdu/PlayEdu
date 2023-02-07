@@ -1,6 +1,6 @@
 package xyz.playedu.api.types;
 
-public class ResponseBody<T> {
+public class JsonResponse<T> {
 
     private Integer code;
     private String msg;
@@ -30,21 +30,21 @@ public class ResponseBody<T> {
         this.data = data;
     }
 
-    public ResponseBody(Integer code, String msg, T data) {
+    public JsonResponse(Integer code, String msg, T data) {
         this.code = code;
         this.msg = msg;
         this.data = data;
     }
 
-    public static ResponseBody<String> success(String msg) {
-        return new ResponseBody<>(0, msg, null);
+    public static JsonResponse<String> success(String msg) {
+        return new JsonResponse<>(0, msg, null);
     }
 
-    public static ResponseBody<Object> data(Object data) {
-        return new ResponseBody<>(0, "", data);
+    public static JsonResponse<Object> data(Object data) {
+        return new JsonResponse<>(0, "", data);
     }
 
-    public static ResponseBody<String> error(String msg, Integer code) {
-        return new ResponseBody<>(code, msg, null);
+    public static JsonResponse<String> error(String msg, Integer code) {
+        return new JsonResponse<>(code, msg, null);
     }
 }
