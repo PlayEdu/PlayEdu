@@ -2,7 +2,7 @@ package xyz.playedu.api.types;
 
 import java.util.List;
 
-public class PageResult<T> {
+public class PaginationResult<T> {
 
     private List<T> data;
 
