@@ -17,14 +17,9 @@ public class AdminUserController {
     private AdminUserServiceImpl adminUserService;
 
     @GetMapping("/admin/user/index")
-    public JsonResponse<Object> List(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
+    public JsonResponse<Object> List(@RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "size", defaultValue = "10") Integer size) {
         PaginationResult<AdminUser> result = adminUserService.paginate(page, size, null);
         return JsonResponse.data(result);
-    }
-
-    @GetMapping("/admmin/user/test")
-    public void TestException() throws ServiceException {
-        throw new RuntimeException("我是错误");
     }
 
 }
