@@ -37,6 +37,11 @@ public class AdminUser implements Serializable {
     private String password;
 
     /**
+     * Salt
+     */
+    private String salt;
+
+    /**
      * 登录IP
      */
     private String loginIp;
@@ -85,6 +90,7 @@ public class AdminUser implements Serializable {
             && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
             && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
             && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
+            && (this.getSalt() == null ? other.getSalt() == null : this.getSalt().equals(other.getSalt()))
             && (this.getLoginIp() == null ? other.getLoginIp() == null : this.getLoginIp().equals(other.getLoginIp()))
             && (this.getLoginAt() == null ? other.getLoginAt() == null : this.getLoginAt().equals(other.getLoginAt()))
             && (this.getIsBanLogin() == null ? other.getIsBanLogin() == null : this.getIsBanLogin().equals(other.getIsBanLogin()))
@@ -101,6 +107,7 @@ public class AdminUser implements Serializable {
         result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
         result = prime * result + ((getEmail() == null) ? 0 : getEmail().hashCode());
         result = prime * result + ((getPassword() == null) ? 0 : getPassword().hashCode());
+        result = prime * result + ((getSalt() == null) ? 0 : getSalt().hashCode());
         result = prime * result + ((getLoginIp() == null) ? 0 : getLoginIp().hashCode());
         result = prime * result + ((getLoginAt() == null) ? 0 : getLoginAt().hashCode());
         result = prime * result + ((getIsBanLogin() == null) ? 0 : getIsBanLogin().hashCode());
@@ -120,6 +127,7 @@ public class AdminUser implements Serializable {
         sb.append(", name=").append(name);
         sb.append(", email=").append(email);
         sb.append(", password=").append(password);
+        sb.append(", salt=").append(salt);
         sb.append(", loginIp=").append(loginIp);
         sb.append(", loginAt=").append(loginAt);
         sb.append(", isBanLogin=").append(isBanLogin);

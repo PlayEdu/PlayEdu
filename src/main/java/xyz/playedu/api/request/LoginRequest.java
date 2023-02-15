@@ -1,10 +1,13 @@
 package xyz.playedu.api.request;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import xyz.playedu.api.types.ImageCaptchaRequestInterface;
 
 import java.io.Serializable;
 
-public class LoginRequest  implements Serializable {
+@Data
+public class LoginRequest implements Serializable, ImageCaptchaRequestInterface {
 
     private static final long serialVersionUID = 1L;
 
@@ -19,36 +22,4 @@ public class LoginRequest  implements Serializable {
 
     @NotNull(message = "captchaKey参数为空")
     public String captchaKey;
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getCaptchaValue() {
-        return captchaValue;
-    }
-
-    public void setCaptchaValue(String captchaValue) {
-        this.captchaValue = captchaValue;
-    }
-
-    public String getCaptchaKey() {
-        return captchaKey;
-    }
-
-    public void setCaptchaKey(String captchaKey) {
-        this.captchaKey = captchaKey;
-    }
 }

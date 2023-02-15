@@ -9,6 +9,7 @@
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="email" column="email" jdbcType="VARCHAR"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="salt" column="salt" jdbcType="VARCHAR"/>
             <result property="loginIp" column="login_ip" jdbcType="VARCHAR"/>
             <result property="loginAt" column="login_at" jdbcType="TIMESTAMP"/>
             <result property="isBanLogin" column="is_ban_login" jdbcType="TINYINT"/>
@@ -19,8 +20,8 @@
 
     <sql id="Base_Column_List">
         id,name,email,
-        password,login_ip,login_at,
-        is_ban_login,login_times,created_at,
-        updated_at
+        password,salt,login_ip,
+        login_at,is_ban_login,login_times,
+        created_at,updated_at
     </sql>
 </mapper>
