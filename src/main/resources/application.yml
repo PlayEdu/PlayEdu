@@ -34,5 +34,5 @@ mybatis-plus:
 playedu:
   captcha:
     expire: 300 #分5钟
-    cache-name: "captcha:key:"
+    cache-prefix: "captcha:key:"
 

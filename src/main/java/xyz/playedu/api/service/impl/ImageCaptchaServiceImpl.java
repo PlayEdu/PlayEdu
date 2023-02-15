@@ -3,12 +3,12 @@ package xyz.playedu.api.service.impl;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FastByteArrayOutputStream;
 import xyz.playedu.api.service.ImageCaptchaService;
 import xyz.playedu.api.types.ImageCaptchaResult;
 import xyz.playedu.api.util.Base64Util;
-import xyz.playedu.api.util.EnvUtil;
 import xyz.playedu.api.util.RedisUtil;
 import xyz.playedu.api.util.ToolUtil;
 
@@ -19,6 +19,12 @@ import java.io.IOException;
 @Slf4j
 @Service
 public class ImageCaptchaServiceImpl implements ImageCaptchaService {
+
+    @Value("${playedu.captcha.cache-prefix}")
+    private String ConfigCachePrefix;
+
+    @Value("${playedu.captcha.expire}")
+    private Long ConfigExpire;
 
     @Resource
     private DefaultKaptcha defaultKaptcha;
@@ -37,7 +43,7 @@ public class ImageCaptchaServiceImpl implements ImageCaptchaService {
         image = defaultKaptcha.createImage(imageCaptcha.getCode());
 
         // 写入到redis中
-        RedisUtil.set(getCacheKey(randomKey), imageCaptcha.getCode(), getExpireSeconds());
+        RedisUtil.set(getCacheKey(randomKey), imageCaptcha.getCode(), ConfigExpire);
 
         FastByteArrayOutputStream os = new FastByteArrayOutputStream();
         ImageIO.write(image, "png", os);
@@ -66,10 +72,6 @@ public class ImageCaptchaServiceImpl implements ImageCaptchaService {
     }
 
     private String getCacheKey(String val) {
-        return EnvUtil.get("playedu.captcha.cache-name") + val;
-    }
-
-    private Long getExpireSeconds() {
-        return Long.parseLong(EnvUtil.get("playedu.captcha.expire"));
+        return ConfigCachePrefix + val;
     }
 }
