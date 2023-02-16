@@ -8,7 +8,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.playedu.api.service.ImageCaptchaService;
-import xyz.playedu.api.types.ImageCaptchaRequestInterface;
+import xyz.playedu.api.request.types.ImageCaptchaRequestInterface;
 import xyz.playedu.api.types.JsonResponse;
 
 @Aspect

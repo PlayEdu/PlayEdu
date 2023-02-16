@@ -2,7 +2,7 @@ package xyz.playedu.api.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import xyz.playedu.api.types.ImageCaptchaRequestInterface;
+import xyz.playedu.api.request.types.ImageCaptchaRequestInterface;
 
 import java.io.Serializable;
 
