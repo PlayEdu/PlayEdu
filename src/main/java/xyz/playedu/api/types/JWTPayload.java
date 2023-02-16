@@ -45,6 +45,4 @@ public class JWTPayload {
      */
     private String prv;
 
-    private HashMap<String, Object> claims;
-
 }

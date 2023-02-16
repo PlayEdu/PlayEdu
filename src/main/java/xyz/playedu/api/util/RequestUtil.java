@@ -84,85 +84,38 @@ public class RequestUtil {
         return 0;
     }
 
-    /**
-     * 获取请求域名
-     * 示例: https://127.0.0.1
-     *
-     * @return String
-     * @author fzr
-     */
     public static String domain() {
         HttpServletRequest request = RequestUtil.handler();
         if (request != null) {
             String requestUrl = request.getRequestURL().toString();
             List<String> urls = Arrays.asList(requestUrl.split("/"));
 
-            String agree = "http:";
-            if (request.getServerPort() == 443) {
-                agree = "https:";
-            }
-
-            return agree + "//" + urls.get(2).split(":")[0];
+            return urls.get(2).split(":")[0];
         }
         return null;
     }
 
-    /**
-     * 判断是否是GET请求
-     *
-     * @return Boolean
-     * @author fzr
-     */
     public static Boolean isGet() {
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (servletRequestAttributes != null) {
-            HttpServletRequest request = servletRequestAttributes.getRequest();
-            return request.getMethod().equals("GET");
-        }
-        return false;
+        return isMethod("GET");
     }
 
-    /**
-     * 判断是否是POST请求
-     *
-     * @return Boolean
-     * @author fzr
-     */
     public static Boolean isPost() {
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (servletRequestAttributes != null) {
-            HttpServletRequest request = servletRequestAttributes.getRequest();
-            return request.getMethod().equals("POST");
-        }
-        return false;
+        return isMethod("POST");
     }
 
-    /**
-     * 判断是否是PUT请求
-     *
-     * @return Boolean
-     * @author fzr
-     */
     public static Boolean isPUT() {
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (servletRequestAttributes != null) {
-            HttpServletRequest request = servletRequestAttributes.getRequest();
-            return request.getMethod().equals("PUT");
-        }
-        return false;
+        return isMethod("PUT");
     }
 
-    /**
-     * 判断是否是DELETE请求
-     *
-     * @return Boolean
-     * @author fzr
-     */
     public static Boolean isDelete() {
+        return isMethod("DELETE");
+    }
+
+    public static boolean isMethod(String method) {
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (servletRequestAttributes != null) {
             HttpServletRequest request = servletRequestAttributes.getRequest();
-            return request.getMethod().equals("DELETE");
+            return request.getMethod().equals(method);
         }
         return false;
     }

@@ -10,7 +10,7 @@ import xyz.playedu.api.service.ImageCaptchaService;
 import xyz.playedu.api.types.ImageCaptchaResult;
 import xyz.playedu.api.util.Base64Util;
 import xyz.playedu.api.util.RedisUtil;
-import xyz.playedu.api.util.ToolUtil;
+import xyz.playedu.api.util.HelperUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -35,7 +35,7 @@ public class ImageCaptchaServiceImpl implements ImageCaptchaService {
         BufferedImage image;
 
         // 图形验证码的key[api是无状态的需要key来锁定验证码的值]
-        String randomKey = ToolUtil.randomString(16);
+        String randomKey = HelperUtil.randomString(16);
         imageCaptcha.setKey(randomKey);
 
         // 生成验证码

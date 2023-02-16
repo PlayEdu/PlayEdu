@@ -3,14 +3,20 @@ package xyz.playedu.api.util;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.google.gson.reflect.TypeToken;
+import org.springframework.util.DigestUtils;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class ToolUtil {
+public class HelperUtil {
+
+    public static String MD5(String text) {
+        return DigestUtils.md5DigestAsHex(text.getBytes(StandardCharsets.UTF_8));
+    }
 
     /**
      * 制作UUID

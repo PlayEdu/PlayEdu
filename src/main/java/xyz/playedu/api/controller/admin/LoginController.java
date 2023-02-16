@@ -15,7 +15,7 @@ import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.service.JWTService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.JwtToken;
-import xyz.playedu.api.util.MD5Util;
+import xyz.playedu.api.util.HelperUtil;
 import xyz.playedu.api.util.RequestUtil;
 
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class LoginController {
         if (adminUser == null) {
             return JsonResponse.error("邮箱不存在");
         }
-        String password = MD5Util.md5(loginRequest.getPassword() + adminUser.getSalt()).toLowerCase();
+        String password = HelperUtil.MD5(loginRequest.getPassword() + adminUser.getSalt()).toLowerCase();
         if (!adminUser.getPassword().equals(password)) {
             return JsonResponse.error("密码错误");
         }

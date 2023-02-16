@@ -41,5 +41,6 @@ playedu:
   jwt:
     key: "eJTJSLPv13fw9twbuPoeicypLqnSfYWL" #32个字符,加密key用来加密jwt的数据[运行本系统之前请务必修改]
     expire: 1296000 #token有效期[单位:秒,默认15天]
+    cache-black-prefix: "jwt:blk:" #主动注销的token黑名单缓存前缀
 
 
