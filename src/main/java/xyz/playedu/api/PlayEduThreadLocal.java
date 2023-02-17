@@ -1,5 +1,7 @@
 package xyz.playedu.api;
 
+import xyz.playedu.api.domain.AdminUser;
+
 import java.util.LinkedHashMap;
 
 public class PlayEduThreadLocal {
@@ -35,6 +37,14 @@ public class PlayEduThreadLocal {
 
     public static void setAdminUserId(Integer userId) {
         put("admin_user_id", userId);
+    }
+
+    public static AdminUser getAdminUser() {
+        return (AdminUser) get("admin_user");
+    }
+
+    public static void setAdminUser(AdminUser adminUser) {
+        put("admin_user", adminUser);
     }
 
     public static void remove() {

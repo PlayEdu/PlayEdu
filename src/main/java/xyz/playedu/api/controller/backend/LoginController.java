@@ -61,7 +61,6 @@ public class LoginController {
     public JsonResponse logout() throws JwtLogoutException {
         jwtService.logout(RequestUtil.token(), SystemConstant.JWT_PRV_ADMIN_USER);
         return JsonResponse.success("success");
-
     }
 
 }

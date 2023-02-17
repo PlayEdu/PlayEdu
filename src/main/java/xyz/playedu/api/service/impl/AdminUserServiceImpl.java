@@ -37,6 +37,12 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
         return this.getBaseMapper().selectOne(queryWrapper);
     }
 
+    @Override
+    public AdminUser findById(Integer id) {
+        QueryWrapper<AdminUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", id);
+        return this.getBaseMapper().selectOne(queryWrapper);
+    }
 }
 
 

@@ -14,4 +14,6 @@ public interface AdminUserService extends IService<AdminUser> {
     PaginationResult<AdminUser> paginate(int page, int size, Wrapper<AdminUser> queryWrapper);
 
     AdminUser findByEmail(String email);
+
+    AdminUser findById(Integer id);
 }
