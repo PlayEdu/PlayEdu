@@ -11,8 +11,6 @@ import xyz.playedu.api.mapper.AdminUserMapper;
 import org.springframework.stereotype.Service;
 import xyz.playedu.api.types.PaginationResult;
 
-import java.util.Date;
-
 @Service
 public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser> implements AdminUserService {
 

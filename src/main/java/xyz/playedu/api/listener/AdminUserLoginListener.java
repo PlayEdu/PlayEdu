@@ -5,8 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import xyz.playedu.api.constant.BackendLogConstant;
+import xyz.playedu.api.domain.AdminLog;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.event.AdminUserLoginEvent;
+import xyz.playedu.api.service.AdminLogService;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.util.IpUtil;
 
@@ -16,6 +19,9 @@ public class AdminUserLoginListener {
 
     @Autowired
     private AdminUserService adminUserService;
+
+    @Autowired
+    private AdminLogService adminLogService;
 
     @Order(1)
     @EventListener
@@ -32,10 +38,17 @@ public class AdminUserLoginListener {
 
     @Order(10)
     @EventListener
-    public void recordLoginIp(AdminUserLoginEvent event) {
+    public void log(AdminUserLoginEvent event) {
         String area = IpUtil.getRealAddressByIP(event.getIp());
-        log.info("地区:" + area);
-    }
+        AdminLog adminLog = new AdminLog();
+        adminLog.setAdminId(event.getAdminId());
+        adminLog.setModule(BackendLogConstant.MODULE_LOGIN);
+        adminLog.setOpt(BackendLogConstant.OPT_LOGIN);
+        adminLog.setIp(event.getIp());
+        adminLog.setIpArea(area);
+        adminLog.setCreatedAt(event.getLoginAt());
 
+        adminLogService.save(adminLog);
+    }
 
 }

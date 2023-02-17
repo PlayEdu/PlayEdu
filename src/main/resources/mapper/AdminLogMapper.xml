@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.playedu.api.mapper.AdminLogMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.AdminLog">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="adminId" column="admin_id" jdbcType="INTEGER"/>
+            <result property="module" column="module" jdbcType="VARCHAR"/>
+            <result property="opt" column="opt" jdbcType="VARCHAR"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="ip" column="ip" jdbcType="VARCHAR"/>
+            <result property="ipArea" column="ip_area" jdbcType="VARCHAR"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,admin_id,module,
+        opt,remark,ip,
+        ip_area,created_at
+    </sql>
+</mapper>
