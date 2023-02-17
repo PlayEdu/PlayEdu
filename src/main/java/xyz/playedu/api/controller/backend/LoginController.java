@@ -1,4 +1,4 @@
-package xyz.playedu.api.controller.admin;
+package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AdminUser;
+import xyz.playedu.api.exception.JwtLogoutException;
 import xyz.playedu.api.middleware.ImageCaptchaCheckMiddleware;
 import xyz.playedu.api.request.LoginRequest;
 import xyz.playedu.api.service.AdminUserService;
@@ -22,7 +23,7 @@ import java.util.HashMap;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/v1/auth")
+@RequestMapping("/backend/v1/auth")
 public class LoginController {
 
     @Autowired
@@ -57,8 +58,10 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
-    public JsonResponse logout() {
+    public JsonResponse logout() throws JwtLogoutException {
+        jwtService.logout(RequestUtil.token(), SystemConstant.JWT_PRV_ADMIN_USER);
         return JsonResponse.success("success");
+
     }
 
 }

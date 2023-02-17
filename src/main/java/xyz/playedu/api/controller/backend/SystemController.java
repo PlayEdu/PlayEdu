@@ -1,4 +1,4 @@
-package xyz.playedu.api.controller.admin;
+package xyz.playedu.api.controller.backend;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/admin/v1/system")
+@RequestMapping("/backend/v1/system")
 public class SystemController {
 
     @Autowired

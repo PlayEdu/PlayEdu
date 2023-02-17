@@ -23,6 +23,18 @@ public class RequestUtil {
         return null;
     }
 
+    public static String token() {
+        HttpServletRequest request = RequestUtil.handler();
+        if (request == null) {
+            return "";
+        }
+        String token = request.getHeader("Authorization");
+        if (token == null || token.length() == 0 || token.split(" ").length != 2) {
+            return "";
+        }
+        return token.split(" ")[1];
+    }
+
     /**
      * 获取不带参请求URl
      * 示例: https://127.0.0.1:8082/api/system/menu/menus
