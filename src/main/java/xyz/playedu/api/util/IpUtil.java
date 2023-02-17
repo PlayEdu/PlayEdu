@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -48,16 +49,15 @@ public class IpUtil {
      * 根据IP获取所在地址
      *
      * @param ip Ip地址
-     * @return String (广州省 广州市)
+     * @return String (广州省-广州市)
      * @author fzr
      */
     public static String getRealAddressByIP(String ip) {
         String IP_URL = "https://whois.pconline.com.cn/ipJson.jsp";
-        String UNKNOWN = "XX XX";
+        String UNKNOWN = "未知";
 
-        // 内网不查询
         if (IpUtil.internalIp(ip)) {
-            return "内网IP";
+            return "内网";
         }
 
         try {
@@ -69,7 +69,7 @@ public class IpUtil {
             JSONObject obj = JSONObject.parseObject(rspStr);
             String region = obj.getString("pro");
             String city = obj.getString("city");
-            return String.format("%s %s", region, city);
+            return String.format("%s-%s", region, city);
         } catch (Exception e) {
             log.error("获取地理位置异常 {}", ip);
         }

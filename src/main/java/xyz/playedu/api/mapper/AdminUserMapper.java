@@ -4,8 +4,6 @@ import org.apache.ibatis.annotations.Mapper;
 import xyz.playedu.api.domain.AdminUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-import java.util.Date;
-
 @Mapper
 /**
  * @author tengteng
@@ -13,7 +11,6 @@ import java.util.Date;
  * @createDate 2023-02-11 10:58:52
  * @Entity xyz.playedu.api.domain.AdminUser
  */ public interface AdminUserMapper extends BaseMapper<AdminUser> {
-    Integer updateLoginAtAndLoginTimes(Integer id, Date loginAt, Integer loginTimes);
 }
 
 

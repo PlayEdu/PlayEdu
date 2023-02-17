@@ -18,6 +18,4 @@ public interface AdminUserService extends IService<AdminUser> {
     AdminUser findByEmail(String email);
 
     AdminUser findById(Integer id);
-
-    Integer updateLoginTimesAndLoginAt(Integer id, Date loginAt, Integer loginTimes);
 }

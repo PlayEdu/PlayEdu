@@ -39,11 +39,6 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
         queryWrapper.eq("id", id);
         return this.getBaseMapper().selectOne(queryWrapper);
     }
-
-    @Override
-    public Integer updateLoginTimesAndLoginAt(Integer id, Date loginAt, Integer loginTimes) {
-        return this.getBaseMapper().updateLoginAtAndLoginTimes(id, loginAt, loginTimes);
-    }
 }
 
 
