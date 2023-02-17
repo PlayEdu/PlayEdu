@@ -11,14 +11,10 @@ import xyz.playedu.api.mapper.AdminUserMapper;
 import org.springframework.stereotype.Service;
 import xyz.playedu.api.types.PaginationResult;
 
-/**
- * @author tengteng
- * @description 针对表【admin_users】的数据库操作Service实现
- * @createDate 2023-02-11 10:58:52
- */
+import java.util.Date;
+
 @Service
-public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser>
-        implements AdminUserService {
+public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser> implements AdminUserService {
 
     public PaginationResult<AdminUser> paginate(int page, int size, Wrapper<AdminUser> queryWrapper) {
         IPage<AdminUser> userPage = new Page<>(page, size);
@@ -42,6 +38,11 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
         QueryWrapper<AdminUser> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", id);
         return this.getBaseMapper().selectOne(queryWrapper);
+    }
+
+    @Override
+    public Integer updateLoginTimesAndLoginAt(Integer id, Date loginAt, Integer loginTimes) {
+        return this.getBaseMapper().updateLoginAtAndLoginTimes(id, loginAt, loginTimes);
     }
 }
 

@@ -2,6 +2,7 @@ package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,16 +10,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AdminUser;
+import xyz.playedu.api.event.AdminUserLoginEvent;
 import xyz.playedu.api.exception.JwtLogoutException;
 import xyz.playedu.api.middleware.ImageCaptchaCheckMiddleware;
 import xyz.playedu.api.request.LoginRequest;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.service.JWTService;
+import xyz.playedu.api.types.JWTPayload;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.JwtToken;
 import xyz.playedu.api.util.HelperUtil;
+import xyz.playedu.api.util.IpUtil;
 import xyz.playedu.api.util.RequestUtil;
 
+import java.util.Date;
 import java.util.HashMap;
 
 @Slf4j
@@ -31,6 +36,9 @@ public class LoginController {
 
     @Autowired
     private JWTService jwtService;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @PostMapping("/login")
     @ImageCaptchaCheckMiddleware
@@ -53,6 +61,8 @@ public class LoginController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("token", token.getToken());
         data.put("expire", token.getExpire());
+
+        applicationContext.publishEvent(new AdminUserLoginEvent(this, adminUser.getId(), new Date(), token.getToken(), IpUtil.getHostIp(), adminUser.getLoginTimes()));
 
         return JsonResponse.data(data);
     }

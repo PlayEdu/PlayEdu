@@ -5,6 +5,8 @@ import xyz.playedu.api.domain.AdminUser;
 import com.baomidou.mybatisplus.extension.service.IService;
 import xyz.playedu.api.types.PaginationResult;
 
+import java.util.Date;
+
 /**
  * @author tengteng
  * @description 针对表【admin_users】的数据库操作Service
@@ -16,4 +18,6 @@ public interface AdminUserService extends IService<AdminUser> {
     AdminUser findByEmail(String email);
 
     AdminUser findById(Integer id);
+
+    Integer updateLoginTimesAndLoginAt(Integer id, Date loginAt, Integer loginTimes);
 }
