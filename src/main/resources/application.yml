@@ -23,6 +23,17 @@ spring:
           max-active: 100 # 连接池最大连接数(使用负数表示没有限制,默认8)
           max-idle: 20    # 连接池中的最大空闲连接(默认8)
           min-idle: 5     # 连接池中的最小空闲连接(默认0)
+  # 线程池配置
+  task:
+    execution:
+      pool:
+        max-size: 16 #最大线程数量
+        core-size: 8 #初始化线程数量
+        queue-capacity: 1000 #队列最大长度
+        keep-alive: 60s #线程终止前允许保存的最大时间
+      shutdown:
+        await-termination: true
+      thread-name-prefix: "playedu-default-thread"
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
