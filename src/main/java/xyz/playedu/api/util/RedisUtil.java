@@ -9,6 +9,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import xyz.playedu.api.config.PlayEduConfig;
+import xyz.playedu.api.constant.SystemConstant;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class RedisUtil {
 
     private static RedisTemplate<String, Object> redisTemplate;
-    private static final String redisPrefix = PlayEduConfig.REDIS_PREFIX;
+    private static final String redisPrefix = SystemConstant.REDIS_PREFIX;
 
     /**
      * 注入Redis

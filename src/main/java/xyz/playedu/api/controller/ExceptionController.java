@@ -6,6 +6,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.types.JsonResponse;
 
@@ -14,10 +15,10 @@ import java.util.List;
 @RestControllerAdvice
 public class ExceptionController {
 
-//    @ExceptionHandler(Exception.class)
-//    public JsonResponse<String> exceptionHandler(Exception e) {
-//        return JsonResponse.error("系统错误", 500);
-//    }
+    @ExceptionHandler(Exception.class)
+    public JsonResponse exceptionHandler(Exception e) {
+        return JsonResponse.error("系统错误", 500);
+    }
 
     @ExceptionHandler(ServiceException.class)
     public JsonResponse serviceExceptionHandler(ServiceException e) {
@@ -43,6 +44,11 @@ public class ExceptionController {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public JsonResponse serviceExceptionHandler(HttpRequestMethodNotSupportedException e) {
         return JsonResponse.error("请求method错误", 400);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public JsonResponse serviceExceptionHandler(NotFoundException e) {
+        return JsonResponse.error(e.getMessage(), 404);
     }
 
 }

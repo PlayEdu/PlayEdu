@@ -1,5 +1,14 @@
 package xyz.playedu.api.config;
 
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
+@Data
 public class PlayEduConfig {
-    public static String REDIS_PREFIX = "playedu:";
+
+    @Value("${spring.profiles.active}")
+    private String env;
+
 }

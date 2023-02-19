@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import xyz.playedu.api.PlayEduThreadLocal;
+import xyz.playedu.api.bus.AppBus;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AdminUser;
@@ -28,6 +29,9 @@ public class AdminAuthMiddleware implements HandlerInterceptor {
 
     @Autowired
     private AdminUserService adminUserService;
+
+    @Autowired
+    private AppBus appBus;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -56,6 +60,9 @@ public class AdminAuthMiddleware implements HandlerInterceptor {
 
             return HandlerInterceptor.super.preHandle(request, response, handler);
         } catch (Exception e) {
+            if (appBus.isDev()) {
+                log.debug("jwt解析失败:" + e.getMessage());
+            }
             responseTransform(response, 401, "请重新登录");
             return false;
         }
