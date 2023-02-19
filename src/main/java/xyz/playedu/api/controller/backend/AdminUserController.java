@@ -11,6 +11,7 @@ import xyz.playedu.api.types.PaginationResult;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 @RestController
@@ -24,6 +25,15 @@ public class AdminUserController {
     @GetMapping("/index")
     public JsonResponse Index(@RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "size", defaultValue = "10") Integer size) {
         PaginationResult<AdminUser> result = adminUserService.paginate(page, size, null);
+
+        ArrayList<AdminUser> data = new ArrayList<>();
+        for (AdminUser adminUser : result.getData()) {
+            adminUser.setPassword(null);
+            adminUser.setSalt(null);
+            data.add(adminUser);
+        }
+        result.setData(data);
+
         return JsonResponse.data(result);
     }
 
