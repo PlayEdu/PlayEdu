@@ -12,12 +12,11 @@
             <result property="sort" column="sort" jdbcType="INTEGER"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
             <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
-            <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,name,parent_id,
         parent_chain,sort,created_at,
-        updated_at,deleted_at
+        updated_at
     </sql>
 </mapper>

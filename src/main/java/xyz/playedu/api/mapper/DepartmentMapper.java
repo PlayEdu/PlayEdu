@@ -5,11 +5,11 @@ import xyz.playedu.api.domain.Department;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
-* @author tengteng
-* @description 针对表【departments】的数据库操作Mapper
-* @createDate 2023-02-19 10:39:57
-* @Entity xyz.playedu.api.domain.Department
-*/
+ * @author tengteng
+ * @description 针对表【departments】的数据库操作Mapper
+ * @createDate 2023-02-19 12:19:45
+ * @Entity xyz.playedu.api.domain.Department
+ */
 @Mapper
 public interface DepartmentMapper extends BaseMapper<Department> {
 

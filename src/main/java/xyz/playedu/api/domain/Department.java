@@ -51,11 +51,6 @@ public class Department implements Serializable {
      */
     private Date updatedAt;
 
-    /**
-     * 
-     */
-    private Date deletedAt;
-
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
@@ -77,8 +72,7 @@ public class Department implements Serializable {
             && (this.getParentChain() == null ? other.getParentChain() == null : this.getParentChain().equals(other.getParentChain()))
             && (this.getSort() == null ? other.getSort() == null : this.getSort().equals(other.getSort()))
             && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
-            && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()))
-            && (this.getDeletedAt() == null ? other.getDeletedAt() == null : this.getDeletedAt().equals(other.getDeletedAt()));
+            && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()));
     }
 
     @Override
@@ -92,7 +86,6 @@ public class Department implements Serializable {
         result = prime * result + ((getSort() == null) ? 0 : getSort().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
         result = prime * result + ((getUpdatedAt() == null) ? 0 : getUpdatedAt().hashCode());
-        result = prime * result + ((getDeletedAt() == null) ? 0 : getDeletedAt().hashCode());
         return result;
     }
 
@@ -109,7 +102,6 @@ public class Department implements Serializable {
         sb.append(", sort=").append(sort);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", updatedAt=").append(updatedAt);
-        sb.append(", deletedAt=").append(deletedAt);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
