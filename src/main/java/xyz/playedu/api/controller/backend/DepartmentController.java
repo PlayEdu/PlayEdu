@@ -11,8 +11,8 @@ import xyz.playedu.api.request.backend.DepartmentRequest;
 import xyz.playedu.api.service.DepartmentService;
 import xyz.playedu.api.types.JsonResponse;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -31,7 +31,11 @@ public class DepartmentController {
 
     @GetMapping("/index")
     public JsonResponse index() {
-        List<Department> data = departmentService.list();
+        Map<Integer, List<Department>> departments = departmentService.all().stream().collect(Collectors.groupingBy(Department::getParentId));
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("departments", departments);
+
         return JsonResponse.data(data);
     }
 

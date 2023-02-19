@@ -15,6 +15,8 @@ public interface DepartmentService extends IService<Department> {
 
     List<Department> listByParentId(Integer id);
 
+    List<Department> all();
+
     Department findOrFail(Integer id) throws NotFoundException;
 
     void deleteById(Integer id) throws NotFoundException;

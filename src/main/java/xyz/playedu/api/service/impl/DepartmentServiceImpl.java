@@ -27,7 +27,12 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
     @Override
     public List<Department> listByParentId(Integer id) {
-        return list(query().getWrapper().eq("parent_id", id));
+        return list(query().getWrapper().eq("parent_id", id).orderByAsc("sort"));
+    }
+
+    @Override
+    public List<Department> all() {
+        return list(query().getWrapper().orderByAsc("sort"));
     }
 
     @Override
