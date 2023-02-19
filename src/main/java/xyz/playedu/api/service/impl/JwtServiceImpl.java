@@ -40,7 +40,7 @@ public class JwtServiceImpl implements JWTService {
         payload.setJti(HelperUtil.uuid());
         payload.setNbf(curTime);
         payload.setIat(curTime);
-        payload.setExp(curTime + ConfigExpire);
+        payload.setExp(curTime + ConfigExpire * 1000);
         payload.setSub(userId);
 
         JwtBuilder builder = Jwts.builder();
