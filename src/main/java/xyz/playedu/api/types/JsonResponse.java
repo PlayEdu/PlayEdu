@@ -19,6 +19,10 @@ public class JsonResponse {
         return new JsonResponse(0, msg, null);
     }
 
+    public static JsonResponse success() {
+        return new JsonResponse(0, "", null);
+    }
+
     public static JsonResponse data(Object data) {
         return new JsonResponse(0, "", data);
     }

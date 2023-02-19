@@ -1,12 +1,14 @@
-package xyz.playedu.api.request;
+package xyz.playedu.api.request.backend;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class PaginationRequest implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Min(value = 1, message = "page参数值不能少于1")

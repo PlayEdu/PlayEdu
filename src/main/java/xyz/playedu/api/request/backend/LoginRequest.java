@@ -1,14 +1,16 @@
-package xyz.playedu.api.request;
+package xyz.playedu.api.request.backend;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import xyz.playedu.api.request.types.ImageCaptchaRequestInterface;
+import xyz.playedu.api.request.backend.types.ImageCaptchaRequestInterface;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
 public class LoginRequest implements Serializable, ImageCaptchaRequestInterface {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @NotNull(message = "请输入邮箱")

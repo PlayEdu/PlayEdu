@@ -1,4 +1,4 @@
-package xyz.playedu.api.request.types;
+package xyz.playedu.api.request.backend.types;
 
 public interface ImageCaptchaRequestInterface {
 
