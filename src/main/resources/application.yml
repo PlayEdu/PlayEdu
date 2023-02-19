@@ -9,6 +9,11 @@ spring:
     url: "jdbc:mysql://127.0.0.1:33060/java-meedu?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false"
     username: "root"
     password: "root"
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 5       # 最小连接数
+      maximum-pool-size: 20 # 最大连接数
+      auto-commit: true     # 自动提交
   # Redis配置
   data:
     redis:
