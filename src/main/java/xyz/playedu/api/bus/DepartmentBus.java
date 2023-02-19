@@ -24,9 +24,18 @@ public class DepartmentBus {
             if (parentDepartment == null) {
                 throw new NotFoundException("父级部门不存在");
             }
-            parentChain = parentDepartment.getParentChain() + "," + parentId;
+            String pc = parentDepartment.getParentChain();
+            parentChain = pc == null || pc.length() == 0 ? parentId + "" : pc + "," + parentId;
         }
         return parentChain;
+    }
+
+    public static String childrenParentChain(Department department) {
+        String prefix = department.getId() + "";
+        if (department.getParentChain() != null && department.getParentChain().length() > 0) {
+            prefix = department.getParentChain() + "," + prefix;
+        }
+        return prefix;
     }
 
 }

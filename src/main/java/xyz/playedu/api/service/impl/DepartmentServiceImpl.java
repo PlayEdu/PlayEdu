@@ -3,7 +3,9 @@ package xyz.playedu.api.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import xyz.playedu.api.bus.DepartmentBus;
 import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.DepartmentService;
@@ -22,14 +24,15 @@ import java.util.List;
 @Service
 @Slf4j
 public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Department> implements DepartmentService {
+
     @Override
     public List<Department> listByParentId(Integer id) {
-        return this.getBaseMapper().selectList(query().eq("parent_id", id));
+        return list(query().getWrapper().eq("parent_id", id));
     }
 
     @Override
     public Department findOrFail(Integer id) throws NotFoundException {
-        Department department = this.getBaseMapper().selectById(id);
+        Department department = getById(id);
         if (department == null) {
             throw new NotFoundException("部门不存在");
         }
@@ -40,53 +43,68 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Transactional
     public void deleteById(Integer id) throws NotFoundException {
         Department department = findOrFail(id);
-        updateParentChain(department);
+        updateParentChain(department.getParentChain(), DepartmentBus.childrenParentChain(department));
         removeById(department.getId());
     }
 
     @Override
     @Transactional
     public void update(Department department, String name, Integer parentId, Integer sort) throws NotFoundException {
+        //计算该部门作为其它子部门的parentChain值
+        String childrenChainPrefix = DepartmentBus.childrenParentChain(department);
+
         Department data = new Department();
-        if (!department.getName().equals(name)) {
+        data.setId(department.getId());
+
+        if (!department.getName().equals(name)) {//更换部门名称
             data.setName(name);
         }
+
         if (!department.getParentId().equals(parentId)) {
             data.setParentId(parentId);
-            Department parent = findOrFail(parentId);
-            data.setParentChain(parent.getParentChain() + "," + parent.getId());
+            if (parentId.equals(0)) {//重置一级部门
+                data.setParentChain("");
+            } else {
+                Department parentDepartment = findOrFail(parentId);
+                data.setParentChain(DepartmentBus.childrenParentChain(parentDepartment));
+            }
         }
-        if (!department.getSort().equals(sort)) {
+        if (!department.getSort().equals(sort)) {//更换部门排序值
             data.setSort(sort);
         }
-        save(data);
+
+        //提交更换
+        updateById(data);
 
         department = getById(department.getId());
-        updateParentChain(department);
+        updateParentChain(DepartmentBus.childrenParentChain(department), childrenChainPrefix);
     }
 
-    private void updateParentChain(Department department) {
-        if (department.getParentId().equals(0)) {
-            return;
-        }
-
-        //需要重置chain的子部门
-        List<Department> children = list(query().like("parent_chain", "%" + department.getParentChain()));
+    private void updateParentChain(String newChildrenPC, String oldChildrenPC) {
+        List<Department> children = list(query().getWrapper().like("parent_chain", oldChildrenPC + "%"));
         if (children.size() == 0) {
             return;
         }
-
-        // 计算新的parentChain前缀
-        String[] chainIds = department.getParentChain().split(",");
-        String newChainPrefix = String.join(",", Arrays.copyOfRange(chainIds, 0, chainIds.length - 1));
-
-        log.info("新的前缀:" + newChainPrefix);
 
         ArrayList<Department> updateRows = new ArrayList<>();
         for (Department tmpDepartment : children) {
             Department tmpUpdateDepartment = new Department();
             tmpUpdateDepartment.setId(tmpDepartment.getId());
-            tmpUpdateDepartment.setParentChain(tmpDepartment.getParentChain().replaceFirst(department.getParentChain(), newChainPrefix));
+
+            // parentChain计算
+            String pc = newChildrenPC;
+            if (!tmpDepartment.getParentChain().equals(oldChildrenPC)) {
+                pc = tmpDepartment.getParentChain().replaceFirst(oldChildrenPC + ",", newChildrenPC.length() == 0 ? newChildrenPC : newChildrenPC + ',');
+            }
+            tmpUpdateDepartment.setParentChain(pc);
+
+            // parentId计算
+            int parentId = 0;
+            if (pc != null && pc.length() > 0) {
+                String[] parentIds = pc.split(",");
+                parentId = Integer.parseInt(parentIds[parentIds.length - 1]);
+            }
+            tmpUpdateDepartment.setParentId(parentId);
 
             updateRows.add(tmpUpdateDepartment);
         }

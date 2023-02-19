@@ -15,10 +15,10 @@ import java.util.List;
 @RestControllerAdvice
 public class ExceptionController {
 
-    @ExceptionHandler(Exception.class)
-    public JsonResponse exceptionHandler(Exception e) {
-        return JsonResponse.error("系统错误", 500);
-    }
+//    @ExceptionHandler(Exception.class)
+//    public JsonResponse exceptionHandler(Exception e) {
+//        return JsonResponse.error("系统错误", 500);
+//    }
 
     @ExceptionHandler(ServiceException.class)
     public JsonResponse serviceExceptionHandler(ServiceException e) {

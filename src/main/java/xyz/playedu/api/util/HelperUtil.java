@@ -1,12 +1,11 @@
 package xyz.playedu.api.util;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.DigestUtils;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -125,45 +124,6 @@ public class HelperUtil {
     }
 
     /**
-     * JSON转 Map<String, String>
-     *
-     * @param json 对象
-     * @return Map<String, String>
-     * @author fzr
-     */
-    public static Map<String, String> jsonToMap(String json) {
-        Type type = new TypeToken<Map<String, String>>() {
-        }.getType();
-        return JSON.parseObject(json, type);
-    }
-
-    /**
-     * JSON转 Map<String, Object>
-     *
-     * @param json 对象
-     * @return Map<String, String>
-     * @author fzr
-     */
-    public static Map<String, Object> jsonToMapAsObj(String json) {
-        Type type = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        return JSON.parseObject(json, type);
-    }
-
-    /**
-     * JSON转Map<String, String>
-     *
-     * @param object 对象
-     * @return Map<String, String>
-     * @author fzr
-     */
-    public static Map<String, String> objectToMap(Object object) {
-        Type type = new TypeToken<Map<String, String>>() {
-        }.getType();
-        return JSON.parseObject(JSONObject.toJSONString(object), type);
-    }
-
-    /**
      * 对象类型Map合并
      *
      * @param map 对象
@@ -189,6 +149,11 @@ public class HelperUtil {
         map2.putAll(map);
         map2.putAll(map1);
         return map2;
+    }
+
+    public static String toJsonStr(Object obj) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     }
 
 }

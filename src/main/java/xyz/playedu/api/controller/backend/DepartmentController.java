@@ -42,7 +42,7 @@ public class DepartmentController {
     }
 
     @PostMapping("/create")
-    public JsonResponse store(@RequestBody DepartmentRequest request) throws NotFoundException {
+    public JsonResponse store(@RequestBody @Validated DepartmentRequest request) throws NotFoundException {
         String parentChain = "";
         if (request.getParentId() != 0) {
             parentChain = departmentBus.compParentChain(request.getParentId());

@@ -1,6 +1,7 @@
 package xyz.playedu.api.util;
 
-import com.alibaba.fastjson2.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,16 +61,23 @@ public class IpUtil {
             return "内网";
         }
 
+        @Data
+        class Response {
+            private String pro;
+            private String city;
+            private String region;
+            private String addr;
+        }
+
         try {
             String rspStr = HttpUtil.sendGet(IP_URL, "ip=" + ip + "&json=true", "GBK");
             if (StringUtil.isEmpty(rspStr)) {
                 log.error("获取地理位置异常 {}", ip);
                 return UNKNOWN;
             }
-            JSONObject obj = JSONObject.parseObject(rspStr);
-            String region = obj.getString("pro");
-            String city = obj.getString("city");
-            return String.format("%s-%s", region, city);
+            ObjectMapper objectMapper = new ObjectMapper();
+            Response obj = objectMapper.readValue(rspStr, Response.class);
+            return String.format("%s-%s", obj.getPro(), obj.getCity());
         } catch (Exception e) {
             log.error("获取地理位置异常 {}", ip);
         }
