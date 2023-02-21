@@ -31,6 +31,16 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
     public List<AdminPermission> listOrderBySortAsc() {
         return list(query().getWrapper().orderByAsc("group_name", "sort"));
     }
+
+    @Override
+    public HashMap<String, Boolean> getSlugsByIds(List<Integer> ids) {
+        List<AdminPermission> adminPermissions = list(query().getWrapper().in("id", ids));
+        HashMap<String, Boolean> map = new HashMap<>();
+        for (AdminPermission adminPermission : adminPermissions) {
+            map.put(adminPermission.getSlug(), true);
+        }
+        return map;
+    }
 }
 
 

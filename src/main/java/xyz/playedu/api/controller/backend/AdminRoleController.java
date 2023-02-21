@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.AdminPermission;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.domain.AdminRolePermission;
+import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.AdminRoleRequest;
 import xyz.playedu.api.service.AdminPermissionService;
 import xyz.playedu.api.service.AdminRolePermissionService;
@@ -36,12 +38,14 @@ public class AdminRoleController {
     @Autowired
     private AdminRolePermissionService rolePermissionService;
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @GetMapping("/index")
     public JsonResponse index() {
         List<AdminRole> data = roleService.list();
         return JsonResponse.data(data);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @GetMapping("/create")
     public JsonResponse create() {
         List<AdminPermission> permissions = permissionService.listOrderBySortAsc();
@@ -50,6 +54,7 @@ public class AdminRoleController {
         return JsonResponse.data(data);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @PostMapping("/create")
     @Transactional
     public JsonResponse store(@RequestBody @Validated AdminRoleRequest request) {
@@ -76,6 +81,7 @@ public class AdminRoleController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @GetMapping("/{id}")
     public JsonResponse edit(@PathVariable(name = "id") Integer id) {
         AdminRole role = roleService.getById(id);
@@ -85,6 +91,7 @@ public class AdminRoleController {
         return JsonResponse.data(role);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @PutMapping("/{id}")
     @Transactional
     public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated AdminRoleRequest request) {
@@ -116,6 +123,7 @@ public class AdminRoleController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @DeleteMapping("/{id}")
     @Transactional
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) {

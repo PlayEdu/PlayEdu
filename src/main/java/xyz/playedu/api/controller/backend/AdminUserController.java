@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.domain.AdminUserRole;
+import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.AdminUserRequest;
 import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.service.AdminUserRoleService;
@@ -35,6 +37,7 @@ public class AdminUserController {
     @Autowired
     private AdminUserRoleService userRoleService;
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_INDEX)
     @GetMapping("/index")
     public JsonResponse Index(@RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "size", defaultValue = "10") Integer size) {
         PaginationResult<AdminUser> result = adminUserService.paginate(page, size, null);
@@ -50,6 +53,7 @@ public class AdminUserController {
         return JsonResponse.data(result);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_STORE)
     @GetMapping("/create")
     public JsonResponse create() {
         List<AdminRole> roles = roleService.list();
@@ -59,6 +63,7 @@ public class AdminUserController {
 
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_STORE)
     @PostMapping("/create")
     @Transactional
     public JsonResponse store(@RequestBody @Validated AdminUserRequest request) {
@@ -100,6 +105,7 @@ public class AdminUserController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_UPDATE)
     @GetMapping("/{id}")
     public JsonResponse edit(@PathVariable Integer id) {
         AdminUser adminUser = adminUserService.findById(id);
@@ -111,6 +117,7 @@ public class AdminUserController {
         return JsonResponse.data(adminUser);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_UPDATE)
     @PutMapping("/{id}")
     @Transactional
     public JsonResponse update(@PathVariable Integer id, @RequestBody @Validated AdminUserRequest request) {
@@ -159,6 +166,7 @@ public class AdminUserController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_DESTROY)
     @DeleteMapping("/{id}")
     @Transactional
     public JsonResponse destroy(@PathVariable Integer id) {

@@ -17,4 +17,6 @@ public interface AdminPermissionService extends IService<AdminPermission> {
 
     List<AdminPermission> listOrderBySortAsc();
 
+    HashMap<String,Boolean> getSlugsByIds(List<Integer> ids);
+
 }

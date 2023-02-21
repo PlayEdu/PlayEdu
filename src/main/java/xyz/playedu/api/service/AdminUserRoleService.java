@@ -3,6 +3,8 @@ package xyz.playedu.api.service;
 import xyz.playedu.api.domain.AdminUserRole;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * @author tengteng
  * @description 针对表【admin_user_role】的数据库操作Service
@@ -11,5 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface AdminUserRoleService extends IService<AdminUserRole> {
 
     void removeUserRolesByUserId(Integer userId);
+
+    List<Integer> getRoleIdsByUserId(Integer userId);
 
 }
