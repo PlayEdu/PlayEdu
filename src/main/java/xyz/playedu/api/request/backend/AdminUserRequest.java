@@ -1,5 +1,6 @@
 package xyz.playedu.api.request.backend;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -28,6 +29,11 @@ public class AdminUserRequest implements Serializable {
 
     private String password;
 
+    @JsonProperty("is_ban_login")
+    @NotNull(message = "is_ban_login参数不存在")
     private Integer isBanLogin;
 
+    @JsonProperty("role_ids")
+    @NotNull(message = "role_ids参数不存在")
+    private Integer[] roleIds;
 }
