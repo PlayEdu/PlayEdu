@@ -29,6 +29,8 @@ public class AdminPermissionCheck implements ApplicationRunner {
             {"管理员", "10", "管理员-编辑", BPermissionConstant.ADMIN_USER_UPDATE},
             {"管理员", "15", "管理员-删除", BPermissionConstant.ADMIN_USER_DESTROY},
 
+            {"管理员角色", "0", "管理员角色", BPermissionConstant.ADMIN_ROLE},
+
             {"部门", "0", "部门-查看", BPermissionConstant.DEPARTMENT_INDEX},
             {"部门", "5", "部门-添加", BPermissionConstant.DEPARTMENT_STORE},
             {"部门", "10", "部门-编辑", BPermissionConstant.DEPARTMENT_UPDATE},
