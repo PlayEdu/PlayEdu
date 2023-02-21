@@ -24,15 +24,15 @@ public class AdminPermissionCheck implements ApplicationRunner {
     private AdminPermissionService permissionService;
 
     private final String[][] ACTION_PERMISSIONS = {
-            {"管理员-查看", BPermissionConstant.ADMIN_USER_INDEX},
-            {"管理员-添加", BPermissionConstant.ADMIN_USER_STORE},
-            {"管理员-编辑", BPermissionConstant.ADMIN_USER_UPDATE},
-            {"管理员-删除", BPermissionConstant.ADMIN_USER_DESTROY},
+            {"管理员", "0", "管理员-查看", BPermissionConstant.ADMIN_USER_INDEX},
+            {"管理员", "5", "管理员-添加", BPermissionConstant.ADMIN_USER_STORE},
+            {"管理员", "10", "管理员-编辑", BPermissionConstant.ADMIN_USER_UPDATE},
+            {"管理员", "15", "管理员-删除", BPermissionConstant.ADMIN_USER_DESTROY},
 
-            {"部门-查看", BPermissionConstant.DEPARTMENT_INDEX},
-            {"部门-添加", BPermissionConstant.DEPARTMENT_STORE},
-            {"部门-编辑", BPermissionConstant.DEPARTMENT_UPDATE},
-            {"部门-删除", BPermissionConstant.DEPARTMENT_DESTROY},
+            {"部门", "0", "部门-查看", BPermissionConstant.DEPARTMENT_INDEX},
+            {"部门", "5", "部门-添加", BPermissionConstant.DEPARTMENT_STORE},
+            {"部门", "10", "部门-编辑", BPermissionConstant.DEPARTMENT_UPDATE},
+            {"部门", "15", "部门-删除", BPermissionConstant.DEPARTMENT_DESTROY},
     };
 
     @Override
@@ -43,14 +43,17 @@ public class AdminPermissionCheck implements ApplicationRunner {
 
         for (int i = 0; i < ACTION_PERMISSIONS.length; i++) {
             String[] item = ACTION_PERMISSIONS[i];
-            if (slugs.get(item[1]) != null) {//已经存在
+            String tmpSlug = item[3];
+            if (slugs.get(tmpSlug) != null) {//已经存在
                 continue;
             }
             AdminPermission permission = new AdminPermission();
 
-            permission.setName(item[0]);
-            permission.setSlug(item[1]);
-            permission.setType("action");
+            permission.setGroupName(item[0]);
+            permission.setSort(Integer.valueOf(item[1]));
+            permission.setName(item[2]);
+            permission.setSlug(tmpSlug);
+            permission.setType(BPermissionConstant.TYPE_ACTION);
             permission.setCreatedAt(now);
 
             list.add(permission);

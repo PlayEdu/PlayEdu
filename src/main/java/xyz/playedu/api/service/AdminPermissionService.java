@@ -4,6 +4,7 @@ import xyz.playedu.api.domain.AdminPermission;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author tengteng
@@ -13,5 +14,7 @@ import java.util.HashMap;
 public interface AdminPermissionService extends IService<AdminPermission> {
 
     HashMap<String, Boolean> allSlugs();
+
+    List<AdminPermission> listOrderBySortAsc();
 
 }

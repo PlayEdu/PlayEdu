@@ -6,6 +6,9 @@ package xyz.playedu.api.constant;
  */
 public class BPermissionConstant {
 
+    public final static String TYPE_ACTION = "action";
+    public final static String TYPE_DATA = "data";
+
     public final static String ADMIN_USER_INDEX = "admin-user-index";
     public final static String ADMIN_USER_STORE = "admin-user-store";
     public final static String ADMIN_USER_UPDATE = "admin-user-update";

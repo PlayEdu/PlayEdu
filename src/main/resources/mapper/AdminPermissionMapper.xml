@@ -7,13 +7,16 @@
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.AdminPermission">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="type" column="type" jdbcType="VARCHAR"/>
+            <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
+            <result property="sort" column="sort" jdbcType="INTEGER"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="slug" column="slug" jdbcType="VARCHAR"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,type,name,
-        slug,created_at
+        id,type,group_name,
+        sort,name,slug,
+        created_at
     </sql>
 </mapper>

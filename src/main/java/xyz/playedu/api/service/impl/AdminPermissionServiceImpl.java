@@ -26,6 +26,11 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
         }
         return map;
     }
+
+    @Override
+    public List<AdminPermission> listOrderBySortAsc() {
+        return list(query().getWrapper().orderByAsc("group_name", "sort"));
+    }
 }
 
 

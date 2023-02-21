@@ -19,11 +19,11 @@ import java.util.List;
 public class AdminPermissionController {
 
     @Autowired
-    private AdminPermissionService adminPermissionService;
+    private AdminPermissionService permissionService;
 
     @GetMapping("/index")
     public JsonResponse index() {
-        List<AdminPermission> data = adminPermissionService.list();
+        List<AdminPermission> data = permissionService.listOrderBySortAsc();
         return JsonResponse.data(data);
     }
 

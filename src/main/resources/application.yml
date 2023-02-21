@@ -1,3 +1,5 @@
+server:
+  port: 9898
 spring:
   profiles:
     active: "dev"
