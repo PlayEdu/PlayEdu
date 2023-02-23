@@ -21,4 +21,6 @@ public class BPermissionConstant {
     public final static String DEPARTMENT_UPDATE = "department-update";
     public final static String DEPARTMENT_DESTROY = "department-destroy";
 
+    public final static String RESOURCE_CATEGORY = "resource-category";
+
 }

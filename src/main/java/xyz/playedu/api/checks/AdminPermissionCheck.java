@@ -35,6 +35,8 @@ public class AdminPermissionCheck implements ApplicationRunner {
             {"部门", "5", "部门-添加", BPermissionConstant.DEPARTMENT_STORE},
             {"部门", "10", "部门-编辑", BPermissionConstant.DEPARTMENT_UPDATE},
             {"部门", "15", "部门-删除", BPermissionConstant.DEPARTMENT_DESTROY},
+
+            {"资源分类", "0", "资源分类管理", BPermissionConstant.RESOURCE_CATEGORY},
     };
 
     @Override

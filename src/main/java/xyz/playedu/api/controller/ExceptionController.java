@@ -4,8 +4,10 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.types.JsonResponse;
@@ -32,7 +34,7 @@ public class ExceptionController {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public JsonResponse serviceExceptionHandler(MethodArgumentNotValidException e) {
-        StringBuffer errorMsg = new StringBuffer();
+        StringBuilder errorMsg = new StringBuilder();
         List<ObjectError> allErrors = e.getBindingResult().getAllErrors();
         for (ObjectError tmpError : allErrors) {
             errorMsg.append(tmpError.getDefaultMessage()).append(",");
@@ -44,6 +46,16 @@ public class ExceptionController {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public JsonResponse serviceExceptionHandler(HttpRequestMethodNotSupportedException e) {
         return JsonResponse.error("请求method错误", 400);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public JsonResponse serviceExceptionHandler(MethodArgumentTypeMismatchException e) {
+        return JsonResponse.error("请求错误", 400);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public JsonResponse serviceExceptionHandler(MissingServletRequestParameterException e) {
+        return JsonResponse.error("参数错误", 406);
     }
 
     @ExceptionHandler(NotFoundException.class)
