@@ -14,6 +14,7 @@ import xyz.playedu.api.request.backend.AdminUserRequest;
 import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.service.AdminUserRoleService;
 import xyz.playedu.api.service.AdminUserService;
+import xyz.playedu.api.types.paginate.AdminUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
@@ -39,8 +40,17 @@ public class AdminUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_INDEX)
     @GetMapping("/index")
-    public JsonResponse Index(@RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        PaginationResult<AdminUser> result = adminUserService.paginate(page, size, null);
+    public JsonResponse Index(
+            @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @RequestParam(name = "size", defaultValue = "10") Integer size,
+            @RequestParam(name = "name", required = false) String name
+    ) {
+        AdminUserPaginateFilter filter = new AdminUserPaginateFilter();
+        if (name != null && name.length() > 0) {
+            filter.setName(name);
+        }
+
+        PaginationResult<AdminUser> result = adminUserService.paginate(page, size, filter);
 
         ArrayList<AdminUser> data = new ArrayList<>();
         for (AdminUser adminUser : result.getData()) {
@@ -60,7 +70,6 @@ public class AdminUserController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("roles", roles);
         return JsonResponse.data(data);
-
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_STORE)

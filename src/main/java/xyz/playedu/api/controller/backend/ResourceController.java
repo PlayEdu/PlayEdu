@@ -34,7 +34,11 @@ public class ResourceController {
     private ResourceCategoryService categoryService;
 
     @GetMapping("/index")
-    public JsonResponse index(@RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "size", defaultValue = "10") Integer size, @RequestParam(name = "name", defaultValue = "") String name) {
+    public JsonResponse index(
+            @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @RequestParam(name = "size", defaultValue = "10") Integer size,
+            @RequestParam(name = "name", defaultValue = "") String name
+    ) {
         ResourcePaginateFilter filter = new ResourcePaginateFilter();
         if (name != null && name.length() > 0) {
             filter.setName(name);
