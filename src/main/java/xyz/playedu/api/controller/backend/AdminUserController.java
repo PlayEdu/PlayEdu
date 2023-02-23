@@ -149,10 +149,10 @@ public class AdminUserController {
             return JsonResponse.error("更新管理员资料失败");
         }
 
-        if (request.getRoleIds().length > 0) {
-            // 先删除管理员与权限的已有关联关系
-            userRoleService.removeUserRolesByUserId(adminUser.getId());
+        // 先删除管理员与权限的已有关联关系
+        userRoleService.removeUserRolesByUserId(adminUser.getId());
 
+        if (request.getRoleIds().length > 0) {
             // 重新绑定关联关系
             List<AdminUserRole> userRoles = new ArrayList<>();
             for (int i = 0; i < request.getRoleIds().length; i++) {

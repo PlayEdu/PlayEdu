@@ -3,21 +3,26 @@ package xyz.playedu.api.controller.backend;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.User;
+import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.event.UserDestroyEvent;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.UserRequest;
+import xyz.playedu.api.service.UserDepartmentService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -32,23 +37,14 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    private ApplicationContext applicationContext;
+    private UserDepartmentService userDepartmentService;
+
+    @Autowired
+    private ApplicationContext context;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
-    public JsonResponse index(
-            @RequestParam(name = "page", defaultValue = "1") Integer page,
-            @RequestParam(name = "size", defaultValue = "10") Integer size,
-            @RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "email", required = false) String email,
-            @RequestParam(name = "nickname", required = false) String nickname,
-            @RequestParam(name = "id_card", required = false) String idCard,
-            @RequestParam(name = "is_active", required = false) Integer isActive,
-            @RequestParam(name = "is_lock", required = false) Integer isLock,
-            @RequestParam(name = "is_verify", required = false) Integer isVerify,
-            @RequestParam(name = "is_set_password", required = false) Integer isSetPassword,
-            @RequestParam(name = "created_at", required = false) Date[] createdAt
-    ) {
+    public JsonResponse index(@RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "size", defaultValue = "10") Integer size, @RequestParam(name = "name", required = false) String name, @RequestParam(name = "email", required = false) String email, @RequestParam(name = "nickname", required = false) String nickname, @RequestParam(name = "id_card", required = false) String idCard, @RequestParam(name = "is_active", required = false) Integer isActive, @RequestParam(name = "is_lock", required = false) Integer isLock, @RequestParam(name = "is_verify", required = false) Integer isVerify, @RequestParam(name = "is_set_password", required = false) Integer isSetPassword, @RequestParam(name = "created_at", required = false) Date[] createdAt) {
         UserPaginateFilter filter = new UserPaginateFilter();
         if (name != null && name.length() > 0) {
             filter.setName(name);
@@ -90,6 +86,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_STORE)
     @PostMapping("/create")
+    @Transactional
     public JsonResponse store(@RequestBody @Validated UserRequest request) {
         if (userService.emailIsExists(request.getEmail())) {
             return JsonResponse.error("邮箱已存在");
@@ -120,6 +117,17 @@ public class UserController {
 
         userService.save(user);
 
+        if (request.getDepIds() != null && request.getDepIds().length > 0) {
+            List<UserDepartment> userDepartments = new ArrayList<>();
+            for (int i = 0; i < request.getDepIds().length; i++) {
+                UserDepartment userDepartment = new UserDepartment();
+                userDepartment.setUserId(user.getId());
+                userDepartment.setDepId(request.getDepIds()[i]);
+                userDepartments.add(userDepartment);
+            }
+            userDepartmentService.saveBatch(userDepartments);
+        }
+
         return JsonResponse.success();
     }
 
@@ -139,6 +147,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_UPDATE)
     @PutMapping("/{id}")
+    @Transactional
     public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated UserRequest request) {
         User user = userService.getById(id);
         if (user == null) {
@@ -173,6 +182,20 @@ public class UserController {
 
         userService.updateById(newUser);
 
+        //先删除关联关系
+        userDepartmentService.removeByUserId(user.getId());
+
+        if (request.getDepIds() != null && request.getDepIds().length > 0) { //重新建立关系
+            List<UserDepartment> userDepartments = new ArrayList<>();
+            for (int i = 0; i < request.getDepIds().length; i++) {
+                UserDepartment userDepartment = new UserDepartment();
+                userDepartment.setUserId(user.getId());
+                userDepartment.setDepId(request.getDepIds()[i]);
+                userDepartments.add(userDepartment);
+            }
+            userDepartmentService.saveBatch(userDepartments);
+        }
+
         return JsonResponse.success();
     }
 
@@ -185,7 +208,7 @@ public class UserController {
         }
         userService.removeById(user.getId());
 
-        applicationContext.publishEvent(new UserDestroyEvent(this, user.getId(), new Date()));
+        context.publishEvent(new UserDestroyEvent(this, user.getId(), new Date()));
 
         return JsonResponse.success();
     }

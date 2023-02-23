@@ -37,7 +37,7 @@ public class LoginController {
     private JWTService jwtService;
 
     @Autowired
-    private ApplicationContext applicationContext;
+    private ApplicationContext context;
 
     @PostMapping("/login")
     @ImageCaptchaCheckMiddleware
@@ -61,7 +61,7 @@ public class LoginController {
         data.put("token", token.getToken());
         data.put("expire", token.getExpire());
 
-        applicationContext.publishEvent(new AdminUserLoginEvent(this, adminUser.getId(), new Date(), token.getToken(), IpUtil.getIpAddress(), adminUser.getLoginTimes()));
+        context.publishEvent(new AdminUserLoginEvent(this, adminUser.getId(), new Date(), token.getToken(), IpUtil.getIpAddress(), adminUser.getLoginTimes()));
 
         return JsonResponse.data(data);
     }

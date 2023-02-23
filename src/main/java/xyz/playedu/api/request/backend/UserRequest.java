@@ -51,4 +51,7 @@ public class UserRequest {
     @JsonProperty("is_set_password")
     private Integer isSetPassword;
 
+    @JsonProperty("dep_ids")
+    private Integer[] depIds;
+
 }

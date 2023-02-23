@@ -106,9 +106,10 @@ public class AdminRoleController {
 
         roleService.updateById(newRole);
 
+        // 先清空已有的权限
+        rolePermissionService.removeRolePermissionsByRoleId(role.getId());
+
         if (request.getPermissionIds().length > 0) {
-            // 先清空已有的权限
-            rolePermissionService.removeRolePermissionsByRoleId(role.getId());
             // 重新关联权限
             List<AdminRolePermission> rolePermissions = new ArrayList<>();
             for (int i = 0; i < request.getPermissionIds().length; i++) {
