@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.constant.BackendConstant;
-import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceCategory;
 import xyz.playedu.api.request.backend.ResourceRequest;

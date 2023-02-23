@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.UserDestroyEvent;
+import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.UserRequest;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
@@ -32,6 +34,7 @@ public class UserController {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
     public JsonResponse index(
             @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -79,11 +82,13 @@ public class UserController {
         return JsonResponse.data(result);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_STORE)
     @GetMapping("/create")
     public JsonResponse create() {
         return JsonResponse.data(null);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_STORE)
     @PostMapping("/create")
     public JsonResponse store(@RequestBody @Validated UserRequest request) {
         if (userService.emailIsExists(request.getEmail())) {
@@ -118,6 +123,7 @@ public class UserController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_UPDATE)
     @GetMapping("/{id}")
     public JsonResponse edit(@PathVariable(name = "id") Integer id) {
         User user = userService.getById(id);
@@ -131,6 +137,7 @@ public class UserController {
         return JsonResponse.data(data);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_UPDATE)
     @PutMapping("/{id}")
     public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated UserRequest request) {
         User user = userService.getById(id);
@@ -169,6 +176,7 @@ public class UserController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_DESTROY)
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
         User user = userService.getById(id);

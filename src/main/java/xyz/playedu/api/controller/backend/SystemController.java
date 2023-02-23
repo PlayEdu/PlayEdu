@@ -22,7 +22,7 @@ public class SystemController {
     public JsonResponse imageCaptcha() throws IOException {
         ImageCaptchaResult imageCaptchaResult = imageCaptchaService.generate();
 
-        HashMap<String, String> data = new HashMap();
+        HashMap<String, String> data = new HashMap<>();
         data.put("key", imageCaptchaResult.getKey());
         data.put("image", imageCaptchaResult.getImage());
 

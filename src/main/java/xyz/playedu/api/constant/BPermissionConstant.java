@@ -23,4 +23,9 @@ public class BPermissionConstant {
 
     public final static String RESOURCE_CATEGORY = "resource-category";
 
+    public final static String USER_INDEX = "user-index";
+    public final static String USER_STORE = "user-store";
+    public final static String USER_UPDATE = "user-update";
+    public final static String USER_DESTROY = "user-destroy";
+
 }
