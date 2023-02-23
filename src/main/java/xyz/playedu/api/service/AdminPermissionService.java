@@ -19,4 +19,6 @@ public interface AdminPermissionService extends IService<AdminPermission> {
 
     HashMap<String,Boolean> getSlugsByIds(List<Integer> ids);
 
+    List<Integer> allIds();
+
 }

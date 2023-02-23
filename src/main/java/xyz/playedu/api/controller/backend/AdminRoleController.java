@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminPermission;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.domain.AdminRolePermission;
@@ -99,6 +100,9 @@ public class AdminRoleController {
         if (role == null) {
             return JsonResponse.error("管理角色不存在");
         }
+        if (role.getSlug() == BackendConstant.SUPER_ADMIN_ROLE) {
+            return JsonResponse.error("超级管理权限无法编辑");
+        }
 
         AdminRole newRole = new AdminRole();
         newRole.setId(role.getId());
@@ -128,8 +132,17 @@ public class AdminRoleController {
     @DeleteMapping("/{id}")
     @Transactional
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
-        rolePermissionService.removeRolePermissionsByRoleId(id);
-        roleService.removeById(id);
+        AdminRole role = roleService.getById(id);
+        if (role == null) {
+            return JsonResponse.error("角色不存在");
+        }
+        if (role.getSlug() == BackendConstant.SUPER_ADMIN_ROLE) {
+            return JsonResponse.error("超级管理角色无法删除");
+        }
+
+        rolePermissionService.removeRolePermissionsByRoleId(role.getId());
+        roleService.removeById(role.getId());
+
         return JsonResponse.success();
     }
 

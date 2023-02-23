@@ -7,14 +7,18 @@ import xyz.playedu.api.mapper.AdminRoleMapper;
 import org.springframework.stereotype.Service;
 
 /**
-* @author tengteng
-* @description 针对表【admin_roles】的数据库操作Service实现
-* @createDate 2023-02-21 15:53:27
-*/
+ * @author tengteng
+ * @description 针对表【admin_roles】的数据库操作Service实现
+ * @createDate 2023-02-21 15:53:27
+ */
 @Service
 public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole>
-    implements AdminRoleService{
+        implements AdminRoleService {
 
+    @Override
+    public AdminRole getBySlug(String slug) {
+        return getOne(query().getWrapper().eq("slug", slug));
+    }
 }
 
 

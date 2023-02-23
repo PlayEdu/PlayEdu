@@ -6,6 +6,7 @@ import xyz.playedu.api.service.AdminPermissionService;
 import xyz.playedu.api.mapper.AdminPermissionMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -40,6 +41,16 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
             map.put(adminPermission.getSlug(), true);
         }
         return map;
+    }
+
+    @Override
+    public List<Integer> allIds() {
+        List<AdminPermission> permissions = list(query().getWrapper().eq("1", "1").select("id"));
+        List<Integer> ids = new ArrayList<>();
+        for (AdminPermission permission : permissions) {
+            ids.add(permission.getId());
+        }
+        return ids;
     }
 }
 

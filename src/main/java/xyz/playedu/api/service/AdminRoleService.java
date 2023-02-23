@@ -10,4 +10,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface AdminRoleService extends IService<AdminRole> {
 
+    AdminRole getBySlug(String slug);
+
 }
