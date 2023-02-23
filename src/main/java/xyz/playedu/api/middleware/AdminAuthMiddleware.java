@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import xyz.playedu.api.PlayEduThreadLocal;
+import xyz.playedu.api.PlayEduBackendThreadLocal;
 import xyz.playedu.api.bus.AppBus;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.SystemConstant;
@@ -56,8 +56,8 @@ public class AdminAuthMiddleware implements HandlerInterceptor {
                 return responseTransform(response, 403, "当前管理员禁止登录");
             }
 
-            PlayEduThreadLocal.setAdminUserId(payload.getSub());
-            PlayEduThreadLocal.setAdminUser(adminUser);
+            PlayEduBackendThreadLocal.setAdminUserId(payload.getSub());
+            PlayEduBackendThreadLocal.setAdminUser(adminUser);
 
             return HandlerInterceptor.super.preHandle(request, response, handler);
         } catch (Exception e) {
@@ -79,7 +79,7 @@ public class AdminAuthMiddleware implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        PlayEduThreadLocal.remove();
+        PlayEduBackendThreadLocal.remove();
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }

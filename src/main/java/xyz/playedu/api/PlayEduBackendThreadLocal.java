@@ -4,11 +4,11 @@ import xyz.playedu.api.domain.AdminUser;
 
 import java.util.LinkedHashMap;
 
-public class PlayEduThreadLocal {
+public class PlayEduBackendThreadLocal {
 
     private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL = new java.lang.ThreadLocal<>();
 
-    public PlayEduThreadLocal() {
+    public PlayEduBackendThreadLocal() {
     }
 
     public static void put(String key, Object val) {
