@@ -11,4 +11,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface UserDepartmentService extends IService<UserDepartment> {
 
     void removeByUserId(Integer userId);
+    void removeByDepId(Integer depId);
 }

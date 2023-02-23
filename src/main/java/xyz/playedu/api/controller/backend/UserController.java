@@ -213,4 +213,9 @@ public class UserController {
         return JsonResponse.success();
     }
 
+    @PostMapping("/store-batch")
+    public JsonResponse batchStore() {
+        return null;
+    }
+
 }

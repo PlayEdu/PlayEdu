@@ -2,11 +2,13 @@ package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.bus.DepartmentBus;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.Department;
+import xyz.playedu.api.event.DepartmentDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.DepartmentRequest;
@@ -30,6 +32,9 @@ public class DepartmentController {
 
     @Autowired
     private DepartmentBus departmentBus;
+
+    @Autowired
+    private ApplicationContext ctx;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_INDEX)
     @GetMapping("/index")
@@ -90,6 +95,9 @@ public class DepartmentController {
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
         departmentService.deleteById(department.getId());
+
+        ctx.publishEvent(new DepartmentDestroyEvent(this, id, new Date()));
+
         return JsonResponse.success();
     }
 

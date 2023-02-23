@@ -18,6 +18,11 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
     public void removeByUserId(Integer userId) {
         remove(query().getWrapper().eq("user_id", userId));
     }
+
+    @Override
+    public void removeByDepId(Integer depId) {
+        remove(query().getWrapper().eq("dep_id", depId));
+    }
 }
 
 
