@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.playedu.api.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.User">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="email" column="email" jdbcType="VARCHAR"/>
+            <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="salt" column="salt" jdbcType="VARCHAR"/>
+            <result property="idCard" column="id_card" jdbcType="VARCHAR"/>
+            <result property="credit1" column="credit1" jdbcType="INTEGER"/>
+            <result property="createIp" column="create_ip" jdbcType="VARCHAR"/>
+            <result property="createCity" column="create_city" jdbcType="VARCHAR"/>
+            <result property="isActive" column="is_active" jdbcType="TINYINT"/>
+            <result property="isLock" column="is_lock" jdbcType="TINYINT"/>
+            <result property="isVerify" column="is_verify" jdbcType="TINYINT"/>
+            <result property="verifyAt" column="verify_at" jdbcType="TIMESTAMP"/>
+            <result property="isSetPassword" column="is_set_password" jdbcType="TINYINT"/>
+            <result property="loginAt" column="login_at" jdbcType="TIMESTAMP"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,email,nickname,
+        name,avatar,password,
+        salt,id_card,credit1,
+        create_ip,create_city,is_active,
+        is_lock,is_verify,verify_at,
+        is_set_password,login_at,created_at,
+        updated_at
+    </sql>
+</mapper>

@@ -52,14 +52,6 @@ public class AdminUserController {
 
         PaginationResult<AdminUser> result = adminUserService.paginate(page, size, filter);
 
-        ArrayList<AdminUser> data = new ArrayList<>();
-        for (AdminUser adminUser : result.getData()) {
-            adminUser.setPassword(null);
-            adminUser.setSalt(null);
-            data.add(adminUser);
-        }
-        result.setData(data);
-
         return JsonResponse.data(result);
     }
 
