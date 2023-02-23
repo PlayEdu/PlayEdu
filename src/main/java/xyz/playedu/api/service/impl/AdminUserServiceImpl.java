@@ -8,7 +8,7 @@ import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.mapper.AdminUserMapper;
 import org.springframework.stereotype.Service;
-import xyz.playedu.api.types.PaginationResult;
+import xyz.playedu.api.types.paginate.PaginationResult;
 
 @Service
 public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser> implements AdminUserService {

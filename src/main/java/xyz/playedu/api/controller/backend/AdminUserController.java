@@ -14,7 +14,7 @@ import xyz.playedu.api.request.backend.AdminUserRequest;
 import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.service.AdminUserRoleService;
 import xyz.playedu.api.service.AdminUserService;
-import xyz.playedu.api.types.PaginationResult;
+import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
 

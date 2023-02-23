@@ -5,4 +5,6 @@ public class BackendConstant {
 
     public final static String[] RESOURCE_TYPE_WHITELIST = {"IMAGE", "PDF", "VIDEO", "WORD", "PPT"};
 
+    public final static String[] RESOURCE_DISK_WHITELIST = {"MINIO"};
+
 }
