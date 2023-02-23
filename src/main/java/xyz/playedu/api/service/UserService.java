@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 
+import java.util.List;
+
 /**
  * @author tengteng
  * @description 针对表【users】的数据库操作Service
@@ -14,4 +16,6 @@ public interface UserService extends IService<User> {
     boolean emailIsExists(String email);
 
     PaginationResult<User> paginate(int page, int size, UserPaginateFilter filter);
+
+    List<String> existsEmailsByEmails(List<String> emails);
 }

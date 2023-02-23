@@ -2,8 +2,6 @@ package xyz.playedu.api.types;
 
 import lombok.Data;
 
-import java.util.HashMap;
-
 /**
  * @see https://www.rfc-editor.org/rfc/rfc7519#section-4.1
  */

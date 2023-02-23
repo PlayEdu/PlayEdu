@@ -115,6 +115,16 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         }
         updateBatchById(updateRows);
     }
+
+    @Override
+    public List<Integer> allIds() {
+        List<Department> departments = list(query().getWrapper().eq("1", "1").select("id"));
+        List<Integer> ids = new ArrayList<>();
+        for (Department department : departments) {
+            ids.add(department.getId());
+        }
+        return ids;
+    }
 }
 
 

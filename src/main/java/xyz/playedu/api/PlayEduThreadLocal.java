@@ -9,15 +9,8 @@ public class PlayEduThreadLocal {
     private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL = new java.lang.ThreadLocal<>();
 
     public PlayEduThreadLocal() {
-
     }
 
-    /**
-     * 写入变量
-     *
-     * @param key
-     * @param val
-     */
     public static void put(String key, Object val) {
         LinkedHashMap<String, Object> hashMap = THREAD_LOCAL.get();
         if (hashMap == null) {

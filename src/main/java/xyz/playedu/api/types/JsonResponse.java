@@ -34,4 +34,8 @@ public class JsonResponse {
     public static JsonResponse error(String msg) {
         return new JsonResponse(-1, msg, null);
     }
+
+    public static JsonResponse error(String msg, Object data) {
+        return new JsonResponse(-1, msg, data);
+    }
 }

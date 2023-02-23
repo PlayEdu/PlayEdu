@@ -23,4 +23,6 @@ public interface DepartmentService extends IService<Department> {
 
     void update(Department department, String name, Integer parentId, Integer sort) throws NotFoundException;
 
+    List<Integer> allIds();
+
 }

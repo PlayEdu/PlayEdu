@@ -11,7 +11,9 @@ import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.event.UserDestroyEvent;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
+import xyz.playedu.api.request.backend.UserImportRequest;
 import xyz.playedu.api.request.backend.UserRequest;
+import xyz.playedu.api.service.DepartmentService;
 import xyz.playedu.api.service.UserDepartmentService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
@@ -40,11 +42,26 @@ public class UserController {
     private UserDepartmentService userDepartmentService;
 
     @Autowired
+    private DepartmentService departmentService;
+
+    @Autowired
     private ApplicationContext context;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
-    public JsonResponse index(@RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "size", defaultValue = "10") Integer size, @RequestParam(name = "name", required = false) String name, @RequestParam(name = "email", required = false) String email, @RequestParam(name = "nickname", required = false) String nickname, @RequestParam(name = "id_card", required = false) String idCard, @RequestParam(name = "is_active", required = false) Integer isActive, @RequestParam(name = "is_lock", required = false) Integer isLock, @RequestParam(name = "is_verify", required = false) Integer isVerify, @RequestParam(name = "is_set_password", required = false) Integer isSetPassword, @RequestParam(name = "created_at", required = false) Date[] createdAt) {
+    public JsonResponse index(
+            @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @RequestParam(name = "size", defaultValue = "10") Integer size,
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "email", required = false) String email,
+            @RequestParam(name = "nickname", required = false) String nickname,
+            @RequestParam(name = "id_card", required = false) String idCard,
+            @RequestParam(name = "is_active", required = false) Integer isActive,
+            @RequestParam(name = "is_lock", required = false) Integer isLock,
+            @RequestParam(name = "is_verify", required = false) Integer isVerify,
+            @RequestParam(name = "is_set_password", required = false) Integer isSetPassword,
+            @RequestParam(name = "created_at", required = false) Date[] createdAt
+    ) {
         UserPaginateFilter filter = new UserPaginateFilter();
         if (name != null && name.length() > 0) {
             filter.setName(name);
@@ -214,8 +231,129 @@ public class UserController {
     }
 
     @PostMapping("/store-batch")
-    public JsonResponse batchStore() {
-        return null;
+    @Transactional
+    public JsonResponse batchStore(@RequestBody @Validated UserImportRequest request) {
+        String[][] users = request.getUsers();
+        if (users.length == 0) {
+            return JsonResponse.error("数据为空");
+        }
+        if (users.length > 1000) {
+            return JsonResponse.error("一次最多导入1000条数据");
+        }
+
+        Integer startLine = request.getStartLine();
+
+        List<String[]> errorLines = new ArrayList<>();
+        errorLines.add(new String[]{"错误行", "错误信息"});//表头
+
+        // 参数长度校验
+        for (int i = 0; i < users.length; i++) {
+            if (users[i].length != 6) {
+                errorLines.add(new String[]{"第" + (i + startLine) + "行", "参数错误"});
+            }
+        }
+        if (errorLines.size() > 1) {
+            return JsonResponse.error("导入数据有误", errorLines);
+        }
+
+        // 读取存在的部门
+        List<Integer> depIds = departmentService.allIds();
+
+        // 邮箱输入重复检测 || 部门存在检测
+        HashMap<String, Integer> emailMap = new HashMap<>();
+        HashMap<String, String[]> depMap = new HashMap<>();
+        List<String> emails = new ArrayList<>();
+        List<User> insertUsers = new ArrayList<>();
+        for (int i = 0; i < users.length; i++) {
+            //c0: 部门ids数组
+            //c1: 邮箱
+            //c2: 昵称
+            //c3: 密码
+            //c4: 姓名
+            //c5: 身份证号
+
+            String tmpEmail = users[i][1];
+            if (emailMap.get(tmpEmail) != null) {//存在重复
+                errorLines.add(new String[]{"第" + (i + startLine) + "行", "邮箱重复"});
+            } else {
+                emailMap.put(tmpEmail, i + startLine);
+            }
+
+            emails.add(tmpEmail);
+
+            // 部门存在检测
+            if (users[i][0] != null && users[i][0].length() > 0) {
+                String[] tmpDepIds = users[i][0].split(",");
+                for (int j = 0; j < tmpDepIds.length; j++) {
+                    if (!depIds.contains(Integer.valueOf(tmpDepIds[j]))) {
+                        errorLines.add(new String[]{"第" + (i + startLine) + "行", "部门id[" + tmpDepIds[j] + "]不存在"});
+                    }
+                }
+                depMap.put(users[i][1], tmpDepIds);
+            }
+
+            // 昵称为空检测
+            if (users[i][2] == null || users[i][2].length() == 0) {
+                errorLines.add(new String[]{"第" + (i + startLine) + "行", "昵称为空"});
+            }
+
+            // 密码为空检测
+            if (users[i][3] == null || users[i][3].length() == 0) {
+                errorLines.add(new String[]{"第" + (i + startLine) + "行", "密码为空"});
+            }
+
+            // 带插入数据
+            User tmpInsertUser = new User();
+            String tmpSalt = HelperUtil.randomString(6);
+            String tmpPassword = HelperUtil.MD5(users[i][3] + tmpSalt);
+            tmpInsertUser.setEmail(users[i][1]);
+            tmpInsertUser.setNickname(users[i][2]);
+            tmpInsertUser.setPassword(tmpPassword);
+            tmpInsertUser.setSalt(tmpSalt);
+            tmpInsertUser.setName(users[i][4]);
+            tmpInsertUser.setIdCard(users[i][5]);
+            tmpInsertUser.setCreateIp("127.0.0.1");
+            tmpInsertUser.setCreateCity("内网");
+            tmpInsertUser.setCreatedAt(new Date());
+            tmpInsertUser.setUpdatedAt(new Date());
+
+            insertUsers.add(tmpInsertUser);
+        }
+
+        if (errorLines.size() > 1) {
+            return JsonResponse.error("导入数据有误", errorLines);
+        }
+
+        // 邮箱是否注册检测
+        List<String> existsEmails = userService.existsEmailsByEmails(emails);
+        if (existsEmails.size() > 0) {
+            for (String tmpEmail : existsEmails) {
+                errorLines.add(new String[]{"第" + emailMap.get(tmpEmail) + "行", "邮箱已注册"});
+            }
+        }
+        if (errorLines.size() > 1) {
+            return JsonResponse.error("导入数据有误", errorLines);
+        }
+
+        userService.saveBatch(insertUsers);
+
+        // 部门关联
+        List<UserDepartment> userDepartments = new ArrayList<>();
+        for (User tmpUser : insertUsers) {
+            String[] tmpDepIds = depMap.get(tmpUser.getEmail());
+            if (tmpDepIds != null) {
+                for (int i = 0; i < tmpDepIds.length; i++) {
+                    UserDepartment tmpUserDep = new UserDepartment();
+                    tmpUserDep.setUserId(tmpUser.getId());
+                    tmpUserDep.setDepId(Integer.valueOf(tmpDepIds[i]));
+
+                    userDepartments.add(tmpUserDep);
+                }
+            }
+        }
+        userDepartmentService.saveBatch(userDepartments);
+
+        return JsonResponse.success();
     }
 
 }

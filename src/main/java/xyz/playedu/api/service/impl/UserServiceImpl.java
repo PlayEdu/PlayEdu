@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author tengteng
  * @description 针对表【users】的数据库操作Service实现
@@ -71,6 +74,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         pageResult.setTotal(userPage.getTotal());
 
         return pageResult;
+    }
+
+    @Override
+    public List<String> existsEmailsByEmails(List<String> emails) {
+        List<User> users = list(query().getWrapper().in("email", emails).select("id", "email"));
+        List<String> existsEmails = new ArrayList<>();
+        for (User user : users) {
+            existsEmails.add(user.getEmail());
+        }
+        return existsEmails;
     }
 }
 
