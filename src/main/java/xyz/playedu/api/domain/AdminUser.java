@@ -4,21 +4,22 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * 
  * @TableName admin_users
  */
-@TableName(value ="admin_users")
+@TableName(value = "admin_users")
 @Data
 public class AdminUser implements Serializable {
     /**
-     * 
+     *
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -48,31 +49,31 @@ public class AdminUser implements Serializable {
     /**
      * 登录IP
      */
+    @JsonProperty("login_ip")
     private String loginIp;
 
     /**
      * 登录时间
      */
+    @JsonProperty("login_at")
     private Date loginAt;
 
     /**
      * 1禁止登录,0否
      */
+    @JsonProperty("is_ban_login")
     private Integer isBanLogin;
 
     /**
      * 登录次数
      */
+    @JsonProperty("login_times")
     private Integer loginTimes;
 
-    /**
-     * 
-     */
+    @JsonProperty("created_at")
     private Date createdAt;
 
-    /**
-     * 
-     */
+    @JsonProperty("updated_at")
     private Date updatedAt;
 
     @TableField(exist = false)
@@ -91,16 +92,16 @@ public class AdminUser implements Serializable {
         }
         AdminUser other = (AdminUser) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-            && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
-            && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
-            && (this.getSalt() == null ? other.getSalt() == null : this.getSalt().equals(other.getSalt()))
-            && (this.getLoginIp() == null ? other.getLoginIp() == null : this.getLoginIp().equals(other.getLoginIp()))
-            && (this.getLoginAt() == null ? other.getLoginAt() == null : this.getLoginAt().equals(other.getLoginAt()))
-            && (this.getIsBanLogin() == null ? other.getIsBanLogin() == null : this.getIsBanLogin().equals(other.getIsBanLogin()))
-            && (this.getLoginTimes() == null ? other.getLoginTimes() == null : this.getLoginTimes().equals(other.getLoginTimes()))
-            && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
-            && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()));
+                && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
+                && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
+                && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
+                && (this.getSalt() == null ? other.getSalt() == null : this.getSalt().equals(other.getSalt()))
+                && (this.getLoginIp() == null ? other.getLoginIp() == null : this.getLoginIp().equals(other.getLoginIp()))
+                && (this.getLoginAt() == null ? other.getLoginAt() == null : this.getLoginAt().equals(other.getLoginAt()))
+                && (this.getIsBanLogin() == null ? other.getIsBanLogin() == null : this.getIsBanLogin().equals(other.getIsBanLogin()))
+                && (this.getLoginTimes() == null ? other.getLoginTimes() == null : this.getLoginTimes().equals(other.getLoginTimes()))
+                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
+                && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()));
     }
 
     @Override

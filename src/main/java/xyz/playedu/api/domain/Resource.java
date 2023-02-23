@@ -4,19 +4,21 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * 
  * @TableName resources
  */
-@TableName(value ="resources")
+@TableName(value = "resources")
 @Data
 public class Resource implements Serializable {
     /**
-     * 
+     *
      */
     @TableId(type = IdType.AUTO)
     private Long id;
@@ -24,6 +26,7 @@ public class Resource implements Serializable {
     /**
      * 分类id
      */
+    @JsonProperty("category_id")
     private Integer categoryId;
 
     /**
@@ -49,6 +52,7 @@ public class Resource implements Serializable {
     /**
      * 文件id
      */
+    @JsonProperty("file_id")
     private String fileId;
 
     /**
@@ -61,9 +65,7 @@ public class Resource implements Serializable {
      */
     private String url;
 
-    /**
-     * 
-     */
+    @JsonProperty("created_at")
     private Date createdAt;
 
     @TableField(exist = false)
@@ -82,15 +84,15 @@ public class Resource implements Serializable {
         }
         Resource other = (Resource) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getCategoryId() == null ? other.getCategoryId() == null : this.getCategoryId().equals(other.getCategoryId()))
-            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-            && (this.getExtension() == null ? other.getExtension() == null : this.getExtension().equals(other.getExtension()))
-            && (this.getSize() == null ? other.getSize() == null : this.getSize().equals(other.getSize()))
-            && (this.getDisk() == null ? other.getDisk() == null : this.getDisk().equals(other.getDisk()))
-            && (this.getFileId() == null ? other.getFileId() == null : this.getFileId().equals(other.getFileId()))
-            && (this.getPath() == null ? other.getPath() == null : this.getPath().equals(other.getPath()))
-            && (this.getUrl() == null ? other.getUrl() == null : this.getUrl().equals(other.getUrl()))
-            && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
+                && (this.getCategoryId() == null ? other.getCategoryId() == null : this.getCategoryId().equals(other.getCategoryId()))
+                && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
+                && (this.getExtension() == null ? other.getExtension() == null : this.getExtension().equals(other.getExtension()))
+                && (this.getSize() == null ? other.getSize() == null : this.getSize().equals(other.getSize()))
+                && (this.getDisk() == null ? other.getDisk() == null : this.getDisk().equals(other.getDisk()))
+                && (this.getFileId() == null ? other.getFileId() == null : this.getFileId().equals(other.getFileId()))
+                && (this.getPath() == null ? other.getPath() == null : this.getPath().equals(other.getPath()))
+                && (this.getUrl() == null ? other.getUrl() == null : this.getUrl().equals(other.getUrl()))
+                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
     }
 
     @Override

@@ -4,19 +4,21 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * 
  * @TableName admin_roles
  */
-@TableName(value ="admin_roles")
+@TableName(value = "admin_roles")
 @Data
 public class AdminRole implements Serializable {
     /**
-     * 
+     *
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -31,14 +33,10 @@ public class AdminRole implements Serializable {
      */
     private String slug;
 
-    /**
-     * 
-     */
+    @JsonProperty("created_at")
     private Date createdAt;
 
-    /**
-     * 
-     */
+    @JsonProperty("updated_at")
     private Date updatedAt;
 
     @TableField(exist = false)
@@ -57,10 +55,10 @@ public class AdminRole implements Serializable {
         }
         AdminRole other = (AdminRole) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-            && (this.getSlug() == null ? other.getSlug() == null : this.getSlug().equals(other.getSlug()))
-            && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
-            && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()));
+                && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
+                && (this.getSlug() == null ? other.getSlug() == null : this.getSlug().equals(other.getSlug()))
+                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
+                && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()));
     }
 
     @Override

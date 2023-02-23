@@ -2,24 +2,22 @@ package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * 
  * @TableName admin_user_role
  */
-@TableName(value ="admin_user_role")
+@TableName(value = "admin_user_role")
 @Data
 public class AdminUserRole implements Serializable {
-    /**
-     * 
-     */
+    @JsonProperty("admin_id")
     private Integer adminId;
 
-    /**
-     * 
-     */
+    @JsonProperty("role_id")
     private Integer roleId;
 
     @TableField(exist = false)
@@ -38,7 +36,7 @@ public class AdminUserRole implements Serializable {
         }
         AdminUserRole other = (AdminUserRole) that;
         return (this.getAdminId() == null ? other.getAdminId() == null : this.getAdminId().equals(other.getAdminId()))
-            && (this.getRoleId() == null ? other.getRoleId() == null : this.getRoleId().equals(other.getRoleId()));
+                && (this.getRoleId() == null ? other.getRoleId() == null : this.getRoleId().equals(other.getRoleId()));
     }
 
     @Override
