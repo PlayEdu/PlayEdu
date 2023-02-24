@@ -13,6 +13,13 @@ import java.util.*;
 
 public class HelperUtil {
 
+
+    public static List<Integer> zeroIntegerList() {
+        List<Integer> list = new ArrayList<>(1);
+        list.add(0);
+        return list;
+    }
+
     public static String MD5(String text) {
         return DigestUtils.md5DigestAsHex(text.getBytes(StandardCharsets.UTF_8));
     }

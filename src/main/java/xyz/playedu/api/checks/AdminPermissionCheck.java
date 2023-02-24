@@ -44,6 +44,7 @@ public class AdminPermissionCheck implements ApplicationRunner {
             {"学员", "15", "学员-删除", BPermissionConstant.USER_DESTROY},
 
             {"课程分类", "0", "课程分类", BPermissionConstant.COURSE_CATEGORY},
+            {"课程", "0", "课程", BPermissionConstant.COURSE},
     };
 
     @Override
