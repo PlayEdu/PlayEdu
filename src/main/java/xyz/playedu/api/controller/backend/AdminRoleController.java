@@ -8,17 +8,13 @@ import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminPermission;
 import xyz.playedu.api.domain.AdminRole;
-import xyz.playedu.api.domain.AdminRolePermission;
+import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.AdminRoleRequest;
 import xyz.playedu.api.service.AdminPermissionService;
-import xyz.playedu.api.service.AdminRolePermissionService;
 import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.types.JsonResponse;
-import xyz.playedu.api.util.HelperUtil;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,9 +31,6 @@ public class AdminRoleController {
 
     @Autowired
     private AdminPermissionService permissionService;
-
-    @Autowired
-    private AdminRolePermissionService rolePermissionService;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @GetMapping("/index")
@@ -57,91 +50,41 @@ public class AdminRoleController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @PostMapping("/create")
-    @Transactional
     public JsonResponse store(@RequestBody @Validated AdminRoleRequest request) {
-        AdminRole role = new AdminRole();
-
-        role.setName(request.getName());
-        role.setSlug(HelperUtil.randomString(12));
-        role.setCreatedAt(new Date());
-        role.setUpdatedAt(new Date());
-
-        roleService.save(role);
-
-        if (request.getPermissionIds().length > 0) {
-            List<AdminRolePermission> rolePermissions = new ArrayList<>();
-            for (int i = 0; i < request.getPermissionIds().length; i++) {
-                AdminRolePermission rolePermission = new AdminRolePermission();
-                rolePermission.setRoleId(role.getId());
-                rolePermission.setPermId(request.getPermissionIds()[i]);
-                rolePermissions.add(rolePermission);
-            }
-            rolePermissionService.saveBatch(rolePermissions);
-        }
-
+        roleService.createWithPermissionIds(request.getName(), request.getPermissionIds());
         return JsonResponse.success();
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @GetMapping("/{id}")
-    public JsonResponse edit(@PathVariable(name = "id") Integer id) {
-        AdminRole role = roleService.getById(id);
-        if (role == null) {
-            return JsonResponse.error("管理角色不存在");
-        }
+    public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
+        AdminRole role = roleService.findOrFail(id);
         return JsonResponse.data(role);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @PutMapping("/{id}")
-    @Transactional
-    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated AdminRoleRequest request) {
-        AdminRole role = roleService.getById(id);
-        if (role == null) {
-            return JsonResponse.error("管理角色不存在");
-        }
-        if (role.getSlug() == BackendConstant.SUPER_ADMIN_ROLE) {
+    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated AdminRoleRequest request) throws NotFoundException {
+        AdminRole role = roleService.findOrFail(id);
+        if (role.getSlug().equals(BackendConstant.SUPER_ADMIN_ROLE)) {
             return JsonResponse.error("超级管理权限无法编辑");
         }
 
-        AdminRole newRole = new AdminRole();
-        newRole.setId(role.getId());
-        newRole.setName(request.getName());
-
-        roleService.updateById(newRole);
-
-        // 先清空已有的权限
-        rolePermissionService.removeRolePermissionsByRoleId(role.getId());
-
-        if (request.getPermissionIds().length > 0) {
-            // 重新关联权限
-            List<AdminRolePermission> rolePermissions = new ArrayList<>();
-            for (int i = 0; i < request.getPermissionIds().length; i++) {
-                AdminRolePermission rolePermission = new AdminRolePermission();
-                rolePermission.setRoleId(role.getId());
-                rolePermission.setPermId(request.getPermissionIds()[i]);
-                rolePermissions.add(rolePermission);
-            }
-            rolePermissionService.saveBatch(rolePermissions);
-        }
+        roleService.updateWithPermissionIds(role, request.getName(), request.getPermissionIds());
 
         return JsonResponse.success();
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @DeleteMapping("/{id}")
-    @Transactional
-    public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
-        AdminRole role = roleService.getById(id);
-        if (role == null) {
-            return JsonResponse.error("角色不存在");
-        }
-        if (role.getSlug() == BackendConstant.SUPER_ADMIN_ROLE) {
+    public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
+        AdminRole role = roleService.findOrFail(id);
+
+        if (role.getSlug().equals(BackendConstant.SUPER_ADMIN_ROLE)) {
             return JsonResponse.error("超级管理角色无法删除");
         }
 
-        rolePermissionService.removeRolePermissionsByRoleId(role.getId());
-        roleService.removeById(role.getId());
+        roleService.removeWithPermissions(role);
 
         return JsonResponse.success();
     }

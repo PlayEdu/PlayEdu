@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface AdminRolePermissionService extends IService<AdminRolePermission> {
 
-    void removeRolePermissionsByRoleId(Integer roleId);
+    void removeByRoleId(Integer roleId);
 
     List<Integer> getPermissionIdsByRoleIds(List<Integer> roleIds);
 }

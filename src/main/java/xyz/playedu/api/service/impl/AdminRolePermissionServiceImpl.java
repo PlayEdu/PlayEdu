@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 public class AdminRolePermissionServiceImpl extends ServiceImpl<AdminRolePermissionMapper, AdminRolePermission> implements AdminRolePermissionService {
     @Override
-    public void removeRolePermissionsByRoleId(Integer roleId) {
+    public void removeByRoleId(Integer roleId) {
         remove(query().getWrapper().eq("role_id", roleId));
     }
 
