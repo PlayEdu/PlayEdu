@@ -1,7 +1,6 @@
 package xyz.playedu.api.controller.backend;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.constant.BPermissionConstant;
@@ -43,8 +42,10 @@ public class AdminRoleController {
     @GetMapping("/create")
     public JsonResponse create() {
         List<AdminPermission> permissions = permissionService.listOrderBySortAsc();
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("permissions", permissions);
+
         return JsonResponse.data(data);
     }
 
@@ -59,7 +60,13 @@ public class AdminRoleController {
     @GetMapping("/{id}")
     public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
         AdminRole role = roleService.findOrFail(id);
-        return JsonResponse.data(role);
+        List<Integer> permissionIds = roleService.getPermissionIdsByRoleId(role.getId());
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("role", role);
+        data.put("permission_ids", permissionIds);
+
+        return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)

@@ -4,6 +4,8 @@ import xyz.playedu.api.domain.AdminRole;
 import com.baomidou.mybatisplus.extension.service.IService;
 import xyz.playedu.api.exception.NotFoundException;
 
+import java.util.List;
+
 /**
  * @author tengteng
  * @description 针对表【admin_roles】的数据库操作Service
@@ -13,7 +15,7 @@ public interface AdminRoleService extends IService<AdminRole> {
 
     AdminRole getBySlug(String slug);
 
-    AdminRole createWithPermissionIds(String name, Integer[] permissionIds);
+    void createWithPermissionIds(String name, Integer[] permissionIds);
 
     void relatePermissions(AdminRole role, Integer[] permissionIds);
 
@@ -24,5 +26,7 @@ public interface AdminRoleService extends IService<AdminRole> {
     AdminRole findOrFail(Integer id) throws NotFoundException;
 
     void removeWithPermissions(AdminRole role);
+
+    List<Integer> getPermissionIdsByRoleId(Integer roleId);
 
 }

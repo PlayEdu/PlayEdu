@@ -34,7 +34,7 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
 
     @Override
     @Transactional
-    public AdminRole createWithPermissionIds(String name, Integer[] permissionIds) {
+    public void createWithPermissionIds(String name, Integer[] permissionIds) {
         AdminRole role = new AdminRole();
 
         role.setName(name);
@@ -46,7 +46,6 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
 
         relatePermissions(role, permissionIds);
 
-        return role;
     }
 
     @Override
@@ -98,6 +97,11 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
     public void removeWithPermissions(AdminRole role) {
         rolePermissionService.removeByRoleId(role.getId());
         removeById(role.getId());
+    }
+
+    @Override
+    public List<Integer> getPermissionIdsByRoleId(Integer roleId) {
+        return rolePermissionService.getPermissionIdsByRoleId(roleId);
     }
 }
 

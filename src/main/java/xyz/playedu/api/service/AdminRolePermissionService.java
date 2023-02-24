@@ -18,4 +18,6 @@ public interface AdminRolePermissionService extends IService<AdminRolePermission
     void removeByRoleId(Integer roleId);
 
     List<Integer> getPermissionIdsByRoleIds(List<Integer> roleIds);
+
+    List<Integer> getPermissionIdsByRoleId(Integer roleId);
 }

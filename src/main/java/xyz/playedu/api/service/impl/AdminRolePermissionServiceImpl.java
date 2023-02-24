@@ -32,6 +32,16 @@ public class AdminRolePermissionServiceImpl extends ServiceImpl<AdminRolePermiss
         }
         return ids;
     }
+
+    @Override
+    public List<Integer> getPermissionIdsByRoleId(Integer roleId) {
+        List<AdminRolePermission> rolePermissions = list(query().getWrapper().eq("role_id", roleId));
+        List<Integer> ids = new ArrayList<>();
+        for (AdminRolePermission rolePermission : rolePermissions) {
+            ids.add(rolePermission.getPermId());
+        }
+        return ids;
+    }
 }
 
 
