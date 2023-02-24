@@ -28,4 +28,6 @@ public class BPermissionConstant {
     public final static String USER_UPDATE = "user-update";
     public final static String USER_DESTROY = "user-destroy";
 
+    public final static String COURSE_CATEGORY = "course—category";
+
 }
