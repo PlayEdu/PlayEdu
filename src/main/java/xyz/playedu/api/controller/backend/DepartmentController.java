@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.bus.DepartmentBus;
+import xyz.playedu.api.PlayEduBackendThreadLocal;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.event.DepartmentDestroyEvent;
@@ -31,9 +31,6 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @Autowired
-    private DepartmentBus departmentBus;
-
-    @Autowired
     private ApplicationContext ctx;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_INDEX)
@@ -56,22 +53,8 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_STORE)
     @PostMapping("/create")
-    public JsonResponse store(@RequestBody @Validated DepartmentRequest request) throws NotFoundException {
-        String parentChain = "";
-        if (request.getParentId() != 0) {
-            parentChain = departmentBus.compParentChain(request.getParentId());
-        }
-
-        Department department = new Department();
-        department.setName(request.getName());
-        department.setParentId(request.getParentId());
-        department.setParentChain(parentChain);
-        department.setSort(request.getSort());
-        department.setCreatedAt(new Date());
-        department.setUpdatedAt(new Date());
-
-        departmentService.save(department);
-
+    public JsonResponse store(@RequestBody @Validated DepartmentRequest req) throws NotFoundException {
+        departmentService.create(req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
 
@@ -84,9 +67,9 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_UPDATE)
     @PutMapping("/{id}")
-    public JsonResponse update(@PathVariable Integer id, @RequestBody DepartmentRequest request) throws NotFoundException {
+    public JsonResponse update(@PathVariable Integer id, @RequestBody DepartmentRequest req) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
-        departmentService.update(department, request.getName(), request.getParentId(), request.getSort());
+        departmentService.update(department, req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
 
@@ -95,9 +78,7 @@ public class DepartmentController {
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
         departmentService.deleteById(department.getId());
-
-        ctx.publishEvent(new DepartmentDestroyEvent(this, id, new Date()));
-
+        ctx.publishEvent(new DepartmentDestroyEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), department.getId(), new Date()));
         return JsonResponse.success();
     }
 

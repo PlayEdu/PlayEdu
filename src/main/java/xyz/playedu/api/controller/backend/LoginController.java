@@ -1,6 +1,5 @@
 package xyz.playedu.api.controller.backend;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +24,6 @@ import xyz.playedu.api.util.RequestUtil;
 import java.util.Date;
 import java.util.HashMap;
 
-@Slf4j
 @RestController
 @RequestMapping("/backend/v1/auth")
 public class LoginController {
@@ -44,14 +42,14 @@ public class LoginController {
     public JsonResponse login(@RequestBody @Validated LoginRequest loginRequest) {
         AdminUser adminUser = adminUserService.findByEmail(loginRequest.email);
         if (adminUser == null) {
-            return JsonResponse.error("邮箱不存在");
+            return JsonResponse.error("邮箱或密码错误");
         }
         String password = HelperUtil.MD5(loginRequest.getPassword() + adminUser.getSalt()).toLowerCase();
         if (!adminUser.getPassword().equals(password)) {
-            return JsonResponse.error("密码错误");
+            return JsonResponse.error("邮箱或密码错误");
         }
         if (adminUser.getIsBanLogin() == 1) {
-            return JsonResponse.error("当前用户禁止登录");
+            return JsonResponse.error("当前用户已禁止登录");
         }
 
         String url = RequestUtil.url();

@@ -15,10 +15,12 @@ import java.util.Date;
 public class DepartmentDestroyEvent extends ApplicationEvent {
 
     private Integer depId;
+    private Integer adminId;
     private Date at;
 
-    public DepartmentDestroyEvent(Object source, Integer depId, Date date) {
+    public DepartmentDestroyEvent(Object source, Integer adminId, Integer depId, Date date) {
         super(source);
+        this.adminId = adminId;
         this.depId = depId;
         this.at = date;
     }

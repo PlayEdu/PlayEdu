@@ -1,11 +1,8 @@
 package xyz.playedu.api.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import xyz.playedu.api.bus.DepartmentBus;
 import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.DepartmentService;
@@ -13,7 +10,7 @@ import xyz.playedu.api.mapper.DepartmentMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,7 +45,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Transactional
     public void deleteById(Integer id) throws NotFoundException {
         Department department = findOrFail(id);
-        updateParentChain(department.getParentChain(), DepartmentBus.childrenParentChain(department));
+        updateParentChain(department.getParentChain(), childrenParentChain(department));
         removeById(department.getId());
     }
 
@@ -56,7 +53,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Transactional
     public void update(Department department, String name, Integer parentId, Integer sort) throws NotFoundException {
         //计算该部门作为其它子部门的parentChain值
-        String childrenChainPrefix = DepartmentBus.childrenParentChain(department);
+        String childrenChainPrefix = childrenParentChain(department);
 
         Department data = new Department();
         data.setId(department.getId());
@@ -71,7 +68,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
                 data.setParentChain("");
             } else {
                 Department parentDepartment = findOrFail(parentId);
-                data.setParentChain(DepartmentBus.childrenParentChain(parentDepartment));
+                data.setParentChain(childrenParentChain(parentDepartment));
             }
         }
         if (!department.getSort().equals(sort)) {//更换部门排序值
@@ -82,7 +79,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         updateById(data);
 
         department = getById(department.getId());
-        updateParentChain(DepartmentBus.childrenParentChain(department), childrenChainPrefix);
+        updateParentChain(childrenParentChain(department), childrenChainPrefix);
     }
 
     private void updateParentChain(String newChildrenPC, String oldChildrenPC) {
@@ -124,6 +121,47 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
             ids.add(department.getId());
         }
         return ids;
+    }
+
+    @Override
+    public String compParentChain(Integer parentId) throws NotFoundException {
+        String parentChain = "";
+        if (parentId != 0) {
+            Department parentDepartment = getById(parentId);
+            if (parentDepartment == null) {
+                throw new NotFoundException("父级部门不存在");
+            }
+            String pc = parentDepartment.getParentChain();
+            parentChain = pc == null || pc.length() == 0 ? parentId + "" : pc + "," + parentId;
+        }
+        return parentChain;
+    }
+
+    @Override
+    public String childrenParentChain(Department department) {
+        String prefix = department.getId() + "";
+        if (department.getParentChain() != null && department.getParentChain().length() > 0) {
+            prefix = department.getParentChain() + "," + prefix;
+        }
+        return prefix;
+    }
+
+    @Override
+    public void create(String name, Integer parentId, Integer sort) throws NotFoundException {
+        String parentChain = "";
+        if (parentId != 0) {
+            parentChain = compParentChain(parentId);
+        }
+
+        Department department = new Department();
+        department.setName(name);
+        department.setParentId(parentId);
+        department.setParentChain(parentChain);
+        department.setSort(sort);
+        department.setCreatedAt(new Date());
+        department.setUpdatedAt(new Date());
+
+        save(department);
     }
 }
 

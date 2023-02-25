@@ -25,4 +25,10 @@ public interface DepartmentService extends IService<Department> {
 
     List<Integer> allIds();
 
+    String compParentChain(Integer parentId) throws NotFoundException;
+
+    String childrenParentChain(Department department);
+
+    void create(String name, Integer parentId, Integer sort) throws NotFoundException;
+
 }
