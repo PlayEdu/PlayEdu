@@ -1,6 +1,7 @@
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.bus.CourseCategoryBus;
 import xyz.playedu.api.domain.CourseCategory;
@@ -10,6 +11,7 @@ import xyz.playedu.api.mapper.CourseCategoryMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,6 +21,9 @@ import java.util.List;
  */
 @Service
 public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper, CourseCategory> implements CourseCategoryService {
+
+    @Autowired
+    private CourseCategoryBus categoryBus;
 
     @Override
     public List<CourseCategory> listByParentId(Integer id) {
@@ -112,6 +117,24 @@ public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper,
         updateBatchById(updateRows);
     }
 
+
+    @Override
+    public void create(String name, Integer parentId, Integer sort) throws NotFoundException {
+        String parentChain = "";
+        if (parentId != 0) {
+            parentChain = categoryBus.compParentChain(parentId);
+        }
+
+        CourseCategory category = new CourseCategory();
+        category.setName(name);
+        category.setParentId(parentId);
+        category.setParentChain(parentChain);
+        category.setSort(sort);
+        category.setCreatedAt(new Date());
+        category.setUpdatedAt(new Date());
+
+        save(category);
+    }
 }
 
 

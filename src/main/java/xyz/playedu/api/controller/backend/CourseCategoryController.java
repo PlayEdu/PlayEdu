@@ -34,9 +34,6 @@ public class CourseCategoryController {
     @Autowired
     private ApplicationContext ctx;
 
-    @Autowired
-    private CourseCategoryBus courseCategoryBus;
-
     @GetMapping("/index")
     public JsonResponse index() {
         Map<Integer, List<CourseCategory>> categories = categoryService.all().stream().collect(Collectors.groupingBy(CourseCategory::getParentId));
@@ -56,22 +53,8 @@ public class CourseCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE_CATEGORY)
     @PostMapping("/create")
-    public JsonResponse store(@RequestBody @Validated CourseCategoryRequest request) throws NotFoundException {
-        String parentChain = "";
-        if (request.getParentId() != 0) {
-            parentChain = courseCategoryBus.compParentChain(request.getParentId());
-        }
-
-        CourseCategory category = new CourseCategory();
-        category.setName(request.getName());
-        category.setParentId(request.getParentId());
-        category.setParentChain(parentChain);
-        category.setSort(request.getSort());
-        category.setCreatedAt(new Date());
-        category.setUpdatedAt(new Date());
-
-        categoryService.save(category);
-
+    public JsonResponse store(@RequestBody @Validated CourseCategoryRequest req) throws NotFoundException {
+        categoryService.create(req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
 
@@ -84,9 +67,9 @@ public class CourseCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE_CATEGORY)
     @PutMapping("/{id}")
-    public JsonResponse update(@PathVariable Integer id, @RequestBody CourseCategoryRequest request) throws NotFoundException {
+    public JsonResponse update(@PathVariable Integer id, @RequestBody CourseCategoryRequest req) throws NotFoundException {
         CourseCategory category = categoryService.findOrFail(id);
-        categoryService.update(category, request.getName(), request.getParentId(), request.getSort());
+        categoryService.update(category, req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
 

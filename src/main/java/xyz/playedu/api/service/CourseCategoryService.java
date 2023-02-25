@@ -23,4 +23,6 @@ public interface CourseCategoryService extends IService<CourseCategory> {
 
     void update(CourseCategory category, String name, Integer parentId, Integer sort) throws NotFoundException;
 
+    void create(String name, Integer parentId, Integer sort) throws NotFoundException;
+
 }
