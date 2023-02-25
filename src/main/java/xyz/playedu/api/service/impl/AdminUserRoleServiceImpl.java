@@ -18,7 +18,7 @@ import java.util.List;
 public class AdminUserRoleServiceImpl extends ServiceImpl<AdminUserRoleMapper, AdminUserRole> implements AdminUserRoleService {
 
     @Override
-    public void removeUserRolesByUserId(Integer userId) {
+    public void removeByUserId(Integer userId) {
         remove(query().getWrapper().eq("admin_id", userId));
     }
 

@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface AdminUserRoleService extends IService<AdminUserRole> {
 
-    void removeUserRolesByUserId(Integer userId);
+    void removeByUserId(Integer userId);
 
     List<Integer> getRoleIdsByUserId(Integer userId);
 
