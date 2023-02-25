@@ -3,7 +3,6 @@ package xyz.playedu.api.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import xyz.playedu.api.bus.CourseCategoryBus;
 import xyz.playedu.api.domain.CourseCategory;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.CourseCategoryService;
@@ -21,9 +20,6 @@ import java.util.List;
  */
 @Service
 public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper, CourseCategory> implements CourseCategoryService {
-
-    @Autowired
-    private CourseCategoryBus categoryBus;
 
     @Override
     public List<CourseCategory> listByParentId(Integer id) {
@@ -49,7 +45,7 @@ public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper,
     public void deleteById(Integer id) throws NotFoundException {
         CourseCategory category = findOrFail(id);
         //更新parent_chain
-        updateParentChain(category.getParentChain(), CourseCategoryBus.childrenParentChain(category));
+        updateParentChain(category.getParentChain(), childrenParentChain(category));
         //删除记录
         removeById(category.getId());
     }
@@ -57,7 +53,7 @@ public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper,
     @Override
     @Transactional
     public void update(CourseCategory category, String name, Integer parentId, Integer sort) throws NotFoundException {
-        String childrenChainPrefix = CourseCategoryBus.childrenParentChain(category);
+        String childrenChainPrefix = childrenParentChain(category);
 
         CourseCategory data = new CourseCategory();
         data.setId(category.getId());
@@ -72,7 +68,7 @@ public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper,
                 data.setParentChain("");
             } else {
                 CourseCategory parentCourseCategory = findOrFail(parentId);
-                data.setParentChain(CourseCategoryBus.childrenParentChain(parentCourseCategory));
+                data.setParentChain(childrenParentChain(parentCourseCategory));
             }
         }
         if (!category.getSort().equals(sort)) {
@@ -83,7 +79,7 @@ public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper,
         updateById(data);
 
         category = getById(category.getId());
-        updateParentChain(CourseCategoryBus.childrenParentChain(category), childrenChainPrefix);
+        updateParentChain(childrenParentChain(category), childrenChainPrefix);
     }
 
     private void updateParentChain(String newChildrenPC, String oldChildrenPC) {
@@ -122,7 +118,7 @@ public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper,
     public void create(String name, Integer parentId, Integer sort) throws NotFoundException {
         String parentChain = "";
         if (parentId != 0) {
-            parentChain = categoryBus.compParentChain(parentId);
+            parentChain = compParentChain(parentId);
         }
 
         CourseCategory category = new CourseCategory();
@@ -134,6 +130,29 @@ public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper,
         category.setUpdatedAt(new Date());
 
         save(category);
+    }
+
+    @Override
+    public String childrenParentChain(CourseCategory category) {
+        String prefix = category.getId() + "";
+        if (category.getParentChain() != null && category.getParentChain().length() > 0) {
+            prefix = category.getParentChain() + "," + prefix;
+        }
+        return prefix;
+    }
+
+    @Override
+    public String compParentChain(Integer parentId) throws NotFoundException {
+        String parentChain = "";
+        if (parentId != 0) {
+            CourseCategory parentCourseCategory = getById(parentId);
+            if (parentCourseCategory == null) {
+                throw new NotFoundException("父级分类不存在");
+            }
+            String pc = parentCourseCategory.getParentChain();
+            parentChain = pc == null || pc.length() == 0 ? parentId + "" : pc + "," + parentId;
+        }
+        return parentChain;
     }
 }
 

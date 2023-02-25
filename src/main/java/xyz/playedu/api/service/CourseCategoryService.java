@@ -25,4 +25,8 @@ public interface CourseCategoryService extends IService<CourseCategory> {
 
     void create(String name, Integer parentId, Integer sort) throws NotFoundException;
 
+    String childrenParentChain(CourseCategory category);
+
+    String compParentChain(Integer parentId) throws NotFoundException;
+
 }

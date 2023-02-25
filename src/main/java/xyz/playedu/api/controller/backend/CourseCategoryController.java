@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.bus.CourseCategoryBus;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.CourseCategory;
 import xyz.playedu.api.event.CourseCategoryDestroyEvent;
