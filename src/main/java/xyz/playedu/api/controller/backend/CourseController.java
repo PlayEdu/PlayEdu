@@ -8,15 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduBackendThreadLocal;
-import xyz.playedu.api.bus.CourseBus;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.event.CourseDestroyEvent;
+import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseRequest;
-import xyz.playedu.api.service.CategoryCourseService;
 import xyz.playedu.api.service.CourseCategoryService;
-import xyz.playedu.api.service.CourseDepartmentService;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
@@ -39,15 +37,6 @@ public class CourseController {
 
     @Autowired
     private CourseCategoryService categoryService;//课程分类
-
-    @Autowired
-    private CategoryCourseService categoryCourseService;//课程与分类的关联表
-
-    @Autowired
-    private CourseDepartmentService courseDepartmentService;//课程与部门的关联表
-
-    @Autowired
-    protected CourseBus courseBus;
 
     @Autowired
     private ApplicationContext ctx;
@@ -91,31 +80,17 @@ public class CourseController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create")
     @Transactional
-    public JsonResponse store(@RequestBody @Validated CourseRequest request) {
-        Course course = new Course();
-        course.setTitle(request.getTitle());
-        course.setThumb(request.getThumb());
-        course.setIsShow(request.getIsShow());
-        course.setCreatedAt(new Date());
-        course.setUpdatedAt(new Date());
-
-        courseService.save(course);
-
-        courseBus.departmentRelate(course, request.getDepIds());
-        courseBus.categoryRelate(course, request.getCategoryIds());
-
+    public JsonResponse store(@RequestBody @Validated CourseRequest req) {
+        courseService.createWithCategoryIdsAndDepIds(req.getTitle(), req.getThumb(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
         return JsonResponse.success();
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/{id}")
-    public JsonResponse edit(@PathVariable(name = "id") Integer id) {
-        Course course = courseService.getById(id);
-        if (course == null) {
-            return JsonResponse.error("课程不存在");
-        }
-        List<Integer> depIds = courseDepartmentService.getDepIdsByCourseId(course.getId());
-        List<Integer> categoryIds = categoryCourseService.getDepIdsByCourseId(course.getId());
+    public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
+        Course course = courseService.findOrFail(id);
+        List<Integer> depIds = courseService.getDepIdsByCourseId(course.getId());
+        List<Integer> categoryIds = courseService.getCategoryIdsByCourseId(course.getId());
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
@@ -128,31 +103,9 @@ public class CourseController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PutMapping("/{id}")
     @Transactional
-    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated CourseRequest request) {
-        Course course = courseService.getById(id);
-        if (course == null) {
-            return JsonResponse.error("课程不存在");
-        }
-
-        Course newCourse = new Course();
-        newCourse.setId(course.getId());
-
-        if (!course.getTitle().equals(request.getTitle())) {
-            newCourse.setTitle(request.getTitle());
-        }
-        if (!course.getThumb().equals(request.getThumb())) {
-            newCourse.setThumb(request.getThumb());
-        }
-        if (!course.getIsShow().equals(request.getIsShow())) {
-            newCourse.setIsShow(request.getIsShow());
-        }
-        courseService.updateById(newCourse);
-
-        // 清空depIds
-        courseBus.resetDepartmentRelate(newCourse, request.getDepIds());
-        // 清空categoryIds
-        courseBus.resetCategoryRelate(newCourse, request.getCategoryIds());
-
+    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated CourseRequest req) throws NotFoundException {
+        Course course = courseService.findOrFail(id);
+        courseService.updateWithCategoryIdsAndDepIds(course, req.getTitle(), req.getThumb(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
         return JsonResponse.success();
     }
 

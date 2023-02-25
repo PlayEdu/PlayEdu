@@ -13,7 +13,7 @@ import java.util.List;
 public interface CategoryCourseService extends IService<CategoryCourse> {
     List<Integer> getCourseIdsByCategoryIds(Integer[] categoryIds);
 
-    List<Integer> getDepIdsByCourseId(Integer id);
+    List<Integer> getCategoryIdsByCourseId(Integer id);
 
     void removeByCourseId(Integer courseId);
 }

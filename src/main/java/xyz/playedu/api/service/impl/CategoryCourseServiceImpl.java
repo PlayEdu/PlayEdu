@@ -31,7 +31,7 @@ public class CategoryCourseServiceImpl extends ServiceImpl<CategoryCourseMapper,
     }
 
     @Override
-    public List<Integer> getDepIdsByCourseId(Integer id) {
+    public List<Integer> getCategoryIdsByCourseId(Integer id) {
         List<Integer> ids = new ArrayList<>();
         List<CategoryCourse> categoryCourses = list(query().getWrapper().eq("course_id", id));
         if (categoryCourses.size() == 0) {
