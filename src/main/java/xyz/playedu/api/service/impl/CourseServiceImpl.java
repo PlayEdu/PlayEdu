@@ -175,6 +175,14 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     public List<Integer> getCategoryIdsByCourseId(Integer courseId) {
         return categoryCourseService.getCategoryIdsByCourseId(courseId);
     }
+
+    @Override
+    public void updateClassHour(Integer courseId, Integer classHour) {
+        Course course = new Course();
+        course.setId(courseId);
+        course.setClassHour(classHour);
+        updateById(course);
+    }
 }
 
 
