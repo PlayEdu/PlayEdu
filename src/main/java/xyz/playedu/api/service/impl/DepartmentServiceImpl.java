@@ -1,13 +1,17 @@
 package xyz.playedu.api.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.domain.Department;
+import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.DepartmentService;
 import xyz.playedu.api.mapper.DepartmentMapper;
 import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.internal.UserDepartmentService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +25,9 @@ import java.util.List;
 @Service
 @Slf4j
 public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Department> implements DepartmentService {
+
+    @Autowired
+    private UserDepartmentService userDepartmentService;
 
     @Override
     public List<Department> listByParentId(Integer id) {
@@ -162,6 +169,12 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         department.setUpdatedAt(new Date());
 
         save(department);
+    }
+
+    @Override
+    public void remoteRelateUsersByDepId(Integer depId) {
+        QueryWrapper<UserDepartment> wrapper = userDepartmentService.query().getWrapper().eq("dep_id", depId);
+        userDepartmentService.remove(wrapper);
     }
 }
 

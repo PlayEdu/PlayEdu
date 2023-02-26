@@ -1,4 +1,4 @@
-package xyz.playedu.api.service;
+package xyz.playedu.api.service.internal;
 
 import xyz.playedu.api.domain.UserDepartment;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -9,7 +9,4 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2023-02-23 15:08:38
 */
 public interface UserDepartmentService extends IService<UserDepartment> {
-
-    void removeByUserId(Integer userId);
-    void removeByDepId(Integer depId);
 }

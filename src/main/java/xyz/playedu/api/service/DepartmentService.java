@@ -31,4 +31,6 @@ public interface DepartmentService extends IService<Department> {
 
     void create(String name, Integer parentId, Integer sort) throws NotFoundException;
 
+    void remoteRelateUsersByDepId(Integer depId);
+
 }

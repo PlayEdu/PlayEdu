@@ -15,7 +15,7 @@ import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.UserImportRequest;
 import xyz.playedu.api.request.backend.UserRequest;
 import xyz.playedu.api.service.DepartmentService;
-import xyz.playedu.api.service.UserDepartmentService;
+import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.PaginationResult;
@@ -189,7 +189,7 @@ public class UserController {
         userService.updateById(newUser);
 
         //先删除关联关系
-        userDepartmentService.removeByUserId(user.getId());
+        userService.removeRelateDepartmentsByUserId(user.getId());
 
         if (request.getDepIds() != null && request.getDepIds().length > 0) { //重新建立关系
             List<UserDepartment> userDepartments = new ArrayList<>();

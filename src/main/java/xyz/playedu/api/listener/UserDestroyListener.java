@@ -6,7 +6,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import xyz.playedu.api.event.UserDestroyEvent;
-import xyz.playedu.api.service.UserDepartmentService;
+import xyz.playedu.api.service.UserService;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -17,12 +17,12 @@ import xyz.playedu.api.service.UserDepartmentService;
 public class UserDestroyListener {
 
     @Autowired
-    private UserDepartmentService userDepartmentService;
+    private UserService userService;
 
     @Order(1)
     @EventListener
     public void updateLoginInfo(UserDestroyEvent event) {
-        userDepartmentService.removeByUserId(event.getUserId());
+        userService.removeRelateDepartmentsByUserId(event.getUserId());
     }
 
 }

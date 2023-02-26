@@ -18,4 +18,6 @@ public interface UserService extends IService<User> {
     PaginationResult<User> paginate(int page, int size, UserPaginateFilter filter);
 
     List<String> existsEmailsByEmails(List<String> emails);
+
+    void removeRelateDepartmentsByUserId(Integer userId);
 }

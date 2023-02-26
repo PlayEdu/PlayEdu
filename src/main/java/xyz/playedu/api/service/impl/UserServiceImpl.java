@@ -1,12 +1,13 @@
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.enums.SqlKeyword;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.ibatis.jdbc.SQL;
+import org.springframework.beans.factory.annotation.Autowired;
 import xyz.playedu.api.domain.User;
+import xyz.playedu.api.domain.UserDepartment;
+import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.mapper.UserMapper;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,10 @@ import java.util.List;
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    @Autowired
+    private UserDepartmentService userDepartmentService;
+
     @Override
     public boolean emailIsExists(String email) {
         User user = getOne(query().getWrapper().eq("email", email));
@@ -84,6 +89,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             existsEmails.add(user.getEmail());
         }
         return existsEmails;
+    }
+
+    @Override
+    public void removeRelateDepartmentsByUserId(Integer userId) {
+        QueryWrapper<UserDepartment> wrapper = userDepartmentService.query().getWrapper().eq("user_id", userId);
+        userDepartmentService.remove(wrapper);
     }
 }
 
