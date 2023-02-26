@@ -48,7 +48,7 @@ public class LoginController {
         if (!adminUser.getPassword().equals(password)) {
             return JsonResponse.error("邮箱或密码错误");
         }
-        if (adminUser.getIsBanLogin() == 1) {
+        if (adminUser.getIsBanLogin().equals(1)) {
             return JsonResponse.error("当前用户已禁止登录");
         }
 

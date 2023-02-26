@@ -2,6 +2,7 @@ package xyz.playedu.api.service;
 
 import xyz.playedu.api.domain.ResourceCategory;
 import com.baomidou.mybatisplus.extension.service.IService;
+import xyz.playedu.api.exception.NotFoundException;
 
 import java.util.List;
 
@@ -13,5 +14,11 @@ import java.util.List;
 public interface ResourceCategoryService extends IService<ResourceCategory> {
 
     List<ResourceCategory> getByType(String type);
+
+    void create(String type, Integer sort, String name);
+
+    ResourceCategory findOrFail(Integer id) throws NotFoundException;
+
+    void update(ResourceCategory category, Integer sort, String name);
 
 }

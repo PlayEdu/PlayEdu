@@ -1,11 +1,15 @@
 package xyz.playedu.api.controller.backend;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import xyz.playedu.api.PlayEduBackendThreadLocal;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.ResourceCategory;
+import xyz.playedu.api.event.ResourceCategoryDestroyEvent;
+import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.ResourceCategoryRequest;
 import xyz.playedu.api.service.ResourceCategoryService;
@@ -27,11 +31,16 @@ public class ResourceCategoryController {
     @Autowired
     private ResourceCategoryService resourceCategoryService;
 
+    @Autowired
+    private ApplicationContext ctx;
+
     @GetMapping("/index")
     public JsonResponse index(@RequestParam(name = "type") String type) {
         List<ResourceCategory> categories = resourceCategoryService.getByType(type);
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", categories);
+
         return JsonResponse.data(data);
     }
 
@@ -45,53 +54,29 @@ public class ResourceCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PostMapping("/create")
-    public JsonResponse store(@RequestBody @Validated ResourceCategoryRequest request) {
-        if (!Arrays.asList(BackendConstant.RESOURCE_TYPE_WHITELIST).contains(request.getType())) {
+    public JsonResponse store(@RequestBody @Validated ResourceCategoryRequest req) {
+        if (!Arrays.asList(BackendConstant.RESOURCE_TYPE_WHITELIST).contains(req.getType())) {
             return JsonResponse.error("资源类型不支持");
         }
-
-        ResourceCategory category = new ResourceCategory();
-
-        category.setType(request.getType());
-        category.setSort(request.getSort());
-        category.setName(request.getName());
-        category.setCreatedAt(new Date());
-        category.setUpdatedAt(new Date());
-
-        resourceCategoryService.save(category);
-
+        resourceCategoryService.create(req.getType(), req.getSort(), req.getName());
         return JsonResponse.success();
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @GetMapping("/{id}")
-    public JsonResponse edit(@PathVariable(name = "id") Integer id) {
-        ResourceCategory category = resourceCategoryService.getById(id);
-        if (category == null) {
-            return JsonResponse.error("分类不存在");
-        }
+    public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
+        ResourceCategory category = resourceCategoryService.findOrFail(id);
         return JsonResponse.data(category);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PutMapping("/{id}")
-    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated ResourceCategoryRequest request) {
-        if (!Arrays.asList(BackendConstant.RESOURCE_TYPE_WHITELIST).contains(request.getType())) {
+    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated ResourceCategoryRequest req) throws NotFoundException {
+        if (!Arrays.asList(BackendConstant.RESOURCE_TYPE_WHITELIST).contains(req.getType())) {
             return JsonResponse.error("资源类型不支持");
         }
-
-        ResourceCategory category = resourceCategoryService.getById(id);
-        if (category == null) {
-            return JsonResponse.error("分类不存在");
-        }
-
-        ResourceCategory newCategory = new ResourceCategory();
-        newCategory.setId(category.getId());
-        newCategory.setName(request.getName());
-        newCategory.setSort(request.getSort());
-
-        resourceCategoryService.updateById(newCategory);
-
+        ResourceCategory category = resourceCategoryService.findOrFail(id);
+        resourceCategoryService.update(category, req.getSort(), req.getName());
         return JsonResponse.success();
     }
 
@@ -99,6 +84,7 @@ public class ResourceCategoryController {
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
         resourceCategoryService.removeById(id);
+        ctx.publishEvent(new ResourceCategoryDestroyEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), id, new Date()));
         return JsonResponse.success();
     }
 
