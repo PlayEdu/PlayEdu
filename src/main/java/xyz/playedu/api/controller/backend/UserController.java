@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.event.UserDestroyEvent;
@@ -49,19 +50,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
-    public JsonResponse index(
-            @RequestParam(name = "page", defaultValue = "1") Integer page,
-            @RequestParam(name = "size", defaultValue = "10") Integer size,
-            @RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "email", required = false) String email,
-            @RequestParam(name = "nickname", required = false) String nickname,
-            @RequestParam(name = "id_card", required = false) String idCard,
-            @RequestParam(name = "is_active", required = false) Integer isActive,
-            @RequestParam(name = "is_lock", required = false) Integer isLock,
-            @RequestParam(name = "is_verify", required = false) Integer isVerify,
-            @RequestParam(name = "is_set_password", required = false) Integer isSetPassword,
-            @RequestParam(name = "created_at", required = false) Date[] createdAt
-    ) {
+    public JsonResponse index(@RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "size", defaultValue = "10") Integer size, @RequestParam(name = "name", required = false) String name, @RequestParam(name = "email", required = false) String email, @RequestParam(name = "nickname", required = false) String nickname, @RequestParam(name = "id_card", required = false) String idCard, @RequestParam(name = "is_active", required = false) Integer isActive, @RequestParam(name = "is_lock", required = false) Integer isLock, @RequestParam(name = "is_verify", required = false) Integer isVerify, @RequestParam(name = "is_set_password", required = false) Integer isSetPassword, @RequestParam(name = "created_at", required = false) Date[] createdAt) {
         UserPaginateFilter filter = new UserPaginateFilter();
         if (name != null && name.length() > 0) {
             filter.setName(name);
@@ -127,8 +116,8 @@ public class UserController {
         user.setVerifyAt(request.getVerifyAt());
         user.setIsSetPassword(request.getIsSetPassword());
 
-        user.setCreateIp("127.0.0.1");
-        user.setCreateCity("内网");
+        user.setCreateIp(SystemConstant.INTERNAL_IP);
+        user.setCreateCity(SystemConstant.INTERNAL_IP_AREA);
         user.setCreatedAt(new Date());
         user.setUpdatedAt(new Date());
 
@@ -312,8 +301,8 @@ public class UserController {
             tmpInsertUser.setSalt(tmpSalt);
             tmpInsertUser.setName(users[i][4]);
             tmpInsertUser.setIdCard(users[i][5]);
-            tmpInsertUser.setCreateIp("127.0.0.1");
-            tmpInsertUser.setCreateCity("内网");
+            tmpInsertUser.setCreateIp(SystemConstant.INTERNAL_IP);
+            tmpInsertUser.setCreateCity(SystemConstant.INTERNAL_IP_AREA);
             tmpInsertUser.setCreatedAt(new Date());
             tmpInsertUser.setUpdatedAt(new Date());
 

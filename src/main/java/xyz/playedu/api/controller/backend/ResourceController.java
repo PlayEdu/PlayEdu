@@ -1,5 +1,6 @@
 package xyz.playedu.api.controller.backend;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +14,7 @@ import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -33,11 +31,11 @@ public class ResourceController {
     private ResourceCategoryService categoryService;
 
     @GetMapping("/index")
-    public JsonResponse index(
-            @RequestParam(name = "page", defaultValue = "1") Integer page,
-            @RequestParam(name = "size", defaultValue = "10") Integer size,
-            @RequestParam(name = "name", defaultValue = "") String name
-    ) {
+    public JsonResponse index(@RequestParam HashMap<String, Object> params) {
+        Integer page = MapUtils.getInteger(params, "page", 1);
+        Integer size = MapUtils.getInteger(params, "size", 10);
+        String name = MapUtils.getString(params, "name");
+
         ResourcePaginateFilter filter = new ResourcePaginateFilter();
         if (name != null && name.length() > 0) {
             filter.setName(name);
@@ -51,8 +49,10 @@ public class ResourceController {
     @GetMapping("/create")
     public JsonResponse create(@RequestParam(name = "type") String type) {
         List<ResourceCategory> categories = categoryService.getByType(type);
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("categories", categories);
+
         return JsonResponse.data(data);
     }
 
