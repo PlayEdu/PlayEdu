@@ -183,6 +183,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         course.setClassHour(classHour);
         updateById(course);
     }
+
+    @Override
+    public void removeCategoryIdRelate(Integer categoryId) {
+        categoryCourseService.remove(categoryCourseService.query().getWrapper().eq("category_id", categoryId));
+    }
 }
 
 

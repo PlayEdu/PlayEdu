@@ -36,4 +36,6 @@ public interface CourseService extends IService<Course> {
     List<Integer> getCategoryIdsByCourseId(Integer courseId);
 
     void updateClassHour(Integer courseId, Integer classHour);
+
+    void removeCategoryIdRelate(Integer categoryId);
 }

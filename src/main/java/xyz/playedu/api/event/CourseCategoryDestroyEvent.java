@@ -14,11 +14,13 @@ import java.util.Date;
 @Getter
 public class CourseCategoryDestroyEvent extends ApplicationEvent {
 
+    private Integer adminId;
     private Integer categoryId;
     private Date at;
 
-    public CourseCategoryDestroyEvent(Object source, Integer categoryId, Date date) {
+    public CourseCategoryDestroyEvent(Object source, Integer adminId, Integer categoryId, Date date) {
         super(source);
+        this.adminId = adminId;
         this.categoryId = categoryId;
         this.at = date;
     }
