@@ -6,10 +6,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduBackendThreadLocal;
+import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.CourseHour;
 import xyz.playedu.api.event.CourseHourCreatedEvent;
 import xyz.playedu.api.event.CourseHourDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
+import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseHourRequest;
 import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.types.JsonResponse;
@@ -37,11 +39,13 @@ public class CourseHourController {
         return JsonResponse.data(hours);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/create")
     public JsonResponse create(@PathVariable(name = "courseId") Integer courseId) {
         return JsonResponse.data(null);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create")
     public JsonResponse store(@PathVariable(name = "courseId") Integer courseId, @RequestBody @Validated CourseHourRequest req) {
         CourseHour courseHour = hourService.create(courseId, req.getChapterId(), req.getTitle(), req.getType(), req.getDuration(), req.getPublishedAt());
@@ -49,12 +53,14 @@ public class CourseHourController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/{id}")
     public JsonResponse edit(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException {
         CourseHour courseHour = hourService.findOrFail(id, courseId);
         return JsonResponse.data(courseHour);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PutMapping("/{id}")
     public JsonResponse update(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseHourRequest req) throws NotFoundException {
         CourseHour courseHour = hourService.findOrFail(id, courseId);
@@ -62,6 +68,7 @@ public class CourseHourController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException {
         CourseHour courseHour = hourService.findOrFail(id, courseId);
