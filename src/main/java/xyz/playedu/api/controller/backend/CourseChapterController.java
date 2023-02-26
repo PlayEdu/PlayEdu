@@ -60,14 +60,14 @@ public class CourseChapterController {
     public JsonResponse update(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseChapterRequest req) throws NotFoundException {
         CourseChapter chapter = chapterService.findOrFail(id, courseId);
         chapterService.update(chapter, req.getName(), req.getSort());
-        return JsonResponse.data(chapter);
+        return JsonResponse.success();
     }
 
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException {
         CourseChapter chapter = chapterService.findOrFail(id, courseId);
         chapterService.removeById(chapter.getId());
-        ctx.publishEvent(new CourseChapterDestroyEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), chapter.getCourseId(), new Date()));
+        ctx.publishEvent(new CourseChapterDestroyEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), chapter.getCourseId(), chapter.getId(), new Date()));
         return JsonResponse.success();
     }
 }

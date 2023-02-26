@@ -26,4 +26,6 @@ public interface CourseHourService extends IService<CourseHour> {
 
     Integer getCourseClassHourByCourseId(Integer courseId);
 
+    void resetChapterIdByCourseIdAndChapterId(Integer courseId,Integer chapterId);
+
 }

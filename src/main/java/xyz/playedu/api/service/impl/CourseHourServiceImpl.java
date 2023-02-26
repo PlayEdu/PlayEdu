@@ -76,6 +76,11 @@ public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseH
     public Integer getCourseClassHourByCourseId(Integer courseId) {
         return Math.toIntExact(count(query().getWrapper().eq("course_id", courseId)));
     }
+
+    @Override
+    public void resetChapterIdByCourseIdAndChapterId(Integer courseId, Integer chapterId) {
+        update(update().getWrapper().eq("course_id", courseId).eq("chapter_id", chapterId).set("chapter_id", 0));
+    }
 }
 
 
