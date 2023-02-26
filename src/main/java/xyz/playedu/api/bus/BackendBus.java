@@ -5,11 +5,9 @@ import org.springframework.stereotype.Component;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.service.AdminPermissionService;
-import xyz.playedu.api.service.AdminRolePermissionService;
 import xyz.playedu.api.service.AdminRoleService;
-import xyz.playedu.api.service.AdminUserRoleService;
+import xyz.playedu.api.service.AdminUserService;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,16 +15,13 @@ import java.util.List;
 public class BackendBus {
 
     @Autowired
-    private AdminUserRoleService adminUserRoleService;
-
-    @Autowired
-    private AdminRolePermissionService rolePermissionService;
-
-    @Autowired
     private AdminPermissionService permissionService;
 
     @Autowired
     private AdminRoleService adminRoleService;
+
+    @Autowired
+    private AdminUserService adminUserService;
 
     public static boolean inUnAuthWhitelist(String uri) {
         for (int i = 0; i < BackendConstant.UN_AUTH_URI_WHITELIST.length; i++) {
@@ -42,7 +37,7 @@ public class BackendBus {
         AdminRole superRole = adminRoleService.getBySlug(BackendConstant.SUPER_ADMIN_ROLE);
 
         HashMap<String, Boolean> permissions = new HashMap<>();
-        List<Integer> roleIds = adminUserRoleService.getRoleIdsByUserId(userId);
+        List<Integer> roleIds = adminUserService.getRoleIdsByUserId(userId);
         if (roleIds.size() == 0) {
             return permissions;
         }
@@ -52,7 +47,7 @@ public class BackendBus {
         if (roleIds.contains(superRole.getId())) {//包含超级管理角色的话返回全部权限
             permissionIds = permissionService.allIds();
         } else {//根据相应的roleIds读取权限
-            permissionIds = rolePermissionService.getPermissionIdsByRoleIds(roleIds);
+            permissionIds = adminRoleService.getPermissionIdsByRoleIds(roleIds);
             if (permissionIds.size() == 0) {
                 return permissions;
             }

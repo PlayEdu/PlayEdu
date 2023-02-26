@@ -10,11 +10,10 @@ import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.domain.AdminUserRole;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.exception.ServiceException;
-import xyz.playedu.api.service.AdminUserRoleService;
+import xyz.playedu.api.service.internal.AdminUserRoleService;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.mapper.AdminUserMapper;
 import org.springframework.stereotype.Service;
-import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.AdminUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.util.HelperUtil;
@@ -111,13 +110,19 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
 
     @Override
     public void resetRelateRoles(AdminUser user, Integer[] roleIds) {
-        userRoleService.removeByUserId(user.getId());
+        removeRelateRolesByUserId(user.getId());
         relateRoles(user, roleIds);
     }
 
     @Override
     public List<Integer> getRoleIdsByUserId(Integer userId) {
-        return userRoleService.getRoleIdsByUserId(userId);
+        QueryWrapper<AdminUserRole> wrapper = userRoleService.query().getWrapper().eq("admin_id", userId);
+        List<AdminUserRole> userRoles = userRoleService.list(wrapper);
+        List<Integer> ids = new ArrayList<>();
+        for (AdminUserRole userRole : userRoles) {
+            ids.add(userRole.getRoleId());
+        }
+        return ids;
     }
 
     @Override
@@ -153,8 +158,14 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
     @Override
     @Transactional
     public void removeWithRoleIds(Integer userId) {
-        userRoleService.removeByUserId(userId);
+        removeRelateRolesByUserId(userId);
         removeById(userId);
+    }
+
+    @Override
+    public void removeRelateRolesByUserId(Integer userId) {
+        QueryWrapper<AdminUserRole> wrapper = userRoleService.query().getWrapper().eq("admin_id", userId);
+        userRoleService.remove(wrapper);
     }
 }
 

@@ -1,4 +1,4 @@
-package xyz.playedu.api.service;
+package xyz.playedu.api.service.internal;
 
 import xyz.playedu.api.domain.AdminUserRole;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -11,9 +11,4 @@ import java.util.List;
  * @createDate 2023-02-21 16:25:43
  */
 public interface AdminUserRoleService extends IService<AdminUserRole> {
-
-    void removeByUserId(Integer userId);
-
-    List<Integer> getRoleIdsByUserId(Integer userId);
-
 }

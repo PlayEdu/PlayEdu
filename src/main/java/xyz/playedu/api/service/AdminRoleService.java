@@ -29,4 +29,7 @@ public interface AdminRoleService extends IService<AdminRole> {
 
     List<Integer> getPermissionIdsByRoleId(Integer roleId);
 
+    List<Integer> getPermissionIdsByRoleIds(List<Integer> roleIds);
+
+    void removeRelatePermissionByRoleId(Integer roleId);
 }

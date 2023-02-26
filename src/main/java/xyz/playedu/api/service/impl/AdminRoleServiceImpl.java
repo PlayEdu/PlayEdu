@@ -1,12 +1,13 @@
 package xyz.playedu.api.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.domain.AdminRolePermission;
 import xyz.playedu.api.exception.NotFoundException;
-import xyz.playedu.api.service.AdminRolePermissionService;
+import xyz.playedu.api.service.internal.AdminRolePermissionService;
 import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.mapper.AdminRoleMapper;
 import org.springframework.stereotype.Service;
@@ -66,7 +67,7 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
 
     @Override
     public void resetRelatePermissions(AdminRole role, Integer[] permissionIds) {
-        rolePermissionService.removeByRoleId(role.getId());
+        removeRelatePermissionByRoleId(role.getId());
         relatePermissions(role, permissionIds);
     }
 
@@ -95,13 +96,36 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
     @Override
     @Transactional
     public void removeWithPermissions(AdminRole role) {
-        rolePermissionService.removeByRoleId(role.getId());
+        removeRelatePermissionByRoleId(role.getId());
         removeById(role.getId());
     }
 
     @Override
     public List<Integer> getPermissionIdsByRoleId(Integer roleId) {
-        return rolePermissionService.getPermissionIdsByRoleId(roleId);
+        QueryWrapper<AdminRolePermission> wrapper = rolePermissionService.query().getWrapper().eq("role_id", roleId);
+        List<AdminRolePermission> rolePermissions = rolePermissionService.list(wrapper);
+        List<Integer> ids = new ArrayList<>();
+        for (AdminRolePermission rolePermission : rolePermissions) {
+            ids.add(rolePermission.getPermId());
+        }
+        return ids;
+    }
+
+    @Override
+    public List<Integer> getPermissionIdsByRoleIds(List<Integer> roleIds) {
+        QueryWrapper<AdminRolePermission> wrapper = rolePermissionService.query().getWrapper().in("role_id", roleIds);
+        List<AdminRolePermission> rolePermissions = rolePermissionService.list(wrapper);
+        List<Integer> ids = new ArrayList<>();
+        for (AdminRolePermission rolePermission : rolePermissions) {
+            ids.add(rolePermission.getPermId());
+        }
+        return ids;
+    }
+
+    @Override
+    public void removeRelatePermissionByRoleId(Integer roleId) {
+        QueryWrapper<AdminRolePermission> wrapper = rolePermissionService.query().getWrapper().eq("role_id", roleId);
+        rolePermissionService.remove(wrapper);
     }
 }
 

@@ -36,4 +36,6 @@ public interface AdminUserService extends IService<AdminUser> {
     void updateWithRoleIds(AdminUser user, String name, String email, String password, Integer isBanLogin, Integer[] roleIds) throws ServiceException;
 
     void removeWithRoleIds(Integer userId);
+
+    void removeRelateRolesByUserId(Integer userId);
 }

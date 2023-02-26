@@ -1,11 +1,7 @@
-package xyz.playedu.api.service;
+package xyz.playedu.api.service.internal;
 
-import org.springframework.stereotype.Service;
 import xyz.playedu.api.domain.AdminRolePermission;
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author tengteng
@@ -14,10 +10,4 @@ import java.util.List;
  */
 
 public interface AdminRolePermissionService extends IService<AdminRolePermission> {
-
-    void removeByRoleId(Integer roleId);
-
-    List<Integer> getPermissionIdsByRoleIds(List<Integer> roleIds);
-
-    List<Integer> getPermissionIdsByRoleId(Integer roleId);
 }
