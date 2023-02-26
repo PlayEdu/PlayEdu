@@ -9,4 +9,7 @@ public class BackendConstant {
 
     public final static String[] RESOURCE_DISK_WHITELIST = {"MINIO"};
 
+    public final static String[] COURSE_HOUR_TYPE_WHITELIST = {"VIDEO"};
+    public final static String[] COURSE_HOUR_TYPE_WHITELIST_TEXT = {"视频"};
+
 }
