@@ -12,6 +12,8 @@ public class BackendConstant {
     public final static String[] COURSE_HOUR_TYPE_WHITELIST = {"VIDEO"};
     public final static String[] COURSE_HOUR_TYPE_WHITELIST_TEXT = {"视频"};
 
+    public final static String[] UPLOAD_IMAGE_EXT_WL = {"png", "jpg", "jpeg", "gif"};
+    public final static String[] UPLOAD_IMAGE_CONTENT_TYPE_WL = {"image/png", "image/jpg", "image/jpeg", "image/gif"};
     public final static String UPLOAD_IMAGE_DIR = "images/";
 
 }

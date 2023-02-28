@@ -163,4 +163,9 @@ public class HelperUtil {
         return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     }
 
+    public static String fileExt(String filename) {
+        String[] array = filename.split("\\.");
+        return array[array.length - 1].toLowerCase();
+    }
+
 }

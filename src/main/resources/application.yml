@@ -41,19 +41,14 @@ spring:
       shutdown:
         await-termination: true
       thread-name-prefix: "playedu-default-thread"
-  # 文件存储配置
-  file-storage:
-    default-platform: "playedu-minio"
-    thumbnail-suffix: ".min.png"
-    minio:
-      - platform: "playedu-minio"
-        enable-storage: true
-        access-key: "username"
-        secret-key: "password"
-        end-point: "http://127.0.0.1:9000"
-        bucket-name: "playedu"
-        domain: "http://127.0.0.1:9000/"
-        base-path: ""
+
+# Minio
+minio:
+  access-key: "username"
+  secret-key: "password"
+  end-point: "http://127.0.0.1:9000"
+  bucket: "playedu"
+  domain: "http://127.0.0.1:9000/"
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
