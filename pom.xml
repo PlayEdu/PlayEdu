@@ -117,6 +117,17 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>cn.xuyanwu</groupId>
+            <artifactId>spring-file-storage</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.4.3</version>
+        </dependency>
+
     </dependencies>
 
     <build>
