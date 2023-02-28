@@ -3,10 +3,9 @@ package xyz.playedu.api.controller.backend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import xyz.playedu.api.PlayEduBackendThreadLocal;
+import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.event.AdminUserLoginEvent;
@@ -23,6 +22,7 @@ import xyz.playedu.api.util.RequestUtil;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("/backend/v1/auth")
@@ -32,10 +32,13 @@ public class LoginController {
     private AdminUserService adminUserService;
 
     @Autowired
+    private BackendBus backendBus;
+
+    @Autowired
     private JWTService jwtService;
 
     @Autowired
-    private ApplicationContext context;
+    private ApplicationContext ctx;
 
     @PostMapping("/login")
     @ImageCaptchaCheckMiddleware
@@ -59,7 +62,7 @@ public class LoginController {
         data.put("token", token.getToken());
         data.put("expire", token.getExpire());
 
-        context.publishEvent(new AdminUserLoginEvent(this, adminUser.getId(), new Date(), token.getToken(), IpUtil.getIpAddress(), adminUser.getLoginTimes()));
+        ctx.publishEvent(new AdminUserLoginEvent(this, adminUser.getId(), new Date(), token.getToken(), IpUtil.getIpAddress(), adminUser.getLoginTimes()));
 
         return JsonResponse.data(data);
     }
@@ -68,6 +71,18 @@ public class LoginController {
     public JsonResponse logout() throws JwtLogoutException {
         jwtService.logout(RequestUtil.token(), SystemConstant.JWT_PRV_ADMIN_USER);
         return JsonResponse.success("success");
+    }
+
+    @GetMapping("/detail")
+    public JsonResponse detail() {
+        AdminUser user = PlayEduBackendThreadLocal.getAdminUser();
+        HashMap<String, Boolean> permissions = backendBus.adminUserPermissions(user.getId());
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("user", user);
+        data.put("permissions", permissions);
+
+        return JsonResponse.data(data);
     }
 
 }
