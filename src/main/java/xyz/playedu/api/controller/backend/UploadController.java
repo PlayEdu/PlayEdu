@@ -6,10 +6,7 @@ import io.minio.PutObjectArgs;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import xyz.playedu.api.config.MinioConfig;
 import xyz.playedu.api.constant.BackendConstant;
@@ -90,7 +87,7 @@ public class UploadController {
         }
     }
 
-    @PostMapping("/minio-token")
+    @GetMapping("/minio-token")
     public JsonResponse minioToken(@RequestParam HashMap<String, Object> params) {
         String extension = MapUtils.getString(params, "extension");
         if (extension == null || extension.isEmpty()) {
@@ -100,12 +97,14 @@ public class UploadController {
         if (contentType == null) {
             return JsonResponse.error("该格式不支持上传");
         }
+        String resourceType = BackendConstant.RESOURCE_EXT_2_TYPE.get(extension.toLowerCase());
 
         try {
             PostPolicy postPolicy = new PostPolicy(minioConfig.getBucket(), ZonedDateTime.now().plusDays(1));
             postPolicy.addStartsWithCondition("Content-Type", contentType);
             postPolicy.addEqualsCondition("key", HelperUtil.randomString(32));
             Map<String, String> data = minioClient.getPresignedPostFormData(postPolicy);
+            data.put("resource_type", resourceType);
             return JsonResponse.data(data);
         } catch (Exception e) {
             log.error(e.getMessage());
