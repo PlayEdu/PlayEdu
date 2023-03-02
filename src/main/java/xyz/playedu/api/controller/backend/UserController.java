@@ -98,7 +98,6 @@ public class UserController {
             Date[] createdAt = Arrays.stream(createdAtStr.split(",")).map(Date::new).toArray(Date[]::new);
             filter.setCreatedAt(createdAt);
         }
-        log.info("depIds:" + depIdsStr);
         if (depIdsStr != null && depIdsStr.length() > 0) {
             Integer[] depIds = Arrays.stream(depIdsStr.split(",")).map(Integer::valueOf).toArray(Integer[]::new);
             filter.setDepIds(depIds);
