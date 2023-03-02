@@ -2,6 +2,7 @@ package xyz.playedu.api.service;
 
 import xyz.playedu.api.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 
@@ -20,4 +21,6 @@ public interface UserService extends IService<User> {
     List<String> existsEmailsByEmails(List<String> emails);
 
     void removeRelateDepartmentsByUserId(Integer userId);
+
+    User findOrFail(Integer id) throws NotFoundException;
 }

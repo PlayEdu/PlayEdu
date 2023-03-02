@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
+import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.mapper.UserMapper;
@@ -104,6 +105,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void removeRelateDepartmentsByUserId(Integer userId) {
         QueryWrapper<UserDepartment> wrapper = userDepartmentService.query().getWrapper().eq("user_id", userId);
         userDepartmentService.remove(wrapper);
+    }
+
+    @Override
+    public User findOrFail(Integer id) throws NotFoundException {
+        User user = getOne(query().getWrapper().eq("id", id));
+        if (user == null) {
+            throw new NotFoundException("学员不存在");
+        }
+        return user;
     }
 }
 

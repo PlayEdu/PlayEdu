@@ -12,6 +12,7 @@ import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.event.UserDestroyEvent;
+import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.UserImportRequest;
 import xyz.playedu.api.request.backend.UserRequest;
@@ -162,11 +163,8 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_UPDATE)
     @GetMapping("/{id}")
-    public JsonResponse edit(@PathVariable(name = "id") Integer id) {
-        User user = userService.getById(id);
-        if (user == null) {
-            return JsonResponse.error("学员不存在");
-        }
+    public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
+        User user = userService.findOrFail(id);
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("user", user);
@@ -177,11 +175,8 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_UPDATE)
     @PutMapping("/{id}")
     @Transactional
-    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated UserRequest request) {
-        User user = userService.getById(id);
-        if (user == null) {
-            return JsonResponse.error("学员不存在");
-        }
+    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated UserRequest request) throws NotFoundException {
+        User user = userService.findOrFail(id);
 
         if (!request.getEmail().equals(user.getEmail()) && userService.emailIsExists(request.getEmail())) {
             return JsonResponse.error("邮箱已存在");
@@ -230,15 +225,10 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_DESTROY)
     @DeleteMapping("/{id}")
-    public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
-        User user = userService.getById(id);
-        if (user == null) {
-            return JsonResponse.error("学员不存在");
-        }
+    public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
+        User user = userService.findOrFail(id);
         userService.removeById(user.getId());
-
         context.publishEvent(new UserDestroyEvent(this, user.getId(), new Date()));
-
         return JsonResponse.success();
     }
 
