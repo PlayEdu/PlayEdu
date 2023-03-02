@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.exception.NotFoundException;
@@ -14,9 +16,10 @@ import xyz.playedu.api.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
+import xyz.playedu.api.util.HelperUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -114,6 +117,81 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new NotFoundException("学员不存在");
         }
         return user;
+    }
+
+    @Override
+    @Transactional
+    public User createWithDepIds(String email, String name, String avatar, String password, String idCard, Integer[] depIds) {
+        String salt = HelperUtil.randomString(6);
+        String passwordHashed = HelperUtil.MD5(password + salt);
+
+        User user = new User();
+        user.setEmail(email);
+        user.setName(name);
+        user.setNickname(name);
+        user.setAvatar(avatar);
+        user.setPassword(passwordHashed);
+        user.setSalt(salt);
+        user.setIdCard(idCard);
+        user.setCredit1(0);
+        user.setIsSetPassword(0);
+        user.setIsActive(1);
+        user.setIsLock(0);
+        user.setCreateIp(SystemConstant.INTERNAL_IP);
+        user.setCreateCity(SystemConstant.INTERNAL_IP_AREA);
+        user.setCreatedAt(new Date());
+        user.setUpdatedAt(new Date());
+
+        if (idCard != null && idCard.length() > 0) {
+            user.setVerifyAt(new Date());
+            user.setIsVerify(1);
+        }
+
+        save(user);
+        userDepartmentService.storeDepIds(user.getId(), depIds);
+        return user;
+    }
+
+    @Override
+    @Transactional
+    public User updateWithDepIds(User user, String email, String nickname, String name, String avatar, String password, String idCard, Integer[] depIds) {
+        User newUser = new User();
+        newUser.setId(user.getId());
+
+        if (!user.getEmail().equals(email)) {
+            newUser.setEmail(email);
+        }
+        if (!user.getNickname().equals(nickname)) {
+            newUser.setNickname(nickname);
+        }
+        if (!user.getName().equals(name)) {
+            newUser.setName(name);
+        }
+        if (!user.getAvatar().equals(avatar)) {
+            newUser.setAvatar(avatar);
+        }
+        if (password != null && password.length() > 0) {
+            newUser.setPassword(HelperUtil.MD5(password + user.getSalt()));
+        }
+        if (!user.getIdCard().equals(idCard)) {
+            newUser.setIdCard(idCard);
+        }
+
+        if (newUser.getName() != null && newUser.getName().length() > 0 && newUser.getIdCard() != null && newUser.getIdCard().length() > 0) {
+            if (user.getVerifyAt() == null) {
+                newUser.setIsVerify(1);
+                newUser.setVerifyAt(new Date());
+            }
+        } else {
+            if (user.getIsVerify() == 1) {
+                newUser.setIsVerify(0);
+                newUser.setVerifyAt(null);
+            }
+        }
+
+        updateById(newUser);
+        userDepartmentService.resetStoreDepIds(newUser.getId(), depIds);
+        return newUser;
     }
 }
 

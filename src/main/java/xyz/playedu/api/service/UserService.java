@@ -23,4 +23,8 @@ public interface UserService extends IService<User> {
     void removeRelateDepartmentsByUserId(Integer userId);
 
     User findOrFail(Integer id) throws NotFoundException;
+
+    User createWithDepIds(String email, String name, String avatar, String password, String idCard, Integer[] depIds);
+
+    User updateWithDepIds(User user, String email, String nickname, String name, String avatar, String password, String idCard, Integer[] depIds);
 }

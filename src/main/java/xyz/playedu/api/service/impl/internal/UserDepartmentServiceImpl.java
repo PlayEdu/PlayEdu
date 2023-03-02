@@ -1,6 +1,7 @@
 package xyz.playedu.api.service.impl.internal;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.mapper.UserDepartmentMapper;
@@ -16,8 +17,7 @@ import java.util.List;
  * @createDate 2023-02-23 15:08:38
  */
 @Service
-public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper, UserDepartment>
-        implements UserDepartmentService {
+public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper, UserDepartment> implements UserDepartmentService {
 
     @Override
     public List<Integer> getUserIdsByDepIds(Integer[] depIds) {
@@ -29,6 +29,27 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
             }
         }
         return ids;
+    }
+
+    @Override
+    public void storeDepIds(Integer userId, Integer[] depIds) {
+        if (depIds == null) {
+            return;
+        }
+        List<UserDepartment> userDepartments = new ArrayList<>();
+        for (int i = 0; i < depIds.length; i++) {
+            UserDepartment userDepartment = new UserDepartment();
+            userDepartment.setUserId(userId);
+            userDepartment.setDepId(depIds[i]);
+            userDepartments.add(userDepartment);
+        }
+        saveBatch(userDepartments);
+    }
+
+    @Override
+    public void resetStoreDepIds(Integer userId, Integer[] depIds) {
+        remove(query().getWrapper().eq("user_id", userId));
+        storeDepIds(userId, depIds);
     }
 }
 

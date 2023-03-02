@@ -12,4 +12,8 @@ import java.util.List;
 */
 public interface UserDepartmentService extends IService<UserDepartment> {
     List<Integer> getUserIdsByDepIds(Integer[] depIds);
+
+    void storeDepIds(Integer userId, Integer[] depIds);
+
+    void resetStoreDepIds(Integer userId, Integer[] depIds);
 }

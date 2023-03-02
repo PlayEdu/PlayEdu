@@ -116,48 +116,16 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_STORE)
     @PostMapping("/create")
-    @Transactional
-    public JsonResponse store(@RequestBody @Validated UserRequest request) {
-        if (userService.emailIsExists(request.getEmail())) {
+    public JsonResponse store(@RequestBody @Validated UserRequest req) {
+        String email = req.getEmail();
+        if (userService.emailIsExists(email)) {
             return JsonResponse.error("邮箱已存在");
         }
-
-        String salt = HelperUtil.randomString(6);
-        String password = HelperUtil.MD5(request.getPassword() + salt);
-
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setNickname(request.getNickname());
-        user.setName(request.getName());
-        user.setAvatar(request.getAvatar());
-        user.setPassword(password);
-        user.setSalt(salt);
-        user.setIdCard(request.getIdCard());
-        user.setCredit1(request.getCredit1());
-        user.setIsActive(request.getIsActive());
-        user.setIsLock(request.getIsLock());
-        user.setIsVerify(request.getIsVerify());
-        user.setVerifyAt(request.getVerifyAt());
-        user.setIsSetPassword(request.getIsSetPassword());
-
-        user.setCreateIp(SystemConstant.INTERNAL_IP);
-        user.setCreateCity(SystemConstant.INTERNAL_IP_AREA);
-        user.setCreatedAt(new Date());
-        user.setUpdatedAt(new Date());
-
-        userService.save(user);
-
-        if (request.getDepIds() != null && request.getDepIds().length > 0) {
-            List<UserDepartment> userDepartments = new ArrayList<>();
-            for (int i = 0; i < request.getDepIds().length; i++) {
-                UserDepartment userDepartment = new UserDepartment();
-                userDepartment.setUserId(user.getId());
-                userDepartment.setDepId(request.getDepIds()[i]);
-                userDepartments.add(userDepartment);
-            }
-            userDepartmentService.saveBatch(userDepartments);
+        String password = req.getPassword();
+        if (password.length() == 0) {
+            return JsonResponse.error("请输入密码");
         }
-
+        userService.createWithDepIds(email, req.getName(), req.getAvatar(), req.getPassword(), req.getIdCard(), req.getDepIds());
         return JsonResponse.success();
     }
 
@@ -175,51 +143,15 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_UPDATE)
     @PutMapping("/{id}")
     @Transactional
-    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated UserRequest request) throws NotFoundException {
+    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated UserRequest req) throws NotFoundException {
         User user = userService.findOrFail(id);
 
-        if (!request.getEmail().equals(user.getEmail()) && userService.emailIsExists(request.getEmail())) {
+        String email = req.getEmail();
+        if (!email.equals(user.getEmail()) && userService.emailIsExists(email)) {
             return JsonResponse.error("邮箱已存在");
         }
 
-        User newUser = new User();
-        newUser.setId(user.getId());
-        newUser.setEmail(request.getEmail());
-        newUser.setNickname(request.getNickname());
-        newUser.setName(request.getName());
-        newUser.setAvatar(request.getAvatar());
-        newUser.setIdCard(request.getIdCard());
-        newUser.setCredit1(request.getCredit1());
-        newUser.setIsActive(request.getIsActive());
-        newUser.setIsLock(request.getIsLock());
-        newUser.setIsVerify(request.getIsVerify());
-        newUser.setVerifyAt(request.getVerifyAt());
-        newUser.setIsSetPassword(request.getIsSetPassword());
-
-        if (request.getPassword() != null && request.getPassword().length() > 0) {//更新密码
-            String salt = HelperUtil.randomString(6);
-            String password = HelperUtil.MD5(request.getPassword());
-
-            newUser.setPassword(password);
-            newUser.setSalt(salt);
-        }
-
-        userService.updateById(newUser);
-
-        //先删除关联关系
-        userService.removeRelateDepartmentsByUserId(user.getId());
-
-        if (request.getDepIds() != null && request.getDepIds().length > 0) { //重新建立关系
-            List<UserDepartment> userDepartments = new ArrayList<>();
-            for (int i = 0; i < request.getDepIds().length; i++) {
-                UserDepartment userDepartment = new UserDepartment();
-                userDepartment.setUserId(user.getId());
-                userDepartment.setDepId(request.getDepIds()[i]);
-                userDepartments.add(userDepartment);
-            }
-            userDepartmentService.saveBatch(userDepartments);
-        }
-
+        userService.updateWithDepIds(user, email, req.getNickname(), req.getName(), req.getAvatar(), req.getPassword(), req.getIdCard(), req.getDepIds());
         return JsonResponse.success();
     }
 
