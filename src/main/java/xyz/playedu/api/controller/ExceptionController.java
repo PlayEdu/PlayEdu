@@ -1,5 +1,6 @@
 package xyz.playedu.api.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -15,12 +16,14 @@ import xyz.playedu.api.types.JsonResponse;
 import java.util.List;
 
 @RestControllerAdvice
+@Slf4j
 public class ExceptionController {
 
-//    @ExceptionHandler(Exception.class)
-//    public JsonResponse exceptionHandler(Exception e) {
-//        return JsonResponse.error("系统错误", 500);
-//    }
+    @ExceptionHandler(Exception.class)
+    public JsonResponse exceptionHandler(Exception e) {
+        log.error(e.getMessage());
+        return JsonResponse.error("系统错误", 500);
+    }
 
     @ExceptionHandler(ServiceException.class)
     public JsonResponse serviceExceptionHandler(ServiceException e) {
