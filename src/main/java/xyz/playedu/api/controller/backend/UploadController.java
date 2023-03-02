@@ -1,7 +1,9 @@
 package xyz.playedu.api.controller.backend;
 
 import io.minio.MinioClient;
+import io.minio.PostPolicy;
 import io.minio.PutObjectArgs;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,14 +19,17 @@ import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author 杭州白书科技有限公司
  * @create 2023/2/28 16:26
  */
 @RestController
+@Slf4j
 @RequestMapping("/backend/v1/upload")
 public class UploadController {
 
@@ -81,6 +86,29 @@ public class UploadController {
             Resource res = resourceService.create(categoryId, oldFilename, ext, file.getSize(), "minio", "", savePath, url);
             return JsonResponse.data(res);
         } catch (Exception e) {
+            return JsonResponse.error("系统错误");
+        }
+    }
+
+    @PostMapping("/minio-token")
+    public JsonResponse minioToken(@RequestParam HashMap<String, Object> params) {
+        String extension = MapUtils.getString(params, "extension");
+        if (extension == null || extension.isEmpty()) {
+            return JsonResponse.error("extension参数为空");
+        }
+        String contentType = BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(extension.toLowerCase());
+        if (contentType == null) {
+            return JsonResponse.error("该格式不支持上传");
+        }
+
+        try {
+            PostPolicy postPolicy = new PostPolicy(minioConfig.getBucket(), ZonedDateTime.now().plusDays(1));
+            postPolicy.addStartsWithCondition("Content-Type", contentType);
+            postPolicy.addEqualsCondition("key", HelperUtil.randomString(32));
+            Map<String, String> data = minioClient.getPresignedPostFormData(postPolicy);
+            return JsonResponse.data(data);
+        } catch (Exception e) {
+            log.error(e.getMessage());
             return JsonResponse.error("系统错误");
         }
     }

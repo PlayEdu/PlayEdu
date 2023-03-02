@@ -48,14 +48,14 @@ public class ResourceCategoryController {
     @GetMapping("/create")
     public JsonResponse create() {
         HashMap<String, Object> data = new HashMap<>();
-        data.put("types", BackendConstant.RESOURCE_TYPE_WHITELIST);
+        data.put("types", BackendConstant.RESOURCE_EXT_WHITELIST);
         return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PostMapping("/create")
     public JsonResponse store(@RequestBody @Validated ResourceCategoryRequest req) {
-        if (!Arrays.asList(BackendConstant.RESOURCE_TYPE_WHITELIST).contains(req.getType())) {
+        if (!Arrays.asList(BackendConstant.RESOURCE_EXT_WHITELIST).contains(req.getType())) {
             return JsonResponse.error("资源类型不支持");
         }
         resourceCategoryService.create(req.getType(), req.getSort(), req.getName());
@@ -72,7 +72,7 @@ public class ResourceCategoryController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PutMapping("/{id}")
     public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated ResourceCategoryRequest req) throws NotFoundException {
-        if (!Arrays.asList(BackendConstant.RESOURCE_TYPE_WHITELIST).contains(req.getType())) {
+        if (!Arrays.asList(BackendConstant.RESOURCE_EXT_WHITELIST).contains(req.getType())) {
             return JsonResponse.error("资源类型不支持");
         }
         ResourceCategory category = resourceCategoryService.findOrFail(id);
