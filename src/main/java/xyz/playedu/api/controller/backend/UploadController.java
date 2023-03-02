@@ -12,12 +12,12 @@ import org.springframework.web.multipart.MultipartFile;
 import xyz.playedu.api.config.MinioConfig;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.Resource;
+import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -32,6 +32,9 @@ public class UploadController {
     private ResourceService resourceService;
 
     @Autowired
+    private ResourceCategoryService resourceCategoryService;
+
+    @Autowired
     private MinioConfig minioConfig;
 
     @Autowired
@@ -39,7 +42,6 @@ public class UploadController {
 
     @PostMapping("/image")
     public JsonResponse image(@RequestParam HashMap<String, Object> params, MultipartFile file) {
-        Integer categoryId = MapUtils.getInteger(params, "category_id", 0);
         if (file == null || file.isEmpty() || file.getOriginalFilename() == null) {
             return JsonResponse.error("请上传文件");
         }
@@ -47,6 +49,11 @@ public class UploadController {
         String contentType = file.getContentType();
         if (contentType == null || !Arrays.asList(BackendConstant.UPLOAD_IMAGE_CONTENT_TYPE_WL).contains(contentType)) {
             return JsonResponse.error("格式不支持");
+        }
+
+        Integer categoryId = MapUtils.getInteger(params, "category_id", 0);
+        if (resourceCategoryService.getById(categoryId) == null) {
+            return JsonResponse.error("分类不存在");
         }
 
         String filename = file.getOriginalFilename();
@@ -71,19 +78,8 @@ public class UploadController {
 
             String url = minioConfig.getDomain() + minioConfig.getBucket() + "/" + savePath;
 
-            Resource resource = new Resource();
-            resource.setCategoryId(categoryId);
-            resource.setName(oldFilename);
-            resource.setExtension(ext);
-            resource.setSize(file.getSize());
-            resource.setDisk("minio");
-            resource.setFileId("");
-            resource.setPath(savePath);
-            resource.setUrl(url);
-            resource.setCreatedAt(new Date());
-            resourceService.save(resource);
-
-            return JsonResponse.data(resource);
+            Resource res = resourceService.create(categoryId, oldFilename, ext, file.getSize(), "minio", "", savePath, url);
+            return JsonResponse.data(res);
         } catch (Exception e) {
             return JsonResponse.error("系统错误");
         }

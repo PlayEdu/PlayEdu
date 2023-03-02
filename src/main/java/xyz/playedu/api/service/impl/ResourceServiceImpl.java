@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
+import java.util.Date;
+
 /**
  * @author tengteng
  * @description 针对表【resources】的数据库操作Service实现
@@ -42,6 +44,22 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         pageResult.setTotal(adminPage.getTotal());
 
         return pageResult;
+    }
+
+    @Override
+    public Resource create(Integer categoryId, String filename, String ext, Long size, String disk, String fileId, String path, String url) {
+        Resource resource = new Resource();
+        resource.setCategoryId(categoryId);
+        resource.setName(filename);
+        resource.setExtension(ext);
+        resource.setSize(size);
+        resource.setDisk(disk);
+        resource.setFileId(fileId);
+        resource.setPath(path);
+        resource.setUrl(url);
+        resource.setCreatedAt(new Date());
+        save(resource);
+        return resource;
     }
 }
 

@@ -57,29 +57,16 @@ public class ResourceController {
     }
 
     @PostMapping("/create")
-    public JsonResponse store(@RequestBody @Validated ResourceRequest request) {
-        if (categoryService.getById(request.getCategoryId()) == null) {
+    public JsonResponse store(@RequestBody @Validated ResourceRequest req) {
+        if (categoryService.getById(req.getCategoryId()) == null) {
             return JsonResponse.error("资源分类不存在");
         }
-        if (!Arrays.asList(BackendConstant.RESOURCE_DISK_WHITELIST).contains(request.getDisk())) {
+        if (!Arrays.asList(BackendConstant.RESOURCE_DISK_WHITELIST).contains(req.getDisk())) {
             return JsonResponse.error("存储磁盘参数错误");
         }
 
-        Resource resource = new Resource();
-
-        resource.setCategoryId(request.getCategoryId());
-        resource.setName(request.getName());
-        resource.setExtension(request.getExtension());
-        resource.setSize(request.getSize());
-        resource.setDisk(request.getDisk());
-        resource.setFileId(request.getFileId());
-        resource.setPath(request.getPath());
-        resource.setUrl(request.getUrl());
-        resource.setCreatedAt(new Date());
-
-        resourceService.save(resource);
-
-        return JsonResponse.success();
+        Resource res = resourceService.create(req.getCategoryId(), req.getName(), req.getExtension(), req.getSize(), req.getDisk(), req.getFileId(), req.getPath(), req.getUrl());
+        return JsonResponse.data(res);
     }
 
     @DeleteMapping("/{id}")

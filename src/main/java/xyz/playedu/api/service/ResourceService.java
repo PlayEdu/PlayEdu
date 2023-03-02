@@ -14,4 +14,6 @@ public interface ResourceService extends IService<Resource> {
 
     PaginationResult<Resource> paginate(int page, int size, ResourcePaginateFilter filter);
 
+    Resource create(Integer categoryId, String filename, String ext, Long size, String disk, String fileId, String path, String url);
+
 }
