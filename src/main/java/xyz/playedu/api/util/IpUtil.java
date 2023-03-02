@@ -72,14 +72,14 @@ public class IpUtil {
         try {
             String rspStr = HttpUtil.sendGet(IP_URL, "ip=" + ip + "&json=true", "GBK");
             if (StringUtil.isEmpty(rspStr)) {
-                log.error("获取地理位置异常 {}", ip);
+                log.error("获取地理位置异常1 {}", ip);
                 return UNKNOWN;
             }
             ObjectMapper objectMapper = new ObjectMapper();
             Response obj = objectMapper.readValue(rspStr, Response.class);
             return String.format("%s-%s", obj.getPro(), obj.getCity());
         } catch (Exception e) {
-            log.error("获取地理位置异常 {}", ip);
+            log.error("获取地理位置异常2 {} msg {}", ip, e.getMessage());
         }
 
         return UNKNOWN;
