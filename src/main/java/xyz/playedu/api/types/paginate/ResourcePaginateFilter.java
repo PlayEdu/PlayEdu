@@ -15,4 +15,10 @@ public class ResourcePaginateFilter {
 
     private String disk;
 
+    private String sortField;
+
+    private String sortAlgo;
+
+    private Integer[] categoryIds;
+
 }

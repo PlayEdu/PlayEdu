@@ -19,8 +19,8 @@ docker run -p 9000:9000 -p 50000:50000 -d --name playedu-minio \
 
 ```
 docker run -p 9000:9000 -p 50000:50000 -d --name playedu-minio \
-  -e "MINIO_ACCESS_KEY=自定义用户名" \
-  -e "MINIO_SECRET_KEY=自定义密码" \
+  -e "MINIO_ACCESS_KEY=自定义AccessKey" \
+  -e "MINIO_SECRET_KEY=自定义SecretKey" \
   -v /mnt/data:/data \
   -v /mnt/config:/root/.minio \
   minio/minio server --console-address ":50000" /data

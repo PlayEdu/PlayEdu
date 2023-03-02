@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -24,16 +26,25 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Override
     public PaginationResult<Resource> paginate(int page, int size, ResourcePaginateFilter filter) {
         QueryWrapper<Resource> wrapper = query().getWrapper().eq("1", "1");
-        if (filter != null) {
-            if (filter.getName() != null) {
-                wrapper.like("name", "%" + filter.getName() + "%");
-            }
-            if (filter.getDisk() != null) {
-                wrapper.eq("disk", filter.getDisk());
-            }
-            if (filter.getExtension() != null) {
-                wrapper.eq("extension", filter.getExtension());
-            }
+
+        if (filter.getName() != null) {
+            wrapper.like("name", "%" + filter.getName() + "%");
+        }
+        if (filter.getDisk() != null) {
+            wrapper.eq("disk", filter.getDisk());
+        }
+        if (filter.getExtension() != null) {
+            wrapper.eq("extension", filter.getExtension());
+        }
+        if (filter.getCategoryIds() != null && filter.getCategoryIds().length > 0) {
+            wrapper.in("category_id", Arrays.asList(filter.getCategoryIds()));
+        }
+
+        // 排序
+        if (filter.getSortAlgo().equals("desc")) {
+            wrapper.orderByDesc(filter.getSortField());
+        } else {
+            wrapper.orderByAsc(filter.getSortField());
         }
 
         IPage<Resource> adminPage = new Page<>(page, size);

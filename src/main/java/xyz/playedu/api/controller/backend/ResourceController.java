@@ -39,11 +39,20 @@ public class ResourceController {
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
+        String sortField = MapUtils.getString(params, "sort_field", "id");
+        String sortAlgo = MapUtils.getString(params, "sort_algo", "desc");
         String name = MapUtils.getString(params, "name");
+        String categoryIdsStr = MapUtils.getString(params, "category_ids");
 
         ResourcePaginateFilter filter = new ResourcePaginateFilter();
+        filter.setSortAlgo(sortAlgo);
+        filter.setSortField(sortField);
         if (name != null && name.length() > 0) {
             filter.setName(name);
+        }
+        if (categoryIdsStr != null && categoryIdsStr.length() != 0) {
+            Integer[] categoryIds = Arrays.stream(categoryIdsStr.split(",")).map(Integer::valueOf).toArray(Integer[]::new);
+            filter.setCategoryIds(categoryIds);
         }
 
         PaginationResult<Resource> result = resourceService.paginate(page, size, filter);
@@ -87,16 +96,7 @@ public class ResourceController {
             }
         }
 
-        Resource res = resourceService.create(
-                categoryId,
-                req.getName(),
-                extension,
-                req.getSize(),
-                disk,
-                req.getFileId(),
-                req.getPath(),
-                req.getUrl()
-        );
+        Resource res = resourceService.create(categoryId, req.getName(), extension, req.getSize(), disk, req.getFileId(), req.getPath(), req.getUrl());
 
         if (isVideoType) {
             resourceVideoService.create(res.getId(), duration);
