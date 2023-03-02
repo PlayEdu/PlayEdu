@@ -38,4 +38,6 @@ public interface AdminUserService extends IService<AdminUser> {
     void removeWithRoleIds(Integer userId);
 
     void removeRelateRolesByUserId(Integer userId);
+
+    void passwordChange(AdminUser user, String password);
 }

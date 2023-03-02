@@ -167,6 +167,15 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
         QueryWrapper<AdminUserRole> wrapper = userRoleService.query().getWrapper().eq("admin_id", userId);
         userRoleService.remove(wrapper);
     }
+
+    @Override
+    public void passwordChange(AdminUser user, String password) {
+        String newPassword = HelperUtil.MD5(password + user.getSalt());
+        AdminUser newUser = new AdminUser();
+        newUser.setId(user.getId());
+        newUser.setPassword(newPassword);
+        updateById(newUser);
+    }
 }
 
 

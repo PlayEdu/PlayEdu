@@ -12,6 +12,7 @@ import xyz.playedu.api.event.AdminUserLoginEvent;
 import xyz.playedu.api.exception.JwtLogoutException;
 import xyz.playedu.api.middleware.ImageCaptchaCheckMiddleware;
 import xyz.playedu.api.request.backend.LoginRequest;
+import xyz.playedu.api.request.backend.PasswordChangeRequest;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.service.JWTService;
 import xyz.playedu.api.types.JsonResponse;
@@ -83,6 +84,17 @@ public class LoginController {
         data.put("permissions", permissions);
 
         return JsonResponse.data(data);
+    }
+
+    @PutMapping("/password")
+    public JsonResponse changePassword(@RequestBody @Validated PasswordChangeRequest req) {
+        AdminUser user = PlayEduBackendThreadLocal.getAdminUser();
+        String password = HelperUtil.MD5(req.getOldPassword() + user.getSalt());
+        if (!password.equals(user.getPassword())) {
+            return JsonResponse.error("原密码不正确");
+        }
+        adminUserService.passwordChange(user, req.getNewPassword());
+        return JsonResponse.success();
     }
 
 }
