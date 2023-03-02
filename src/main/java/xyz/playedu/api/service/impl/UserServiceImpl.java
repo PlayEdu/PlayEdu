@@ -15,6 +15,7 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,37 +39,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public PaginationResult<User> paginate(int page, int size, UserPaginateFilter filter) {
         QueryWrapper<User> wrapper = query().getWrapper().eq("1", "1");
 
-        if (filter != null) {
-            if (filter.getEmail() != null) {
-                wrapper.eq("email", filter.getEmail());
+        if (filter.getEmail() != null) {
+            wrapper.eq("email", filter.getEmail());
+        }
+        if (filter.getName() != null) {
+            wrapper.eq("name", filter.getName());
+        }
+        if (filter.getNickname() != null) {
+            wrapper.eq("nickname", filter.getNickname());
+        }
+        if (filter.getIdCard() != null) {
+            wrapper.eq("id_card", filter.getIdCard());
+        }
+        if (filter.getIsActive() != null) {
+            wrapper.eq("is_active", filter.getIsActive());
+        }
+        if (filter.getIsLock() != null) {
+            wrapper.eq("is_lock", filter.getIsLock());
+        }
+        if (filter.getIsVerify() != null) {
+            wrapper.eq("is_verify", filter.getIsVerify());
+        }
+        if (filter.getIsSetPassword() != null) {
+            wrapper.eq("is_set_password", filter.getIsSetPassword());
+        }
+        if (filter.getCreatedAt() != null && filter.getCreatedAt().length == 2) {
+            wrapper.between("created_at", filter.getCreatedAt()[0], filter.getCreatedAt()[1]);
+        }
+        if (filter.getDepIds() != null && filter.getDepIds().length > 0) {
+            List<Integer> userIds = userDepartmentService.getUserIdsByDepIds(filter.getDepIds());
+            if (userIds.size() == 0) {
+                userIds.add(0);
             }
-            if (filter.getName() != null) {
-                wrapper.eq("name", filter.getName());
-            }
-            if (filter.getNickname() != null) {
-                wrapper.eq("nickname", filter.getNickname());
-            }
-            if (filter.getIdCard() != null) {
-                wrapper.eq("id_card", filter.getIdCard());
-            }
-            if (filter.getIsActive() != null) {
-                wrapper.eq("is_active", filter.getIsActive());
-            }
-            if (filter.getIsLock() != null) {
-                wrapper.eq("is_lock", filter.getIsLock());
-            }
-            if (filter.getIsVerify() != null) {
-                wrapper.eq("is_verify", filter.getIsVerify());
-            }
-            if (filter.getIsSetPassword() != null) {
-                wrapper.eq("is_set_password", filter.getIsSetPassword());
-            }
-            if (filter.getCreatedAt() != null && filter.getCreatedAt().length == 2) {
-                wrapper.between("created_at", filter.getCreatedAt()[0], filter.getCreatedAt()[1]);
-            }
-            if (filter.getSortField() != null && filter.getSortAlgo() != null) {
-                wrapper.orderBy(true, filter.getSortAlgo().toUpperCase() == "ASC", filter.getSortField());
-            }
+            wrapper.in("id", userIds);
+        }
+
+        if (filter.getSortAlgo().equals("desc")) {
+            wrapper.orderByDesc(filter.getSortField());
+        } else {
+            wrapper.orderByAsc(filter.getSortField());
         }
 
         IPage<User> userPage = new Page<>(page, size);

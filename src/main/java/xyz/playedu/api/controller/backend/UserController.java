@@ -1,6 +1,7 @@
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +23,7 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -50,8 +48,27 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
-    public JsonResponse index(@RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "size", defaultValue = "10") Integer size, @RequestParam(name = "name", required = false) String name, @RequestParam(name = "email", required = false) String email, @RequestParam(name = "nickname", required = false) String nickname, @RequestParam(name = "id_card", required = false) String idCard, @RequestParam(name = "is_active", required = false) Integer isActive, @RequestParam(name = "is_lock", required = false) Integer isLock, @RequestParam(name = "is_verify", required = false) Integer isVerify, @RequestParam(name = "is_set_password", required = false) Integer isSetPassword, @RequestParam(name = "created_at", required = false) Date[] createdAt) {
+    public JsonResponse index(@RequestParam HashMap<String, Object> params) {
+        Integer page = MapUtils.getInteger(params, "page", 1);
+        Integer size = MapUtils.getInteger(params, "size", 10);
+        String name = MapUtils.getString(params, "name");
+        String email = MapUtils.getString(params, "email");
+        String nickname = MapUtils.getString(params, "nickname");
+        String idCard = MapUtils.getString(params, "id_card");
+        Integer isActive = MapUtils.getInteger(params, "is_active");
+        Integer isLock = MapUtils.getInteger(params, "is_lock");
+        Integer isVerify = MapUtils.getInteger(params, "is_verify");
+        Integer isSetPassword = MapUtils.getInteger(params, "is_set_password");
+        String createdAtStr = MapUtils.getString(params, "created_at");
+        String depIdsStr = MapUtils.getString(params, "dep_ids");
+
+        String sortField = MapUtils.getString(params, "sort_field", "id");
+        String sortAlgo = MapUtils.getString(params, "sort_algo", "desc");
+
         UserPaginateFilter filter = new UserPaginateFilter();
+        filter.setSortAlgo(sortAlgo);
+        filter.setSortField(sortField);
+
         if (name != null && name.length() > 0) {
             filter.setName(name);
         }
@@ -76,8 +93,14 @@ public class UserController {
         if (isSetPassword != null) {
             filter.setIsSetPassword(isSetPassword);
         }
-        if (createdAt != null && createdAt.length == 2) {
+        if (createdAtStr != null && createdAtStr.length() > 0) {
+            Date[] createdAt = Arrays.stream(createdAtStr.split(",")).map(Date::new).toArray(Date[]::new);
             filter.setCreatedAt(createdAt);
+        }
+        log.info("depIds:" + depIdsStr);
+        if (depIdsStr != null && depIdsStr.length() > 0) {
+            Integer[] depIds = Arrays.stream(depIdsStr.split(",")).map(Integer::valueOf).toArray(Integer[]::new);
+            filter.setDepIds(depIds);
         }
 
         PaginationResult<User> result = userService.paginate(page, size, filter);
