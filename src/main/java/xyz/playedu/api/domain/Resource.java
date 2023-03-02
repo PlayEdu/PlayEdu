@@ -21,7 +21,7 @@ public class Resource implements Serializable {
      *
      */
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Integer id;
 
     /**
      * 分类id

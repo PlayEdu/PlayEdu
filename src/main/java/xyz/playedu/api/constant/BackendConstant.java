@@ -7,7 +7,13 @@ public class BackendConstant {
 
     public final static String[] UN_AUTH_URI_WHITELIST = {"/backend/v1/system/image-captcha", "/backend/v1/auth/login",};
 
-    public final static String[] RESOURCE_TYPE_WHITELIST = {"IMAGE", "PDF", "VIDEO", "WORD", "PPT"};
+    public final static String RESOURCE_TYPE_VIDEO = "VIDEO";
+    public final static String RESOURCE_TYPE_IMAGE = "IMAGE";
+    public final static String RESOURCE_TYPE_PDF = "PDF";
+    public final static String RESOURCE_TYPE_WORD = "WORD";
+    public final static String RESOURCE_TYPE_PPT = "PPT";
+
+    public final static String[] RESOURCE_TYPE_WHITELIST = {RESOURCE_TYPE_IMAGE, RESOURCE_TYPE_PDF, RESOURCE_TYPE_VIDEO, RESOURCE_TYPE_WORD, RESOURCE_TYPE_PPT};
     public final static HashMap<String, String> RESOURCE_EXT_2_CONTENT_TYPE = new HashMap<>() {{
         put("png", "image/png");
         put("jpg", "image/jpg");
@@ -21,19 +27,19 @@ public class BackendConstant {
         put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
     }};
     public final static HashMap<String, String> RESOURCE_EXT_2_TYPE = new HashMap<>() {{
-        put("png", "IMAGE");
-        put("jpg", "IMAGE");
-        put("jpeg", "IMAGE");
-        put("gif", "IMAGE");
-        put("pdf", "PDF");
-        put("mp4", "VIDEO");
-        put("doc", "WORD");
-        put("docx", "WORD");
-        put("ppt", "PPT");
-        put("pptx", "PPT");
+        put("png", RESOURCE_TYPE_IMAGE);
+        put("jpg", RESOURCE_TYPE_IMAGE);
+        put("jpeg", RESOURCE_TYPE_IMAGE);
+        put("gif", RESOURCE_TYPE_IMAGE);
+        put("pdf", RESOURCE_TYPE_PDF);
+        put("mp4", RESOURCE_TYPE_VIDEO);
+        put("doc", RESOURCE_TYPE_WORD);
+        put("docx", RESOURCE_TYPE_WORD);
+        put("ppt", RESOURCE_TYPE_PPT);
+        put("pptx", RESOURCE_TYPE_PPT);
     }};
 
-    public final static String[] RESOURCE_DISK_WHITELIST = {"MINIO"};
+    public final static String[] RESOURCE_DISK_WHITELIST = {"minio"};
 
     public final static String[] COURSE_HOUR_TYPE_WHITELIST = {"VIDEO"};
     public final static String[] COURSE_HOUR_TYPE_WHITELIST_TEXT = {"视频"};

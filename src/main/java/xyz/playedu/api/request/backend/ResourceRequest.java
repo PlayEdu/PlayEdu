@@ -1,6 +1,7 @@
 package xyz.playedu.api.request.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -12,32 +13,38 @@ import org.hibernate.validator.constraints.Length;
 @Data
 public class ResourceRequest {
 
-    @NotNull(message = "请选择资源分类")
+    @NotNull(message = "category_id参数不存在")
     @JsonProperty("category_id")
     private Integer categoryId;
 
-    @NotNull(message = "资源名不能为空")
+    @NotNull(message = "name参数不存在")
+    @NotBlank(message = "请输入资源名")
     @Length(min = 1, max = 254, message = "资源名长度在1-254个字符之间")
     private String name;
 
-    @NotNull(message = "请输入资源扩展")
+    @NotNull(message = "extension参数不存在")
+    @NotBlank(message = "请输入资源扩展")
     @Length(min = 1, max = 254, message = "资源扩展长度在1-20个字符之间")
     private String extension;
 
-    @NotNull(message = "请输入文件大小")
+    @NotNull(message = "size参数不存在")
     private Long size;
 
-    @NotNull(message = "请输入文件存储磁盘")
+    @NotNull(message = "disk参数不存在")
+    @NotBlank(message = "disk值不能为空")
     private String disk;
 
-    @NotNull(message = "请输入fileId")
+    @NotNull(message = "file_id参数不存在")
     @JsonProperty("file_id")
     private String fileId;
 
-    @NotNull(message = "请输入存储路径")
+    @NotNull(message = "path参数不存在")
+    @NotBlank(message = "path值不能为空")
     private String path;
 
-    @NotNull(message = "请输入访问URL")
+    @NotNull(message = "url参数不存在")
     private String url;
+
+    private Integer duration;
 
 }
