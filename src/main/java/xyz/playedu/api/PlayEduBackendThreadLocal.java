@@ -2,11 +2,16 @@ package xyz.playedu.api;
 
 import xyz.playedu.api.domain.AdminUser;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class PlayEduBackendThreadLocal {
 
     private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL = new java.lang.ThreadLocal<>();
+
+    public final static String KEY_ADMIN_USER_ID = "admin_id";
+    public final static String KEY_ADMIN_USER = "admin_user";
+    public final static String KEY_ADMIN_PER = "admin_per";
 
     public PlayEduBackendThreadLocal() {
     }
@@ -25,19 +30,27 @@ public class PlayEduBackendThreadLocal {
     }
 
     public static Integer getAdminUserID() {
-        return (Integer) get("admin_user_id");
+        return (Integer) get(KEY_ADMIN_USER_ID);
     }
 
     public static void setAdminUserId(Integer userId) {
-        put("admin_user_id", userId);
+        put(KEY_ADMIN_USER_ID, userId);
     }
 
     public static AdminUser getAdminUser() {
-        return (AdminUser) get("admin_user");
+        return (AdminUser) get(KEY_ADMIN_USER);
     }
 
     public static void setAdminUser(AdminUser adminUser) {
-        put("admin_user", adminUser);
+        put(KEY_ADMIN_USER, adminUser);
+    }
+
+    public static void setAdminPer(HashMap<String, Boolean> permissions) {
+        put(KEY_ADMIN_PER, permissions);
+    }
+
+    public static HashMap<String, Boolean> getAdminPer() {
+        return (HashMap<String, Boolean>) get(KEY_ADMIN_PER);
     }
 
     public static void remove() {

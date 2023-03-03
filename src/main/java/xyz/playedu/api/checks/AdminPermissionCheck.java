@@ -47,6 +47,14 @@ public class AdminPermissionCheck implements ApplicationRunner {
             {"课程", "0", "课程", BPermissionConstant.COURSE},
     };
 
+    private final String[][] DATA_PERMISSIONS = {
+            {"管理员", "0", "邮箱", BPermissionConstant.DATA_ADMIN_EMAIL},
+
+            {"学员", "0", "邮箱", BPermissionConstant.DATA_USER_EMAIL},
+            {"学员", "10", "姓名", BPermissionConstant.DATA_USER_NAME},
+            {"学员", "10", "身份证号", BPermissionConstant.DATA_USER_ID_CARD},
+    };
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         HashMap<String, Boolean> slugs = permissionService.allSlugs();
@@ -71,8 +79,22 @@ public class AdminPermissionCheck implements ApplicationRunner {
             list.add(permission);
         }
 
-        if (list.size() == 0) {
-            return;
+        for (int i = 0; i < DATA_PERMISSIONS.length; i++) {
+            String[] item = DATA_PERMISSIONS[i];
+            String tmpSlug = item[3];
+            if (slugs.get(tmpSlug) != null) {//已经存在
+                continue;
+            }
+            AdminPermission permission = new AdminPermission();
+
+            permission.setGroupName(item[0]);
+            permission.setSort(Integer.valueOf(item[1]));
+            permission.setName(item[2]);
+            permission.setSlug(tmpSlug);
+            permission.setType(BPermissionConstant.TYPE_DATA);
+            permission.setCreatedAt(now);
+
+            list.add(permission);
         }
 
         permissionService.saveBatch(list);

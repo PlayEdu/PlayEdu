@@ -8,9 +8,14 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import xyz.playedu.api.bus.BackendBus;
+import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BackendConstant;
 
 /**
  * @TableName users
@@ -123,6 +128,21 @@ public class User implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
+    @JsonGetter("name")
+    public String transformName() {
+        return BackendBus.valueHidden(BPermissionConstant.DATA_USER_NAME, BackendConstant.PRIVACY_FIELD_TYPE_NAME, getName());
+    }
+
+    @JsonGetter("email")
+    public String transformEmail() {
+        return BackendBus.valueHidden(BPermissionConstant.DATA_USER_EMAIL, BackendConstant.PRIVACY_FIELD_TYPE_EMAIL, getEmail());
+    }
+
+    @JsonGetter("id_card")
+    public String transformIdCard() {
+        return BackendBus.valueHidden(BPermissionConstant.DATA_USER_ID_CARD, BackendConstant.PRIVACY_FIELD_TYPE_ID_CARD, getIdCard());
+    }
 
     @Override
     public boolean equals(Object that) {

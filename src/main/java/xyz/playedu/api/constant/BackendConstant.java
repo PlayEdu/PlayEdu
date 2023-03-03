@@ -49,4 +49,9 @@ public class BackendConstant {
     public final static String[] UPLOAD_IMAGE_CONTENT_TYPE_WL = {"image/png", "image/jpg", "image/jpeg", "image/gif"};
     public final static String UPLOAD_IMAGE_DIR = "images/";
 
+    public final static String PRIVACY_FIELD_TYPE_EMAIL = "email";
+    public final static String PRIVACY_FIELD_TYPE_PHONE = "phone";
+    public final static String PRIVACY_FIELD_TYPE_NAME = "name";
+    public final static String PRIVACY_FIELD_TYPE_ID_CARD = "IDCard";
+
 }

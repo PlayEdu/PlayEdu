@@ -33,6 +33,9 @@ public class AdminAuthMiddleware implements HandlerInterceptor {
     @Autowired
     private AppBus appBus;
 
+    @Autowired
+    private BackendBus backendBus;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if ("OPTIONS".equals(request.getMethod()) || BackendBus.inUnAuthWhitelist(request.getRequestURI())) {
@@ -57,6 +60,7 @@ public class AdminAuthMiddleware implements HandlerInterceptor {
 
             PlayEduBackendThreadLocal.setAdminUserId(payload.getSub());
             PlayEduBackendThreadLocal.setAdminUser(adminUser);
+            PlayEduBackendThreadLocal.setAdminPer(backendBus.adminUserPermissions(adminUser.getId()));
 
             return HandlerInterceptor.super.preHandle(request, response, handler);
         } catch (Exception e) {

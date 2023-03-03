@@ -32,4 +32,9 @@ public class BPermissionConstant {
 
     public final static String COURSE = "course";
 
+    public final static String DATA_USER_NAME = "data-user-name";
+    public final static String DATA_USER_EMAIL = "data-user-email";
+    public final static String DATA_USER_ID_CARD = "data-user-id-card";
+    public final static String DATA_ADMIN_EMAIL = "data-admin-email";
+
 }

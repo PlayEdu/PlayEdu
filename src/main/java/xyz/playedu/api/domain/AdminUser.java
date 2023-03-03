@@ -8,15 +8,21 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import xyz.playedu.api.bus.BackendBus;
+import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BackendConstant;
 
 /**
  * @TableName admin_users
  */
 @TableName(value = "admin_users")
 @Data
+@Slf4j
 public class AdminUser implements Serializable {
     /**
      *
@@ -78,6 +84,11 @@ public class AdminUser implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
+    @JsonGetter("email")
+    public String transformEmail() {
+        return BackendBus.valueHidden(BPermissionConstant.DATA_ADMIN_EMAIL, BackendConstant.PRIVACY_FIELD_TYPE_EMAIL, email);
+    }
 
     @Override
     public boolean equals(Object that) {

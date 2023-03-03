@@ -2,11 +2,13 @@ package xyz.playedu.api.bus;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import xyz.playedu.api.PlayEduBackendThreadLocal;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.service.AdminPermissionService;
 import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.service.AdminUserService;
+import xyz.playedu.api.util.PrivacyUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +56,23 @@ public class BackendBus {
         }
 
         return permissionService.getSlugsByIds(permissionIds);
+    }
+
+    public static String valueHidden(String permissionSlug, String type, String value) {
+        HashMap<String, Boolean> permissions = PlayEduBackendThreadLocal.getAdminPer();
+        if (permissions.get(permissionSlug) != null) {
+            return value;
+        }
+        if (BackendConstant.PRIVACY_FIELD_TYPE_EMAIL.equals(type)) {
+            return PrivacyUtil.hideEmail(value);
+        } else if (BackendConstant.PRIVACY_FIELD_TYPE_PHONE.equals(type)) {
+            return PrivacyUtil.hidePhone(value);
+        } else if (BackendConstant.PRIVACY_FIELD_TYPE_NAME.equals(type)) {
+            return PrivacyUtil.hideChineseName(value);
+        } else if (BackendConstant.PRIVACY_FIELD_TYPE_ID_CARD.equals(type)) {
+            return PrivacyUtil.hideIDCard(value);
+        }
+        return PrivacyUtil.desValue(value, 1, 0, "*");
     }
 
 }
