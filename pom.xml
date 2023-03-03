@@ -122,7 +122,6 @@
             <artifactId>minio</artifactId>
             <version>8.5.2</version>
         </dependency>
-
     </dependencies>
 
     <build>

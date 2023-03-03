@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduBackendThreadLocal;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.domain.CourseChapter;
 import xyz.playedu.api.domain.CourseHour;
 import xyz.playedu.api.event.CourseHourCreatedEvent;
 import xyz.playedu.api.event.CourseHourDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseHourRequest;
+import xyz.playedu.api.service.CourseChapterService;
 import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.SelectOption;
@@ -31,6 +33,9 @@ public class CourseHourController {
 
     @Autowired
     private CourseHourService hourService;
+
+    @Autowired
+    private CourseChapterService chapterService;
 
     @Autowired
     private ApplicationContext ctx;
@@ -54,19 +59,29 @@ public class CourseHourController {
             typeItems.add(tmpTypeItem);
         }
 
+        // 读取课程下的章节
+        List<CourseChapter> chapters = chapterService.getChaptersByCourseId(courseId);
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("types", typeItems);
+        data.put("chapters", chapters);
 
         return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create")
-    public JsonResponse store(@PathVariable(name = "courseId") Integer courseId, @RequestBody @Validated CourseHourRequest req) {
-        if (!Arrays.asList(BackendConstant.COURSE_HOUR_TYPE_WHITELIST).contains(req.getType())) {
+    public JsonResponse store(@PathVariable(name = "courseId") Integer courseId, @RequestBody @Validated CourseHourRequest req) throws NotFoundException {
+        // 课时类型校验
+        String type = req.getType();
+        if (!Arrays.asList(BackendConstant.COURSE_HOUR_TYPE_WHITELIST).contains(type)) {
             return JsonResponse.error("课时类型不支持");
         }
-        CourseHour courseHour = hourService.create(courseId, req.getChapterId(), req.getTitle(), req.getType(), req.getDuration(), req.getPublishedAt());
+        // 章节id校验
+        Integer chapterId = req.getChapterId();
+        chapterService.findOrFail(chapterId, courseId);
+
+        CourseHour courseHour = hourService.create(courseId, chapterId, req.getTitle(), type, req.getDuration(), req.getPublishedAt());
         ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId(), new Date()));
         return JsonResponse.success();
     }
@@ -82,7 +97,11 @@ public class CourseHourController {
     @PutMapping("/{id}")
     public JsonResponse update(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseHourRequest req) throws NotFoundException {
         CourseHour courseHour = hourService.findOrFail(id, courseId);
-        hourService.update(courseHour, req.getChapterId(), req.getTitle(), req.getDuration(), req.getPublishedAt());
+        // 章节id校验
+        Integer chapterId = req.getChapterId();
+        chapterService.findOrFail(chapterId, courseId);
+
+        hourService.update(courseHour, chapterId, req.getTitle(), req.getDuration(), req.getPublishedAt());
         return JsonResponse.success();
     }
 
