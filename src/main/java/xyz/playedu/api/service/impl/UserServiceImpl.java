@@ -78,10 +78,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             wrapper.in("id", userIds);
         }
 
-        if (filter.getSortAlgo().equals("desc")) {
-            wrapper.orderByDesc(filter.getSortField());
+        String sortFiled = filter.getSortField();
+        if (sortFiled == null || sortFiled.trim().length() == 0) {
+            sortFiled = "id";
+        }
+        String sortAlgo = filter.getSortAlgo();
+        if (sortAlgo == null || sortAlgo.trim().length() == 0) {
+            sortAlgo = "desc";
+        }
+        if ("desc".equals(sortAlgo)) {
+            wrapper.orderByDesc(sortFiled);
         } else {
-            wrapper.orderByAsc(filter.getSortField());
+            wrapper.orderByAsc(sortFiled);
         }
 
         IPage<User> userPage = new Page<>(page, size);

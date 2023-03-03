@@ -63,8 +63,8 @@ public class UserController {
         String createdAtStr = MapUtils.getString(params, "created_at");
         String depIdsStr = MapUtils.getString(params, "dep_ids");
 
-        String sortField = MapUtils.getString(params, "sort_field", "id");
-        String sortAlgo = MapUtils.getString(params, "sort_algo", "desc");
+        String sortField = MapUtils.getString(params, "sort_field");
+        String sortAlgo = MapUtils.getString(params, "sort_algo");
 
         UserPaginateFilter filter = new UserPaginateFilter();
         filter.setSortAlgo(sortAlgo);

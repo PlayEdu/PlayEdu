@@ -40,11 +40,18 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             wrapper.in("category_id", Arrays.asList(filter.getCategoryIds()));
         }
 
-        // 排序
-        if (filter.getSortAlgo().equals("desc")) {
-            wrapper.orderByDesc(filter.getSortField());
+        String sortFiled = filter.getSortField();
+        if (sortFiled == null || sortFiled.trim().length() == 0) {
+            sortFiled = "id";
+        }
+        String sortAlgo = filter.getSortAlgo();
+        if (sortAlgo == null || sortAlgo.trim().length() == 0) {
+            sortAlgo = "desc";
+        }
+        if ("desc".equals(sortAlgo)) {
+            wrapper.orderByDesc(sortFiled);
         } else {
-            wrapper.orderByAsc(filter.getSortField());
+            wrapper.orderByAsc(sortFiled);
         }
 
         IPage<Resource> adminPage = new Page<>(page, size);

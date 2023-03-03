@@ -20,7 +20,7 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
         implements ResourceCategoryService {
     @Override
     public List<ResourceCategory> getByType(String type) {
-        return list(query().getWrapper().eq("type", type).orderByAsc("id"));
+        return list(query().getWrapper().eq("type", type).orderByAsc("sort"));
     }
 
     @Override

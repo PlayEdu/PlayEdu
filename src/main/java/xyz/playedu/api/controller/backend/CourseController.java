@@ -45,8 +45,8 @@ public class CourseController {
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
-        String sortField = MapUtils.getString(params, "sort_field", "id");
-        String sortAlgo = MapUtils.getString(params, "sort_algo", "desc");
+        String sortField = MapUtils.getString(params, "sort_field");
+        String sortAlgo = MapUtils.getString(params, "sort_algo");
         String title = MapUtils.getString(params, "title");
         String depIds = MapUtils.getString(params, "dep_ids");
         String categoryIds = MapUtils.getString(params, "category_ids");
