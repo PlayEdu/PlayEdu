@@ -1,9 +1,11 @@
 package xyz.playedu.api.controller.backend;
 
+import com.google.common.collect.Multimap;
 import io.minio.*;
 import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,8 +16,8 @@ import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
+import xyz.playedu.api.vendor.PlayEduMinioClient;
 
-import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +42,9 @@ public class UploadController {
 
     @Autowired
     private MinioClient minioClient;
+
+    @Autowired
+    private PlayEduMinioClient playEduMinioClient;
 
     @PostMapping("/image")
     public JsonResponse image(@RequestParam HashMap<String, Object> params, MultipartFile file) {
@@ -86,10 +91,10 @@ public class UploadController {
         }
     }
 
-    @GetMapping("/minio-token")
-    public JsonResponse minioToken(@RequestParam HashMap<String, Object> params) {
+    @GetMapping("/minio-upload-id")
+    public JsonResponse minioUploadId(@RequestParam HashMap<String, Object> params) {
         String extension = MapUtils.getString(params, "extension");
-        if (extension == null || extension.isEmpty()) {
+        if (extension == null || extension.trim().length() == 0) {
             return JsonResponse.error("extension参数为空");
         }
         String contentType = BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(extension.toLowerCase());
@@ -99,15 +104,41 @@ public class UploadController {
         String resourceType = BackendConstant.RESOURCE_EXT_2_TYPE.get(extension.toLowerCase());
 
         try {
-            String url = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
-                    .bucket(minioConfig.getBucket())
-                    .object(HelperUtil.randomString(32) + "." + extension)
-                    .method(Method.PUT)
-                    .expiry(60 * 60 * 24)
-                    .build());
+            String filename = HelperUtil.randomString(32) + "." + extension;
+            String uploadId = playEduMinioClient.uploadId(minioConfig.getBucket(), filename);
 
             HashMap<String, String> data = new HashMap<>();
             data.put("resource_type", resourceType);
+            data.put("upload_id", uploadId);
+            data.put("filename", filename);
+
+            return JsonResponse.data(data);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return JsonResponse.error("系统错误");
+        }
+    }
+
+    @GetMapping("/minio-pre-sign-url")
+    public JsonResponse minioPreSignUrl(@RequestParam HashMap<String, Object> params) {
+        String uploadId = MapUtils.getString(params, "upload_id");
+        Integer partNumber = MapUtils.getInteger(params, "part_number");
+        String filename = MapUtils.getString(params, "filename");
+
+        try {
+            Map<String, String> extraQueryParams = new HashMap<>();
+            extraQueryParams.put("partNumber", partNumber + "");
+            extraQueryParams.put("uploadId", uploadId);
+
+            String url = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                    .bucket(minioConfig.getBucket())
+                    .object(filename)
+                    .method(Method.PUT)
+                    .expiry(60 * 60 * 24)
+                    .extraQueryParams(extraQueryParams)
+                    .build());
+
+            HashMap<String, String> data = new HashMap<>();
             data.put("url", url);
 
             return JsonResponse.data(data);
@@ -115,6 +146,20 @@ public class UploadController {
             log.error(e.getMessage());
             return JsonResponse.error("系统错误");
         }
+    }
+
+    @GetMapping("/minio-merge")
+    public JsonResponse minioMerge(@RequestParam HashMap<String, Object> params) {
+        String filename = MapUtils.getString(params, "filename");
+        String uploadId = MapUtils.getString(params, "upload_id");
+        if (filename == null || filename.trim().length() == 0) {
+            return JsonResponse.error("filename必填");
+        }
+        if (uploadId == null || uploadId.trim().length() == 0) {
+            return JsonResponse.error("uploadId必填");
+        }
+        playEduMinioClient.merge(minioConfig.getBucket(), filename, uploadId);
+        return JsonResponse.success();
     }
 
 }
