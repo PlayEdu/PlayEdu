@@ -16,7 +16,6 @@ public class BPermissionConstant {
 
     public final static String ADMIN_ROLE = "admin-role";
 
-    public final static String DEPARTMENT_INDEX = "department-index";
     public final static String DEPARTMENT_STORE = "department-store";
     public final static String DEPARTMENT_UPDATE = "department-update";
     public final static String DEPARTMENT_DESTROY = "department-destroy";

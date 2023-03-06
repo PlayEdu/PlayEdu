@@ -33,7 +33,6 @@ public class DepartmentController {
     @Autowired
     private ApplicationContext ctx;
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_INDEX)
     @GetMapping("/index")
     public JsonResponse index() {
         Map<Integer, List<Department>> departments = departmentService.all().stream().collect(Collectors.groupingBy(Department::getParentId));
