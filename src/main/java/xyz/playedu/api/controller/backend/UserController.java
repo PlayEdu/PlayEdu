@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.SystemConstant;
+import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.event.UserDestroyEvent;
@@ -133,8 +134,11 @@ public class UserController {
     public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
         User user = userService.findOrFail(id);
 
+        List<Integer> depIds = userService.getDepIdsByUserId(user.getId());
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("user", user);
+        data.put("dep_ids", depIds);
 
         return JsonResponse.data(data);
     }

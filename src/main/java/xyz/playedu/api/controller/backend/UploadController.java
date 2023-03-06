@@ -1,8 +1,7 @@
 package xyz.playedu.api.controller.backend;
 
-import io.minio.MinioClient;
-import io.minio.PostPolicy;
-import io.minio.PutObjectArgs;
+import io.minio.*;
+import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,11 +99,17 @@ public class UploadController {
         String resourceType = BackendConstant.RESOURCE_EXT_2_TYPE.get(extension.toLowerCase());
 
         try {
-            PostPolicy postPolicy = new PostPolicy(minioConfig.getBucket(), ZonedDateTime.now().plusDays(1));
-            postPolicy.addStartsWithCondition("Content-Type", contentType);
-            postPolicy.addEqualsCondition("key", HelperUtil.randomString(32));
-            Map<String, String> data = minioClient.getPresignedPostFormData(postPolicy);
+            String url = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                    .bucket(minioConfig.getBucket())
+                    .object(HelperUtil.randomString(32) + "." + extension)
+                    .method(Method.PUT)
+                    .expiry(60 * 60 * 24)
+                    .build());
+
+            HashMap<String, String> data = new HashMap<>();
             data.put("resource_type", resourceType);
+            data.put("url", url);
+
             return JsonResponse.data(data);
         } catch (Exception e) {
             log.error(e.getMessage());

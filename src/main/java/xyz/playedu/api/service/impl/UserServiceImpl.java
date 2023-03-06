@@ -201,6 +201,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userDepartmentService.resetStoreDepIds(newUser.getId(), depIds);
         return newUser;
     }
+
+    @Override
+    public List<Integer> getDepIdsByUserId(Integer userId) {
+        List<Integer> ids = new ArrayList<>();
+        List<UserDepartment> userDepartments = userDepartmentService.list(userDepartmentService.query().getWrapper().eq("user_id", userId));
+        for (UserDepartment userDepartment : userDepartments) {
+            ids.add(userDepartment.getDepId());
+        }
+        return ids;
+    }
 }
 
 
