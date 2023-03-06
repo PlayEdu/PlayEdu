@@ -53,8 +53,8 @@ public class UploadController {
             return JsonResponse.error("格式不支持");
         }
 
-        Integer categoryId = MapUtils.getInteger(params, "category_id", 0);
-        if (resourceCategoryService.getById(categoryId) == null) {
+        Integer categoryId = MapUtils.getInteger(params, "category_id");
+        if (categoryId != null && !categoryId.equals(0) && resourceCategoryService.getById(categoryId) == null) {
             return JsonResponse.error("分类不存在");
         }
 
@@ -80,7 +80,7 @@ public class UploadController {
 
             String url = minioConfig.getDomain() + minioConfig.getBucket() + "/" + savePath;
 
-            Resource res = resourceService.create(categoryId, oldFilename, ext, file.getSize(), "minio", "", savePath, url);
+            Resource res = resourceService.create(categoryId, BackendConstant.RESOURCE_TYPE_IMAGE, oldFilename, ext, file.getSize(), "minio", "", savePath, url);
             return JsonResponse.data(res);
         } catch (Exception e) {
             return JsonResponse.error("系统错误");

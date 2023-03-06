@@ -21,4 +21,6 @@ public class ResourcePaginateFilter {
 
     private Integer[] categoryIds;
 
+    private String type;
+
 }

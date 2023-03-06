@@ -36,6 +36,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (filter.getExtension() != null) {
             wrapper.eq("extension", filter.getExtension());
         }
+        if (filter.getType() != null) {
+            wrapper.eq("type", filter.getType());
+        }
         if (filter.getCategoryIds() != null && filter.getCategoryIds().length > 0) {
             wrapper.in("category_id", Arrays.asList(filter.getCategoryIds()));
         }
@@ -65,8 +68,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
-    public Resource create(Integer categoryId, String filename, String ext, Long size, String disk, String fileId, String path, String url) {
+    public Resource create(Integer categoryId, String type, String filename, String ext, Long size, String disk, String fileId, String path, String url) {
         Resource resource = new Resource();
+        resource.setType(type);
         resource.setCategoryId(categoryId);
         resource.setName(filename);
         resource.setExtension(ext);

@@ -42,11 +42,17 @@ public class ResourceController {
         String sortField = MapUtils.getString(params, "sort_field");
         String sortAlgo = MapUtils.getString(params, "sort_algo");
         String name = MapUtils.getString(params, "name");
+        String type = MapUtils.getString(params, "type");
         String categoryIdsStr = MapUtils.getString(params, "category_ids");
+
+        if (type == null || type.trim().length() == 0) {
+            return JsonResponse.error("请选择资源类型");
+        }
 
         ResourcePaginateFilter filter = new ResourcePaginateFilter();
         filter.setSortAlgo(sortAlgo);
         filter.setSortField(sortField);
+        filter.setType(type);
         if (name != null && name.length() > 0) {
             filter.setName(name);
         }
@@ -96,7 +102,7 @@ public class ResourceController {
             }
         }
 
-        Resource res = resourceService.create(categoryId, req.getName(), extension, req.getSize(), disk, req.getFileId(), req.getPath(), req.getUrl());
+        Resource res = resourceService.create(categoryId, type, req.getName(), extension, req.getSize(), disk, req.getFileId(), req.getPath(), req.getUrl());
 
         if (isVideoType) {
             resourceVideoService.create(res.getId(), duration);

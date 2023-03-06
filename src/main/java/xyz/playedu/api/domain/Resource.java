@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -12,16 +11,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
+ * 
  * @TableName resources
  */
-@TableName(value = "resources")
+@TableName(value ="resources")
 @Data
 public class Resource implements Serializable {
     /**
-     *
+     * 
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
+
+    /**
+     * 类型
+     */
+    private String type;
 
     /**
      * 分类id
@@ -65,6 +70,9 @@ public class Resource implements Serializable {
      */
     private String url;
 
+    /**
+     * 
+     */
     @JsonProperty("created_at")
     private Date createdAt;
 
@@ -84,15 +92,16 @@ public class Resource implements Serializable {
         }
         Resource other = (Resource) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getCategoryId() == null ? other.getCategoryId() == null : this.getCategoryId().equals(other.getCategoryId()))
-                && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-                && (this.getExtension() == null ? other.getExtension() == null : this.getExtension().equals(other.getExtension()))
-                && (this.getSize() == null ? other.getSize() == null : this.getSize().equals(other.getSize()))
-                && (this.getDisk() == null ? other.getDisk() == null : this.getDisk().equals(other.getDisk()))
-                && (this.getFileId() == null ? other.getFileId() == null : this.getFileId().equals(other.getFileId()))
-                && (this.getPath() == null ? other.getPath() == null : this.getPath().equals(other.getPath()))
-                && (this.getUrl() == null ? other.getUrl() == null : this.getUrl().equals(other.getUrl()))
-                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
+            && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
+            && (this.getCategoryId() == null ? other.getCategoryId() == null : this.getCategoryId().equals(other.getCategoryId()))
+            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
+            && (this.getExtension() == null ? other.getExtension() == null : this.getExtension().equals(other.getExtension()))
+            && (this.getSize() == null ? other.getSize() == null : this.getSize().equals(other.getSize()))
+            && (this.getDisk() == null ? other.getDisk() == null : this.getDisk().equals(other.getDisk()))
+            && (this.getFileId() == null ? other.getFileId() == null : this.getFileId().equals(other.getFileId()))
+            && (this.getPath() == null ? other.getPath() == null : this.getPath().equals(other.getPath()))
+            && (this.getUrl() == null ? other.getUrl() == null : this.getUrl().equals(other.getUrl()))
+            && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
     }
 
     @Override
@@ -100,6 +109,7 @@ public class Resource implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
+        result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
         result = prime * result + ((getCategoryId() == null) ? 0 : getCategoryId().hashCode());
         result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
         result = prime * result + ((getExtension() == null) ? 0 : getExtension().hashCode());
@@ -119,6 +129,7 @@ public class Resource implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
+        sb.append(", type=").append(type);
         sb.append(", categoryId=").append(categoryId);
         sb.append(", name=").append(name);
         sb.append(", extension=").append(extension);
