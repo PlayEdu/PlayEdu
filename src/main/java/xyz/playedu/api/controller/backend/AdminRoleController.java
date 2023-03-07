@@ -16,6 +16,7 @@ import xyz.playedu.api.types.JsonResponse;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -44,7 +45,7 @@ public class AdminRoleController {
         List<AdminPermission> permissions = permissionService.listOrderBySortAsc();
 
         HashMap<String, Object> data = new HashMap<>();
-        data.put("permissions", permissions);
+        data.put("perm_action", permissions.stream().collect(Collectors.groupingBy(AdminPermission::getType)));
 
         return JsonResponse.data(data);
     }
