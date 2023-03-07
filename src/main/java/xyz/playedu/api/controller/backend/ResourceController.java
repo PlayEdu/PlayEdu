@@ -79,10 +79,6 @@ public class ResourceController {
     @PostMapping("/create")
     @Transactional
     public JsonResponse store(@RequestBody @Validated ResourceRequest req) {
-        Integer categoryId = req.getCategoryId();
-        if (categoryService.getById(categoryId) == null) {
-            return JsonResponse.error("资源分类不存在");
-        }
         String disk = req.getDisk();
         if (!Arrays.asList(BackendConstant.RESOURCE_DISK_WHITELIST).contains(disk)) {
             return JsonResponse.error("存储磁盘参数错误");
@@ -102,7 +98,7 @@ public class ResourceController {
             }
         }
 
-        Resource res = resourceService.create(categoryId, type, req.getName(), extension, req.getSize(), disk, req.getFileId(), req.getPath(), req.getUrl());
+        Resource res = resourceService.create(req.getCategoryId(), type, req.getName(), extension, req.getSize(), disk, req.getFileId(), req.getPath(), req.getUrl());
 
         if (isVideoType) {
             resourceVideoService.create(res.getId(), duration);

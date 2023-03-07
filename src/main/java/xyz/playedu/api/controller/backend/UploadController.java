@@ -73,12 +73,7 @@ public class UploadController {
         String savePath = BackendConstant.UPLOAD_IMAGE_DIR + newFilename;
 
         try {
-            PutObjectArgs objectArgs = PutObjectArgs.builder()
-                    .bucket(minioConfig.getBucket())
-                    .object(savePath)
-                    .stream(file.getInputStream(), file.getSize(), -1)
-                    .contentType(contentType)
-                    .build();
+            PutObjectArgs objectArgs = PutObjectArgs.builder().bucket(minioConfig.getBucket()).object(savePath).stream(file.getInputStream(), file.getSize(), -1).contentType(contentType).build();
 
             minioClient.putObject(objectArgs);
 
@@ -105,12 +100,13 @@ public class UploadController {
 
         try {
             String filename = HelperUtil.randomString(32) + "." + extension;
-            String uploadId = playEduMinioClient.uploadId(minioConfig.getBucket(), filename);
+            String path = BackendConstant.UPLOAD_VIDEO_DIR + filename;
+            String uploadId = playEduMinioClient.uploadId(minioConfig.getBucket(), path);
 
             HashMap<String, String> data = new HashMap<>();
             data.put("resource_type", resourceType);
             data.put("upload_id", uploadId);
-            data.put("filename", filename);
+            data.put("filename", path);
 
             return JsonResponse.data(data);
         } catch (Exception e) {
@@ -130,13 +126,7 @@ public class UploadController {
             extraQueryParams.put("partNumber", partNumber + "");
             extraQueryParams.put("uploadId", uploadId);
 
-            String url = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
-                    .bucket(minioConfig.getBucket())
-                    .object(filename)
-                    .method(Method.PUT)
-                    .expiry(60 * 60 * 24)
-                    .extraQueryParams(extraQueryParams)
-                    .build());
+            String url = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder().bucket(minioConfig.getBucket()).object(filename).method(Method.PUT).expiry(60 * 60 * 24).extraQueryParams(extraQueryParams).build());
 
             HashMap<String, String> data = new HashMap<>();
             data.put("url", url);
@@ -159,7 +149,11 @@ public class UploadController {
             return JsonResponse.error("uploadId必填");
         }
         playEduMinioClient.merge(minioConfig.getBucket(), filename, uploadId);
-        return JsonResponse.success();
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("url", minioConfig.getDomain() + minioConfig.getBucket() + "/" + filename);
+
+        return JsonResponse.data(data);
     }
 
 }

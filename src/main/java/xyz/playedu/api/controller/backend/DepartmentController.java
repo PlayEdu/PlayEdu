@@ -45,8 +45,12 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_STORE)
     @GetMapping("/create")
-    public JsonResponse create(@RequestParam(name = "parent_id", defaultValue = "0") Integer parentId) {
-        List<Department> data = departmentService.listByParentId(parentId);
+    public JsonResponse create() {
+        Map<Integer, List<Department>> departments = departmentService.all().stream().collect(Collectors.groupingBy(Department::getParentId));
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("departments", departments);
+
         return JsonResponse.data(data);
     }
 
