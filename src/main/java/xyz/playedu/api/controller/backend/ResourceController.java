@@ -1,20 +1,18 @@
 package xyz.playedu.api.controller.backend;
 
-import io.minio.MinioClient;
-import io.minio.RemoveObjectArgs;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.config.MinioConfig;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceCategory;
 import xyz.playedu.api.domain.ResourceVideo;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.request.backend.ResourceRequest;
+import xyz.playedu.api.service.MinioService;
 import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.service.ResourceVideoService;
@@ -44,10 +42,7 @@ public class ResourceController {
     private ResourceCategoryService categoryService;
 
     @Autowired
-    private MinioClient minioClient;
-
-    @Autowired
-    private MinioConfig minioConfig;
+    private MinioService minioService;
 
     @GetMapping("/index")
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
@@ -134,17 +129,15 @@ public class ResourceController {
     @Transactional
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
         Resource resource = resourceService.findOrFail(id);
-        try {
-            minioClient.removeObject(RemoveObjectArgs.builder().bucket(minioConfig.getBucket()).object(resource.getPath()).build());
-            if (resource.getType().equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
-                resourceVideoService.removeByRid(resource.getId());
-            }
-            resourceService.removeById(resource.getId());
-            return JsonResponse.success();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return JsonResponse.error("系统错误");
+        // 删除文件
+        minioService.removeByPath(resource.getPath());
+        // 如果是视频资源文件则删除对应的时长关联记录
+        if (resource.getType().equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
+            resourceVideoService.removeByRid(resource.getId());
         }
+        // 删除资源记录
+        resourceService.removeById(resource.getId());
+        return JsonResponse.success();
     }
 
 }
