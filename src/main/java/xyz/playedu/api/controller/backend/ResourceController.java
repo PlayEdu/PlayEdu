@@ -12,6 +12,7 @@ import xyz.playedu.api.config.MinioConfig;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceCategory;
+import xyz.playedu.api.domain.ResourceVideo;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.request.backend.ResourceRequest;
 import xyz.playedu.api.service.ResourceCategoryService;
@@ -22,6 +23,7 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -75,7 +77,16 @@ public class ResourceController {
 
         PaginationResult<Resource> result = resourceService.paginate(page, size, filter);
 
-        return JsonResponse.data(result);
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("result", result);
+
+        if (type.equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
+            List<ResourceVideo> resourceVideos = resourceVideoService.chunksByResourceIds(result.getData().stream().map(Resource::getId).collect(Collectors.toList()));
+            Map<Integer, Integer> resourceVideosMap = resourceVideos.stream().collect(Collectors.toMap(ResourceVideo::getRid, ResourceVideo::getDuration));
+            data.put("video_duration", resourceVideosMap);
+        }
+
+        return JsonResponse.data(data);
     }
 
     @GetMapping("/create")

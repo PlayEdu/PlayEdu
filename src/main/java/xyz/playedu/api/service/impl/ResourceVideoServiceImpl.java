@@ -7,15 +7,16 @@ import xyz.playedu.api.mapper.ResourceVideoMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
-* @author tengteng
-* @description 针对表【resource_videos】的数据库操作Service实现
-* @createDate 2023-03-02 15:13:03
-*/
+ * @author tengteng
+ * @description 针对表【resource_videos】的数据库操作Service实现
+ * @createDate 2023-03-02 15:13:03
+ */
 @Service
-public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, ResourceVideo>
-    implements ResourceVideoService{
+public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, ResourceVideo> implements ResourceVideoService {
     @Override
     public void create(Integer resourceId, Integer duration) {
         ResourceVideo video = new ResourceVideo();
@@ -28,6 +29,11 @@ public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, R
     @Override
     public void removeByRid(Integer resourceId) {
         remove(query().getWrapper().eq("rid", resourceId));
+    }
+
+    @Override
+    public List<ResourceVideo> chunksByResourceIds(List<Integer> resourceIds) {
+        return list(query().getWrapper().in("rid", resourceIds));
     }
 }
 
