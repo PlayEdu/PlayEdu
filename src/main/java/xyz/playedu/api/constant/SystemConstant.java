@@ -2,6 +2,8 @@ package xyz.playedu.api.constant;
 
 public class SystemConstant {
 
+    public final static  String VERSION = "v1.0-beta1";
+
     public final static String ENV_PROD = "prod";
 
     public final static String REDIS_PREFIX = "playedu:";
