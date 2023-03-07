@@ -1,13 +1,18 @@
 package xyz.playedu.api.controller.backend;
 
+import io.minio.MinioClient;
+import io.minio.RemoveObjectArgs;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import xyz.playedu.api.config.MinioConfig;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceCategory;
+import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.request.backend.ResourceRequest;
 import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.service.ResourceService;
@@ -23,6 +28,7 @@ import java.util.*;
  * @create 2023/2/23 10:50
  */
 @RestController
+@Slf4j
 @RequestMapping("/backend/v1/resource")
 public class ResourceController {
 
@@ -34,6 +40,12 @@ public class ResourceController {
 
     @Autowired
     private ResourceCategoryService categoryService;
+
+    @Autowired
+    private MinioClient minioClient;
+
+    @Autowired
+    private MinioConfig minioConfig;
 
     @GetMapping("/index")
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
@@ -108,9 +120,20 @@ public class ResourceController {
     }
 
     @DeleteMapping("/{id}")
-    public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
-        resourceService.removeById(id);
-        return JsonResponse.success();
+    @Transactional
+    public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
+        Resource resource = resourceService.findOrFail(id);
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder().bucket(minioConfig.getBucket()).object(resource.getPath()).build());
+            if (resource.getType().equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
+                resourceVideoService.removeByRid(resource.getId());
+            }
+            resourceService.removeById(resource.getId());
+            return JsonResponse.success();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return JsonResponse.error("系统错误");
+        }
     }
 
 }

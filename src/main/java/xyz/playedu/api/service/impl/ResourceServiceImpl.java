@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import xyz.playedu.api.domain.Resource;
+import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.mapper.ResourceMapper;
 import org.springframework.stereotype.Service;
@@ -81,6 +82,15 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         resource.setUrl(url);
         resource.setCreatedAt(new Date());
         save(resource);
+        return resource;
+    }
+
+    @Override
+    public Resource findOrFail(Integer id) throws NotFoundException {
+        Resource resource = getById(id);
+        if (resource == null) {
+            throw new NotFoundException("资源不存在");
+        }
         return resource;
     }
 }

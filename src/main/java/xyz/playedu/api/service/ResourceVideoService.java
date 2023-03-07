@@ -11,4 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface ResourceVideoService extends IService<ResourceVideo> {
 
     void create(Integer resourceId, Integer duration);
+
+    void removeByRid(Integer resourceId);
 }

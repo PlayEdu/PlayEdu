@@ -24,6 +24,11 @@ public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, R
         video.setCreatedAt(new Date());
         save(video);
     }
+
+    @Override
+    public void removeByRid(Integer resourceId) {
+        remove(query().getWrapper().eq("rid", resourceId));
+    }
 }
 
 
