@@ -7,27 +7,36 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * 
+ *
  * @TableName resource_videos
  */
 @TableName(value ="resource_videos")
 @Data
 public class ResourceVideo implements Serializable {
     /**
-     * 
+     *
      */
     private Integer rid;
+
+    /**
+     * 封面
+     */
+    private String poster;
 
     /**
      * 视频时长[s]
      */
     private Integer duration;
 
-    @JsonProperty("created_at")
+    /**
+     * 创建时间
+     */
+    @JsonIgnore
     private Date createdAt;
 
     @TableField(exist = false)
@@ -46,6 +55,7 @@ public class ResourceVideo implements Serializable {
         }
         ResourceVideo other = (ResourceVideo) that;
         return (this.getRid() == null ? other.getRid() == null : this.getRid().equals(other.getRid()))
+            && (this.getPoster() == null ? other.getPoster() == null : this.getPoster().equals(other.getPoster()))
             && (this.getDuration() == null ? other.getDuration() == null : this.getDuration().equals(other.getDuration()))
             && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
     }
@@ -55,6 +65,7 @@ public class ResourceVideo implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getRid() == null) ? 0 : getRid().hashCode());
+        result = prime * result + ((getPoster() == null) ? 0 : getPoster().hashCode());
         result = prime * result + ((getDuration() == null) ? 0 : getDuration().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
         return result;
@@ -67,6 +78,7 @@ public class ResourceVideo implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", rid=").append(rid);
+        sb.append(", poster=").append(poster);
         sb.append(", duration=").append(duration);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", serialVersionUID=").append(serialVersionUID);

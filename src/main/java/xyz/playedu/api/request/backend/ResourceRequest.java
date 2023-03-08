@@ -47,4 +47,6 @@ public class ResourceRequest {
 
     private Integer duration;
 
+    private String poster;
+
 }

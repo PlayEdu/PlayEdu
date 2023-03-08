@@ -6,11 +6,13 @@
 
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.ResourceVideo">
             <result property="rid" column="rid" jdbcType="INTEGER"/>
+            <result property="poster" column="poster" jdbcType="VARCHAR"/>
             <result property="duration" column="duration" jdbcType="INTEGER"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        rid,duration,created_at
+        rid,poster,duration,
+        created_at
     </sql>
 </mapper>

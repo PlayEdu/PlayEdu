@@ -4,7 +4,6 @@ import xyz.playedu.api.domain.ResourceVideo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author tengteng
@@ -13,9 +12,9 @@ import java.util.Map;
  */
 public interface ResourceVideoService extends IService<ResourceVideo> {
 
-    void create(Integer resourceId, Integer duration);
+    void create(Integer resourceId, Integer duration, String poster);
 
     void removeByRid(Integer resourceId);
 
-    List<ResourceVideo> chunksByResourceIds(List<Integer> resourceIds);
+    List<ResourceVideo> chunksByRids(List<Integer> resourceIds);
 }

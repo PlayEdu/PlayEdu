@@ -76,9 +76,9 @@ public class ResourceController {
         data.put("result", result);
 
         if (type.equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
-            List<ResourceVideo> resourceVideos = resourceVideoService.chunksByResourceIds(result.getData().stream().map(Resource::getId).collect(Collectors.toList()));
-            Map<Integer, Integer> resourceVideosMap = resourceVideos.stream().collect(Collectors.toMap(ResourceVideo::getRid, ResourceVideo::getDuration));
-            data.put("video_duration", resourceVideosMap);
+            List<ResourceVideo> resourceVideos = resourceVideoService.chunksByRids(result.getData().stream().map(Resource::getId).toList());
+            Map<Integer, ResourceVideo> resourceVideosExtra = resourceVideos.stream().collect(Collectors.toMap(ResourceVideo::getRid, e -> e));
+            data.put("videos_extra", resourceVideosExtra);
         }
 
         return JsonResponse.data(data);
@@ -109,17 +109,21 @@ public class ResourceController {
 
         // 如果是视频则必须传递duration参数
         Integer duration = req.getDuration();
+        String poster = req.getPoster();
         boolean isVideoType = BackendConstant.RESOURCE_TYPE_VIDEO.equals(type);
         if (isVideoType) {
             if (duration == null || duration == 0) {
                 return JsonResponse.error("duration参数必须存在且大于0");
+            }
+            if (poster == null || poster.trim().length() == 0) {
+                return JsonResponse.error("视频封面为空");
             }
         }
 
         Resource res = resourceService.create(req.getCategoryId(), type, req.getName(), extension, req.getSize(), disk, req.getFileId(), req.getPath(), req.getUrl());
 
         if (isVideoType) {
-            resourceVideoService.create(res.getId(), duration);
+            resourceVideoService.create(res.getId(), duration, poster);
         }
 
         return JsonResponse.data(res);

@@ -18,10 +18,11 @@ import java.util.Map;
 @Service
 public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, ResourceVideo> implements ResourceVideoService {
     @Override
-    public void create(Integer resourceId, Integer duration) {
+    public void create(Integer resourceId, Integer duration, String poster) {
         ResourceVideo video = new ResourceVideo();
         video.setRid(resourceId);
         video.setDuration(duration);
+        video.setPoster(poster);
         video.setCreatedAt(new Date());
         save(video);
     }
@@ -32,7 +33,7 @@ public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, R
     }
 
     @Override
-    public List<ResourceVideo> chunksByResourceIds(List<Integer> resourceIds) {
+    public List<ResourceVideo> chunksByRids(List<Integer> resourceIds) {
         return list(query().getWrapper().in("rid", resourceIds));
     }
 }
