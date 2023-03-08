@@ -13,7 +13,6 @@ public class BackendConstant {
     public final static String RESOURCE_TYPE_WORD = "WORD";
     public final static String RESOURCE_TYPE_PPT = "PPT";
 
-    public final static String[] RESOURCE_TYPE_WHITELIST = {RESOURCE_TYPE_IMAGE, RESOURCE_TYPE_PDF, RESOURCE_TYPE_VIDEO, RESOURCE_TYPE_WORD, RESOURCE_TYPE_PPT};
     public final static HashMap<String, String> RESOURCE_EXT_2_CONTENT_TYPE = new HashMap<>() {{
         put("png", "image/png");
         put("jpg", "image/jpg");

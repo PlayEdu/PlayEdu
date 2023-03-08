@@ -54,7 +54,13 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             wrapper.eq("type", filter.getType());
         }
         if (filter.getCategoryIds() != null && filter.getCategoryIds().length > 0) {
-            // todo 资源分类过滤
+            List<Integer> ridArray = relationService.getRidsByCids(Arrays.asList(filter.getCategoryIds()));
+            if (ridArray == null || ridArray.size() == 0) {
+                ridArray = new ArrayList<>() {{
+                    add(0);
+                }};
+            }
+            wrapper.in("id", ridArray);
         }
 
         String sortFiled = filter.getSortField();

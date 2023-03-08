@@ -53,9 +53,9 @@ minio:
 mybatis:
   mapper-locations: classpath:mapper/*.xml
 
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 # PlayEdu
 playedu:
