@@ -116,11 +116,20 @@ public class ResourceController {
                 return JsonResponse.error("duration参数必须存在且大于0");
             }
             if (poster == null || poster.trim().length() == 0) {
-                return JsonResponse.error("视频封面为空");
+                return JsonResponse.error("poster参数值不能为空");
             }
         }
 
-        Resource res = resourceService.create(req.getCategoryId(), type, req.getName(), extension, req.getSize(), disk, req.getFileId(), req.getPath(), req.getUrl());
+        Resource res = resourceService.create(
+                req.getCategoryId(),
+                type, req.getName(),
+                extension,
+                req.getSize(),
+                disk,
+                req.getFileId(),
+                req.getPath(),
+                req.getUrl()
+        );
 
         if (isVideoType) {
             resourceVideoService.create(res.getId(), duration, poster);

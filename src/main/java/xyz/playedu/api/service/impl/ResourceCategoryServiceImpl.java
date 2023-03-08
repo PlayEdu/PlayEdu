@@ -53,6 +53,11 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
         newCategory.setName(name);
         updateById(newCategory);
     }
+
+    @Override
+    public ResourceCategory find(Integer id, String type) {
+        return getOne(query().getWrapper().eq("id", id).eq("type", type));
+    }
 }
 
 

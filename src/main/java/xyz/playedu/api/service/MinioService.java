@@ -12,6 +12,8 @@ public interface MinioService {
 
     String saveFile(MultipartFile file, String savePath, String contentType);
 
+    String saveBytes(byte[] file, String savePath, String contentType);
+
     String uploadId(String path);
 
     String chunkPreSignUrl(String filename, String partNumber, String uploadId);

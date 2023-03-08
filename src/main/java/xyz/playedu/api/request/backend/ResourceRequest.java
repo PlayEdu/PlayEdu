@@ -49,4 +49,6 @@ public class ResourceRequest {
 
     private String poster;
 
+    private Integer parentId;
+
 }

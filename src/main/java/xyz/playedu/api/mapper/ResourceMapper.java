@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
 * @author tengteng
 * @description 针对表【resources】的数据库操作Mapper
-* @createDate 2023-03-06 10:06:57
+* @createDate 2023-03-08 13:43:00
 * @Entity xyz.playedu.api.domain.Resource
 */
 @Mapper

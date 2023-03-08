@@ -19,4 +19,8 @@ public interface ResourceService extends IService<Resource> {
 
     Resource findOrFail(Integer id) throws NotFoundException;
 
+    void changeParentId(Integer id, Integer parentId);
+
+    void storeResourceVideo(Integer rid, Integer duration, String poster);
+
 }

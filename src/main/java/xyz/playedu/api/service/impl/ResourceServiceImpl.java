@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.mapper.ResourceMapper;
 import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.ResourceVideoService;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
@@ -24,9 +26,12 @@ import java.util.Date;
 @Service
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
 
+    @Autowired
+    private ResourceVideoService resourceVideoService;
+
     @Override
     public PaginationResult<Resource> paginate(int page, int size, ResourcePaginateFilter filter) {
-        QueryWrapper<Resource> wrapper = query().getWrapper().eq("1", "1");
+        QueryWrapper<Resource> wrapper = query().getWrapper().eq("is_hidden", 0);
 
         if (filter.getName() != null) {
             wrapper.like("name", "%" + filter.getName() + "%");
@@ -92,6 +97,20 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             throw new NotFoundException("资源不存在");
         }
         return resource;
+    }
+
+    @Override
+    public void changeParentId(Integer id, Integer parentId) {
+        Resource resource = new Resource();
+        resource.setId(id);
+        resource.setParentId(parentId);
+        resource.setIsHidden(1);
+        updateById(resource);
+    }
+
+    @Override
+    public void storeResourceVideo(Integer rid, Integer duration, String poster) {
+        resourceVideoService.create(rid, duration, poster);
     }
 }
 

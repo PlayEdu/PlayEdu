@@ -19,6 +19,8 @@ public interface ResourceCategoryService extends IService<ResourceCategory> {
 
     ResourceCategory findOrFail(Integer id) throws NotFoundException;
 
+    ResourceCategory find(Integer id, String type);
+
     void update(ResourceCategory category, Integer sort, String name);
 
 }

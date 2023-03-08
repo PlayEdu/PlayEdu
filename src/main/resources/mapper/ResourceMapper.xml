@@ -16,12 +16,15 @@
             <result property="path" column="path" jdbcType="VARCHAR"/>
             <result property="url" column="url" jdbcType="VARCHAR"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+            <result property="isHidden" column="is_hidden" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,type,category_id,
         name,extension,size,
         disk,file_id,path,
-        url,created_at
+        url,created_at,parent_id,
+        is_hidden
     </sql>
 </mapper>

@@ -13,6 +13,8 @@ import xyz.playedu.api.config.MinioConfig;
 import xyz.playedu.api.service.MinioService;
 import xyz.playedu.api.vendor.PlayEduMinioClient;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +36,7 @@ public class MinioServiceImpl implements MinioService {
 
     @Override
     public String url(String path) {
-        return c.getDomain() + c.getBucket() + path;
+        return c.getDomain() + c.getBucket() + "/" + path;
     }
 
     @Override
@@ -84,5 +86,22 @@ public class MinioServiceImpl implements MinioService {
     @SneakyThrows
     public void removeByPath(String path) {
         client.removeObject(RemoveObjectArgs.builder().bucket(c.getBucket()).object(path).build());
+    }
+
+    @Override
+    @SneakyThrows
+    public String saveBytes(byte[] file, String savePath, String contentType) {
+        InputStream inputStream = new ByteArrayInputStream(file);
+
+        PutObjectArgs objectArgs = PutObjectArgs.builder()
+                .bucket(c.getBucket())
+                .object(savePath)
+                .stream(inputStream, file.length, -1)
+                .contentType(contentType)
+                .build();
+
+        client.putObject(objectArgs);
+
+        return url(savePath);
     }
 }

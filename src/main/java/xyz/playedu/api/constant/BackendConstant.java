@@ -38,19 +38,26 @@ public class BackendConstant {
         put("ppt", RESOURCE_TYPE_PPT);
         put("pptx", RESOURCE_TYPE_PPT);
     }};
+    public final static HashMap<String, String> RESOURCE_TYPE_2_DIR = new HashMap<>() {{
+        put(RESOURCE_TYPE_VIDEO, UPLOAD_VIDEO_DIR);
+        put(RESOURCE_TYPE_IMAGE, UPLOAD_IMAGE_DIR);
+        put(RESOURCE_TYPE_PDF, UPLOAD_PDF_DIR);
+        put(RESOURCE_TYPE_WORD, UPLOAD_WORD_DIR);
+        put(RESOURCE_TYPE_PPT, UPLOAD_PPT_DIR);
+    }};
 
-    public final static String[] RESOURCE_DISK_WHITELIST = {"minio"};
+    public final static String STORAGE_DRIVER_MINIO = "minio";
+
+    public final static String[] RESOURCE_DISK_WHITELIST = {STORAGE_DRIVER_MINIO};
 
     public final static String[] COURSE_HOUR_TYPE_WHITELIST = {"VIDEO"};
     public final static String[] COURSE_HOUR_TYPE_WHITELIST_TEXT = {"视频"};
 
-    // 图片上传相关配置
-    public final static String[] UPLOAD_IMAGE_EXT_WL = {"png", "jpg", "jpeg", "gif"};
-    public final static String[] UPLOAD_IMAGE_CONTENT_TYPE_WL = {"image/png", "image/jpg", "image/jpeg", "image/gif"};
     public final static String UPLOAD_IMAGE_DIR = "images/";
-
-    // 视频上传配置
     public final static String UPLOAD_VIDEO_DIR = "videos/";
+    public final static String UPLOAD_PDF_DIR = "pdf/";
+    public final static String UPLOAD_WORD_DIR = "word/";
+    public final static String UPLOAD_PPT_DIR = "word/";
 
     public final static String PRIVACY_FIELD_TYPE_EMAIL = "email";
     public final static String PRIVACY_FIELD_TYPE_PHONE = "phone";
