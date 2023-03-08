@@ -1,5 +1,7 @@
 package xyz.playedu.api.request.backend;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -11,14 +13,16 @@ import org.hibernate.validator.constraints.Length;
 @Data
 public class ResourceCategoryRequest {
 
-    @NotNull(message = "资源类型不能为空")
-    private String type;
-
-    @NotNull(message = "分类名不能为空")
-    @Length(min = 1, max = 12, message = "分类名长度在1-12个字符之间")
+    @NotNull(message = "name参数不存在")
+    @NotBlank(message = "请输入分类名")
+    @Length(min = 1, max = 20, message = "分类名长度在1-20个字符之间")
     private String name;
 
-    @NotNull(message = "请输入排序值")
+    @JsonProperty("parent_id")
+    @NotNull(message = "parent_id参数不存在")
+    private Integer parentId;
+
+    @NotNull(message = "sort参数不存在")
     private Integer sort;
 
 }

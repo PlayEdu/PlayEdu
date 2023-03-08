@@ -6,7 +6,8 @@
 
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.ResourceCategory">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="type" column="type" jdbcType="VARCHAR"/>
+            <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+            <result property="parentChain" column="parent_chain" jdbcType="VARCHAR"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="sort" column="sort" jdbcType="INTEGER"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
@@ -14,7 +15,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,type,name,
-        sort,created_at,updated_at
+        id,parent_id,parent_chain,
+        name,sort,created_at,
+        updated_at
     </sql>
 </mapper>

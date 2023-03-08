@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -24,9 +25,16 @@ public class ResourceCategory implements Serializable {
     private Integer id;
 
     /**
-     * 资源类别
+     * 
      */
-    private String type;
+    @JsonProperty("parent_id")
+    private Integer parentId;
+
+    /**
+     * 
+     */
+    @JsonProperty("parent_chain")
+    private String parentChain;
 
     /**
      * 分类名
@@ -66,7 +74,8 @@ public class ResourceCategory implements Serializable {
         }
         ResourceCategory other = (ResourceCategory) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
+            && (this.getParentId() == null ? other.getParentId() == null : this.getParentId().equals(other.getParentId()))
+            && (this.getParentChain() == null ? other.getParentChain() == null : this.getParentChain().equals(other.getParentChain()))
             && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
             && (this.getSort() == null ? other.getSort() == null : this.getSort().equals(other.getSort()))
             && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
@@ -78,7 +87,8 @@ public class ResourceCategory implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
+        result = prime * result + ((getParentId() == null) ? 0 : getParentId().hashCode());
+        result = prime * result + ((getParentChain() == null) ? 0 : getParentChain().hashCode());
         result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
         result = prime * result + ((getSort() == null) ? 0 : getSort().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
@@ -93,7 +103,8 @@ public class ResourceCategory implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", type=").append(type);
+        sb.append(", parentId=").append(parentId);
+        sb.append(", parentChain=").append(parentChain);
         sb.append(", name=").append(name);
         sb.append(", sort=").append(sort);
         sb.append(", createdAt=").append(createdAt);

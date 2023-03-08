@@ -6,7 +6,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduBackendThreadLocal;
 import xyz.playedu.api.constant.BPermissionConstant;
-import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.ResourceCategory;
 import xyz.playedu.api.event.ResourceCategoryDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
@@ -15,10 +14,8 @@ import xyz.playedu.api.request.backend.ResourceCategoryRequest;
 import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.types.JsonResponse;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -29,62 +26,59 @@ import java.util.List;
 public class ResourceCategoryController {
 
     @Autowired
-    private ResourceCategoryService resourceCategoryService;
+    private ResourceCategoryService categoryService;
 
     @Autowired
     private ApplicationContext ctx;
 
     @GetMapping("/index")
-    public JsonResponse index(@RequestParam(name = "type") String type) {
-        List<ResourceCategory> categories = resourceCategoryService.getByType(type);
+    public JsonResponse index() {
+        Map<Integer, List<ResourceCategory>> categories = categoryService.all().stream().collect(Collectors.groupingBy(ResourceCategory::getParentId));
 
         HashMap<String, Object> data = new HashMap<>();
-        data.put("data", categories);
+        data.put("categories", categories);
 
         return JsonResponse.data(data);
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @GetMapping("/create")
     public JsonResponse create() {
+        Map<Integer, List<ResourceCategory>> categories = categoryService.all().stream().collect(Collectors.groupingBy(ResourceCategory::getParentId));
+
         HashMap<String, Object> data = new HashMap<>();
-        data.put("types", BackendConstant.RESOURCE_TYPE_WHITELIST);
+        data.put("categories", categories);
+
         return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PostMapping("/create")
-    public JsonResponse store(@RequestBody @Validated ResourceCategoryRequest req) {
-        if (!Arrays.asList(BackendConstant.RESOURCE_TYPE_WHITELIST).contains(req.getType())) {
-            return JsonResponse.error("资源类型不支持");
-        }
-        resourceCategoryService.create(req.getType(), req.getSort(), req.getName());
+    public JsonResponse store(@RequestBody @Validated ResourceCategoryRequest req) throws NotFoundException {
+        categoryService.create(req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @GetMapping("/{id}")
-    public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
-        ResourceCategory category = resourceCategoryService.findOrFail(id);
+    public JsonResponse edit(@PathVariable Integer id) throws NotFoundException {
+        ResourceCategory category = categoryService.findOrFail(id);
         return JsonResponse.data(category);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PutMapping("/{id}")
-    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated ResourceCategoryRequest req) throws NotFoundException {
-        if (!Arrays.asList(BackendConstant.RESOURCE_TYPE_WHITELIST).contains(req.getType())) {
-            return JsonResponse.error("资源类型不支持");
-        }
-        ResourceCategory category = resourceCategoryService.findOrFail(id);
-        resourceCategoryService.update(category, req.getSort(), req.getName());
+    public JsonResponse update(@PathVariable Integer id, @RequestBody ResourceCategoryRequest req) throws NotFoundException {
+        ResourceCategory category = categoryService.findOrFail(id);
+        categoryService.update(category, req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @DeleteMapping("/{id}")
-    public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
-        resourceCategoryService.removeById(id);
-        ctx.publishEvent(new ResourceCategoryDestroyEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), id, new Date()));
+    public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
+        ResourceCategory category = categoryService.findOrFail(id);
+        categoryService.deleteById(category.getId());
+        ctx.publishEvent(new ResourceCategoryDestroyEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), category.getId(), new Date()));
         return JsonResponse.success();
     }
 

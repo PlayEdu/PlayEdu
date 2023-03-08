@@ -11,11 +11,11 @@ import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.request.backend.UploadVideoMergeRequest;
 import xyz.playedu.api.service.MinioService;
-import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.service.UploadService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
+
 
 import java.util.HashMap;
 
@@ -28,9 +28,6 @@ import java.util.HashMap;
 @RequestMapping("/backend/v1/upload")
 public class UploadController {
     @Autowired
-    private ResourceCategoryService resourceCategoryService;
-
-    @Autowired
     private MinioService minioService;
 
     @Autowired
@@ -40,9 +37,9 @@ public class UploadController {
     private ResourceService resourceService;
 
     @PostMapping("/file")
-    public JsonResponse image(@RequestParam HashMap<String, Object> params, MultipartFile file) throws ServiceException {
-        Integer cid = MapUtils.getInteger(params, "category_id");
-        Resource res = uploadService.storeMinio(file, cid);
+    public JsonResponse file(@RequestParam HashMap<String, Object> params, MultipartFile file) throws ServiceException {
+        String categoryIds = MapUtils.getString(params, "category_ids");
+        Resource res = uploadService.storeMinio(file, categoryIds);
         return JsonResponse.data(res);
     }
 
@@ -85,21 +82,16 @@ public class UploadController {
 
     @PostMapping("/minio/merge-video")
     public JsonResponse minioMergeVideo(@RequestBody @Validated UploadVideoMergeRequest req) throws ServiceException {
-        Integer cid = req.getCategoryId();
         String type = BackendConstant.RESOURCE_EXT_2_TYPE.get(req.getExtension());
         if (type == null) {
             return JsonResponse.error("当前格式不支持上传");
         }
-        if (cid != null && resourceCategoryService.find(cid, type) == null) {
-            return JsonResponse.error("资源分类不存在");
-        }
-
         // 合并视频文件
         String url = minioService.merge(req.getFilename(), req.getUploadId());
 
         // 视频素材保存
         Resource videoResource = resourceService.create(
-                cid,
+                req.getCategoryIds(),
                 type,
                 req.getOriginalFilename(),
                 req.getExtension(),
@@ -110,7 +102,7 @@ public class UploadController {
                 url
         );
         // 视频封面素材保存
-        Resource posterResource = uploadService.storeBase64Image(req.getPoster(), 0);
+        Resource posterResource = uploadService.storeBase64Image(req.getPoster(), null);
         // 视频的封面素材改为[隐藏 && 属于视频的子素材]
         resourceService.changeParentId(posterResource.getId(), videoResource.getId());
         // 视频信息

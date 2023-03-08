@@ -7,7 +7,6 @@
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.Resource">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="type" column="type" jdbcType="VARCHAR"/>
-            <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="extension" column="extension" jdbcType="VARCHAR"/>
             <result property="size" column="size" jdbcType="BIGINT"/>
@@ -21,10 +20,9 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,type,category_id,
-        name,extension,size,
-        disk,file_id,path,
-        url,created_at,parent_id,
-        is_hidden
+        id,type,name,
+        extension,size,disk,
+        file_id,path,url,
+        created_at,parent_id,is_hidden
     </sql>
 </mapper>

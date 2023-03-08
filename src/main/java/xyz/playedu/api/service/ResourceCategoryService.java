@@ -13,14 +13,20 @@ import java.util.List;
  */
 public interface ResourceCategoryService extends IService<ResourceCategory> {
 
-    List<ResourceCategory> getByType(String type);
+    List<ResourceCategory> listByParentId(Integer id);
 
-    void create(String type, Integer sort, String name);
+    List<ResourceCategory> all();
 
     ResourceCategory findOrFail(Integer id) throws NotFoundException;
 
-    ResourceCategory find(Integer id, String type);
+    void deleteById(Integer id) throws NotFoundException;
 
-    void update(ResourceCategory category, Integer sort, String name);
+    void update(ResourceCategory category, String name, Integer parentId, Integer sort) throws NotFoundException;
+
+    void create(String name, Integer parentId, Integer sort) throws NotFoundException;
+
+    String childrenParentChain(ResourceCategory category);
+
+    String compParentChain(Integer parentId) throws NotFoundException;
 
 }

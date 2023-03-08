@@ -5,18 +5,23 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.domain.Resource;
+import xyz.playedu.api.domain.ResourceCategoryRelation;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.mapper.ResourceMapper;
 import org.springframework.stereotype.Service;
 import xyz.playedu.api.service.ResourceVideoService;
+import xyz.playedu.api.service.internal.ResourceCategoryRelationService;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author tengteng
@@ -28,6 +33,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     @Autowired
     private ResourceVideoService resourceVideoService;
+
+    @Autowired
+    private ResourceCategoryRelationService relationService;
 
     @Override
     public PaginationResult<Resource> paginate(int page, int size, ResourcePaginateFilter filter) {
@@ -46,7 +54,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             wrapper.eq("type", filter.getType());
         }
         if (filter.getCategoryIds() != null && filter.getCategoryIds().length > 0) {
-            wrapper.in("category_id", Arrays.asList(filter.getCategoryIds()));
+            // todo 资源分类过滤
         }
 
         String sortFiled = filter.getSortField();
@@ -74,10 +82,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
-    public Resource create(Integer categoryId, String type, String filename, String ext, Long size, String disk, String fileId, String path, String url) {
+    @Transactional
+    public Resource create(String categoryIds, String type, String filename, String ext, Long size, String disk, String fileId, String path, String url) {
         Resource resource = new Resource();
         resource.setType(type);
-        resource.setCategoryId(categoryId);
         resource.setName(filename);
         resource.setExtension(ext);
         resource.setSize(size);
@@ -87,6 +95,21 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         resource.setUrl(url);
         resource.setCreatedAt(new Date());
         save(resource);
+
+
+        if (categoryIds != null && categoryIds.trim().length() > 0) {
+            String[] idArray = categoryIds.split(",");
+            List<ResourceCategoryRelation> relations = new ArrayList<>();
+            for (int i = 0; i < idArray.length; i++) {
+                String tmpId = idArray[i];
+
+                relations.add(new ResourceCategoryRelation() {{
+                    setCid(Integer.valueOf(tmpId));
+                    setRid(resource.getId());
+                }});
+            }
+            relationService.saveBatch(relations);
+        }
         return resource;
     }
 
