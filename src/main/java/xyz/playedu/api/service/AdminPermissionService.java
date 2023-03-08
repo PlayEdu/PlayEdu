@@ -21,4 +21,6 @@ public interface AdminPermissionService extends IService<AdminPermission> {
 
     List<Integer> allIds();
 
+    List<AdminPermission> chunks(List<Integer> ids);
+
 }

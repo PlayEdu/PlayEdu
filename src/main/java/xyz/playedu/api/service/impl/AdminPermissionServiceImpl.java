@@ -52,6 +52,11 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
         }
         return ids;
     }
+
+    @Override
+    public List<AdminPermission> chunks(List<Integer> ids) {
+        return list(query().getWrapper().in("id", ids));
+    }
 }
 
 

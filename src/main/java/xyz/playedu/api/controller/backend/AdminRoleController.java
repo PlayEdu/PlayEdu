@@ -1,5 +1,6 @@
 package xyz.playedu.api.controller.backend;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +15,10 @@ import xyz.playedu.api.service.AdminPermissionService;
 import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.types.JsonResponse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/backend/v1/admin-role")
+@Slf4j
 public class AdminRoleController {
 
     @Autowired
@@ -61,11 +65,26 @@ public class AdminRoleController {
     @GetMapping("/{id}")
     public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
         AdminRole role = roleService.findOrFail(id);
+
+        // 关联的权限
         List<Integer> permissionIds = roleService.getPermissionIdsByRoleId(role.getId());
+        List<Integer> permAction = new ArrayList<>();
+        List<Integer> permData = new ArrayList<>();
+        if (permissionIds != null && permissionIds.size() > 0) {
+            List<AdminPermission> permissions = permissionService.chunks(permissionIds);
+            Map<String, List<AdminPermission>> permissionsGroup = permissions.stream().collect(Collectors.groupingBy(AdminPermission::getType));
+            if (permissionsGroup.get("action") != null) {
+                permAction = permissionsGroup.get("action").stream().map(AdminPermission::getId).toList();
+            }
+            if (permissionsGroup.get("data") != null) {
+                permData = permissionsGroup.get("data").stream().map(AdminPermission::getId).toList();
+            }
+        }
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("role", role);
-        data.put("permission_ids", permissionIds);
+        data.put("perm_action", permAction);
+        data.put("perm_data", permData);
 
         return JsonResponse.data(data);
     }
