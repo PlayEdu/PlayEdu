@@ -20,4 +20,6 @@ public interface AppConfigService extends IService<AppConfig> {
 
     void saveFromMap(HashMap<String, String> data);
 
+    Map<String, String> keyValues();
+
 }

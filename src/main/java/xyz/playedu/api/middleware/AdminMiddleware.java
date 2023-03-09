@@ -12,6 +12,7 @@ import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.service.AdminUserService;
+import xyz.playedu.api.service.AppConfigService;
 import xyz.playedu.api.service.JWTService;
 import xyz.playedu.api.types.JWTPayload;
 import xyz.playedu.api.types.JsonResponse;
@@ -19,10 +20,11 @@ import xyz.playedu.api.util.HelperUtil;
 import xyz.playedu.api.util.RequestUtil;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Component
 @Slf4j
-public class AdminAuthMiddleware implements HandlerInterceptor {
+public class AdminMiddleware implements HandlerInterceptor {
 
     @Autowired
     private JWTService jwtService;
@@ -36,9 +38,20 @@ public class AdminAuthMiddleware implements HandlerInterceptor {
     @Autowired
     private BackendBus backendBus;
 
+    @Autowired
+    private AppConfigService configService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if ("OPTIONS".equals(request.getMethod()) || BackendBus.inUnAuthWhitelist(request.getRequestURI())) {
+        if ("OPTIONS".equals(request.getMethod())) {
+            return HandlerInterceptor.super.preHandle(request, response, handler);
+        }
+
+        // 读取全局配置
+        Map<String, String> systemConfig = configService.keyValues();
+        PlayEduBackendThreadLocal.setConfig(systemConfig);
+
+        if (BackendBus.inUnAuthWhitelist(request.getRequestURI())) {
             return HandlerInterceptor.super.preHandle(request, response, handler);
         }
 

@@ -4,13 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import xyz.playedu.api.config.MinioConfig;
+import xyz.playedu.api.PlayEduBackendThreadLocal;
 import xyz.playedu.api.service.ImageCaptchaService;
 import xyz.playedu.api.types.ImageCaptchaResult;
 import xyz.playedu.api.types.JsonResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/backend/v1/system")
@@ -18,9 +19,6 @@ public class SystemController {
 
     @Autowired
     private ImageCaptchaService imageCaptchaService;
-
-    @Autowired
-    private MinioConfig minioConfig;
 
     @GetMapping("/image-captcha")
     public JsonResponse imageCaptcha() throws IOException {
@@ -35,8 +33,7 @@ public class SystemController {
 
     @GetMapping("/config")
     public JsonResponse config() {
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("minio_endpoint", minioConfig.getEndPoint());
+        Map<String, String> data = PlayEduBackendThreadLocal.getConfig();
         return JsonResponse.data(data);
     }
 

@@ -6,14 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import xyz.playedu.api.middleware.AdminAuthMiddleware;
+import xyz.playedu.api.middleware.AdminMiddleware;
 
 @Configuration
 @Slf4j
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Resource
-    private AdminAuthMiddleware adminAuthMiddleware;
+    private AdminMiddleware adminAuthMiddleware;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

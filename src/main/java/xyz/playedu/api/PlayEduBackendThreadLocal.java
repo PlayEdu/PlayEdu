@@ -4,6 +4,7 @@ import xyz.playedu.api.domain.AdminUser;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class PlayEduBackendThreadLocal {
 
@@ -12,6 +13,7 @@ public class PlayEduBackendThreadLocal {
     public final static String KEY_ADMIN_USER_ID = "admin_id";
     public final static String KEY_ADMIN_USER = "admin_user";
     public final static String KEY_ADMIN_PER = "admin_per";
+    public final static String KEY_CONFIG = "config";
 
     public PlayEduBackendThreadLocal() {
     }
@@ -55,6 +57,14 @@ public class PlayEduBackendThreadLocal {
 
     public static void remove() {
         THREAD_LOCAL.remove();
+    }
+
+    public static void setConfig(Map<String, String> config) {
+        put(KEY_CONFIG, config);
+    }
+
+    public static Map<String, String> getConfig() {
+        return (Map<String, String>) get(KEY_CONFIG);
     }
 
 }

@@ -57,6 +57,11 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
             updateBatchById(list);
         }
     }
+
+    @Override
+    public Map<String, String> keyValues() {
+        return list(query().getWrapper().eq("is_hidden", 0)).stream().collect(Collectors.toMap(AppConfig::getKeyName, AppConfig::getKeyValue));
+    }
 }
 
 
