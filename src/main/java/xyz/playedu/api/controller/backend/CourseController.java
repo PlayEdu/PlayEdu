@@ -14,8 +14,8 @@ import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseRequest;
-import xyz.playedu.api.service.CourseCategoryService;
 import xyz.playedu.api.service.CourseService;
+import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
@@ -36,7 +36,7 @@ public class CourseController {
     private CourseService courseService;
 
     @Autowired
-    private CourseCategoryService categoryService;//课程分类
+    private ResourceCategoryService categoryService;
 
     @Autowired
     private ApplicationContext ctx;
@@ -71,7 +71,7 @@ public class CourseController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/create")
     public JsonResponse create() {
-        Map<Integer, List<CourseCategory>> categories = categoryService.all().stream().collect(Collectors.groupingBy(CourseCategory::getParentId));
+        Map<Integer, List<ResourceCategory>> categories = categoryService.all().stream().collect(Collectors.groupingBy(ResourceCategory::getParentId));
         HashMap<String, Object> data = new HashMap<>();
         data.put("categories", categories);
         return JsonResponse.data(data);

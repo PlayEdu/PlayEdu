@@ -6,15 +6,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import xyz.playedu.api.domain.CategoryCourse;
+import xyz.playedu.api.domain.ResourceCourseCategory;
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.CourseDepartment;
 import xyz.playedu.api.exception.NotFoundException;
-import xyz.playedu.api.service.CategoryCourseService;
 import xyz.playedu.api.service.CourseDepartmentService;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.mapper.CourseMapper;
 import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.util.HelperUtil;
@@ -35,7 +35,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     private CourseDepartmentService courseDepartmentService;
 
     @Autowired
-    private CategoryCourseService categoryCourseService;
+    private ResourceCourseCategoryService courseCategoryService;
 
     @Override
     public PaginationResult<Course> paginate(int page, int size, CoursePaginateFiler filter) {
@@ -46,19 +46,17 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         }
         if (filter.getDepIds() != null && filter.getDepIds().length > 0) {
             List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(filter.getDepIds());
-            if (courseIds.size() == 0) {
-                wrapper.in("id", HelperUtil.zeroIntegerList());
-            } else {
-                wrapper.in("id", courseIds);
+            if (courseIds == null || courseIds.size() == 0) {
+                courseIds = HelperUtil.zeroIntegerList();
             }
+            wrapper.in("id", courseIds);
         }
         if (filter.getCategoryIds() != null && filter.getCategoryIds().length > 0) {
-            List<Integer> courseIds = categoryCourseService.getCourseIdsByCategoryIds(filter.getCategoryIds());
-            if (courseIds.size() == 0) {
-                wrapper.in("id", HelperUtil.zeroIntegerList());
-            } else {
-                wrapper.in("id", courseIds);
+            List<Integer> courseIds = courseCategoryService.getCourseIdsByCategoryIds(List.of(filter.getCategoryIds()));
+            if (courseIds == null || courseIds.size() == 0) {
+                courseIds = HelperUtil.zeroIntegerList();
             }
+            wrapper.in("id", courseIds);
         }
 
         String sortFiled = filter.getSortField();
@@ -88,16 +86,17 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     @Override
     @Transactional
     public void createWithCategoryIdsAndDepIds(String title, String thumb, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
+        // 创建课程
         Course course = new Course();
         course.setTitle(title);
         course.setThumb(thumb);
         course.setIsShow(isShow);
         course.setCreatedAt(new Date());
         course.setUpdatedAt(new Date());
-
         save(course);
-
+        // 关联分类
         relateCategories(course, categoryIds);
+        // 关联部门
         relateDepartments(course, depIds);
     }
 
@@ -108,10 +107,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         }
         List<CourseDepartment> courseDepartments = new ArrayList<>();
         for (int i = 0; i < depIds.length; i++) {
-            CourseDepartment courseDepartment = new CourseDepartment();
-            courseDepartment.setCourseId(course.getId());
-            courseDepartment.setDepId(depIds[i]);
-            courseDepartments.add(courseDepartment);
+            Integer tmpDepId = depIds[i];
+            courseDepartments.add(new CourseDepartment() {{
+                setCourseId(course.getId());
+                setDepId(tmpDepId);
+            }});
         }
         courseDepartmentService.saveBatch(courseDepartments);
     }
@@ -127,19 +127,20 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         if (categoryIds == null || categoryIds.length == 0) {
             return;
         }
-        List<CategoryCourse> categoryCourses = new ArrayList<>();
+        List<ResourceCourseCategory> resourceCourseCategories = new ArrayList<>();
         for (int i = 0; i < categoryIds.length; i++) {
-            CategoryCourse categoryCourse = new CategoryCourse();
-            categoryCourse.setCourseId(course.getId());
-            categoryCourse.setCategoryId(categoryIds[i]);
-            categoryCourses.add(categoryCourse);
+            Integer tmpCategoryId = categoryIds[i];
+            resourceCourseCategories.add(new ResourceCourseCategory() {{
+                setCategoryId(tmpCategoryId);
+                setCourseId(course.getId());
+            }});
         }
-        categoryCourseService.saveBatch(categoryCourses);
+        courseCategoryService.saveBatch(resourceCourseCategories);
     }
 
     @Override
     public void resetRelateCategories(Course course, Integer[] categoryIds) {
-        categoryCourseService.removeByCourseId(course.getId());
+        courseCategoryService.removeByCourseId(course.getId());
         relateCategories(course, categoryIds);
     }
 
@@ -181,7 +182,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public List<Integer> getCategoryIdsByCourseId(Integer courseId) {
-        return categoryCourseService.getCategoryIdsByCourseId(courseId);
+        return courseCategoryService.getCategoryIdsByCourseId(courseId);
     }
 
     @Override
@@ -194,7 +195,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public void removeCategoryIdRelate(Integer categoryId) {
-        categoryCourseService.remove(categoryCourseService.query().getWrapper().eq("category_id", categoryId));
+        courseCategoryService.removeByCategoryId(categoryId);
     }
 }
 

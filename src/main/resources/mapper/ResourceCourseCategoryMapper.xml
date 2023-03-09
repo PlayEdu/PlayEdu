@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="xyz.playedu.api.mapper.CategoryCourseMapper">
+<mapper namespace="xyz.playedu.api.mapper.ResourceCourseCategoryMapper">
 
-    <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.CategoryCourse">
+    <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.ResourceCourseCategory">
             <result property="courseId" column="course_id" jdbcType="INTEGER"/>
             <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
     </resultMap>
