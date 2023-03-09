@@ -6,25 +6,23 @@
 
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.AppConfig">
             <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="group" column="group" jdbcType="VARCHAR"/>
+            <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="sort" column="sort" jdbcType="INTEGER"/>
             <result property="fieldType" column="field_type" jdbcType="VARCHAR"/>
-            <result property="key" column="key" jdbcType="VARCHAR"/>
-            <result property="value" column="value" jdbcType="VARCHAR"/>
-            <result property="defaultValue" column="default_value" jdbcType="VARCHAR"/>
+            <result property="keyName" column="key_name" jdbcType="VARCHAR"/>
+            <result property="keyValue" column="key_value" jdbcType="VARCHAR"/>
             <result property="optionValue" column="option_value" jdbcType="VARCHAR"/>
             <result property="isPrivate" column="is_private" jdbcType="TINYINT"/>
             <result property="help" column="help" jdbcType="VARCHAR"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
-            <result property="isShow" column="is_show" jdbcType="TINYINT"/>
+            <result property="isHidden" column="is_hidden" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,group,name,
-        sort,field_type,key,
-        value,default_value,option_value,
-        is_private,help,created_at,
-        is_show
+        id,group_name,name,
+        sort,field_type,key_name,
+        key_value,option_value,is_private,
+        help,created_at,is_hidden
     </sql>
 </mapper>

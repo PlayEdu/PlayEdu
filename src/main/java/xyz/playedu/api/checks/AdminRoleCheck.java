@@ -20,7 +20,7 @@ public class AdminRoleCheck implements ApplicationRunner {
     @Autowired
     private AdminRoleService adminRoleService;
 
-    private final AdminRole superRole = new AdminRole() {{
+    private static final AdminRole superRole = new AdminRole() {{
         setName("超级管理员");
         setSlug(BackendConstant.SUPER_ADMIN_ROLE);
         setCreatedAt(new Date());

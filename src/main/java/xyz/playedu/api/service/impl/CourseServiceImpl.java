@@ -152,16 +152,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     public void updateWithCategoryIdsAndDepIds(Course course, String title, String thumb, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
         Course newCourse = new Course();
         newCourse.setId(course.getId());
-
-        if (!course.getTitle().equals(title)) {
-            newCourse.setTitle(title);
-        }
-        if (!course.getThumb().equals(thumb)) {
-            newCourse.setThumb(thumb);
-        }
-        if (!course.getIsShow().equals(isShow)) {
-            newCourse.setIsShow(isShow);
-        }
+        newCourse.setTitle(title);
+        newCourse.setThumb(thumb);
+        newCourse.setIsShow(isShow);
 
         updateById(newCourse);
 

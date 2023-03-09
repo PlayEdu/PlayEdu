@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -27,7 +28,8 @@ public class AppConfig implements Serializable {
     /**
      * 分组
      */
-    private String group;
+    @JsonProperty("group_name")
+    private String groupName;
 
     /**
      * 名称
@@ -48,18 +50,14 @@ public class AppConfig implements Serializable {
     /**
      * 键
      */
-    private String key;
+    @JsonProperty("key_name")
+    private String keyName;
 
     /**
      * 值
      */
-    private String value;
-
-    /**
-     * 默认值
-     */
-    @JsonProperty("default_value")
-    private String defaultValue;
+    @JsonProperty("key_value")
+    private String keyValue;
 
     /**
      * 可选值
@@ -88,7 +86,12 @@ public class AppConfig implements Serializable {
      * 1显示,0否
      */
     @JsonIgnore
-    private Integer isShow;
+    private Integer isHidden;
+
+    @JsonGetter("key_value")
+    public String transformKeyValue() {
+        return isHidden == 1 ? "******" : keyValue;
+    }
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -106,18 +109,17 @@ public class AppConfig implements Serializable {
         }
         AppConfig other = (AppConfig) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getGroup() == null ? other.getGroup() == null : this.getGroup().equals(other.getGroup()))
+                && (this.getGroupName() == null ? other.getGroupName() == null : this.getGroupName().equals(other.getGroupName()))
                 && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
                 && (this.getSort() == null ? other.getSort() == null : this.getSort().equals(other.getSort()))
                 && (this.getFieldType() == null ? other.getFieldType() == null : this.getFieldType().equals(other.getFieldType()))
-                && (this.getKey() == null ? other.getKey() == null : this.getKey().equals(other.getKey()))
-                && (this.getValue() == null ? other.getValue() == null : this.getValue().equals(other.getValue()))
-                && (this.getDefaultValue() == null ? other.getDefaultValue() == null : this.getDefaultValue().equals(other.getDefaultValue()))
+                && (this.getKeyName() == null ? other.getKeyName() == null : this.getKeyName().equals(other.getKeyName()))
+                && (this.getKeyValue() == null ? other.getKeyValue() == null : this.getKeyValue().equals(other.getKeyValue()))
                 && (this.getOptionValue() == null ? other.getOptionValue() == null : this.getOptionValue().equals(other.getOptionValue()))
                 && (this.getIsPrivate() == null ? other.getIsPrivate() == null : this.getIsPrivate().equals(other.getIsPrivate()))
                 && (this.getHelp() == null ? other.getHelp() == null : this.getHelp().equals(other.getHelp()))
                 && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
-                && (this.getIsShow() == null ? other.getIsShow() == null : this.getIsShow().equals(other.getIsShow()));
+                && (this.getIsHidden() == null ? other.getIsHidden() == null : this.getIsHidden().equals(other.getIsHidden()));
     }
 
     @Override
@@ -125,18 +127,17 @@ public class AppConfig implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getGroup() == null) ? 0 : getGroup().hashCode());
+        result = prime * result + ((getGroupName() == null) ? 0 : getGroupName().hashCode());
         result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
         result = prime * result + ((getSort() == null) ? 0 : getSort().hashCode());
         result = prime * result + ((getFieldType() == null) ? 0 : getFieldType().hashCode());
-        result = prime * result + ((getKey() == null) ? 0 : getKey().hashCode());
-        result = prime * result + ((getValue() == null) ? 0 : getValue().hashCode());
-        result = prime * result + ((getDefaultValue() == null) ? 0 : getDefaultValue().hashCode());
+        result = prime * result + ((getKeyName() == null) ? 0 : getKeyName().hashCode());
+        result = prime * result + ((getKeyValue() == null) ? 0 : getKeyValue().hashCode());
         result = prime * result + ((getOptionValue() == null) ? 0 : getOptionValue().hashCode());
         result = prime * result + ((getIsPrivate() == null) ? 0 : getIsPrivate().hashCode());
         result = prime * result + ((getHelp() == null) ? 0 : getHelp().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
-        result = prime * result + ((getIsShow() == null) ? 0 : getIsShow().hashCode());
+        result = prime * result + ((getIsHidden() == null) ? 0 : getIsHidden().hashCode());
         return result;
     }
 
@@ -147,18 +148,17 @@ public class AppConfig implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", group=").append(group);
+        sb.append(", groupName=").append(groupName);
         sb.append(", name=").append(name);
         sb.append(", sort=").append(sort);
         sb.append(", fieldType=").append(fieldType);
-        sb.append(", key=").append(key);
-        sb.append(", value=").append(value);
-        sb.append(", defaultValue=").append(defaultValue);
+        sb.append(", keyName=").append(keyName);
+        sb.append(", keyValue=").append(keyValue);
         sb.append(", optionValue=").append(optionValue);
         sb.append(", isPrivate=").append(isPrivate);
         sb.append(", help=").append(help);
         sb.append(", createdAt=").append(createdAt);
-        sb.append(", isShow=").append(isShow);
+        sb.append(", isHidden=").append(isHidden);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

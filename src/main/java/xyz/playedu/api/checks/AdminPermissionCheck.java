@@ -5,7 +5,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import xyz.playedu.api.constant.BPermissionConstant;
-import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminPermission;
 import xyz.playedu.api.service.AdminPermissionService;
 
@@ -17,9 +16,6 @@ import java.util.*;
  */
 @Component
 public class AdminPermissionCheck implements ApplicationRunner {
-
-    @Autowired
-    private AdminPermissionService permissionService;
 
     private final Map<String, Map<String, AdminPermission[]>> permissions = new HashMap<>() {{
         put(BPermissionConstant.TYPE_ACTION, new HashMap<>() {{
@@ -114,8 +110,11 @@ public class AdminPermissionCheck implements ApplicationRunner {
         }});
     }};
 
+    @Autowired
+    private AdminPermissionService permissionService;
+
     @Override
-    public void run(ApplicationArguments args) {
+    public void run(ApplicationArguments args) throws Exception {
         HashMap<String, Boolean> slugs = permissionService.allSlugs();
         List<AdminPermission> list = new ArrayList<>();
         Date now = new Date();

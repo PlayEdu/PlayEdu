@@ -47,8 +47,6 @@ public class BackendConstant {
 
     public final static String STORAGE_DRIVER_MINIO = "minio";
 
-    public final static String[] RESOURCE_DISK_WHITELIST = {STORAGE_DRIVER_MINIO};
-
     public final static String[] COURSE_HOUR_TYPE_WHITELIST = {"VIDEO"};
     public final static String[] COURSE_HOUR_TYPE_WHITELIST_TEXT = {"视频"};
 
@@ -62,5 +60,10 @@ public class BackendConstant {
     public final static String PRIVACY_FIELD_TYPE_PHONE = "phone";
     public final static String PRIVACY_FIELD_TYPE_NAME = "name";
     public final static String PRIVACY_FIELD_TYPE_ID_CARD = "IDCard";
+
+    public final static String APP_CONFIG_FIELD_TYPE_IMAGE = "image";
+    public final static String APP_CONFIG_FIELD_TYPE_INPUT = "input";
+    public final static String APP_CONFIG_FIELD_TYPE_TEXT = "text";
+    public final static String APP_CONFIG_FIELD_TYPE_SELECT = "select";
 
 }
