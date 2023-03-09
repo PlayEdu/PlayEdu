@@ -36,8 +36,8 @@ public class UploadController {
     @Autowired
     private ResourceService resourceService;
 
-    @PostMapping("/file")
-    public JsonResponse file(@RequestParam HashMap<String, Object> params, MultipartFile file) throws ServiceException {
+    @PostMapping("/minio")
+    public JsonResponse uploadMinio(@RequestParam HashMap<String, Object> params, MultipartFile file) throws ServiceException {
         String categoryIds = MapUtils.getString(params, "category_ids");
         Resource res = uploadService.storeMinio(file, categoryIds);
         return JsonResponse.data(res);

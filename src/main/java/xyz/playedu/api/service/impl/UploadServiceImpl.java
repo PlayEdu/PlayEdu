@@ -41,14 +41,7 @@ public class UploadServiceImpl implements UploadService {
         String ext = HelperUtil.fileExt(filename);
         String type = BackendConstant.RESOURCE_EXT_2_TYPE.get(ext);
         if (type == null) {
-            throw new ServiceException("格式不支持");
-        }
-
-        // content-type校验
-        String contentType = file.getContentType();
-        String safeContentType = BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext);
-        if (safeContentType == null || !safeContentType.equals(contentType)) {
-            throw new ServiceException("格式不支持");
+            throw new ServiceException("当前资源扩展不支持上传");
         }
 
         // 上传原文件的文件名
@@ -58,7 +51,7 @@ public class UploadServiceImpl implements UploadService {
         String savePath = BackendConstant.RESOURCE_TYPE_2_DIR.get(type) + newFilename;
 
         // 保存文件
-        String url = minioService.saveFile(file, savePath, contentType);
+        String url = minioService.saveFile(file, savePath, BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext));
         // 上传记录
         return resourceService.create(categoryIds, type, oFilename, ext, file.getSize(), BackendConstant.STORAGE_DRIVER_MINIO, "", savePath, url);
     }
@@ -73,11 +66,9 @@ public class UploadServiceImpl implements UploadService {
         String ext = contentType.replaceAll("image/", "");
         // 通过文件格式解析资源类型
         String type = BackendConstant.RESOURCE_EXT_2_TYPE.get(ext);
-        // 通过资源类型获取安全的content-type
-        String safeContentType = BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext);
-        // 资源类型必须存在 && 安全的 content-type 必须存在 且与解析出来的 content-type 一致
-        if (type == null || safeContentType == null || !safeContentType.equals(contentType)) {
-            throw new ServiceException("格式不支持");
+        // 资源类型必须存在
+        if (type == null) {
+            throw new ServiceException("资源类型不支持");
         }
         byte[] binary = Base64Util.decode(base64Rows[1]);
 
@@ -85,7 +76,7 @@ public class UploadServiceImpl implements UploadService {
         String savePath = BackendConstant.RESOURCE_TYPE_2_DIR.get(type) + filename;
 
         // 保存文件
-        String url = minioService.saveBytes(binary, savePath, contentType);
+        String url = minioService.saveBytes(binary, savePath, BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext));
         // 上传记录
         return resourceService.create(categoryIds, type, filename, ext, (long) binary.length, BackendConstant.STORAGE_DRIVER_MINIO, "", savePath, url);
     }
