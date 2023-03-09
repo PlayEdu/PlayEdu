@@ -43,6 +43,12 @@ public class DepartmentController {
         return JsonResponse.data(data);
     }
 
+    @GetMapping("/departments")
+    public JsonResponse index(@RequestParam(name = "parent_id", defaultValue = "0") Integer parentId) {
+        List<Department> departments = departmentService.listByParentId(parentId);
+        return JsonResponse.data(departments);
+    }
+
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @GetMapping("/create")
     public JsonResponse create() {

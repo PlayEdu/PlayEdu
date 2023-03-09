@@ -41,6 +41,12 @@ public class ResourceCategoryController {
         return JsonResponse.data(data);
     }
 
+    @GetMapping("/categories")
+    public JsonResponse index(@RequestParam(name = "parent_id", defaultValue = "0") Integer parentId) {
+        List<ResourceCategory> categories = categoryService.listByParentId(parentId);
+        return JsonResponse.data(categories);
+    }
+
     @GetMapping("/create")
     public JsonResponse create() {
         Map<Integer, List<ResourceCategory>> categories = categoryService.all().stream().collect(Collectors.groupingBy(ResourceCategory::getParentId));
