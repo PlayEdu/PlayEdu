@@ -19,7 +19,7 @@ public class ResourceCourseCategoryServiceImpl extends ServiceImpl<ResourceCours
 
     @Override
     public List<Integer> getCourseIdsByCategoryIds(List<Integer> categoryIds) {
-        return list(query().getWrapper().eq("id", "category_id")).stream().map(ResourceCourseCategory::getCourseId).toList();
+        return list(query().getWrapper().in("category_id", categoryIds)).stream().map(ResourceCourseCategory::getCourseId).toList();
     }
 
     @Override
