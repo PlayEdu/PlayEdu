@@ -17,9 +17,11 @@ public class KaptchaConfig {
         DefaultKaptcha defaultKaptcha = new DefaultKaptcha();
         Properties properties = new Properties();
         // 是否边框
-        properties.setProperty(KAPTCHA_BORDER, "yes");
+        properties.setProperty(KAPTCHA_BORDER, "no");
         // 字符颜色
-        properties.setProperty(KAPTCHA_TEXTPRODUCER_FONT_COLOR, "black");
+        properties.setProperty(KAPTCHA_TEXTPRODUCER_FONT_COLOR, "red");
+        // 干扰线颜色
+        properties.setProperty(KAPTCHA_NOISE_COLOR, "red");
         // 字符间距
         properties.setProperty(KAPTCHA_TEXTPRODUCER_CHAR_SPACE, "5");
         // 图片宽度
