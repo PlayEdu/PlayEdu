@@ -15,9 +15,9 @@ public class HelperUtil {
 
 
     public static List<Integer> zeroIntegerList() {
-        List<Integer> list = new ArrayList<>(1);
-        list.add(0);
-        return list;
+        return new ArrayList<>() {{
+            add(0);
+        }};
     }
 
     public static String MD5(String text) {

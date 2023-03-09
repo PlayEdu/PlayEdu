@@ -6,6 +6,7 @@ import xyz.playedu.api.service.ResourceVideoService;
 import xyz.playedu.api.mapper.ResourceVideoMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,9 @@ public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, R
 
     @Override
     public List<ResourceVideo> chunksByRids(List<Integer> resourceIds) {
+        if (resourceIds == null || resourceIds.size() == 0) {
+            return new ArrayList<>();
+        }
         return list(query().getWrapper().in("rid", resourceIds));
     }
 }

@@ -19,7 +19,7 @@ public class ResourcePaginateFilter {
 
     private String sortAlgo;
 
-    private Integer[] categoryIds;
+    private String categoryIds;
 
     private String type;
 

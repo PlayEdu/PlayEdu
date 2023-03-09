@@ -43,7 +43,7 @@ public class ResourceController {
         String sortAlgo = MapUtils.getString(params, "sort_algo");
         String name = MapUtils.getString(params, "name");
         String type = MapUtils.getString(params, "type");
-        String categoryIdsStr = MapUtils.getString(params, "category_ids");
+        String categoryIds = MapUtils.getString(params, "category_ids");
 
         if (type == null || type.trim().length() == 0) {
             return JsonResponse.error("请选择资源类型");
@@ -53,12 +53,9 @@ public class ResourceController {
         filter.setSortAlgo(sortAlgo);
         filter.setSortField(sortField);
         filter.setType(type);
+        filter.setCategoryIds(categoryIds);
         if (name != null && name.length() > 0) {
             filter.setName(name);
-        }
-        if (categoryIdsStr != null && categoryIdsStr.length() != 0) {
-            Integer[] categoryIds = Arrays.stream(categoryIdsStr.split(",")).map(Integer::valueOf).toArray(Integer[]::new);
-            filter.setCategoryIds(categoryIds);
         }
 
         PaginationResult<Resource> result = resourceService.paginate(page, size, filter);

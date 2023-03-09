@@ -54,12 +54,13 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (filter.getType() != null) {
             wrapper.eq("type", filter.getType());
         }
-        if (filter.getCategoryIds() != null && filter.getCategoryIds().length > 0) {
-            List<Integer> ridArray = relationService.getRidsByCids(Arrays.asList(filter.getCategoryIds()));
-            if (ridArray == null || ridArray.size() == 0) {
-                ridArray = HelperUtil.zeroIntegerList();
+        if (filter.getCategoryIds() != null && filter.getCategoryIds().trim().length() > 0) {
+            List<Integer> categoryIds = Arrays.stream(filter.getCategoryIds().split(",")).map(Integer::valueOf).toList();
+            List<Integer> ids = relationService.getRidsByCids(categoryIds);
+            if (ids == null || ids.size() == 0) {
+                ids = HelperUtil.zeroIntegerList();
             }
-            wrapper.in("id", ridArray);
+            wrapper.in("id", ids);
         }
 
         String sortFiled = filter.getSortField();
