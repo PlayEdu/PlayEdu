@@ -122,6 +122,17 @@
             <artifactId>minio</artifactId>
             <version>8.5.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-json</artifactId>
+            <version>5.8.15</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+            <version>5.8.15</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,7 +1,8 @@
 package xyz.playedu.api.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 public class IpUtil {
 
@@ -61,27 +63,20 @@ public class IpUtil {
             return "内网";
         }
 
-        @Data
-        class Response {
-            private String pro;
-            private String city;
-            private String region;
-            private String addr;
-        }
-
         try {
-            String rspStr = HttpUtil.sendGet(IP_URL, "ip=" + ip + "&json=true", "GBK");
+            String rspStr = HttpUtil.get(IP_URL, new HashMap<>() {{
+                put("ip", ip);
+                put("json", true);
+            }});
             if (StringUtil.isEmpty(rspStr)) {
                 log.error("获取地理位置异常1 {}", ip);
                 return UNKNOWN;
             }
-            ObjectMapper objectMapper = new ObjectMapper();
-            Response obj = objectMapper.readValue(rspStr, Response.class);
-            return String.format("%s-%s", obj.getPro(), obj.getCity());
+            JSONObject json = JSONUtil.parseObj(rspStr);
+            return String.format("%s-%s", json.getStr("pro"), json.getStr("city"));
         } catch (Exception e) {
             log.error("获取地理位置异常2 {} msg {}", ip, e.getMessage());
         }
-
         return UNKNOWN;
     }
 
