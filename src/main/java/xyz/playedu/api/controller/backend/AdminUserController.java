@@ -49,7 +49,7 @@ public class AdminUserController {
         return JsonResponse.data(result);
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_STORE)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @GetMapping("/create")
     public JsonResponse create() {
         List<AdminRole> roles = roleService.list();
@@ -60,7 +60,7 @@ public class AdminUserController {
         return JsonResponse.data(data);
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_STORE)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @PostMapping("/create")
     public JsonResponse store(@RequestBody @Validated AdminUserRequest req) throws ServiceException {
         if (req.getPassword() == null || req.getPassword().length() == 0) {
@@ -72,7 +72,7 @@ public class AdminUserController {
         return JsonResponse.success();
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_UPDATE)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @GetMapping("/{id}")
     public JsonResponse edit(@PathVariable Integer id) throws NotFoundException {
         AdminUser adminUser = adminUserService.findOrFail(id);
@@ -85,7 +85,7 @@ public class AdminUserController {
         return JsonResponse.data(data);
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_UPDATE)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @PutMapping("/{id}")
     public JsonResponse update(@PathVariable Integer id, @RequestBody @Validated AdminUserRequest req) throws NotFoundException, ServiceException {
         AdminUser adminUser = adminUserService.findOrFail(id);
@@ -93,7 +93,7 @@ public class AdminUserController {
         return JsonResponse.success();
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_DESTROY)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable Integer id) {
         adminUserService.removeWithRoleIds(id);

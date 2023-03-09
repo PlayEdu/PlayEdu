@@ -43,7 +43,7 @@ public class DepartmentController {
         return JsonResponse.data(data);
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_STORE)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @GetMapping("/create")
     public JsonResponse create() {
         Map<Integer, List<Department>> departments = departmentService.all().stream().collect(Collectors.groupingBy(Department::getParentId));
@@ -54,21 +54,21 @@ public class DepartmentController {
         return JsonResponse.data(data);
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_STORE)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PostMapping("/create")
     public JsonResponse store(@RequestBody @Validated DepartmentRequest req) throws NotFoundException {
         departmentService.create(req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_UPDATE)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @GetMapping("/{id}")
     public JsonResponse edit(@PathVariable Integer id) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
         return JsonResponse.data(department);
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_UPDATE)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PutMapping("/{id}")
     public JsonResponse update(@PathVariable Integer id, @RequestBody DepartmentRequest req) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
@@ -76,7 +76,7 @@ public class DepartmentController {
         return JsonResponse.success();
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_DESTROY)
+    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         Department department = departmentService.findOrFail(id);

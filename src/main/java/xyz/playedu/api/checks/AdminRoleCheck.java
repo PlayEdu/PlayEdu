@@ -20,20 +20,20 @@ public class AdminRoleCheck implements ApplicationRunner {
     @Autowired
     private AdminRoleService adminRoleService;
 
+    private final AdminRole superRole = new AdminRole() {{
+        setName("超级管理员");
+        setSlug(BackendConstant.SUPER_ADMIN_ROLE);
+        setCreatedAt(new Date());
+        setCreatedAt(new Date());
+    }};
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         AdminRole adminRole = adminRoleService.getBySlug(BackendConstant.SUPER_ADMIN_ROLE);
         if (adminRole != null) {//已存在超级管理权限
             return;
         }
-        adminRole = new AdminRole();
-
-        adminRole.setName("超级管理角色");
-        adminRole.setSlug(BackendConstant.SUPER_ADMIN_ROLE);
-        adminRole.setCreatedAt(new Date());
-        adminRole.setUpdatedAt(new Date());
-
-        adminRoleService.save(adminRole);
+        adminRoleService.save(superRole);
     }
 
 }
