@@ -13,7 +13,6 @@ import java.util.List;
  * @Author 杭州白书科技有限公司
  * @create 2023/3/6 16:12
  */
-@Slf4j
 public class PlayEduMinioClient extends MinioAsyncClient {
     public PlayEduMinioClient(MinioAsyncClient client) {
         super(client);
@@ -32,7 +31,6 @@ public class PlayEduMinioClient extends MinioAsyncClient {
         Part[] parts = new Part[10000];
         int partNumber = 1;
         for (Part part : partList) {
-            log.info("partList {}", part.partSize());
             parts[partNumber - 1] = new Part(partNumber, part.etag());
             partNumber++;
         }
