@@ -16,6 +16,7 @@ import xyz.playedu.api.service.ResourceVideoService;
 import xyz.playedu.api.service.internal.ResourceCategoryRelationService;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
+import xyz.playedu.api.util.HelperUtil;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -56,9 +57,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (filter.getCategoryIds() != null && filter.getCategoryIds().length > 0) {
             List<Integer> ridArray = relationService.getRidsByCids(Arrays.asList(filter.getCategoryIds()));
             if (ridArray == null || ridArray.size() == 0) {
-                ridArray = new ArrayList<>() {{
-                    add(0);
-                }};
+                ridArray = HelperUtil.zeroIntegerList();
             }
             wrapper.in("id", ridArray);
         }

@@ -52,6 +52,7 @@ public class ResourceController {
         ResourcePaginateFilter filter = new ResourcePaginateFilter();
         filter.setSortAlgo(sortAlgo);
         filter.setSortField(sortField);
+        filter.setType(type);
         if (name != null && name.length() > 0) {
             filter.setName(name);
         }
