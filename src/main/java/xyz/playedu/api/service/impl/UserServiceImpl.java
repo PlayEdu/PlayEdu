@@ -19,6 +19,7 @@ import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -43,16 +44,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public PaginationResult<User> paginate(int page, int size, UserPaginateFilter filter) {
         QueryWrapper<User> wrapper = query().getWrapper().eq("1", "1");
 
-        if (filter.getEmail() != null) {
+        if (filter.getEmail() != null && filter.getEmail().trim().length() > 0) {
             wrapper.eq("email", filter.getEmail());
         }
-        if (filter.getName() != null) {
+        if (filter.getName() != null && filter.getName().trim().length() > 0) {
             wrapper.eq("name", filter.getName());
         }
-        if (filter.getNickname() != null) {
+        if (filter.getNickname() != null && filter.getNickname().length() > 0) {
             wrapper.eq("nickname", filter.getNickname());
         }
-        if (filter.getIdCard() != null) {
+        if (filter.getIdCard() != null && filter.getIdCard().trim().length() > 0) {
             wrapper.eq("id_card", filter.getIdCard());
         }
         if (filter.getIsActive() != null) {
@@ -67,13 +68,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (filter.getIsSetPassword() != null) {
             wrapper.eq("is_set_password", filter.getIsSetPassword());
         }
-        if (filter.getCreatedAt() != null && filter.getCreatedAt().length == 2) {
-            wrapper.between("created_at", filter.getCreatedAt()[0], filter.getCreatedAt()[1]);
+        if (filter.getCreatedAt() != null && filter.getCreatedAt().trim().length() > 0) {
+            Date[] createdAt = Arrays.stream(filter.getCreatedAt().split(",")).map(Date::new).toArray(Date[]::new);
+            wrapper.between("created_at", createdAt[0], createdAt[1]);
         }
-        if (filter.getDepIds() != null && filter.getDepIds().length > 0) {
-            List<Integer> userIds = userDepartmentService.getUserIdsByDepIds(filter.getDepIds());
-            if (userIds.size() == 0) {
-                userIds.add(0);
+        if (filter.getDepIds() != null && filter.getDepIds().trim().length() > 0) {
+            List<Integer> depIds = Arrays.stream(filter.getDepIds().split(",")).map(Integer::valueOf).toList();
+            List<Integer> userIds = userDepartmentService.getUserIdsByDepIds(depIds);
+            if (userIds == null || userIds.size() == 0) {
+                userIds = HelperUtil.zeroIntegerList();
             }
             wrapper.in("id", userIds);
         }
@@ -104,18 +107,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<String> existsEmailsByEmails(List<String> emails) {
-        List<User> users = list(query().getWrapper().in("email", emails).select("id", "email"));
-        List<String> existsEmails = new ArrayList<>();
-        for (User user : users) {
-            existsEmails.add(user.getEmail());
-        }
-        return existsEmails;
+        return list(query().getWrapper().in("email", emails).select("id", "email")).stream().map(User::getEmail).toList();
     }
 
     @Override
     public void removeRelateDepartmentsByUserId(Integer userId) {
-        QueryWrapper<UserDepartment> wrapper = userDepartmentService.query().getWrapper().eq("user_id", userId);
-        userDepartmentService.remove(wrapper);
+        userDepartmentService.remove(userDepartmentService.query().getWrapper().eq("user_id", userId));
     }
 
     @Override
@@ -204,12 +201,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<Integer> getDepIdsByUserId(Integer userId) {
-        List<Integer> ids = new ArrayList<>();
-        List<UserDepartment> userDepartments = userDepartmentService.list(userDepartmentService.query().getWrapper().eq("user_id", userId));
-        for (UserDepartment userDepartment : userDepartments) {
-            ids.add(userDepartment.getDepId());
-        }
-        return ids;
+        return userDepartmentService.list(userDepartmentService.query().getWrapper().eq("user_id", userId)).stream().map(UserDepartment::getDepId).toList();
     }
 }
 

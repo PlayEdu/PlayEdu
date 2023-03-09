@@ -9,7 +9,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.SystemConstant;
-import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.event.UserDestroyEvent;
@@ -53,6 +52,9 @@ public class UserController {
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
+        String sortField = MapUtils.getString(params, "sort_field");
+        String sortAlgo = MapUtils.getString(params, "sort_algo");
+
         String name = MapUtils.getString(params, "name");
         String email = MapUtils.getString(params, "email");
         String nickname = MapUtils.getString(params, "nickname");
@@ -61,48 +63,23 @@ public class UserController {
         Integer isLock = MapUtils.getInteger(params, "is_lock");
         Integer isVerify = MapUtils.getInteger(params, "is_verify");
         Integer isSetPassword = MapUtils.getInteger(params, "is_set_password");
-        String createdAtStr = MapUtils.getString(params, "created_at");
-        String depIdsStr = MapUtils.getString(params, "dep_ids");
+        String createdAt = MapUtils.getString(params, "created_at");
+        String depIds = MapUtils.getString(params, "dep_ids");
 
-        String sortField = MapUtils.getString(params, "sort_field");
-        String sortAlgo = MapUtils.getString(params, "sort_algo");
-
-        UserPaginateFilter filter = new UserPaginateFilter();
-        filter.setSortAlgo(sortAlgo);
-        filter.setSortField(sortField);
-
-        if (name != null && name.length() > 0) {
-            filter.setName(name);
-        }
-        if (nickname != null && nickname.length() > 0) {
-            filter.setNickname(nickname);
-        }
-        if (email != null && email.length() > 0) {
-            filter.setEmail(email);
-        }
-        if (idCard != null && idCard.length() > 0) {
-            filter.setIdCard(idCard);
-        }
-        if (isActive != null) {
-            filter.setIsActive(isActive);
-        }
-        if (isLock != null) {
-            filter.setIsLock(isLock);
-        }
-        if (isVerify != null) {
-            filter.setIsVerify(isVerify);
-        }
-        if (isSetPassword != null) {
-            filter.setIsSetPassword(isSetPassword);
-        }
-        if (createdAtStr != null && createdAtStr.length() > 0) {
-            Date[] createdAt = Arrays.stream(createdAtStr.split(",")).map(Date::new).toArray(Date[]::new);
-            filter.setCreatedAt(createdAt);
-        }
-        if (depIdsStr != null && depIdsStr.length() > 0) {
-            Integer[] depIds = Arrays.stream(depIdsStr.split(",")).map(Integer::valueOf).toArray(Integer[]::new);
-            filter.setDepIds(depIds);
-        }
+        UserPaginateFilter filter = new UserPaginateFilter(){{
+            setName(name);
+            setNickname(nickname);
+            setEmail(email);
+            setIdCard(idCard);
+            setIsActive(isActive);
+            setIsLock(isLock);
+            setIsVerify(isVerify);
+            setIsSetPassword(isSetPassword);
+            setCreatedAt(createdAt);
+            setDepIds(depIds);
+            setSortAlgo(sortAlgo);
+            setSortField(sortField);
+        }};
 
         PaginationResult<User> result = userService.paginate(page, size, filter);
         return JsonResponse.data(result);

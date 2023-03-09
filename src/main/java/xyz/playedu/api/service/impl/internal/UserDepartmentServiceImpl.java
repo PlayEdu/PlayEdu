@@ -20,15 +20,8 @@ import java.util.List;
 public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper, UserDepartment> implements UserDepartmentService {
 
     @Override
-    public List<Integer> getUserIdsByDepIds(Integer[] depIds) {
-        List<Integer> ids = new ArrayList<>();
-        List<UserDepartment> userDepartments = list(query().getWrapper().in("dep_id", Arrays.asList(depIds)));
-        if (userDepartments.size() > 0) {
-            for (UserDepartment userDepartment : userDepartments) {
-                ids.add(userDepartment.getUserId());
-            }
-        }
-        return ids;
+    public List<Integer> getUserIdsByDepIds(List<Integer> depIds) {
+        return list(query().getWrapper().in("dep_id", depIds)).stream().map(UserDepartment::getUserId).toList();
     }
 
     @Override
@@ -38,10 +31,11 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         }
         List<UserDepartment> userDepartments = new ArrayList<>();
         for (int i = 0; i < depIds.length; i++) {
-            UserDepartment userDepartment = new UserDepartment();
-            userDepartment.setUserId(userId);
-            userDepartment.setDepId(depIds[i]);
-            userDepartments.add(userDepartment);
+            Integer depId = depIds[i];
+            userDepartments.add(new UserDepartment() {{
+                setUserId(userId);
+                setDepId(depId);
+            }});
         }
         saveBatch(userDepartments);
     }

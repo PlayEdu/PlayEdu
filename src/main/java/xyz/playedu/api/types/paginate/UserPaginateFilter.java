@@ -25,9 +25,9 @@ public class UserPaginateFilter {
     private Integer isSetPassword;
 
     // 创建时间范围过滤
-    private Date[] createdAt;
+    private String createdAt;
 
-    private Integer[] depIds;
+    private String depIds;
 
     // 排序控制
     private String sortField;
