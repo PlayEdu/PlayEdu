@@ -11,9 +11,9 @@ public class CoursePaginateFiler {
 
     private String title;
 
-    private Integer[] depIds;
+    private String depIds;
 
-    private Integer[] categoryIds;
+    private String categoryIds;
 
     private String sortField;
 

@@ -47,6 +47,7 @@ public class CourseController {
         Integer size = MapUtils.getInteger(params, "size", 10);
         String sortField = MapUtils.getString(params, "sort_field");
         String sortAlgo = MapUtils.getString(params, "sort_algo");
+
         String title = MapUtils.getString(params, "title");
         String depIds = MapUtils.getString(params, "dep_ids");
         String categoryIds = MapUtils.getString(params, "category_ids");
@@ -55,14 +56,8 @@ public class CourseController {
         filter.setTitle(title);
         filter.setSortField(sortField);
         filter.setSortAlgo(sortAlgo);
-        if (depIds != null && depIds.length() > 0) {
-            filter.setDepIds(Arrays.stream(depIds.split(",")).map(Integer::valueOf).toArray(Integer[]::new));
-        }
-        if (categoryIds != null && categoryIds.length() > 0) {
-            filter.setCategoryIds(Arrays.stream(categoryIds.split(",")).map(Integer::valueOf).toArray(Integer[]::new));
-        }
-
-        log.info("filter:" + filter);
+        filter.setCategoryIds(categoryIds);
+        filter.setDepIds(depIds);
 
         PaginationResult<Course> result = courseService.paginate(page, size, filter);
         return JsonResponse.data(result);

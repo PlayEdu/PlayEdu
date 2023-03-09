@@ -20,6 +20,7 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.util.HelperUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -44,15 +45,17 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         if (filter.getTitle() != null && filter.getTitle().length() > 0) {
             wrapper.like("title", "%" + filter.getTitle() + "%");
         }
-        if (filter.getDepIds() != null && filter.getDepIds().length > 0) {
-            List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(filter.getDepIds());
+        if (filter.getDepIds() != null && filter.getDepIds().trim().length() > 0) {
+            List<Integer> depIds = Arrays.stream(filter.getDepIds().split(",")).map(Integer::valueOf).toList();
+            List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(depIds);
             if (courseIds == null || courseIds.size() == 0) {
                 courseIds = HelperUtil.zeroIntegerList();
             }
             wrapper.in("id", courseIds);
         }
-        if (filter.getCategoryIds() != null && filter.getCategoryIds().length > 0) {
-            List<Integer> courseIds = courseCategoryService.getCourseIdsByCategoryIds(List.of(filter.getCategoryIds()));
+        if (filter.getCategoryIds() != null && filter.getCategoryIds().trim().length() > 0) {
+            List<Integer> categoryIds = Arrays.stream(filter.getCategoryIds().split(",")).map(Integer::valueOf).toList();
+            List<Integer> courseIds = courseCategoryService.getCourseIdsByCategoryIds(categoryIds);
             if (courseIds == null || courseIds.size() == 0) {
                 courseIds = HelperUtil.zeroIntegerList();
             }

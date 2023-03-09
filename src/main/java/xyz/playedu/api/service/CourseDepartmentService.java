@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface CourseDepartmentService extends IService<CourseDepartment> {
 
-    List<Integer> getCourseIdsByDepIds(Integer[] depIds);
+    List<Integer> getCourseIdsByDepIds(List<Integer> depIds);
 
     List<Integer> getDepIdsByCourseId(Integer courseId);
 

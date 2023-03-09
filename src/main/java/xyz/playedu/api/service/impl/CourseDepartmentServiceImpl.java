@@ -18,29 +18,13 @@ import java.util.List;
 public class CourseDepartmentServiceImpl extends ServiceImpl<CourseDepartmentMapper, CourseDepartment>
         implements CourseDepartmentService {
     @Override
-    public List<Integer> getCourseIdsByDepIds(Integer[] depIds) {
-        List<Integer> ids = new ArrayList<>();
-        List<CourseDepartment> courseDepartments = list(query().getWrapper().in("dep_id", depIds));
-        if (courseDepartments.size() == 0) {
-            return ids;
-        }
-        for (CourseDepartment courseDepartment : courseDepartments) {
-            ids.add(courseDepartment.getCourseId());
-        }
-        return ids;
+    public List<Integer> getCourseIdsByDepIds(List<Integer> depIds) {
+        return list(query().getWrapper().in("dep_id", depIds)).stream().map(CourseDepartment::getCourseId).toList();
     }
 
     @Override
     public List<Integer> getDepIdsByCourseId(Integer courseId) {
-        List<Integer> ids = new ArrayList<>();
-        List<CourseDepartment> courseDepartments = list(query().getWrapper().eq("course_id", courseId));
-        if (courseDepartments.size() == 0) {
-            return ids;
-        }
-        for (CourseDepartment courseDepartment : courseDepartments) {
-            ids.add(courseDepartment.getDepId());
-        }
-        return ids;
+        return list(query().getWrapper().eq("course_id", courseId)).stream().map(CourseDepartment::getDepId).toList();
     }
 
     @Override
