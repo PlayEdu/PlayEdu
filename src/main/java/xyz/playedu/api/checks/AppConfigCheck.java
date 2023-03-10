@@ -30,7 +30,7 @@ public class AppConfigCheck implements ApplicationRunner {
                     setName("Logo");
                     setSort(20);
                     setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_IMAGE);
-                    setKeyName("system.key");
+                    setKeyName("system.logo");
                     setKeyValue("");
                 }},
                 new AppConfig() {{
