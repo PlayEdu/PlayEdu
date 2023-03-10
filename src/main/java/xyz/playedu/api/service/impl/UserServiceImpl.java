@@ -162,24 +162,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public User updateWithDepIds(User user, String email, String nickname, String name, String avatar, String password, String idCard, Integer[] depIds) {
         User newUser = new User();
         newUser.setId(user.getId());
+        newUser.setEmail(email);
+        newUser.setNickname(nickname);
+        newUser.setName(name);
+        newUser.setAvatar(avatar);
+        newUser.setIdCard(idCard);
 
-        if (!user.getEmail().equals(email)) {
-            newUser.setEmail(email);
-        }
-        if (!user.getNickname().equals(nickname)) {
-            newUser.setNickname(nickname);
-        }
-        if (!user.getName().equals(name)) {
-            newUser.setName(name);
-        }
-        if (!user.getAvatar().equals(avatar)) {
-            newUser.setAvatar(avatar);
-        }
         if (password != null && password.length() > 0) {
             newUser.setPassword(HelperUtil.MD5(password + user.getSalt()));
-        }
-        if (!user.getIdCard().equals(idCard)) {
-            newUser.setIdCard(idCard);
         }
 
         if (newUser.getName() != null && newUser.getName().length() > 0 && newUser.getIdCard() != null && newUser.getIdCard().length() > 0) {
