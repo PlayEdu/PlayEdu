@@ -193,6 +193,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public List<Integer> getDepIdsByUserId(Integer userId) {
         return userDepartmentService.list(userDepartmentService.query().getWrapper().eq("user_id", userId)).stream().map(UserDepartment::getDepId).toList();
     }
+
+    @Override
+    public User find(Integer id) {
+        return getOne(query().getWrapper().eq("id", id));
+    }
+
+    @Override
+    public User find(String email) {
+        return getOne(query().getWrapper().eq("email", email));
+    }
 }
 
 

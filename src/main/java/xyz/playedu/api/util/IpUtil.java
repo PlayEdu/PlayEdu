@@ -3,8 +3,7 @@ package xyz.playedu.api.util;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -12,9 +11,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
+@Slf4j
 public class IpUtil {
-
-    private static final Logger log = LoggerFactory.getLogger(IpUtil.class);
 
     /**
      * 获取客户端IP
@@ -216,20 +214,6 @@ public class IpUtil {
         } catch (UnknownHostException ignored) {
         }
         return "127.0.0.1";
-    }
-
-    /**
-     * 获取主机名
-     *
-     * @return 本地主机名
-     * @author fzr
-     */
-    public static String getHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException ignored) {
-        }
-        return "未知";
     }
 
     /**

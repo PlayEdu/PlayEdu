@@ -24,6 +24,10 @@ public interface UserService extends IService<User> {
 
     User findOrFail(Integer id) throws NotFoundException;
 
+    User find(Integer id);
+
+    User find(String email);
+
     User createWithDepIds(String email, String name, String avatar, String password, String idCard, Integer[] depIds);
 
     User updateWithDepIds(User user, String email, String nickname, String name, String avatar, String password, String idCard, Integer[] depIds);
