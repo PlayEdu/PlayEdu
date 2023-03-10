@@ -34,7 +34,6 @@ public class UserRequest {
     private String avatar;
 
     @NotNull(message = "password参数不存在")
-    @Length(min = 6, max = 16, message = "密码长度在6-16个字符之间")
     private String password;
 
     @JsonProperty("id_card")

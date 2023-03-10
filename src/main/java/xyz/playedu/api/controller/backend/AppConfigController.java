@@ -20,13 +20,13 @@ public class AppConfigController {
     @Autowired
     private AppConfigService configService;
 
-    @GetMapping("/index")
+    @GetMapping("/")
     public JsonResponse index() {
         List<AppConfig> configs = configService.allShow();
         return JsonResponse.data(configs);
     }
 
-    @PutMapping("/index")
+    @PutMapping("/")
     public JsonResponse save(@RequestBody AppConfigRequest req) {
         configService.saveFromMap(req.getData());
         return JsonResponse.data(null);
