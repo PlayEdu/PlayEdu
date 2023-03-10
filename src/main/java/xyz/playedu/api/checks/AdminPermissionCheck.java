@@ -65,8 +65,8 @@ public class AdminPermissionCheck implements ApplicationRunner {
                     }},
                     new AdminPermission() {{
                         setSort(20);
-                        setName("新增");
-                        setSlug(BPermissionConstant.USER_STORE);
+                        setName("编辑");
+                        setSlug(BPermissionConstant.USER_UPDATE);
                     }},
                     new AdminPermission() {{
                         setSort(30);
@@ -74,7 +74,7 @@ public class AdminPermissionCheck implements ApplicationRunner {
                         setSlug(BPermissionConstant.USER_DESTROY);
                     }},
             });
-            put("课程", new AdminPermission[]{
+            put("线上课", new AdminPermission[]{
                     new AdminPermission() {{
                         setSort(0);
                         setName("新增|编辑|删除");
