@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import xyz.playedu.api.caches.UserLoginCache;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.event.UserLoginEvent;
 import xyz.playedu.api.exception.JwtLogoutException;
@@ -27,6 +28,9 @@ public class UserLoginListener {
     @Autowired
     private JWTService jwtService;
 
+    @Autowired
+    private UserLoginCache userLoginCache;
+
     @EventListener
     @Async
     public void updateLoginInfo(UserLoginEvent event) throws JwtLogoutException {
@@ -42,6 +46,11 @@ public class UserLoginListener {
                 event.getUserAgent().getVersion(),
                 event.getUserAgent().getOs().toString()
         );
+    }
+
+    @EventListener
+    public void writeCache(UserLoginEvent event) {
+        userLoginCache.put(event.getEmail());
     }
 
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import xyz.playedu.api.exception.LimitException;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.types.JsonResponse;
@@ -64,6 +65,11 @@ public class ExceptionController {
     @ExceptionHandler(NotFoundException.class)
     public JsonResponse serviceExceptionHandler(NotFoundException e) {
         return JsonResponse.error(e.getMessage(), 404);
+    }
+
+    @ExceptionHandler(LimitException.class)
+    public JsonResponse serviceExceptionHandler(LimitException e) {
+        return JsonResponse.error("请稍后再试", 429);
     }
 
 }

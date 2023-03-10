@@ -8,7 +8,6 @@ import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import xyz.playedu.api.config.PlayEduConfig;
 import xyz.playedu.api.constant.SystemConstant;
 
 import java.util.*;

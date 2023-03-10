@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import xyz.playedu.api.caches.UserLoginCache;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.UserLoginEvent;
+import xyz.playedu.api.exception.LimitException;
 import xyz.playedu.api.request.frontend.LoginPasswordRequest;
 import xyz.playedu.api.service.JWTService;
 import xyz.playedu.api.service.UserService;
@@ -39,9 +41,15 @@ public class LoginController {
     @Autowired
     private ApplicationContext ctx;
 
+    @Autowired
+    private UserLoginCache userLoginCache;
+
     @PostMapping("/password")
-    public JsonResponse password(@RequestBody @Validated LoginPasswordRequest req) {
-        User user = userService.find(req.getEmail());
+    public JsonResponse password(@RequestBody @Validated LoginPasswordRequest req) throws LimitException {
+        String email = req.getEmail();
+        userLoginCache.check(email);
+
+        User user = userService.find(email);
         if (user == null) {
             return JsonResponse.error("邮箱未注册");
         }
@@ -55,7 +63,7 @@ public class LoginController {
         data.put("token", token.getToken());
         data.put("expired", token.getExpire());
 
-        ctx.publishEvent(new UserLoginEvent(this, user.getId(), new Date(), token.getToken(), IpUtil.getIpAddress(), RequestUtil.ua()));
+        ctx.publishEvent(new UserLoginEvent(this, user.getId(), user.getEmail(), new Date(), token.getToken(), IpUtil.getIpAddress(), RequestUtil.ua()));
 
         return JsonResponse.data(data);
     }

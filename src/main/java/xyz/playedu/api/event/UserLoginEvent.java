@@ -17,6 +17,8 @@ public class UserLoginEvent extends ApplicationEvent {
 
     private Integer userId;
 
+    private String email;
+
     private Date loginAt;
 
     private String token;
@@ -25,9 +27,10 @@ public class UserLoginEvent extends ApplicationEvent {
 
     private UserAgent userAgent;
 
-    public UserLoginEvent(Object source, Integer userId, Date loginAt, String token, String ip, UserAgent userAgent) {
+    public UserLoginEvent(Object source, Integer userId,String email, Date loginAt, String token, String ip, UserAgent userAgent) {
         super(source);
         this.userId = userId;
+        this.email = email;
         this.loginAt = loginAt;
         this.token = token;
         this.ip = ip;
