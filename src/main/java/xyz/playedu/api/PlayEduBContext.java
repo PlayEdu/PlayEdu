@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PlayEduBackendThreadLocal {
+public class PlayEduBContext {
 
     private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL = new java.lang.ThreadLocal<>();
 
@@ -15,7 +15,7 @@ public class PlayEduBackendThreadLocal {
     public final static String KEY_ADMIN_PER = "admin_per";
     public final static String KEY_CONFIG = "config";
 
-    public PlayEduBackendThreadLocal() {
+    public PlayEduBContext() {
     }
 
     public static void put(String key, Object val) {
@@ -29,6 +29,10 @@ public class PlayEduBackendThreadLocal {
 
     public static Object get(String key) {
         return THREAD_LOCAL.get().getOrDefault(key, null);
+    }
+
+    public static void remove() {
+        THREAD_LOCAL.remove();
     }
 
     public static Integer getAdminUserID() {
@@ -53,10 +57,6 @@ public class PlayEduBackendThreadLocal {
 
     public static HashMap<String, Boolean> getAdminPer() {
         return (HashMap<String, Boolean>) get(KEY_ADMIN_PER);
-    }
-
-    public static void remove() {
-        THREAD_LOCAL.remove();
     }
 
     public static void setConfig(Map<String, String> config) {

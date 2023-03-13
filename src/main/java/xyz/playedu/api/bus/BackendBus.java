@@ -2,7 +2,7 @@ package xyz.playedu.api.bus;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.playedu.api.PlayEduBackendThreadLocal;
+import xyz.playedu.api.PlayEduBContext;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.service.AdminPermissionService;
@@ -59,7 +59,7 @@ public class BackendBus {
     }
 
     public static String valueHidden(String permissionSlug, String type, String value) {
-        HashMap<String, Boolean> permissions = PlayEduBackendThreadLocal.getAdminPer();
+        HashMap<String, Boolean> permissions = PlayEduBContext.getAdminPer();
         if (permissions.get(permissionSlug) != null) {
             return value;
         }

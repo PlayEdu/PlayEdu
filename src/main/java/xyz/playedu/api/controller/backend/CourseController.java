@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBackendThreadLocal;
+import xyz.playedu.api.PlayEduBContext;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.event.CourseDestroyEvent;
@@ -108,7 +108,7 @@ public class CourseController {
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
         courseService.removeById(id);
-        ctx.publishEvent(new CourseDestroyEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), id, new Date()));
+        ctx.publishEvent(new CourseDestroyEvent(this, PlayEduBContext.getAdminUserID(), id, new Date()));
         return JsonResponse.success();
     }
 

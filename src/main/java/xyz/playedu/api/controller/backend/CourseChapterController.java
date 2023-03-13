@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBackendThreadLocal;
+import xyz.playedu.api.PlayEduBContext;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.CourseChapter;
 import xyz.playedu.api.event.CourseChapterDestroyEvent;
@@ -74,7 +74,7 @@ public class CourseChapterController {
     public JsonResponse destroy(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException {
         CourseChapter chapter = chapterService.findOrFail(id, courseId);
         chapterService.removeById(chapter.getId());
-        ctx.publishEvent(new CourseChapterDestroyEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), chapter.getCourseId(), chapter.getId(), new Date()));
+        ctx.publishEvent(new CourseChapterDestroyEvent(this, PlayEduBContext.getAdminUserID(), chapter.getCourseId(), chapter.getId(), new Date()));
         return JsonResponse.success();
     }
 }

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBackendThreadLocal;
+import xyz.playedu.api.PlayEduBContext;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.ResourceCategory;
 import xyz.playedu.api.event.ResourceCategoryDestroyEvent;
@@ -84,7 +84,7 @@ public class ResourceCategoryController {
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         ResourceCategory category = categoryService.findOrFail(id);
         categoryService.deleteById(category.getId());
-        ctx.publishEvent(new ResourceCategoryDestroyEvent(this, PlayEduBackendThreadLocal.getAdminUserID(), category.getId(), new Date()));
+        ctx.publishEvent(new ResourceCategoryDestroyEvent(this, PlayEduBContext.getAdminUserID(), category.getId(), new Date()));
         return JsonResponse.success();
     }
 

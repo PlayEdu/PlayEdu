@@ -13,11 +13,11 @@ import xyz.playedu.api.middleware.AdminMiddleware;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Resource
-    private AdminMiddleware adminAuthMiddleware;
+    private AdminMiddleware adminMiddleware;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(adminAuthMiddleware).addPathPatterns("/backend/**");
+        registry.addInterceptor(adminMiddleware).addPathPatterns("/backend/**");
     }
 
     @Override
