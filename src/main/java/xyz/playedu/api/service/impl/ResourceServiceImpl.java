@@ -145,6 +145,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     public void storeResourceVideo(Integer rid, Integer duration, String poster) {
         resourceVideoService.create(rid, duration, poster);
     }
+
+    @Override
+    public List<Resource> chunks(List<Integer> ids) {
+        return list(query().getWrapper().in("id", ids));
+    }
 }
 
 

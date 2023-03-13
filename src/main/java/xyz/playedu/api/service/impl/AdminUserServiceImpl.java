@@ -176,6 +176,11 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
         newUser.setPassword(newPassword);
         updateById(newUser);
     }
+
+    @Override
+    public List<AdminUser> chunks(List<Integer> ids) {
+        return list(query().getWrapper().in("id", ids));
+    }
 }
 
 

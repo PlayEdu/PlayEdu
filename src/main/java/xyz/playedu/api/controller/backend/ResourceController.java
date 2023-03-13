@@ -6,10 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduBContext;
 import xyz.playedu.api.bus.BackendBus;
+import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceVideo;
 import xyz.playedu.api.exception.NotFoundException;
+import xyz.playedu.api.middleware.BackendPermissionMiddleware;
+import xyz.playedu.api.request.backend.ResourceDestroyMultiRequest;
+import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.service.MinioService;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.service.ResourceVideoService;
@@ -27,6 +32,9 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/backend/v1/resource")
 public class ResourceController {
+
+    @Autowired
+    private AdminUserService adminUserService;
 
     @Autowired
     private ResourceService resourceService;
@@ -76,9 +84,17 @@ public class ResourceController {
             data.put("videos_extra", resourceVideosExtra);
         }
 
+        // 操作人
+        data.put("admin_users", new HashMap<>());
+        if (result.getData().size() > 0) {
+            Map<Integer, String> adminUsers = adminUserService.chunks(result.getData().stream().map(Resource::getAdminId).toList()).stream().collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
+            data.put("admin_users", adminUsers);
+        }
+
         return JsonResponse.data(data);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_DESTROY)
     @DeleteMapping("/{id}")
     @Transactional
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
@@ -86,11 +102,32 @@ public class ResourceController {
         // 删除文件
         minioService.removeByPath(resource.getPath());
         // 如果是视频资源文件则删除对应的时长关联记录
-        if (resource.getType().equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
+        if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(resource.getType())) {
             resourceVideoService.removeByRid(resource.getId());
         }
         // 删除资源记录
         resourceService.removeById(resource.getId());
+        return JsonResponse.success();
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_DESTROY)
+    @PostMapping("/destroy-multi")
+    @Transactional
+    public JsonResponse multiDestroy(@RequestBody ResourceDestroyMultiRequest req) {
+        if (req.getIds() == null || req.getIds().size() == 0) {
+            return JsonResponse.error("请选择需要删除的资源");
+        }
+        List<Resource> resources = resourceService.chunks(req.getIds());
+        if (resources == null || resources.size() == 0) {
+            return JsonResponse.success();
+        }
+        for (Resource resourceItem : resources) {
+            minioService.removeByPath(resourceItem.getPath());
+            if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(resourceItem.getType())) {
+                resourceVideoService.removeByRid(resourceItem.getId());
+            }
+            resourceService.removeById(resourceItem.getId());
+        }
         return JsonResponse.success();
     }
 

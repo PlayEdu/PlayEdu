@@ -52,6 +52,13 @@ public class AdminPermissionCheck implements ApplicationRunner {
                         setSlug(BPermissionConstant.RESOURCE_CATEGORY);
                     }},
             });
+            put("资源", new AdminPermission[]{
+                    new AdminPermission() {{
+                        setSort(0);
+                        setName("删除");
+                        setSlug(BPermissionConstant.RESOURCE_DESTROY);
+                    }},
+            });
             put("学员", new AdminPermission[]{
                     new AdminPermission() {{
                         setSort(0);

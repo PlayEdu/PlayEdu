@@ -6,6 +6,8 @@ import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
+import java.util.List;
+
 /**
  * @author tengteng
  * @description 针对表【resources】的数据库操作Service
@@ -22,5 +24,7 @@ public interface ResourceService extends IService<Resource> {
     void changeParentId(Integer id, Integer parentId);
 
     void storeResourceVideo(Integer rid, Integer duration, String poster);
+
+    List<Resource> chunks(List<Integer> ids);
 
 }
