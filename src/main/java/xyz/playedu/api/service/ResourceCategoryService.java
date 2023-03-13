@@ -29,4 +29,8 @@ public interface ResourceCategoryService extends IService<ResourceCategory> {
 
     String compParentChain(Integer parentId) throws NotFoundException;
 
+    List<Integer> getCourseIdsById(Integer id);
+
+    List<Integer> getRidsById(Integer id);
+
 }

@@ -1,12 +1,17 @@
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.domain.ResourceCategory;
+import xyz.playedu.api.domain.ResourceCategoryRelation;
+import xyz.playedu.api.domain.ResourceCourseCategory;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.mapper.ResourceCategoryMapper;
 import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.internal.ResourceCategoryRelationService;
+import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +25,12 @@ import java.util.List;
 @Service
 public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMapper, ResourceCategory>
         implements ResourceCategoryService {
+
+    @Autowired
+    private ResourceCourseCategoryService resourceCourseCategoryService;
+
+    @Autowired
+    private ResourceCategoryRelationService resourceCategoryRelationService;
 
     @Override
     public List<ResourceCategory> listByParentId(Integer id) {
@@ -154,7 +165,16 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
         }
         return parentChain;
     }
-    
+
+    @Override
+    public List<Integer> getCourseIdsById(Integer id) {
+        return resourceCourseCategoryService.list(resourceCourseCategoryService.query().getWrapper().eq("category_id", id)).stream().map(ResourceCourseCategory::getCourseId).toList();
+    }
+
+    @Override
+    public List<Integer> getRidsById(Integer id) {
+        return resourceCategoryRelationService.list(resourceCategoryRelationService.query().getWrapper().eq("cid", id)).stream().map(ResourceCategoryRelation::getRid).toList();
+    }
 }
 
 

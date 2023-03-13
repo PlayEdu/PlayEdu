@@ -6,12 +6,16 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduBContext;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceCategory;
 import xyz.playedu.api.event.ResourceCategoryDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.ResourceCategoryRequest;
+import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.ResourceCategoryService;
+import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.types.JsonResponse;
 
 import java.util.*;
@@ -27,6 +31,12 @@ public class ResourceCategoryController {
 
     @Autowired
     private ResourceCategoryService categoryService;
+
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private ResourceService resourceService;
 
     @Autowired
     private ApplicationContext ctx;
@@ -77,6 +87,39 @@ public class ResourceCategoryController {
         ResourceCategory category = categoryService.findOrFail(id);
         categoryService.update(category, req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
+    @GetMapping("/{id}/destroy")
+    public JsonResponse preDestroy(@PathVariable Integer id) {
+        List<Integer> courseIds = categoryService.getCourseIdsById(id);
+        List<Integer> rids = categoryService.getRidsById(id);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("courses", new ArrayList<>());
+        data.put("videos", new ArrayList<>());
+        data.put("images", new ArrayList<>());
+
+        if (courseIds != null && courseIds.size() > 0) {
+            data.put("courses", courseService.chunks(courseIds, new ArrayList<>() {{
+                add("id");
+                add("title");
+            }}));
+        }
+
+        if (rids != null && rids.size() > 0) {
+            Map<String, List<Resource>> resources = resourceService.chunks(rids, new ArrayList<>() {{
+                add("id");
+                add("admin_id");
+                add("type");
+                add("name");
+                add("url");
+            }}).stream().collect(Collectors.groupingBy(Resource::getType));
+            data.put("videos", resources.get(BackendConstant.RESOURCE_TYPE_VIDEO));
+            data.put("images", resources.get(BackendConstant.RESOURCE_TYPE_IMAGE));
+        }
+
+        return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)

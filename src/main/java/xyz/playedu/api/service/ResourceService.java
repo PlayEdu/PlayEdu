@@ -27,4 +27,6 @@ public interface ResourceService extends IService<Resource> {
 
     List<Resource> chunks(List<Integer> ids);
 
+    List<Resource> chunks(List<Integer> ids, List<String> fields);
+
 }

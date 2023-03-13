@@ -150,6 +150,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     public List<Resource> chunks(List<Integer> ids) {
         return list(query().getWrapper().in("id", ids));
     }
+
+    @Override
+    public List<Resource> chunks(List<Integer> ids, List<String> fields) {
+        return list(query().getWrapper().in("id", ids).select(fields));
+    }
 }
 
 
