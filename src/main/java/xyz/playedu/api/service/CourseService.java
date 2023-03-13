@@ -40,4 +40,6 @@ public interface CourseService extends IService<Course> {
     void removeCategoryIdRelate(Integer categoryId);
 
     List<Course> chunks(List<Integer> ids, List<String> fields);
+
+    List<Course> chunks(List<Integer> ids);
 }

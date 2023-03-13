@@ -1,14 +1,14 @@
 package xyz.playedu.api.controller.frontend;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.types.paginate.CoursePaginateFiler;
+import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.util.HashMap;
 
@@ -24,8 +24,16 @@ public class CourseController {
     private CourseService courseService;
 
     @GetMapping("/index")
-    public JsonResponse index() {
-        return JsonResponse.data(null);
+    public JsonResponse index(@RequestParam HashMap<String, Object> params) {
+        Integer page = MapUtils.getInteger(params, "page", 1);
+        Integer size = MapUtils.getInteger(params, "size", 10);
+
+        CoursePaginateFiler filer = new CoursePaginateFiler();
+        filer.setIsShow(1);
+
+        PaginationResult<Course> result = courseService.paginate(page, size, filer);
+
+        return JsonResponse.data(result);
     }
 
     @GetMapping("/{id}")
@@ -38,7 +46,7 @@ public class CourseController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
 
-        return JsonResponse.data(course);
+        return JsonResponse.data(data);
     }
 
 }

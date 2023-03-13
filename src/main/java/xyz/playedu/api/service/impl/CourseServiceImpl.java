@@ -61,6 +61,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             }
             wrapper.in("id", courseIds);
         }
+        if (filter.getIsShow() != null) {
+            wrapper.eq("is_show", filter.getIsShow());
+        }
 
         String sortFiled = filter.getSortField();
         if (sortFiled == null || sortFiled.trim().length() == 0) {
@@ -197,6 +200,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     @Override
     public List<Course> chunks(List<Integer> ids, List<String> fields) {
         return list(query().getWrapper().in("id", ids).select(fields));
+    }
+
+    @Override
+    public List<Course> chunks(List<Integer> ids) {
+        return list(query().getWrapper().in("id", ids));
     }
 }
 

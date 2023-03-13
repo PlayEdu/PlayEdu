@@ -19,4 +19,6 @@ public class CoursePaginateFiler {
 
     private String sortAlgo;
 
+    private Integer isShow;
+
 }
