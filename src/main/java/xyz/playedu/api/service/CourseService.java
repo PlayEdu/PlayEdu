@@ -38,4 +38,6 @@ public interface CourseService extends IService<Course> {
     void updateClassHour(Integer courseId, Integer classHour);
 
     void removeCategoryIdRelate(Integer categoryId);
+
+    List<Course> chunks(List<Integer> ids, List<String> fields);
 }

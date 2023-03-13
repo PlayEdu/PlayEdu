@@ -36,4 +36,6 @@ public interface UserService extends IService<User> {
     List<Integer> getDepIdsByUserId(Integer userId);
 
     void passwordChange(User user, String oldPassword, String newPassword) throws ServiceException;
+
+    List<User> chunks(List<Integer> ids, List<String> fields);
 }

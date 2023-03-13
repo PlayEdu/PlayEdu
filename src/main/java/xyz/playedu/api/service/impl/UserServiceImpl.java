@@ -215,6 +215,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             setPassword(HelperUtil.MD5(newPassword + user.getSalt()));
         }});
     }
+
+    @Override
+    public List<User> chunks(List<Integer> ids, List<String> fields) {
+        return list(query().getWrapper().in("id", ids).select(fields));
+    }
 }
 
 

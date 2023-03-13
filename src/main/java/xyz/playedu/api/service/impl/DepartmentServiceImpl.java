@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import xyz.playedu.api.domain.CourseDepartment;
 import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.exception.NotFoundException;
+import xyz.playedu.api.service.CourseDepartmentService;
 import xyz.playedu.api.service.DepartmentService;
 import xyz.playedu.api.mapper.DepartmentMapper;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
     @Autowired
     private UserDepartmentService userDepartmentService;
+
+    @Autowired
+    private CourseDepartmentService courseDepartmentService;
 
     @Override
     public List<Department> listByParentId(Integer id) {
@@ -175,6 +180,16 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     public void remoteRelateUsersByDepId(Integer depId) {
         QueryWrapper<UserDepartment> wrapper = userDepartmentService.query().getWrapper().eq("dep_id", depId);
         userDepartmentService.remove(wrapper);
+    }
+
+    @Override
+    public List<Integer> getUserIdsByDepId(Integer depId) {
+        return userDepartmentService.list(userDepartmentService.query().getWrapper().eq("dep_id", depId)).stream().map(UserDepartment::getUserId).toList();
+    }
+
+    @Override
+    public List<Integer> getCourseIdsByDepId(Integer depId) {
+        return courseDepartmentService.list(courseDepartmentService.query().getWrapper().eq("dep_id", depId)).stream().map(CourseDepartment::getCourseId).toList();
     }
 }
 

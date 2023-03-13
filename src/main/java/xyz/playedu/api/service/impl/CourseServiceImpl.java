@@ -193,6 +193,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     public void removeCategoryIdRelate(Integer categoryId) {
         courseCategoryService.removeByCategoryId(categoryId);
     }
+
+    @Override
+    public List<Course> chunks(List<Integer> ids, List<String> fields) {
+        return list(query().getWrapper().in("id", ids).select(fields));
+    }
 }
 
 

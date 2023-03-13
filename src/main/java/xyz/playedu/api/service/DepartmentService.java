@@ -33,4 +33,8 @@ public interface DepartmentService extends IService<Department> {
 
     void remoteRelateUsersByDepId(Integer depId);
 
+    List<Integer> getUserIdsByDepId(Integer depId);
+
+    List<Integer> getCourseIdsByDepId(Integer depId);
+
 }

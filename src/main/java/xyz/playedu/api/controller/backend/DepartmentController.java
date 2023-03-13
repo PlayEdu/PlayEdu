@@ -8,11 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduBContext;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.Department;
+import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.DepartmentDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.DepartmentRequest;
+import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.DepartmentService;
+import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
 
 import java.util.*;
@@ -29,6 +32,12 @@ public class DepartmentController {
 
     @Autowired
     private DepartmentService departmentService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private CourseService courseService;
 
     @Autowired
     private ApplicationContext ctx;
@@ -80,6 +89,34 @@ public class DepartmentController {
         Department department = departmentService.findOrFail(id);
         departmentService.update(department, req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
+    @GetMapping("/{id}/destroy")
+    public JsonResponse preDestroy(@PathVariable Integer id) {
+        List<Integer> courseIds = departmentService.getCourseIdsByDepId(id);
+        List<Integer> userIds = departmentService.getUserIdsByDepId(id);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("courses", new ArrayList<>());
+        data.put("users", new ArrayList<>());
+
+        if (courseIds != null && courseIds.size() > 0) {
+            data.put("courses", courseService.chunks(courseIds, new ArrayList<>() {{
+                add("id");
+                add("title");
+            }}));
+        }
+        if (userIds != null && userIds.size() > 0) {
+            data.put("users", userService.chunks(userIds, new ArrayList<>() {{
+                add("id");
+                add("nickname");
+                add("name");
+                add("avatar");
+            }}));
+        }
+
+        return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
