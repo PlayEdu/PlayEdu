@@ -1,5 +1,7 @@
 package xyz.playedu.api;
 
+import xyz.playedu.api.domain.User;
+
 import java.util.LinkedHashMap;
 
 /**
@@ -38,5 +40,13 @@ public class PlayEduFContext {
 
     public static Integer getUserId() {
         return (Integer) get(KEY_USER_ID);
+    }
+
+    public static void setUser(User user) {
+        put(KEY_USER, user);
+    }
+
+    public static User getUser() {
+        return (User) get(KEY_USER);
     }
 }

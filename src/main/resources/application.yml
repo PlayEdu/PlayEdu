@@ -48,7 +48,7 @@ minio:
   secret-key: "password"
   end-point: "http://127.0.0.1:9000"
   bucket: "playedu"
-  domain: "http://127.0.0.1:9000/"
+  domain: "https://dev-local3.meedu.vip/"
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml

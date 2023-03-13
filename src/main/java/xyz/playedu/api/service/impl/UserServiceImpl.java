@@ -10,6 +10,7 @@ import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.exception.NotFoundException;
+import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.mapper.UserMapper;
@@ -202,6 +203,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User find(String email) {
         return getOne(query().getWrapper().eq("email", email));
+    }
+
+    @Override
+    public void passwordChange(User user, String oldPassword, String newPassword) throws ServiceException {
+        if (!HelperUtil.MD5(oldPassword + user.getSalt()).equals(user.getPassword())) {
+            throw new ServiceException("原密码不正确");
+        }
+        updateById(new User() {{
+            setId(user.getId());
+            setPassword(HelperUtil.MD5(newPassword + user.getSalt()));
+        }});
     }
 }
 

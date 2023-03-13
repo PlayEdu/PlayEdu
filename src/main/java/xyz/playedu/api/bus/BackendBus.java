@@ -10,6 +10,7 @@ import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.util.PrivacyUtil;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,12 +27,7 @@ public class BackendBus {
     private AdminUserService adminUserService;
 
     public static boolean inUnAuthWhitelist(String uri) {
-        for (int i = 0; i < BackendConstant.UN_AUTH_URI_WHITELIST.length; i++) {
-            if (uri.equals(BackendConstant.UN_AUTH_URI_WHITELIST[i])) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(BackendConstant.UN_AUTH_URI_WHITELIST).toList().contains(uri);
     }
 
     public HashMap<String, Boolean> adminUserPermissions(Integer userId) {
