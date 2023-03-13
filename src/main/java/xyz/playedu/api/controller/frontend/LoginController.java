@@ -12,7 +12,6 @@ import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.UserLoginEvent;
 import xyz.playedu.api.exception.LimitException;
-import xyz.playedu.api.middleware.Lock;
 import xyz.playedu.api.request.frontend.LoginPasswordRequest;
 import xyz.playedu.api.service.JWTService;
 import xyz.playedu.api.service.UserService;
@@ -46,7 +45,6 @@ public class LoginController {
     private UserLoginCache userLoginCache;
 
     @PostMapping("/password")
-    @Lock(key = "user-login:{#req.getEmail()}")
     public JsonResponse password(@RequestBody @Validated LoginPasswordRequest req) throws LimitException {
         String email = req.getEmail();
         userLoginCache.check(email);
