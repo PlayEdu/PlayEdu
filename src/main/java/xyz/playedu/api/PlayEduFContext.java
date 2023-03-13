@@ -15,7 +15,7 @@ public class PlayEduFContext {
     public PlayEduFContext() {
     }
 
-    public static void put(String key, Object val) {
+    private static void put(String key, Object val) {
         LinkedHashMap<String, Object> hashMap = THREAD_LOCAL.get();
         if (hashMap == null) {
             hashMap = new LinkedHashMap<>();
@@ -24,7 +24,7 @@ public class PlayEduFContext {
         THREAD_LOCAL.set(hashMap);
     }
 
-    public static Object get(String key) {
+    private static Object get(String key) {
         return THREAD_LOCAL.get().getOrDefault(key, null);
     }
 
