@@ -23,4 +23,6 @@ public class ResourcePaginateFilter {
 
     private String type;
 
+    private Integer adminId;
+
 }

@@ -9,7 +9,7 @@ import xyz.playedu.api.exception.ServiceException;
  * @create 2023/3/8 14:02
  */
 public interface UploadService {
-    Resource storeMinio(MultipartFile file, String categoryIds) throws ServiceException;
+    Resource storeMinio(Integer adminId, MultipartFile file, String categoryIds) throws ServiceException;
 
-    Resource storeBase64Image(String content, String categoryIds) throws ServiceException;
+    Resource storeBase64Image(Integer adminId, String content, String categoryIds) throws ServiceException;
 }

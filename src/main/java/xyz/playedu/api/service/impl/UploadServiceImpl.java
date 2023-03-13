@@ -8,13 +8,10 @@ import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.service.MinioService;
-import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.service.UploadService;
 import xyz.playedu.api.util.Base64Util;
 import xyz.playedu.api.util.HelperUtil;
-
-import java.util.List;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -31,7 +28,7 @@ public class UploadServiceImpl implements UploadService {
     private MinioService minioService;
 
     @Override
-    public Resource storeMinio(MultipartFile file, String categoryIds) throws ServiceException {
+    public Resource storeMinio(Integer adminId, MultipartFile file, String categoryIds) throws ServiceException {
         if (file == null || file.isEmpty() || file.getOriginalFilename() == null) {
             throw new ServiceException("请上传文件");
         }
@@ -53,11 +50,11 @@ public class UploadServiceImpl implements UploadService {
         // 保存文件
         String url = minioService.saveFile(file, savePath, BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext));
         // 上传记录
-        return resourceService.create(categoryIds, type, oFilename, ext, file.getSize(), BackendConstant.STORAGE_DRIVER_MINIO, "", savePath, url);
+        return resourceService.create(adminId, categoryIds, type, oFilename, ext, file.getSize(), BackendConstant.STORAGE_DRIVER_MINIO, "", savePath, url);
     }
 
     @Override
-    public Resource storeBase64Image(String content, String categoryIds) throws ServiceException {
+    public Resource storeBase64Image(Integer adminId, String content, String categoryIds) throws ServiceException {
         // data:image/jpeg;base64,
         String[] base64Rows = content.split(",");
         // 解析出content-type
@@ -78,6 +75,6 @@ public class UploadServiceImpl implements UploadService {
         // 保存文件
         String url = minioService.saveBytes(binary, savePath, BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext));
         // 上传记录
-        return resourceService.create(categoryIds, type, filename, ext, (long) binary.length, BackendConstant.STORAGE_DRIVER_MINIO, "", savePath, url);
+        return resourceService.create(adminId, categoryIds, type, filename, ext, (long) binary.length, BackendConstant.STORAGE_DRIVER_MINIO, "", savePath, url);
     }
 }

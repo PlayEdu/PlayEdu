@@ -54,6 +54,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (filter.getType() != null) {
             wrapper.eq("type", filter.getType());
         }
+        if (filter.getAdminId() != null && !filter.getAdminId().equals(0)) {
+            wrapper.eq("admin_id", filter.getAdminId());
+        }
         if (filter.getCategoryIds() != null && filter.getCategoryIds().trim().length() > 0) {
             List<Integer> categoryIds = Arrays.stream(filter.getCategoryIds().split(",")).map(Integer::valueOf).toList();
             List<Integer> ids = relationService.getRidsByCids(categoryIds);
@@ -89,8 +92,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     @Override
     @Transactional
-    public Resource create(String categoryIds, String type, String filename, String ext, Long size, String disk, String fileId, String path, String url) {
+    public Resource create(Integer adminId, String categoryIds, String type, String filename, String ext, Long size, String disk, String fileId, String path, String url) {
         Resource resource = new Resource();
+        resource.setAdminId(adminId);
         resource.setType(type);
         resource.setName(filename);
         resource.setExtension(ext);

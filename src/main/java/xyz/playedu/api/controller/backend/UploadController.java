@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import xyz.playedu.api.PlayEduBContext;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.exception.ServiceException;
@@ -39,7 +40,7 @@ public class UploadController {
     @PostMapping("/minio")
     public JsonResponse uploadMinio(@RequestParam HashMap<String, Object> params, MultipartFile file) throws ServiceException {
         String categoryIds = MapUtils.getString(params, "category_ids");
-        Resource res = uploadService.storeMinio(file, categoryIds);
+        Resource res = uploadService.storeMinio(PlayEduBContext.getAdminUserID(), file, categoryIds);
         return JsonResponse.data(res);
     }
 
@@ -91,6 +92,7 @@ public class UploadController {
 
         // 视频素材保存
         Resource videoResource = resourceService.create(
+                PlayEduBContext.getAdminUserID(),
                 req.getCategoryIds(),
                 type,
                 req.getOriginalFilename(),
@@ -102,7 +104,7 @@ public class UploadController {
                 url
         );
         // 视频封面素材保存
-        Resource posterResource = uploadService.storeBase64Image(req.getPoster(), null);
+        Resource posterResource = uploadService.storeBase64Image(PlayEduBContext.getAdminUserID(), req.getPoster(), null);
         // 视频的封面素材改为[隐藏 && 属于视频的子素材]
         resourceService.changeParentId(posterResource.getId(), videoResource.getId());
         // 视频信息

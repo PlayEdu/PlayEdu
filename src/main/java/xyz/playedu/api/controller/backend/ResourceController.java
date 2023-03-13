@@ -4,6 +4,8 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import xyz.playedu.api.PlayEduBContext;
+import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceVideo;
@@ -35,6 +37,9 @@ public class ResourceController {
     @Autowired
     private MinioService minioService;
 
+    @Autowired
+    private BackendBus backendBus;
+
     @GetMapping("/index")
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
@@ -54,8 +59,10 @@ public class ResourceController {
         filter.setSortField(sortField);
         filter.setType(type);
         filter.setCategoryIds(categoryIds);
-        if (name != null && name.length() > 0) {
-            filter.setName(name);
+        filter.setName(name);
+        // 非超管只能读取它自己上传的资源
+        if (!backendBus.isSuperAdmin()) {
+            filter.setAdminId(PlayEduBContext.getAdminUserID());
         }
 
         PaginationResult<Resource> result = resourceService.paginate(page, size, filter);

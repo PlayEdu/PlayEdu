@@ -75,4 +75,16 @@ public class BackendBus {
         return PrivacyUtil.desValue(value, 1, 0, "*");
     }
 
+    public boolean isSuperAdmin() {
+        AdminRole superRole = adminRoleService.getBySlug(BackendConstant.SUPER_ADMIN_ROLE);
+        if (superRole == null) {
+            return false;
+        }
+        List<Integer> roleIds = adminUserService.getRoleIdsByUserId(PlayEduBContext.getAdminUserID());
+        if (roleIds.size() == 0) {
+            return false;
+        }
+        return roleIds.contains(superRole.getId());
+    }
+
 }
