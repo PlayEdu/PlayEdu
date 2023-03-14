@@ -71,10 +71,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
         Department data = new Department();
         data.setId(department.getId());
-
-        if (!department.getName().equals(name)) {//更换部门名称
-            data.setName(name);
-        }
+        data.setName(name);
 
         if (!department.getParentId().equals(parentId)) {
             data.setParentId(parentId);
