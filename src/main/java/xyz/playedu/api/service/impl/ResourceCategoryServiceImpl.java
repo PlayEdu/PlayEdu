@@ -69,10 +69,7 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
 
         ResourceCategory data = new ResourceCategory();
         data.setId(category.getId());
-
-        if (!category.getName().equals(name)) {
-            data.setName(name);
-        }
+        data.setName(name);
 
         if (!category.getParentId().equals(parentId)) {
             data.setParentId(parentId);
