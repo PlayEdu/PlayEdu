@@ -12,7 +12,7 @@ import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.DepartmentDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
-import xyz.playedu.api.request.backend.DepartmentRequest;
+import xyz.playedu.api.request.backend.*;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.DepartmentService;
 import xyz.playedu.api.service.UserService;
@@ -125,6 +125,18 @@ public class DepartmentController {
         Department department = departmentService.findOrFail(id);
         departmentService.deleteById(department.getId());
         ctx.publishEvent(new DepartmentDestroyEvent(this, PlayEduBContext.getAdminUserID(), department.getId(), new Date()));
+        return JsonResponse.success();
+    }
+
+    @PutMapping("/update/resort")
+    public JsonResponse resort(@RequestBody @Validated DepartmentSortRequest req) {
+        departmentService.resetSort(req.getIds());
+        return JsonResponse.success();
+    }
+
+    @PutMapping("/update/parent")
+    public JsonResponse updateParent(@RequestBody @Validated DepartmentParentRequest req) throws NotFoundException {
+        departmentService.changeParent(req.getId(), req.getParentId(), req.getIds());
         return JsonResponse.success();
     }
 

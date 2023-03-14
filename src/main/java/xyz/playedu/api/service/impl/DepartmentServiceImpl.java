@@ -191,6 +191,40 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     public List<Integer> getCourseIdsByDepId(Integer depId) {
         return courseDepartmentService.list(courseDepartmentService.query().getWrapper().eq("dep_id", depId)).stream().map(CourseDepartment::getCourseId).toList();
     }
+
+    @Override
+    @Transactional
+    public void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException {
+        Department department = new Department();
+        department.setId(id);
+        department.setParentId(parentId);
+        if (parentId.equals(0)) {
+            department.setParentChain("");
+        } else {
+            Department parentDep = findOrFail(parentId);
+            department.setParentChain(childrenParentChain(parentDep));
+        }
+
+        // 重置排序
+        resetSort(ids);
+    }
+
+    @Override
+    public void resetSort(List<Integer> ids) {
+        if (ids == null || ids.size() == 0) {
+            return;
+        }
+        List<Department> departments = new ArrayList<>();
+        int sortVal = 0;
+        for (Integer idItem : ids) {
+            Integer finalSortVal = ++sortVal;
+            departments.add(new Department() {{
+                setId(idItem);
+                setSort(finalSortVal);
+            }});
+        }
+        updateBatchById(departments);
+    }
 }
 
 

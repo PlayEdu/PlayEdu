@@ -33,4 +33,8 @@ public interface ResourceCategoryService extends IService<ResourceCategory> {
 
     List<Integer> getRidsById(Integer id);
 
+    void resetSort(List<Integer> ids);
+
+    void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException;
+
 }

@@ -37,4 +37,7 @@ public interface DepartmentService extends IService<Department> {
 
     List<Integer> getCourseIdsByDepId(Integer depId);
 
+    void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException;
+
+    void resetSort(List<Integer> ids);
 }

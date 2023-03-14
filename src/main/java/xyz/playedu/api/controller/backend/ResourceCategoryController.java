@@ -12,7 +12,9 @@ import xyz.playedu.api.domain.ResourceCategory;
 import xyz.playedu.api.event.ResourceCategoryDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
+import xyz.playedu.api.request.backend.ResourceCategoryParentRequest;
 import xyz.playedu.api.request.backend.ResourceCategoryRequest;
+import xyz.playedu.api.request.backend.ResourceCategorySortRequest;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.service.ResourceService;
@@ -128,6 +130,18 @@ public class ResourceCategoryController {
         ResourceCategory category = categoryService.findOrFail(id);
         categoryService.deleteById(category.getId());
         ctx.publishEvent(new ResourceCategoryDestroyEvent(this, PlayEduBContext.getAdminUserID(), category.getId(), new Date()));
+        return JsonResponse.success();
+    }
+
+    @PutMapping("/update/resort")
+    public JsonResponse resort(@RequestBody @Validated ResourceCategorySortRequest req) {
+        categoryService.resetSort(req.getIds());
+        return JsonResponse.success();
+    }
+
+    @PutMapping("/update/parent")
+    public JsonResponse updateParent(@RequestBody @Validated ResourceCategoryParentRequest req) throws NotFoundException {
+        categoryService.changeParent(req.getId(), req.getParentId(), req.getIds());
         return JsonResponse.success();
     }
 

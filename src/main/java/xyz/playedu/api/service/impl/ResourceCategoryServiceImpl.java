@@ -23,8 +23,7 @@ import java.util.List;
  * @createDate 2023-02-23 09:50:18
  */
 @Service
-public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMapper, ResourceCategory>
-        implements ResourceCategoryService {
+public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMapper, ResourceCategory> implements ResourceCategoryService {
 
     @Autowired
     private ResourceCourseCategoryService resourceCourseCategoryService;
@@ -174,6 +173,40 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
     @Override
     public List<Integer> getRidsById(Integer id) {
         return resourceCategoryRelationService.list(resourceCategoryRelationService.query().getWrapper().eq("cid", id)).stream().map(ResourceCategoryRelation::getRid).toList();
+    }
+
+    @Override
+    public void resetSort(List<Integer> ids) {
+        if (ids == null || ids.size() == 0) {
+            return;
+        }
+        List<ResourceCategory> categories = new ArrayList<>();
+        int sortVal = 0;
+        for (Integer idItem : ids) {
+            Integer finalSortVal = ++sortVal;
+            categories.add(new ResourceCategory() {{
+                setId(idItem);
+                setSort(finalSortVal);
+            }});
+        }
+        updateBatchById(categories);
+    }
+
+    @Override
+    @Transactional
+    public void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException {
+        ResourceCategory category = new ResourceCategory();
+        category.setId(id);
+        category.setParentId(parentId);
+        if (parentId.equals(0)) {
+            category.setParentChain("");
+        } else {
+            ResourceCategory parentResourceCategory = findOrFail(parentId);
+            category.setParentChain(childrenParentChain(parentResourceCategory));
+        }
+
+        // 重置排序
+        resetSort(ids);
     }
 }
 
