@@ -128,7 +128,7 @@ public class DepartmentController {
         return JsonResponse.success();
     }
 
-    @PutMapping("/update/resort")
+    @PutMapping("/update/sort")
     public JsonResponse resort(@RequestBody @Validated DepartmentSortRequest req) {
         departmentService.resetSort(req.getIds());
         return JsonResponse.success();

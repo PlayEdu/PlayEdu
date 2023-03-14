@@ -133,7 +133,7 @@ public class ResourceCategoryController {
         return JsonResponse.success();
     }
 
-    @PutMapping("/update/resort")
+    @PutMapping("/update/sort")
     public JsonResponse resort(@RequestBody @Validated ResourceCategorySortRequest req) {
         categoryService.resetSort(req.getIds());
         return JsonResponse.success();
