@@ -44,11 +44,8 @@ public class DepartmentController {
 
     @GetMapping("/index")
     public JsonResponse index() {
-        Map<Integer, List<Department>> departments = departmentService.all().stream().collect(Collectors.groupingBy(Department::getParentId));
-
         HashMap<String, Object> data = new HashMap<>();
-        data.put("departments", departments);
-
+        data.put("departments", departmentService.groupByParent());
         return JsonResponse.data(data);
     }
 
@@ -61,11 +58,8 @@ public class DepartmentController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @GetMapping("/create")
     public JsonResponse create() {
-        Map<Integer, List<Department>> departments = departmentService.all().stream().collect(Collectors.groupingBy(Department::getParentId));
-
         HashMap<String, Object> data = new HashMap<>();
-        data.put("departments", departments);
-
+        data.put("departments", departmentService.groupByParent());
         return JsonResponse.data(data);
     }
 

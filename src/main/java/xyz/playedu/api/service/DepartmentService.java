@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import xyz.playedu.api.exception.NotFoundException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tengteng
@@ -40,4 +41,6 @@ public interface DepartmentService extends IService<Department> {
     void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException;
 
     void resetSort(List<Integer> ids);
+
+    Map<Integer, List<Department>> groupByParent();
 }

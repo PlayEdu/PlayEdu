@@ -18,6 +18,8 @@ import xyz.playedu.api.service.internal.UserDepartmentService;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author tengteng
@@ -224,6 +226,11 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
             }});
         }
         updateBatchById(departments);
+    }
+
+    @Override
+    public Map<Integer, List<Department>> groupByParent() {
+        return list(query().getWrapper().orderByAsc("sort")).stream().collect(Collectors.groupingBy(Department::getParentId));
     }
 }
 

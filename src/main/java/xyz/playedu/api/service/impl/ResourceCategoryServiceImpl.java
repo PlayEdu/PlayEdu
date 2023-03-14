@@ -16,6 +16,8 @@ import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author tengteng
@@ -207,6 +209,11 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
 
         // 重置排序
         resetSort(ids);
+    }
+
+    @Override
+    public Map<Integer, List<ResourceCategory>> groupByParent() {
+        return list(query().getWrapper().orderByAsc("sort")).stream().collect(Collectors.groupingBy(ResourceCategory::getParentId));
     }
 }
 

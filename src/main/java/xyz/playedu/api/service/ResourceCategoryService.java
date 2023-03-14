@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import xyz.playedu.api.exception.NotFoundException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tengteng
@@ -36,5 +37,7 @@ public interface ResourceCategoryService extends IService<ResourceCategory> {
     void resetSort(List<Integer> ids);
 
     void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException;
+
+    Map<Integer, List<ResourceCategory>> groupByParent();
 
 }

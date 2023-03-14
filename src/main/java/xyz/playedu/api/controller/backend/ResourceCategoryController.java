@@ -45,11 +45,8 @@ public class ResourceCategoryController {
 
     @GetMapping("/index")
     public JsonResponse index() {
-        Map<Integer, List<ResourceCategory>> categories = categoryService.all().stream().collect(Collectors.groupingBy(ResourceCategory::getParentId));
-
         HashMap<String, Object> data = new HashMap<>();
-        data.put("categories", categories);
-
+        data.put("categories", categoryService.groupByParent());
         return JsonResponse.data(data);
     }
 
@@ -61,11 +58,8 @@ public class ResourceCategoryController {
 
     @GetMapping("/create")
     public JsonResponse create() {
-        Map<Integer, List<ResourceCategory>> categories = categoryService.all().stream().collect(Collectors.groupingBy(ResourceCategory::getParentId));
-
         HashMap<String, Object> data = new HashMap<>();
-        data.put("categories", categories);
-
+        data.put("categories", categoryService.groupByParent());
         return JsonResponse.data(data);
     }
 
