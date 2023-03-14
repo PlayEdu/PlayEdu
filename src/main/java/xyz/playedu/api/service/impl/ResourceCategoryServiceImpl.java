@@ -197,16 +197,8 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
     @Override
     @Transactional
     public void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException {
-        ResourceCategory category = new ResourceCategory();
-        category.setId(id);
-        category.setParentId(parentId);
-        if (parentId.equals(0)) {
-            category.setParentChain("");
-        } else {
-            ResourceCategory parentResourceCategory = findOrFail(parentId);
-            category.setParentChain(childrenParentChain(parentResourceCategory));
-        }
-
+        ResourceCategory category = findOrFail(id);
+        update(category, category.getName(), parentId, category.getSort());
         // 重置排序
         resetSort(ids);
     }

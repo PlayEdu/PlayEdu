@@ -197,16 +197,8 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     @Transactional
     public void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException {
-        Department department = new Department();
-        department.setId(id);
-        department.setParentId(parentId);
-        if (parentId.equals(0)) {
-            department.setParentChain("");
-        } else {
-            Department parentDep = findOrFail(parentId);
-            department.setParentChain(childrenParentChain(parentDep));
-        }
-
+        Department department = findOrFail(id);
+        update(department, department.getName(), parentId, department.getSort());
         // 重置排序
         resetSort(ids);
     }

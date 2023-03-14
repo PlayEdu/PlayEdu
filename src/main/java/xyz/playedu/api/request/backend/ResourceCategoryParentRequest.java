@@ -1,5 +1,6 @@
 package xyz.playedu.api.request.backend;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -18,5 +19,6 @@ public class ResourceCategoryParentRequest {
     private Integer id;
 
     @NotNull(message = "参数为空")
+    @JsonProperty("parent_id")
     private Integer parentId;
 }
