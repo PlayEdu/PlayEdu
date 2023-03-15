@@ -23,7 +23,7 @@
     </sql>
 
     <select id="getCategoryCount" resultType="xyz.playedu.api.types.mapper.CourseCategoryCountMapper">
-        SELECT `resource_course_category`.`cid` as `cid`, count(*) as `total`
+        SELECT `resource_course_category`.`category_id` as `cid`, count(*) as `total`
         FROM `resource_course_category`
         GROUP BY `resource_course_category`.`category_id`;
     </select>
