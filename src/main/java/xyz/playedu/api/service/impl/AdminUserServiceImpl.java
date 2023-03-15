@@ -130,6 +130,8 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
     public void updateWithRoleIds(AdminUser user, String name, String email, String password, Integer isBanLogin, Integer[] roleIds) throws ServiceException {
         AdminUser updateAdminUser = new AdminUser();
         updateAdminUser.setId(user.getId());
+        updateAdminUser.setName(name);
+        updateAdminUser.setIsBanLogin(isBanLogin);
 
         if (!user.getEmail().equals(email)) {//更换了邮箱
             if (emailExists(email)) {
@@ -140,14 +142,6 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
 
         if (password != null && password.length() > 0) {//更换了密码
             updateAdminUser.setPassword(HelperUtil.MD5(password + user.getSalt()));
-        }
-
-        if (!user.getName().equals(name)) {//更换了姓名
-            updateAdminUser.setName(name);
-        }
-
-        if (!user.getIsBanLogin().equals(isBanLogin)) {
-            updateAdminUser.setIsBanLogin(isBanLogin);
         }
 
         updateById(updateAdminUser);
