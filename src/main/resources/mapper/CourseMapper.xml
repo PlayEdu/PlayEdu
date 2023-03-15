@@ -27,4 +27,11 @@
         FROM `resource_course_category`
         GROUP BY `resource_course_category`.`category_id`;
     </select>
+
+    <select id="getNoneCategoryCount" resultType="java.lang.Integer">
+        SELECT count(DISTINCT `courses`.`id`) AS `total`
+        FROM `courses`
+                 LEFT JOIN `resource_course_category` ON `resource_course_category`.`course_id` = `courses`.`id`
+        WHERE `resource_course_category`.`course_id` IS NULL;
+    </select>
 </mapper>

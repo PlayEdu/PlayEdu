@@ -19,6 +19,8 @@ public interface ResourceMapper extends BaseMapper<Resource> {
 
     List<ResourceCategoryCountMapper> getCategoryCount(String type);
 
+    Integer getNoneCategoryCount(String type);
+
 }
 
 

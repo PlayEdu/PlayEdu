@@ -36,4 +36,12 @@
         GROUP BY `resource_category`.`cid`;
     </select>
 
+    <select id="getNoneCategoryCount" resultType="java.lang.Integer">
+        SELECT count(DISTINCT `resources`.`id`) AS `total`
+        FROM `resources`
+                 LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
+        WHERE `resources`.`type` = #{type}
+          AND `resource_category`.`cid` IS NULL;
+    </select>
+
 </mapper>

@@ -157,7 +157,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     @Override
     public Map<Integer, Integer> getCategoryCount(String type) {
-        return getBaseMapper().getCategoryCount(type).stream().collect(Collectors.toMap(ResourceCategoryCountMapper::getCid, ResourceCategoryCountMapper::getTotal));
+        Map<Integer, Integer> data = getBaseMapper().getCategoryCount(type).stream().collect(Collectors.toMap(ResourceCategoryCountMapper::getCid, ResourceCategoryCountMapper::getTotal));
+        data.put(0, getBaseMapper().getNoneCategoryCount(type));
+        return data;
     }
 
     @Override

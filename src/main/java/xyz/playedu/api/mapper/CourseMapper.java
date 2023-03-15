@@ -18,6 +18,7 @@ public interface CourseMapper extends BaseMapper<Course> {
 
     List<CourseCategoryCountMapper> getCategoryCount();
 
+    Integer getNoneCategoryCount();
 }
 
 
