@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
 * @author tengteng
 * @description 针对表【course_hour】的数据库操作Mapper
-* @createDate 2023-02-26 18:10:09
+* @createDate 2023-03-15 10:16:45
 * @Entity xyz.playedu.api.domain.CourseHour
 */
 @Mapper

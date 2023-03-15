@@ -91,7 +91,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     @Transactional
-    public void createWithCategoryIdsAndDepIds(String title, String thumb, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
+    public Course createWithCategoryIdsAndDepIds(String title, String thumb, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
         // 创建课程
         Course course = new Course();
         course.setTitle(title);
@@ -104,6 +104,8 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         relateCategories(course, categoryIds);
         // 关联部门
         relateDepartments(course, depIds);
+
+        return course;
     }
 
     @Override

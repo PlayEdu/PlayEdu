@@ -15,8 +15,6 @@ import xyz.playedu.api.service.CourseChapterService;
 import xyz.playedu.api.types.JsonResponse;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -31,21 +29,6 @@ public class CourseChapterController {
 
     @Autowired
     private ApplicationContext ctx;
-
-    @GetMapping("/index")
-    public JsonResponse index(@PathVariable(name = "courseId") Integer courseId) {
-        List<CourseChapter> chapters = chapterService.getChaptersByCourseId(courseId);
-        return JsonResponse.data(chapters);
-    }
-
-    @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
-    @GetMapping("/create")
-    public JsonResponse create(@PathVariable(name = "courseId") Integer courseId) {
-        List<CourseChapter> chapters = chapterService.getChaptersByCourseId(courseId);
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("chapters", chapters);
-        return JsonResponse.data(data);
-    }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create")

@@ -8,17 +8,17 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="courseId" column="course_id" jdbcType="INTEGER"/>
             <result property="chapterId" column="chapter_id" jdbcType="INTEGER"/>
+            <result property="sort" column="sort" jdbcType="INTEGER"/>
             <result property="title" column="title" jdbcType="VARCHAR"/>
             <result property="type" column="type" jdbcType="VARCHAR"/>
+            <result property="rid" column="rid" jdbcType="INTEGER"/>
             <result property="duration" column="duration" jdbcType="INTEGER"/>
-            <result property="publishedAt" column="published_at" jdbcType="TIMESTAMP"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
-            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,course_id,chapter_id,
-        title,type,duration,
-        published_at,created_at,updated_at
+        sort,title,type,
+        rid,duration,created_at
     </sql>
 </mapper>

@@ -38,12 +38,6 @@ public class CourseHourController {
     @Autowired
     private ApplicationContext ctx;
 
-    @GetMapping("/index")
-    public JsonResponse index(@PathVariable(name = "courseId") Integer courseId) {
-        List<CourseHour> hours = hourService.getHoursByCourseId(courseId);
-        return JsonResponse.data(hours);
-    }
-
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/create")
     public JsonResponse create(@PathVariable(name = "courseId") Integer courseId) {
@@ -79,7 +73,7 @@ public class CourseHourController {
         Integer chapterId = req.getChapterId();
         chapterService.findOrFail(chapterId, courseId);
 
-        CourseHour courseHour = hourService.create(courseId, chapterId, req.getTitle(), type, req.getDuration(), req.getPublishedAt());
+        CourseHour courseHour = hourService.create(courseId, chapterId, req.getSort(), req.getTitle(), type, req.getRid(), req.getDuration());
         ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBContext.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId(), new Date()));
         return JsonResponse.success();
     }
@@ -99,7 +93,7 @@ public class CourseHourController {
         Integer chapterId = req.getChapterId();
         chapterService.findOrFail(chapterId, courseId);
 
-        hourService.update(courseHour, chapterId, req.getTitle(), req.getDuration(), req.getPublishedAt());
+        hourService.update(courseHour, chapterId, req.getSort(), req.getTitle(), req.getDuration());
         return JsonResponse.success();
     }
 

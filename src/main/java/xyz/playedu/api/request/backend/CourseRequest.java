@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * @Author 杭州白书科技有限公司
  * @create 2023/2/24 14:38
@@ -31,4 +33,30 @@ public class CourseRequest {
     @NotNull(message = "category_ids参数不存在")
     @JsonProperty("category_ids")
     private Integer[] categoryIds;
+
+    // 格式
+    // [
+    //   '章节名' => [
+    //     [
+    //       'name' => '课时名',
+    //       'type' => '课时类型', // 可选值[VIDEO]
+    //       'duration' => 时长, // 单位[秒]
+    //       'rid' => 资源ID, // 如果是type=VIDEO的话则对应视频的id
+    //     ]...
+    //   ]...
+    // ]
+    @NotNull(message = "chapters参数不存在")
+    private Map<String, Map<String, Object>[]> chapters;
+
+    // 格式
+    // [
+    //   [
+    //     'name' => '课时名',
+    //     'type' => '课时类型',
+    //     'duration' => '时长',
+    //     'rid' => '资源id',
+    //   ]...
+    // ]
+    @NotNull(message = "hours参数不存在")
+    private Map<String, Object>[] hours;
 }

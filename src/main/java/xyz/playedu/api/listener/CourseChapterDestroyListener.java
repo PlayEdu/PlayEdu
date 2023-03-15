@@ -18,7 +18,7 @@ public class CourseChapterDestroyListener {
 
     @EventListener
     public void resetCourseHourChapterId(CourseChapterDestroyEvent event) {
-        hourService.resetChapterIdByCourseIdAndChapterId(event.getCourseId(), event.getChapterId());
+        hourService.remove(event.getCourseId(), event.getChapterId());
     }
 
 }
