@@ -15,14 +15,13 @@ import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.mapper.CourseMapper;
 import org.springframework.stereotype.Service;
 import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
+import xyz.playedu.api.types.mapper.CourseCategoryCountMapper;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.util.HelperUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author tengteng
@@ -207,6 +206,16 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     @Override
     public List<Course> chunks(List<Integer> ids) {
         return list(query().getWrapper().in("id", ids));
+    }
+
+    @Override
+    public Map<Integer, Integer> getCategoryCount() {
+        return getBaseMapper().getCategoryCount().stream().collect(Collectors.toMap(CourseCategoryCountMapper::getCid, CourseCategoryCountMapper::getTotal));
+    }
+
+    @Override
+    public Integer total() {
+        return Math.toIntExact(count());
     }
 }
 

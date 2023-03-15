@@ -1,5 +1,6 @@
 package xyz.playedu.api.controller.backend;
 
+import cn.hutool.core.lang.hash.Hash;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,14 @@ public class CourseController {
         filter.setDepIds(depIds);
 
         PaginationResult<Course> result = courseService.paginate(page, size, filter);
-        return JsonResponse.data(result);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("data", result.getData());
+        data.put("total", result.getTotal());
+        data.put("category_count", courseService.getCategoryCount());
+        data.put("pure_total", courseService.total());
+
+        return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)

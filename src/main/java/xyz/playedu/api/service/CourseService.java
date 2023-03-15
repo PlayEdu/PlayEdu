@@ -7,6 +7,7 @@ import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tengteng
@@ -42,4 +43,8 @@ public interface CourseService extends IService<Course> {
     List<Course> chunks(List<Integer> ids, List<String> fields);
 
     List<Course> chunks(List<Integer> ids);
+
+    Map<Integer, Integer> getCategoryCount();
+
+    Integer total();
 }

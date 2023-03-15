@@ -27,4 +27,13 @@
         url,created_at,parent_id,
         is_hidden
     </sql>
+
+    <select id="getCategoryCount" resultType="xyz.playedu.api.types.mapper.ResourceCategoryCountMapper">
+        SELECT `resource_category`.`cid` as `cid`, count(*) as `total`
+        FROM `resources`
+                 INNER JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
+        WHERE `resources`.`type` = #{type}
+        GROUP BY `resource_category`.`cid`;
+    </select>
+
 </mapper>

@@ -77,6 +77,8 @@ public class ResourceController {
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("result", result);
+        data.put("category_count", resourceService.getCategoryCount(type));
+        data.put("pure_total", resourceService.total(type));
 
         if (type.equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
             List<ResourceVideo> resourceVideos = resourceVideoService.chunksByRids(result.getData().stream().map(Resource::getId).toList());

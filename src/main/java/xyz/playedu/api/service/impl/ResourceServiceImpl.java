@@ -14,15 +14,14 @@ import xyz.playedu.api.mapper.ResourceMapper;
 import org.springframework.stereotype.Service;
 import xyz.playedu.api.service.ResourceVideoService;
 import xyz.playedu.api.service.internal.ResourceCategoryRelationService;
+import xyz.playedu.api.types.mapper.ResourceCategoryCountMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author tengteng
@@ -154,6 +153,16 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Override
     public List<Resource> chunks(List<Integer> ids, List<String> fields) {
         return list(query().getWrapper().in("id", ids).select(fields));
+    }
+
+    @Override
+    public Map<Integer, Integer> getCategoryCount(String type) {
+        return getBaseMapper().getCategoryCount(type).stream().collect(Collectors.toMap(ResourceCategoryCountMapper::getCid, ResourceCategoryCountMapper::getTotal));
+    }
+
+    @Override
+    public Integer total(String type) {
+        return Math.toIntExact(count(query().getWrapper().eq("type", type)));
     }
 }
 

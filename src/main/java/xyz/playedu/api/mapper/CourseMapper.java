@@ -3,6 +3,9 @@ package xyz.playedu.api.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import xyz.playedu.api.domain.Course;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import xyz.playedu.api.types.mapper.CourseCategoryCountMapper;
+
+import java.util.List;
 
 /**
 * @author tengteng
@@ -12,6 +15,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 */
 @Mapper
 public interface CourseMapper extends BaseMapper<Course> {
+
+    List<CourseCategoryCountMapper> getCategoryCount();
 
 }
 

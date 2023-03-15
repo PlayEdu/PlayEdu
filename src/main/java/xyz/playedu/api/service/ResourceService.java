@@ -7,6 +7,7 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tengteng
@@ -29,4 +30,7 @@ public interface ResourceService extends IService<Resource> {
 
     List<Resource> chunks(List<Integer> ids, List<String> fields);
 
+    Map<Integer, Integer> getCategoryCount(String type);
+
+    Integer total(String type);
 }
