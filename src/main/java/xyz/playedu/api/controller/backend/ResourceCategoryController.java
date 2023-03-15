@@ -92,6 +92,7 @@ public class ResourceCategoryController {
         List<Integer> rids = categoryService.getRidsById(id);
 
         HashMap<String, Object> data = new HashMap<>();
+        data.put("children", categoryService.listByParentId(id));
         data.put("courses", new ArrayList<>());
         data.put("videos", new ArrayList<>());
         data.put("images", new ArrayList<>());

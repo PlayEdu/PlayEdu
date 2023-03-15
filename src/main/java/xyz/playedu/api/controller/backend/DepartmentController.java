@@ -94,6 +94,7 @@ public class DepartmentController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("courses", new ArrayList<>());
         data.put("users", new ArrayList<>());
+        data.put("children", departmentService.listByParentId(id));
 
         if (courseIds != null && courseIds.size() > 0) {
             data.put("courses", courseService.chunks(courseIds, new ArrayList<>() {{
