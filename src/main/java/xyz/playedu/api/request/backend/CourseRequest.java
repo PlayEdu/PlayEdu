@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,29 +35,46 @@ public class CourseRequest {
     @JsonProperty("category_ids")
     private Integer[] categoryIds;
 
-    // 格式
-    // [
-    //   '章节名' => [
-    //     [
-    //       'name' => '课时名',
-    //       'type' => '课时类型', // 可选值[VIDEO]
-    //       'duration' => 时长, // 单位[秒]
-    //       'rid' => 资源ID, // 如果是type=VIDEO的话则对应视频的id
-    //     ]...
-    //   ]...
-    // ]
-    @NotNull(message = "chapters参数不存在")
-    private Map<String, Map<String, Object>[]> chapters;
+    @Data
+    public static class HourItem {
+        private String name;
+        private String type;
+        private Integer duration;
+        private Integer rid;
+    }
+
+    @Data
+    public static class ChapterItem {
+        private String name;
+        private List<HourItem> hours;
+    }
 
     // 格式
     // [
-    //   [
+    //   {
+    //     'name' => '章节名',
+    //     'hours' => [
+    //       [
+    //         'name' => '课时名',
+    //         'type' => '课时类型',
+    //         'duration' => '时长',
+    //         'rid' => '资源id',
+    //       ],...
+    //     ],
+    //   }...
+    // ]
+    @NotNull(message = "chapters参数不存在")
+    private List<ChapterItem> chapters;
+
+    // 格式
+    // [
+    //   {
     //     'name' => '课时名',
     //     'type' => '课时类型',
     //     'duration' => '时长',
     //     'rid' => '资源id',
-    //   ]...
+    //   }...
     // ]
     @NotNull(message = "hours参数不存在")
-    private Map<String, Object>[] hours;
+    private List<HourItem> hours;
 }

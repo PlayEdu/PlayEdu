@@ -93,25 +93,20 @@ public class CourseController {
     public JsonResponse store(@RequestBody @Validated CourseRequest req) throws ParseException {
         Course course = courseService.createWithCategoryIdsAndDepIds(req.getTitle(), req.getThumb(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
 
-        Map<String, Map<String, Object>[]> chapters = req.getChapters();
         Date now = new Date();
 
         if (req.getHours() != null) {//无章节课时配置
             List<CourseHour> insertHours = new ArrayList<>();
-            for (Map<String, Object> hourItem : req.getHours()) {
-                // 资源类型
-                String typeVal = MapUtils.getString(hourItem, "type");
-                // 时长
-                Integer durationVal = MapUtils.getInteger(hourItem, "duration");
-                // 资源ID
-                Integer ridVal = MapUtils.getInteger(hourItem, "rid");
-
+            final Integer[] chapterSort = {0};
+            for (CourseRequest.HourItem hourItem : req.getHours()) {
                 insertHours.add(new CourseHour() {{
-                    setChapterId(0);
                     setCourseId(course.getId());
-                    setType(typeVal);
-                    setDuration(durationVal);
-                    setRid(ridVal);
+                    setChapterId(0);
+                    setSort(chapterSort[0]++);
+                    setTitle(hourItem.getName());
+                    setType(hourItem.getType());
+                    setDuration(hourItem.getDuration());
+                    setRid(hourItem.getRid());
                     setCreatedAt(now);
                 }});
             }
@@ -119,20 +114,17 @@ public class CourseController {
                 hourService.saveBatch(insertHours);
             }
         } else {
-            if (chapters == null) {
+            if (req.getChapters() == null || req.getChapters().size() == 0) {
                 return JsonResponse.error("请配置课时");
             }
             List<CourseHour> insertHours = new ArrayList<>();
             final Integer[] chapterSort = {0};
 
-            for (Map.Entry<String, Map<String, Object>[]> entry : chapters.entrySet()) {
-                String chapterName = entry.getKey();
-                Map<String, Object>[] hoursList = entry.getValue();
-
+            for (CourseRequest.ChapterItem chapterItem : req.getChapters()) {
                 CourseChapter tmpChapter = new CourseChapter() {{
                     setCourseId(course.getId());
                     setSort(chapterSort[0]++);
-                    setName(chapterName);
+                    setName(chapterItem.getName());
                     setCreatedAt(now);
                     setUpdatedAt(now);
                 }};
@@ -140,22 +132,16 @@ public class CourseController {
                 chapterService.save(tmpChapter);
 
                 final Integer[] hourSort = {0};
-                for (Map<String, Object> hourItem : hoursList) {
-                    // 资源类型
-                    String typeVal = MapUtils.getString(hourItem, "type");
-                    // 时长
-                    Integer durationVal = MapUtils.getInteger(hourItem, "duration");
-                    // 资源ID
-                    Integer ridVal = MapUtils.getInteger(hourItem, "rid");
-
+                for (CourseRequest.HourItem hourItem : chapterItem.getHours()) {
                     insertHours.add(new CourseHour() {{
                         setChapterId(tmpChapter.getId());
                         setCourseId(course.getId());
-                        setType(typeVal);
-                        setDuration(durationVal);
-                        setRid(ridVal);
-                        setCreatedAt(now);
                         setSort(hourSort[0]++);
+                        setTitle(hourItem.getName());
+                        setType(hourItem.getType());
+                        setDuration(hourItem.getDuration());
+                        setRid(hourItem.getRid());
+                        setCreatedAt(now);
                     }});
                 }
             }
