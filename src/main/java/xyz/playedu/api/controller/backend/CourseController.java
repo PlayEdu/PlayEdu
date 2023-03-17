@@ -166,7 +166,7 @@ public class CourseController {
         data.put("dep_ids", depIds);//已关联的部门
         data.put("category_ids", categoryIds);//已关联的分类
         data.put("chapters", chapters);
-        data.put("hours", hours.stream().collect(Collectors.toMap(CourseHour::getChapterId, e -> e)));
+        data.put("hours", hours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
 
         return JsonResponse.data(data);
     }
