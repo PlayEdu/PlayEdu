@@ -25,4 +25,8 @@ public class ResourcePaginateFilter {
 
     private Integer adminId;
 
+    private Integer pageStart;
+
+    private Integer pageSize;
+
 }

@@ -68,8 +68,8 @@ public class ResourceController {
         filter.setType(type);
         filter.setCategoryIds(categoryIds);
         filter.setName(name);
-        // 非超管只能读取它自己上传的资源
-        if (!backendBus.isSuperAdmin()) {
+
+        if (!backendBus.isSuperAdmin()) {// 非超管只能读取它自己上传的资源
             filter.setAdminId(PlayEduBContext.getAdminUserID());
         }
 

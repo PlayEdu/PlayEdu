@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import xyz.playedu.api.domain.Resource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import xyz.playedu.api.types.mapper.ResourceCategoryCountMapper;
+import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,11 @@ public interface ResourceMapper extends BaseMapper<Resource> {
 
     List<ResourceCategoryCountMapper> getCategoryCount(String type);
 
-    Integer getNoneCategoryCount(String type);
+    Integer getNunCategoryCount(String type);
+
+    List<Resource> paginate(ResourcePaginateFilter filter);
+
+    Long paginateCount(ResourcePaginateFilter filter);
 
 }
 
