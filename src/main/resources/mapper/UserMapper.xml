@@ -35,4 +35,146 @@
         is_set_password,login_at,created_at,
         updated_at
     </sql>
+    <select id="paginateCount" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM `users`
+        <if test="depIds != null and depIds != ''">
+            <choose>
+                <when test="depIds.indexOf('0') == 0">
+                    LEFT JOIN `user_department` ON `user_department`.`user_id` = `users`.`id`
+                </when>
+                <otherwise>
+                    INNER JOIN `user_department` ON `user_department`.`user_id` = `users`.`id`
+                </otherwise>
+            </choose>
+        </if>
+        <where>
+            <if test="depIds != null and depIds != ''">
+                <choose>
+                    <when test="depIds.indexOf('0') == 0">
+                        AND `user_department`.`user_id` IS NULL
+                    </when>
+                    <otherwise>
+                        AND `user_department`.`dep_id` IN (#{depIds})
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="name != null and name != ''">
+                AND `users`.`name` LIKE concat('%',#{name},'%')
+            </if>
+            <if test="nickname != null and nickname != ''">
+                AND `users`.`nickname` LIKE concat('%',#{nickname},'%')
+            </if>
+            <if test="email != null and email != ''">
+                AND `users`.`email` = #{email}
+            </if>
+            <if test="idCard != null and idCard != ''">
+                AND `users`.`id_card` = #{idCard}
+            </if>
+            <if test="isActive != null">
+                AND `users`.`is_active` = #{isActive}
+            </if>
+            <if test="isLock != null">
+                AND `users`.`is_lock` = #{isLock}
+            </if>
+            <if test="isVerify != null">
+                AND `users`.`is_verify` = #{isVerify}
+            </if>
+            <if test="isSetPassword != null">
+                AND `users`.`is_set_password` = #{isSetPassword}
+            </if>
+            <if test="createdAt != null">
+                AND `users`.`created_at` BETWEEN
+                <foreach collection="createdAt" item="createdAtItem" separator=" AND ">#{createdAtItem}</foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="paginate" resultType="xyz.playedu.api.domain.User">
+        SELECT `users`.*
+        FROM `users`
+        <if test="depIds != null and depIds != ''">
+            <choose>
+                <when test="depIds.indexOf('0') == 0">
+                    LEFT JOIN `user_department` ON `user_department`.`user_id` = `users`.`id`
+                </when>
+                <otherwise>
+                    INNER JOIN `user_department` ON `user_department`.`user_id` = `users`.`id`
+                </otherwise>
+            </choose>
+        </if>
+        <where>
+            <if test="depIds != null and depIds != ''">
+                <choose>
+                    <when test="depIds.indexOf('0') == 0">
+                        AND `user_department`.`user_id` IS NULL
+                    </when>
+                    <otherwise>
+                        AND `user_department`.`dep_id` IN (#{depIds})
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="name != null and name != ''">
+                AND `users`.`name` LIKE concat('%',#{name},'%')
+            </if>
+            <if test="nickname != null and nickname != ''">
+                AND `users`.`nickname` LIKE concat('%',#{nickname},'%')
+            </if>
+            <if test="email != null and email != ''">
+                AND `users`.`email` = #{email}
+            </if>
+            <if test="idCard != null and idCard != ''">
+                AND `users`.`id_card` = #{idCard}
+            </if>
+            <if test="isActive != null">
+                AND `users`.`is_active` = #{isActive}
+            </if>
+            <if test="isLock != null">
+                AND `users`.`is_lock` = #{isLock}
+            </if>
+            <if test="isVerify != null">
+                AND `users`.`is_verify` = #{isVerify}
+            </if>
+            <if test="isSetPassword != null">
+                AND `users`.`is_set_password` = #{isSetPassword}
+            </if>
+            <if test="createdAt != null">
+                AND `users`.`created_at` BETWEEN
+                <foreach collection="createdAt" item="createdAtItem" separator=" AND ">#{createdAtItem}</foreach>
+            </if>
+        </where>
+        <if test="sortAlgo == 'asc'">
+            <choose>
+                <when test="sortField == 'size'">
+                    ORDER BY `users`.`size` ASC
+                </when>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `users`.`created_at` ASC
+                </when>
+                <when test="sortField == 'credit1'">
+                    ORDER BY `users`.`credit1` ASC
+                </when>
+                <otherwise>
+                    ORDER BY `users`.`id` ASC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="sortAlgo != 'asc'">
+            <choose>
+                <when test="sortField == 'size'">
+                    ORDER BY `users`.`size` DESC
+                </when>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `users`.`created_at` DESC
+                </when>
+                <when test="sortField == 'credit1'">
+                    ORDER BY `users`.`credit1` DESC
+                </when>
+                <otherwise>
+                    ORDER BY `users`.`id` DESC
+                </otherwise>
+            </choose>
+        </if>
+        LIMIT #{pageStart}, #{pageSize};
+    </select>
 </mapper>

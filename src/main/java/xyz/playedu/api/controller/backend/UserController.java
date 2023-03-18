@@ -66,7 +66,7 @@ public class UserController {
         String createdAt = MapUtils.getString(params, "created_at");
         String depIds = MapUtils.getString(params, "dep_ids");
 
-        UserPaginateFilter filter = new UserPaginateFilter(){{
+        UserPaginateFilter filter = new UserPaginateFilter() {{
             setName(name);
             setNickname(nickname);
             setEmail(email);
@@ -75,11 +75,14 @@ public class UserController {
             setIsLock(isLock);
             setIsVerify(isVerify);
             setIsSetPassword(isSetPassword);
-            setCreatedAt(createdAt);
             setDepIds(depIds);
             setSortAlgo(sortAlgo);
             setSortField(sortField);
         }};
+
+        if (createdAt != null && createdAt.trim().length() > 0) {
+            filter.setCreatedAt(createdAt.split(","));
+        }
 
         PaginationResult<User> result = userService.paginate(page, size, filter);
         return JsonResponse.data(result);

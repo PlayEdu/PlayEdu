@@ -25,12 +25,15 @@ public class UserPaginateFilter {
     private Integer isSetPassword;
 
     // 创建时间范围过滤
-    private String createdAt;
+    private String[] createdAt;
 
     private String depIds;
 
     // 排序控制
     private String sortField;
     private String sortAlgo;
+
+    private Integer pageStart;
+    private Integer pageSize;
 
 }

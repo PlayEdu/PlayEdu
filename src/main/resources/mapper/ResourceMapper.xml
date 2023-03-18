@@ -90,7 +90,7 @@
                     ORDER BY `resources`.`size` ASC
                 </when>
                 <when test="sortField == 'created_at'">
-                    ORDER BY `resources`.`size` ASC
+                    ORDER BY `resources`.`created_at` ASC
                 </when>
                 <otherwise>
                     ORDER BY `resources`.`id` ASC
@@ -103,7 +103,7 @@
                     ORDER BY `resources`.`size` DESC
                 </when>
                 <when test="sortField == 'created_at'">
-                    ORDER BY `resources`.`size` DESC
+                    ORDER BY `resources`.`created_at` DESC
                 </when>
                 <otherwise>
                     ORDER BY `resources`.`id` DESC

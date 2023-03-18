@@ -1,8 +1,5 @@
 package xyz.playedu.api.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +16,6 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -43,65 +38,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public PaginationResult<User> paginate(int page, int size, UserPaginateFilter filter) {
-        QueryWrapper<User> wrapper = query().getWrapper().eq("1", "1");
-
-        if (filter.getEmail() != null && filter.getEmail().trim().length() > 0) {
-            wrapper.eq("email", filter.getEmail());
-        }
-        if (filter.getName() != null && filter.getName().trim().length() > 0) {
-            wrapper.eq("name", filter.getName());
-        }
-        if (filter.getNickname() != null && filter.getNickname().length() > 0) {
-            wrapper.eq("nickname", filter.getNickname());
-        }
-        if (filter.getIdCard() != null && filter.getIdCard().trim().length() > 0) {
-            wrapper.eq("id_card", filter.getIdCard());
-        }
-        if (filter.getIsActive() != null) {
-            wrapper.eq("is_active", filter.getIsActive());
-        }
-        if (filter.getIsLock() != null) {
-            wrapper.eq("is_lock", filter.getIsLock());
-        }
-        if (filter.getIsVerify() != null) {
-            wrapper.eq("is_verify", filter.getIsVerify());
-        }
-        if (filter.getIsSetPassword() != null) {
-            wrapper.eq("is_set_password", filter.getIsSetPassword());
-        }
-        if (filter.getCreatedAt() != null && filter.getCreatedAt().trim().length() > 0) {
-            Date[] createdAt = Arrays.stream(filter.getCreatedAt().split(",")).map(Date::new).toArray(Date[]::new);
-            wrapper.between("created_at", createdAt[0], createdAt[1]);
-        }
-        if (filter.getDepIds() != null && filter.getDepIds().trim().length() > 0) {
-            List<Integer> depIds = Arrays.stream(filter.getDepIds().split(",")).map(Integer::valueOf).toList();
-            List<Integer> userIds = userDepartmentService.getUserIdsByDepIds(depIds);
-            if (userIds == null || userIds.size() == 0) {
-                userIds = HelperUtil.zeroIntegerList();
-            }
-            wrapper.in("id", userIds);
-        }
-
-        String sortFiled = filter.getSortField();
-        if (sortFiled == null || sortFiled.trim().length() == 0) {
-            sortFiled = "id";
-        }
-        String sortAlgo = filter.getSortAlgo();
-        if (sortAlgo == null || sortAlgo.trim().length() == 0) {
-            sortAlgo = "desc";
-        }
-        if ("desc".equals(sortAlgo)) {
-            wrapper.orderByDesc(sortFiled);
-        } else {
-            wrapper.orderByAsc(sortFiled);
-        }
-
-        IPage<User> userPage = new Page<>(page, size);
-        userPage = page(userPage, wrapper);
+        filter.setPageStart((page - 1) * size);
+        filter.setPageSize(size);
 
         PaginationResult<User> pageResult = new PaginationResult<>();
-        pageResult.setData(userPage.getRecords());
-        pageResult.setTotal(userPage.getTotal());
+        pageResult.setData(getBaseMapper().paginate(filter));
+        pageResult.setTotal(getBaseMapper().paginateCount(filter));
 
         return pageResult;
     }
