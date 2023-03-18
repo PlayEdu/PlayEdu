@@ -1,8 +1,5 @@
 package xyz.playedu.api.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +15,6 @@ import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
 import xyz.playedu.api.types.mapper.CourseCategoryCountMapper;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
-import xyz.playedu.api.util.HelperUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,51 +35,12 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public PaginationResult<Course> paginate(int page, int size, CoursePaginateFiler filter) {
-        QueryWrapper<Course> wrapper = query().getWrapper().eq("1", "1");
-
-        if (filter.getTitle() != null && filter.getTitle().length() > 0) {
-            wrapper.like("title", "%" + filter.getTitle() + "%");
-        }
-        if (filter.getDepIds() != null && filter.getDepIds().trim().length() > 0) {
-            List<Integer> depIds = Arrays.stream(filter.getDepIds().split(",")).map(Integer::valueOf).toList();
-            List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(depIds);
-            if (courseIds == null || courseIds.size() == 0) {
-                courseIds = HelperUtil.zeroIntegerList();
-            }
-            wrapper.in("id", courseIds);
-        }
-        if (filter.getCategoryIds() != null && filter.getCategoryIds().trim().length() > 0) {
-            List<Integer> categoryIds = Arrays.stream(filter.getCategoryIds().split(",")).map(Integer::valueOf).toList();
-            List<Integer> courseIds = courseCategoryService.getCourseIdsByCategoryIds(categoryIds);
-            if (courseIds == null || courseIds.size() == 0) {
-                courseIds = HelperUtil.zeroIntegerList();
-            }
-            wrapper.in("id", courseIds);
-        }
-        if (filter.getIsShow() != null) {
-            wrapper.eq("is_show", filter.getIsShow());
-        }
-
-        String sortFiled = filter.getSortField();
-        if (sortFiled == null || sortFiled.trim().length() == 0) {
-            sortFiled = "id";
-        }
-        String sortAlgo = filter.getSortAlgo();
-        if (sortAlgo == null || sortAlgo.trim().length() == 0) {
-            sortAlgo = "desc";
-        }
-        if ("desc".equals(sortAlgo)) {
-            wrapper.orderByDesc(sortFiled);
-        } else {
-            wrapper.orderByAsc(sortFiled);
-        }
-
-        IPage<Course> pageObj = new Page<>(page, size);
-        pageObj = page(pageObj, wrapper);
+        filter.setPageStart((page - 1) * size);
+        filter.setPageSize(size);
 
         PaginationResult<Course> pageResult = new PaginationResult<>();
-        pageResult.setData(pageObj.getRecords());
-        pageResult.setTotal(pageObj.getTotal());
+        pageResult.setData(getBaseMapper().paginate(filter));
+        pageResult.setTotal(getBaseMapper().paginateCount(filter));
 
         return pageResult;
     }

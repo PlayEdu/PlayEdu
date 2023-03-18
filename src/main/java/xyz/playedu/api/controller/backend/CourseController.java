@@ -95,7 +95,7 @@ public class CourseController {
 
         Date now = new Date();
 
-        if (req.getHours() != null) {//无章节课时配置
+        if (req.getHours().size() > 0) {//无章节课时配置
             List<CourseHour> insertHours = new ArrayList<>();
             final Integer[] chapterSort = {0};
             for (CourseRequest.HourItem hourItem : req.getHours()) {
@@ -117,6 +117,7 @@ public class CourseController {
             if (req.getChapters() == null || req.getChapters().size() == 0) {
                 return JsonResponse.error("请配置课时");
             }
+
             List<CourseHour> insertHours = new ArrayList<>();
             final Integer[] chapterSort = {0};
 

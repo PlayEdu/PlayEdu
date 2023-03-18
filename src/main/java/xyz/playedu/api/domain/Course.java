@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -53,12 +54,10 @@ public class Course implements Serializable {
     @JsonProperty("created_at")
     private Date createdAt;
 
-    @JsonProperty("updated_at")
+    @JsonIgnore
     private Date updatedAt;
 
-    /**
-     * 删除时间
-     */
+    @JsonIgnore
     private Date deletedAt;
 
     @TableField(exist = false)

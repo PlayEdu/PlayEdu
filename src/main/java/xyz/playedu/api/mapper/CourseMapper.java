@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import xyz.playedu.api.domain.Course;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import xyz.playedu.api.types.mapper.CourseCategoryCountMapper;
+import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 
 import java.util.List;
 
@@ -17,6 +18,10 @@ import java.util.List;
 public interface CourseMapper extends BaseMapper<Course> {
 
     List<CourseCategoryCountMapper> getCategoryCount();
+
+    List<Course> paginate(CoursePaginateFiler filer);
+
+    Long paginateCount(CoursePaginateFiler filer);
 
 }
 

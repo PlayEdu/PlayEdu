@@ -21,4 +21,8 @@ public class CoursePaginateFiler {
 
     private Integer isShow;
 
+    private Integer pageStart;
+
+    private Integer pageSize;
+
 }
