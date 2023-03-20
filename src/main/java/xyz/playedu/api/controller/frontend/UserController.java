@@ -49,6 +49,11 @@ public class UserController {
         return JsonResponse.data(data);
     }
 
+    @PutMapping("/avatar")
+    public JsonResponse changeAvatar() {
+        return JsonResponse.success();
+    }
+
     @PutMapping("/password")
     public JsonResponse changePassword(@RequestBody @Validated ChangePasswordRequest req) throws ServiceException {
         userService.passwordChange(PlayEduFCtx.getUser(), req.getOldPassword(), req.getNewPassword());

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceCategoryRelation;
+import xyz.playedu.api.domain.ResourceVideo;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.mapper.ResourceMapper;
@@ -121,6 +122,15 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Override
     public Integer total(String type) {
         return Math.toIntExact(count(query().getWrapper().eq("type", type).eq("is_hidden", 0)));
+    }
+
+    @Override
+    public Integer duration(Integer id) {
+        ResourceVideo resourceVideo = resourceVideoService.getOne(resourceVideoService.query().getWrapper().eq("rid", id));
+        if (resourceVideo == null) {
+            return null;
+        }
+        return resourceVideo.getDuration();
     }
 }
 

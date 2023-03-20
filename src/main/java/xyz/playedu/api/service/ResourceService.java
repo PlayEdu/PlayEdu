@@ -33,4 +33,6 @@ public interface ResourceService extends IService<Resource> {
     Map<Integer, Integer> getCategoryCount(String type);
 
     Integer total(String type);
+
+    Integer duration(Integer id);
 }

@@ -4,13 +4,17 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.domain.Course;
+import xyz.playedu.api.domain.CourseHour;
 import xyz.playedu.api.exception.NotFoundException;
+import xyz.playedu.api.service.CourseChapterService;
+import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -22,6 +26,12 @@ public class CourseController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private CourseChapterService chapterService;
+
+    @Autowired
+    private CourseHourService hourService;
 
     @GetMapping("/index")
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
@@ -41,12 +51,11 @@ public class CourseController {
     @GetMapping("/{id}")
     public JsonResponse detail(@PathVariable(name = "id") Integer id) throws NotFoundException {
         Course course = courseService.findOrFail(id);
-        if (course.getIsShow().equals(0)) {
-            throw new NotFoundException("课程不存在");
-        }
 
         HashMap<String, Object> data = new HashMap<>();
-        data.put("course", course);
+        data.put("course", course);//线上课
+        data.put("chapters", chapterService.getChaptersByCourseId(course.getId()));//章节
+        data.put("hours", hourService.getHoursByCourseId(course.getId()).stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));//课时
 
         return JsonResponse.data(data);
     }
