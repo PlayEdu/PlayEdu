@@ -60,6 +60,7 @@ public class CourseController {
         String title = MapUtils.getString(params, "title");
         String depIds = MapUtils.getString(params, "dep_ids");
         String categoryIds = MapUtils.getString(params, "category_ids");
+        Integer isRequired = MapUtils.getInteger(params, "is_requried");
 
         CoursePaginateFiler filter = new CoursePaginateFiler();
         filter.setTitle(title);
@@ -67,6 +68,7 @@ public class CourseController {
         filter.setSortAlgo(sortAlgo);
         filter.setCategoryIds(categoryIds);
         filter.setDepIds(depIds);
+        filter.setIsRequired(isRequired);
 
         PaginationResult<Course> result = courseService.paginate(page, size, filter);
 
@@ -91,7 +93,14 @@ public class CourseController {
     @PostMapping("/create")
     @Transactional
     public JsonResponse store(@RequestBody @Validated CourseRequest req) throws ParseException {
-        Course course = courseService.createWithCategoryIdsAndDepIds(req.getTitle(), req.getThumb(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
+        Course course = courseService.createWithCategoryIdsAndDepIds(
+                req.getTitle(),
+                req.getThumb(),
+                req.getIsRequired(),
+                req.getIsShow(),
+                req.getCategoryIds(),
+                req.getDepIds()
+        );
 
         Date now = new Date();
 
@@ -177,7 +186,7 @@ public class CourseController {
     @Transactional
     public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated CourseRequest req) throws NotFoundException {
         Course course = courseService.findOrFail(id);
-        courseService.updateWithCategoryIdsAndDepIds(course, req.getTitle(), req.getThumb(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
+        courseService.updateWithCategoryIdsAndDepIds(course, req.getTitle(), req.getThumb(), req.getIsRequired(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
         return JsonResponse.success();
     }
 

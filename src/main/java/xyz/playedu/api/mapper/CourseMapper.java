@@ -9,11 +9,11 @@ import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import java.util.List;
 
 /**
- * @author tengteng
- * @description 针对表【courses】的数据库操作Mapper
- * @createDate 2023-02-24 14:48:38
- * @Entity xyz.playedu.api.domain.Course
- */
+* @author tengteng
+* @description 针对表【courses】的数据库操作Mapper
+* @createDate 2023-03-20 14:25:31
+* @Entity xyz.playedu.api.domain.Course
+*/
 @Mapper
 public interface CourseMapper extends BaseMapper<Course> {
 
@@ -24,7 +24,6 @@ public interface CourseMapper extends BaseMapper<Course> {
     Long paginateCount(CoursePaginateFiler filer);
 
     List<Course> openCoursesAndShow(Integer limit);
-
 }
 
 

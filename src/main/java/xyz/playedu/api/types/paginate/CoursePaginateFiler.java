@@ -15,6 +15,8 @@ public class CoursePaginateFiler {
 
     private String categoryIds;
 
+    private Integer isRequired;
+
     private String sortField;
 
     private String sortAlgo;

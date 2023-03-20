@@ -27,6 +27,10 @@ public class CourseRequest {
     @JsonProperty("is_show")
     private Integer isShow;
 
+    @NotNull(message = "is_required参数不存在")
+    @JsonProperty("is_required")
+    private Integer isRequired;
+
     @NotNull(message = "dep_ids参数不存在")
     @JsonProperty("dep_ids")
     private Integer[] depIds;

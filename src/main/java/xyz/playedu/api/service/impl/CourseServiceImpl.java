@@ -47,12 +47,13 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     @Transactional
-    public Course createWithCategoryIdsAndDepIds(String title, String thumb, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
+    public Course createWithCategoryIdsAndDepIds(String title, String thumb, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
         // 创建课程
         Course course = new Course();
         course.setTitle(title);
         course.setThumb(thumb);
         course.setIsShow(isShow);
+        course.setIsRequired(isRequired);
         course.setCreatedAt(new Date());
         course.setUpdatedAt(new Date());
         save(course);
@@ -110,12 +111,13 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     @Transactional
-    public void updateWithCategoryIdsAndDepIds(Course course, String title, String thumb, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
+    public void updateWithCategoryIdsAndDepIds(Course course, String title, String thumb, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
         Course newCourse = new Course();
         newCourse.setId(course.getId());
         newCourse.setTitle(title);
         newCourse.setThumb(thumb);
         newCourse.setIsShow(isShow);
+        newCourse.setIsRequired(isRequired);
 
         updateById(newCourse);
 

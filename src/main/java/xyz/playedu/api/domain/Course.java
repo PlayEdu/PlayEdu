@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -13,13 +12,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
+ * 
  * @TableName courses
  */
-@TableName(value = "courses")
+@TableName(value ="courses")
 @Data
 public class Course implements Serializable {
     /**
-     *
+     * 
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -38,6 +38,11 @@ public class Course implements Serializable {
      * 课程价格(分)
      */
     private Integer charge;
+
+    /**
+     * 1:必修,0:选修
+     */
+    private Integer isRequired;
 
     /**
      * 课时数
@@ -76,14 +81,15 @@ public class Course implements Serializable {
         }
         Course other = (Course) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getTitle() == null ? other.getTitle() == null : this.getTitle().equals(other.getTitle()))
-                && (this.getThumb() == null ? other.getThumb() == null : this.getThumb().equals(other.getThumb()))
-                && (this.getCharge() == null ? other.getCharge() == null : this.getCharge().equals(other.getCharge()))
-                && (this.getClassHour() == null ? other.getClassHour() == null : this.getClassHour().equals(other.getClassHour()))
-                && (this.getIsShow() == null ? other.getIsShow() == null : this.getIsShow().equals(other.getIsShow()))
-                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
-                && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()))
-                && (this.getDeletedAt() == null ? other.getDeletedAt() == null : this.getDeletedAt().equals(other.getDeletedAt()));
+            && (this.getTitle() == null ? other.getTitle() == null : this.getTitle().equals(other.getTitle()))
+            && (this.getThumb() == null ? other.getThumb() == null : this.getThumb().equals(other.getThumb()))
+            && (this.getCharge() == null ? other.getCharge() == null : this.getCharge().equals(other.getCharge()))
+            && (this.getClassHour() == null ? other.getClassHour() == null : this.getClassHour().equals(other.getClassHour()))
+            && (this.getIsShow() == null ? other.getIsShow() == null : this.getIsShow().equals(other.getIsShow()))
+            && (this.getIsRequired() == null ? other.getIsRequired() == null : this.getIsRequired().equals(other.getIsRequired()))
+            && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
+            && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()))
+            && (this.getDeletedAt() == null ? other.getDeletedAt() == null : this.getDeletedAt().equals(other.getDeletedAt()));
     }
 
     @Override
@@ -96,6 +102,7 @@ public class Course implements Serializable {
         result = prime * result + ((getCharge() == null) ? 0 : getCharge().hashCode());
         result = prime * result + ((getClassHour() == null) ? 0 : getClassHour().hashCode());
         result = prime * result + ((getIsShow() == null) ? 0 : getIsShow().hashCode());
+        result = prime * result + ((getIsRequired() == null) ? 0 : getIsRequired().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
         result = prime * result + ((getUpdatedAt() == null) ? 0 : getUpdatedAt().hashCode());
         result = prime * result + ((getDeletedAt() == null) ? 0 : getDeletedAt().hashCode());
@@ -114,6 +121,7 @@ public class Course implements Serializable {
         sb.append(", charge=").append(charge);
         sb.append(", classHour=").append(classHour);
         sb.append(", isShow=").append(isShow);
+        sb.append(", isRequired=").append(isRequired);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", updatedAt=").append(updatedAt);
         sb.append(", deletedAt=").append(deletedAt);

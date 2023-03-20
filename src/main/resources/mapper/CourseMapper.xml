@@ -5,22 +5,23 @@
 <mapper namespace="xyz.playedu.api.mapper.CourseMapper">
 
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.Course">
-        <id property="id" column="id" jdbcType="INTEGER"/>
-        <result property="title" column="title" jdbcType="VARCHAR"/>
-        <result property="thumb" column="thumb" jdbcType="VARCHAR"/>
-        <result property="charge" column="charge" jdbcType="INTEGER"/>
-        <result property="classHour" column="class_hour" jdbcType="INTEGER"/>
-        <result property="isShow" column="is_show" jdbcType="TINYINT"/>
-        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
-        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
-        <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="thumb" column="thumb" jdbcType="VARCHAR"/>
+            <result property="charge" column="charge" jdbcType="INTEGER"/>
+            <result property="classHour" column="class_hour" jdbcType="INTEGER"/>
+            <result property="isShow" column="is_show" jdbcType="TINYINT"/>
+            <result property="isRequired" column="is_required" jdbcType="TINYINT"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        ,title,thumb,
+        id,title,thumb,
         charge,class_hour,is_show,
-        created_at,updated_at,deleted_at
+        is_required,created_at,updated_at,
+        deleted_at
     </sql>
 
     <select id="getCategoryCount" resultType="xyz.playedu.api.types.mapper.CourseCategoryCountMapper">
@@ -77,6 +78,9 @@
 
             <if test="title != null and title != ''">
                 AND `courses`.`title` LIKE concat('%',#{title},'%')
+            </if>
+            <if test="isRequired != null">
+                AND `courses`.`is_required` = #{isRequired}
             </if>
         </where>
 
@@ -164,6 +168,9 @@
             <if test="title != null and title != ''">
                 AND `courses`.`title` LIKE concat('%',#{title},'%')
             </if>
+            <if test="isRequired != null">
+                AND `courses`.`is_required` = #{isRequired}
+            </if>
         </where>
     </select>
     <select id="openCoursesAndShow" resultType="xyz.playedu.api.domain.Course">
@@ -172,6 +179,6 @@
                  LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
         WHERE `course_department`.`course_id` IS NULL
           AND `courses`.`is_show` = 1
-          LIMIT #{limit}
+            LIMIT #{limit}
     </select>
 </mapper>
