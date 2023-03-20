@@ -1,17 +1,18 @@
 package xyz.playedu.api.controller.frontend;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduFCtx;
 import xyz.playedu.api.caches.UserCanSeeCourseCache;
-import xyz.playedu.api.domain.Course;
-import xyz.playedu.api.domain.CourseHour;
-import xyz.playedu.api.domain.Resource;
+import xyz.playedu.api.domain.*;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.exception.ServiceException;
+import xyz.playedu.api.request.frontend.CourseHourRecordRequest;
 import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.ResourceService;
+import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.types.JsonResponse;
 
 import java.util.HashMap;
@@ -36,6 +37,9 @@ public class HourController {
     @Autowired
     private ResourceService resourceService;
 
+    @Autowired
+    private UserCourseHourRecordService userCourseHourRecordService;
+
     @GetMapping("/{id}/play")
     public JsonResponse play(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException, ServiceException {
         Course course = courseService.findOrFail(courseId);
@@ -52,10 +56,28 @@ public class HourController {
     }
 
     @PostMapping("/{id}/record")
-    public JsonResponse record(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException, ServiceException {
+    public JsonResponse record(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseHourRecordRequest req) throws NotFoundException, ServiceException {
+        Integer duration = req.getDuration();
+        if (duration <= 0) {
+            return JsonResponse.error("duration参数错误");
+        }
+        User user = PlayEduFCtx.getUser();
+        // 线上课检测
+        Course course = courseService.findOrFail(courseId);
+        // 权限校验
+        userCanSeeCourseCache.check(user, course, true);
+        // 课时检测
+        CourseHour hour = hourService.findOrFail(id, courseId);
+
+        userCourseHourRecordService.storeOrUpdate(user.getId(), course.getId(), hour.getId(), duration, hour.getDuration());
+
+        return JsonResponse.success();
+    }
+
+    @PostMapping("/{id}/ping")
+    public JsonResponse ping(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException, ServiceException {
         Course course = courseService.findOrFail(courseId);
         userCanSeeCourseCache.check(PlayEduFCtx.getUser(), course, true);
-        CourseHour hour = hourService.findOrFail(id, courseId);
         return JsonResponse.success();
     }
 
