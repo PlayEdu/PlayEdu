@@ -1,5 +1,6 @@
 package xyz.playedu.api.controller.frontend;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import xyz.playedu.api.types.JsonResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -54,20 +56,31 @@ public class UserController {
     }
 
     @GetMapping("/courses")
-    public JsonResponse courses() {
+    public JsonResponse courses(@RequestParam HashMap<String, Object> params) {
+        Integer depId = MapUtils.getInteger(params, "dep_id");
+        if (depId == null || depId == 0) {
+            return JsonResponse.error("请选择部门");
+        }
+
+        List<Integer> userJoinDepIds = userService.getDepIdsByUserId(PlayEduFCtx.getUserId());
+        if (userJoinDepIds == null) {
+            return JsonResponse.error("当前学员未加入任何部门");
+        }
+        if (!userJoinDepIds.contains(depId)) {
+            return JsonResponse.error("当前学员未加入所选择部门");
+        }
+
+        // 读取部门课
+        List<Course> depCourses = courseService.depCoursesAndShow(new ArrayList<>() {{
+            add(depId);
+        }});
+
         // 公开课
         List<Course> openCourses = courseService.openCoursesAndShow(200);
 
-        // 部门课
-        List<Course> depCourses = new ArrayList<>();
-        List<Integer> userJoinDepIds = userService.getDepIdsByUserId(PlayEduFCtx.getUserId());
-        if (userJoinDepIds != null && userJoinDepIds.size() > 0) {
-            depCourses = courseService.depCoursesAndShow(userJoinDepIds);
-        }
-
         HashMap<String, Object> data = new HashMap<>();
-        data.put("open", openCourses);
-        data.put("department", depCourses);
+        data.put("open", openCourses.stream().collect(Collectors.groupingBy(Course::getIsRequired)));
+        data.put("department", depCourses.stream().collect(Collectors.groupingBy(Course::getIsRequired)));
 
         return JsonResponse.data(data);
     }
