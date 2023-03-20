@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduFCtx;
+import xyz.playedu.api.caches.CourseCache;
 import xyz.playedu.api.caches.UserCanSeeCourseCache;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.exception.NotFoundException;
@@ -32,17 +33,20 @@ public class HourController {
     private CourseHourService hourService;
 
     @Autowired
-    private UserCanSeeCourseCache userCanSeeCourseCache;
-
-    @Autowired
     private ResourceService resourceService;
 
     @Autowired
     private UserCourseHourRecordService userCourseHourRecordService;
 
+    @Autowired
+    private UserCanSeeCourseCache userCanSeeCourseCache;
+
+    @Autowired
+    private CourseCache courseCache;
+
     @GetMapping("/{id}/play")
     public JsonResponse play(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException, ServiceException {
-        Course course = courseService.findOrFail(courseId);
+        Course course = courseCache.findOrFail(courseId);
         userCanSeeCourseCache.check(PlayEduFCtx.getUser(), course, true);
         CourseHour hour = hourService.findOrFail(id, courseId);
         Resource resource = resourceService.findOrFail(hour.getRid());
@@ -63,7 +67,7 @@ public class HourController {
         }
         User user = PlayEduFCtx.getUser();
         // 线上课检测
-        Course course = courseService.findOrFail(courseId);
+        Course course = courseCache.findOrFail(courseId);
         // 权限校验
         userCanSeeCourseCache.check(user, course, true);
         // 课时检测
@@ -76,7 +80,7 @@ public class HourController {
 
     @PostMapping("/{id}/ping")
     public JsonResponse ping(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException, ServiceException {
-        Course course = courseService.findOrFail(courseId);
+        Course course = courseCache.findOrFail(courseId);
         userCanSeeCourseCache.check(PlayEduFCtx.getUser(), course, true);
         return JsonResponse.success();
     }
