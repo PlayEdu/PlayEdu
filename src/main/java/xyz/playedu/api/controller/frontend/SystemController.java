@@ -29,7 +29,16 @@ public class SystemController {
 
     @GetMapping("/config")
     public JsonResponse config() {
-        Map<String, String> data = appConfigService.keyValues();
+        Map<String, String> configs = appConfigService.keyValues();
+
+        HashMap<String, String> data = new HashMap<>();
+
+        data.put("system-name", configs.get("system.name"));
+        data.put("system-logo", configs.get("system.logo"));
+        data.put("system-api-url", configs.get("system.api_url"));
+        data.put("system-pc-url", configs.get("system.pc_url"));
+        data.put("system-h5-url", configs.get("system.h5_url"));
+
         return JsonResponse.data(data);
     }
 

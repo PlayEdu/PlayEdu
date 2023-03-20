@@ -39,11 +39,15 @@ public class DepartmentController {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
 
-        Department department = departmentService.findOrFail(id);
-
         CoursePaginateFiler filer = new CoursePaginateFiler();
         filer.setIsShow(1);
-        filer.setDepIds(department.getId() + "");
+
+        if (id == 0) {
+            filer.setDepIds("0");//无部门所属的线上课
+        } else {
+            Department department = departmentService.findOrFail(id);
+            filer.setDepIds(department.getId() + "");
+        }
 
         PaginationResult<Course> result = courseService.paginate(page, size, filer);
 

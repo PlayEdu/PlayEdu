@@ -47,6 +47,8 @@ public class LoginController {
     @PostMapping("/password")
     public JsonResponse password(@RequestBody @Validated LoginPasswordRequest req) throws LimitException {
         String email = req.getEmail();
+
+        // 限流-限制学员10s内登录成功一次
         userLoginCache.check(email);
 
         User user = userService.find(email);

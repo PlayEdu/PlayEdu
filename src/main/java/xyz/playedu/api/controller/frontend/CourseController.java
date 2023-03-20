@@ -27,9 +27,11 @@ public class CourseController {
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
+        String categoryIds = MapUtils.getString(params, "category_ids");
 
         CoursePaginateFiler filer = new CoursePaginateFiler();
         filer.setIsShow(1);
+        filer.setCategoryIds(categoryIds);
 
         PaginationResult<Course> result = courseService.paginate(page, size, filer);
 
