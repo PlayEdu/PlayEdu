@@ -16,12 +16,12 @@ public class DepartmentDestroyEvent extends ApplicationEvent {
 
     private Integer depId;
     private Integer adminId;
-    private Date at;
+    private Date createdAt;
 
-    public DepartmentDestroyEvent(Object source, Integer adminId, Integer depId, Date date) {
+    public DepartmentDestroyEvent(Object source, Integer adminId, Integer depId) {
         super(source);
         this.adminId = adminId;
         this.depId = depId;
-        this.at = date;
+        this.createdAt = new Date();
     }
 }

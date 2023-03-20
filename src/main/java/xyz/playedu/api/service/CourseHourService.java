@@ -21,7 +21,11 @@ public interface CourseHourService extends IService<CourseHour> {
 
     CourseHour create(Integer courseId, Integer chapterId, Integer sort, String title, String type, Integer rid, Integer duration);
 
-    Integer getCourseClassHourByCourseId(Integer courseId);
+    Integer getCountByCourseId(Integer courseId);
+
+    Integer getCountByChapterId(Integer chapterId);
 
     void remove(Integer courseId, Integer chapterId);
+
+    void updateSort(List<Integer> ids, Integer cid);
 }

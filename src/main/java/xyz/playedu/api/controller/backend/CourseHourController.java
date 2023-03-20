@@ -14,6 +14,7 @@ import xyz.playedu.api.event.CourseHourDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseHourRequest;
+import xyz.playedu.api.request.backend.CourseHourSortRequest;
 import xyz.playedu.api.service.CourseChapterService;
 import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.types.JsonResponse;
@@ -74,7 +75,7 @@ public class CourseHourController {
         chapterService.findOrFail(chapterId, courseId);
 
         CourseHour courseHour = hourService.create(courseId, chapterId, req.getSort(), req.getTitle(), type, req.getRid(), req.getDuration());
-        ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBContext.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId(), new Date()));
+        ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBContext.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
         return JsonResponse.success();
     }
 
@@ -102,7 +103,13 @@ public class CourseHourController {
     public JsonResponse destroy(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException {
         CourseHour courseHour = hourService.findOrFail(id, courseId);
         hourService.removeById(courseHour.getId());
-        ctx.publishEvent(new CourseHourDestroyEvent(this, PlayEduBContext.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId(), new Date()));
+        ctx.publishEvent(new CourseHourDestroyEvent(this, PlayEduBContext.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
+        return JsonResponse.success();
+    }
+
+    @PutMapping("/update/sort")
+    public JsonResponse updateSort(@PathVariable(name = "courseId") Integer courseId, @RequestBody @Validated CourseHourSortRequest req) {
+        hourService.updateSort(req.getIds(), courseId);
         return JsonResponse.success();
     }
 

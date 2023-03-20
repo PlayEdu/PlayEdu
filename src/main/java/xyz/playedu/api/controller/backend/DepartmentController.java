@@ -119,7 +119,7 @@ public class DepartmentController {
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
         departmentService.deleteById(department.getId());
-        ctx.publishEvent(new DepartmentDestroyEvent(this, PlayEduBContext.getAdminUserID(), department.getId(), new Date()));
+        ctx.publishEvent(new DepartmentDestroyEvent(this, PlayEduBContext.getAdminUserID(), department.getId()));
         return JsonResponse.success();
     }
 

@@ -143,7 +143,7 @@ public class UserController {
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
         User user = userService.findOrFail(id);
         userService.removeById(user.getId());
-        context.publishEvent(new UserDestroyEvent(this, user.getId(), new Date()));
+        context.publishEvent(new UserDestroyEvent(this, user.getId()));
         return JsonResponse.success();
     }
 

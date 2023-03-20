@@ -7,6 +7,7 @@ import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.mapper.CourseHourMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -62,13 +63,35 @@ public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseH
     }
 
     @Override
-    public Integer getCourseClassHourByCourseId(Integer courseId) {
+    public Integer getCountByCourseId(Integer courseId) {
         return Math.toIntExact(count(query().getWrapper().eq("course_id", courseId)));
+    }
+
+    @Override
+    public Integer getCountByChapterId(Integer chapterId) {
+        return Math.toIntExact(count(query().getWrapper().eq("chapter_id", chapterId)));
     }
 
     @Override
     public void remove(Integer courseId, Integer chapterId) {
         remove(query().getWrapper().eq("course_id", courseId).eq("chapter_id", chapterId));
+    }
+
+    @Override
+    public void updateSort(List<Integer> ids, Integer cid) {
+        if (ids == null || ids.size() == 0) {
+            return;
+        }
+        List<CourseHour> hours = new ArrayList<>();
+        final Integer[] sortVal = {0};
+        for (Integer idVal : ids) {
+            hours.add(new CourseHour() {{
+                setId(idVal);
+                setCourseId(cid);
+                setSort(sortVal[0]++);
+            }});
+        }
+        updateBatchById(hours);
     }
 }
 

@@ -23,4 +23,6 @@ public interface CourseChapterService extends IService<CourseChapter> {
 
     CourseChapter findOrFail(Integer id, Integer courseId) throws NotFoundException;
 
+    void updateSort(List<Integer> ids, Integer cid);
+
 }

@@ -62,7 +62,7 @@ public class LoginController {
         data.put("token", token.getToken());
         data.put("expire", token.getExpire());
 
-        ctx.publishEvent(new AdminUserLoginEvent(this, adminUser.getId(), new Date(), token.getToken(), IpUtil.getIpAddress(), adminUser.getLoginTimes()));
+        ctx.publishEvent(new AdminUserLoginEvent(this, adminUser.getId(), token.getToken(), IpUtil.getIpAddress(), adminUser.getLoginTimes()));
 
         return JsonResponse.data(data);
     }

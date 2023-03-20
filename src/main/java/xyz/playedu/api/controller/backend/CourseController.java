@@ -185,7 +185,7 @@ public class CourseController {
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
         courseService.removeById(id);
-        ctx.publishEvent(new CourseDestroyEvent(this, PlayEduBContext.getAdminUserID(), id, new Date()));
+        ctx.publishEvent(new CourseDestroyEvent(this, PlayEduBContext.getAdminUserID(), id));
         return JsonResponse.success();
     }
 

@@ -20,10 +20,10 @@ public class AdminUserLoginEvent extends ApplicationEvent {
 
     private Integer loginTimes;
 
-    public AdminUserLoginEvent(Object source, Integer adminId, Date loginAt, String token, String ip, Integer loginTimes) {
+    public AdminUserLoginEvent(Object source, Integer adminId, String token, String ip, Integer loginTimes) {
         super(source);
         this.adminId = adminId;
-        this.loginAt = loginAt;
+        this.loginAt = new Date();
         this.token = token;
         this.ip = ip;
         this.loginTimes = loginTimes;

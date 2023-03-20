@@ -16,12 +16,12 @@ public class ResourceCategoryDestroyEvent extends ApplicationEvent {
 
     private Integer adminId;
     private Integer categoryId;
-    private Date date;
+    private Date createdAt;
 
-    public ResourceCategoryDestroyEvent(Object source, Integer adminId, Integer categoryId, Date date) {
+    public ResourceCategoryDestroyEvent(Object source, Integer adminId, Integer categoryId) {
         super(source);
         this.adminId = adminId;
         this.categoryId = categoryId;
-        this.date = date;
+        this.createdAt = new Date();
     }
 }

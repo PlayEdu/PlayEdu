@@ -11,7 +11,9 @@ import xyz.playedu.api.event.CourseChapterDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseChapterRequest;
+import xyz.playedu.api.request.backend.CourseChapterSortRequest;
 import xyz.playedu.api.service.CourseChapterService;
+import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.types.JsonResponse;
 
 import java.util.Date;
@@ -26,6 +28,9 @@ public class CourseChapterController {
 
     @Autowired
     private CourseChapterService chapterService;
+
+    @Autowired
+    private CourseHourService hourService;
 
     @Autowired
     private ApplicationContext ctx;
@@ -56,8 +61,17 @@ public class CourseChapterController {
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException {
         CourseChapter chapter = chapterService.findOrFail(id, courseId);
+        if (hourService.getCountByChapterId(chapter.getId()) > 0) {
+            return JsonResponse.error("当前章节下面存在课时无法删除");
+        }
         chapterService.removeById(chapter.getId());
-        ctx.publishEvent(new CourseChapterDestroyEvent(this, PlayEduBContext.getAdminUserID(), chapter.getCourseId(), chapter.getId(), new Date()));
+        ctx.publishEvent(new CourseChapterDestroyEvent(this, PlayEduBContext.getAdminUserID(), chapter.getCourseId(), chapter.getId()));
+        return JsonResponse.success();
+    }
+
+    @PutMapping("/update/sort")
+    public JsonResponse updateSort(@PathVariable(name = "courseId") Integer courseId, @RequestBody @Validated CourseChapterSortRequest req) {
+        chapterService.updateSort(req.getIds(), courseId);
         return JsonResponse.success();
     }
 }

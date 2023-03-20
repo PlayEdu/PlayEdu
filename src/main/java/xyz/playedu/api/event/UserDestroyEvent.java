@@ -15,11 +15,11 @@ import java.util.Date;
 public class UserDestroyEvent extends ApplicationEvent {
 
     private Integer userId;
-    private Date at;
+    private Date createdAt;
 
-    public UserDestroyEvent(Object source, Integer userId, Date date) {
+    public UserDestroyEvent(Object source, Integer userId) {
         super(source);
         this.userId = userId;
-        this.at = date;
+        this.createdAt = new Date();
     }
 }

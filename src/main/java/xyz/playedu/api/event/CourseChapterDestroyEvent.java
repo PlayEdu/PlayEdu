@@ -16,13 +16,13 @@ public class CourseChapterDestroyEvent extends ApplicationEvent {
     private Integer adminId;
     private Integer courseId;
     private Integer chapterId;
-    private Date date;
+    private Date createdAt;
 
-    public CourseChapterDestroyEvent(Object source, Integer adminId, Integer courseId, Integer chapterId, Date date) {
+    public CourseChapterDestroyEvent(Object source, Integer adminId, Integer courseId, Integer chapterId) {
         super(source);
         this.adminId = adminId;
         this.courseId = courseId;
         this.chapterId = chapterId;
-        this.date = date;
+        this.createdAt = new Date();
     }
 }

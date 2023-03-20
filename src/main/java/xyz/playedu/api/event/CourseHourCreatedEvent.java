@@ -17,14 +17,14 @@ public class CourseHourCreatedEvent extends ApplicationEvent {
     private Integer hourId;
     private Integer courseId;
     private Integer chapterId;
-    private Date date;
+    private Date createdAt;
 
-    public CourseHourCreatedEvent(Object source, Integer adminId, Integer courseId, Integer chapterId, Integer hourId, Date date) {
+    public CourseHourCreatedEvent(Object source, Integer adminId, Integer courseId, Integer chapterId, Integer hourId) {
         super(source);
         this.adminId = adminId;
         this.courseId = courseId;
         this.chapterId = chapterId;
         this.hourId = hourId;
-        this.date = date;
+        this.createdAt = new Date();
     }
 }

@@ -7,6 +7,7 @@ import xyz.playedu.api.service.CourseChapterService;
 import xyz.playedu.api.mapper.CourseChapterMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -60,6 +61,23 @@ public class CourseChapterServiceImpl extends ServiceImpl<CourseChapterMapper, C
             throw new NotFoundException("章节不存在");
         }
         return chapter;
+    }
+
+    @Override
+    public void updateSort(List<Integer> ids, Integer cid) {
+        if (ids == null || ids.size() == 0) {
+            return;
+        }
+        List<CourseChapter> chapters = new ArrayList<>();
+        final Integer[] sortVal = {0};
+        for (Integer idItem : ids) {
+            chapters.add(new CourseChapter() {{
+                setId(idItem);
+                setId(cid);
+                setSort(sortVal[0]++);
+            }});
+        }
+        updateBatchById(chapters);
     }
 }
 

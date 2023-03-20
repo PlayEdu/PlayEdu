@@ -65,7 +65,7 @@ public class LoginController {
         data.put("token", token.getToken());
         data.put("expired", token.getExpire());
 
-        ctx.publishEvent(new UserLoginEvent(this, user.getId(), user.getEmail(), new Date(), token.getToken(), IpUtil.getIpAddress(), RequestUtil.ua()));
+        ctx.publishEvent(new UserLoginEvent(this, user.getId(), user.getEmail(), token.getToken(), IpUtil.getIpAddress(), RequestUtil.ua()));
 
         return JsonResponse.data(data);
     }

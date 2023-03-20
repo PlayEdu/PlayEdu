@@ -15,13 +15,13 @@ import java.util.Date;
 public class CourseDestroyEvent extends ApplicationEvent {
 
     private Integer courseId;
-    private Date at;
+    private Date createdAt;
     private Integer adminId;
 
-    public CourseDestroyEvent(Object source, Integer adminId, Integer courseId, Date date) {
+    public CourseDestroyEvent(Object source, Integer adminId, Integer courseId) {
         super(source);
         this.courseId = courseId;
-        this.at = date;
+        this.createdAt = new Date();
         this.adminId = adminId;
     }
 

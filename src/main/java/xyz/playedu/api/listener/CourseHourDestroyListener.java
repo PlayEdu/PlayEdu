@@ -22,7 +22,7 @@ public class CourseHourDestroyListener {
 
     @EventListener
     public void courseClassHourUpdate(CourseHourDestroyEvent event) {
-        Integer classHour = hourService.getCourseClassHourByCourseId(event.getCourseId());
+        Integer classHour = hourService.getCountByCourseId(event.getCourseId());
         courseService.updateClassHour(event.getCourseId(), classHour);
     }
 
