@@ -27,7 +27,7 @@ public class BackendBus {
     private AdminUserService adminUserService;
 
     public static boolean inUnAuthWhitelist(String uri) {
-        return Arrays.stream(BackendConstant.UN_AUTH_URI_WHITELIST).toList().contains(uri);
+        return BackendConstant.UN_AUTH_URI_WHITELIST.contains(uri);
     }
 
     public HashMap<String, Boolean> adminUserPermissions(Integer userId) {

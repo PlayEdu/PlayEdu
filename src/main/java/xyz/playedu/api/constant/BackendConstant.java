@@ -7,7 +7,10 @@ import java.util.List;
 public class BackendConstant {
     public final static String SUPER_ADMIN_ROLE = "super-role";
 
-    public final static String[] UN_AUTH_URI_WHITELIST = {"/backend/v1/system/image-captcha", "/backend/v1/auth/login",};
+    public final static List<String> UN_AUTH_URI_WHITELIST = new ArrayList<>() {{
+        add("/backend/v1/system/image-captcha");
+        add("/backend/v1/auth/login");
+    }};
 
     public final static String RESOURCE_TYPE_VIDEO = "VIDEO";
     public final static String RESOURCE_TYPE_IMAGE = "IMAGE";

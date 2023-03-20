@@ -40,7 +40,7 @@ public class FrontMiddleware implements HandlerInterceptor {
             return HandlerInterceptor.super.preHandle(request, response, handler);
         }
 
-        if (Arrays.stream(FrontendConstant.UN_AUTH_URI_WHITELIST).toList().contains(request.getRequestURI())) {
+        if (FrontendConstant.UN_AUTH_URI_WHITELIST.contains(request.getRequestURI())) {
             return HandlerInterceptor.super.preHandle(request, response, handler);
         }
 
