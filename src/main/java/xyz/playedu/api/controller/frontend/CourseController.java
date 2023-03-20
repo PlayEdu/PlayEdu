@@ -53,9 +53,9 @@ public class CourseController {
         Course course = courseService.findOrFail(id);
 
         HashMap<String, Object> data = new HashMap<>();
-        data.put("course", course);//线上课
-        data.put("chapters", chapterService.getChaptersByCourseId(course.getId()));//章节
-        data.put("hours", hourService.getHoursByCourseId(course.getId()).stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));//课时
+        data.put("course", course);
+        data.put("chapters", chapterService.getChaptersByCourseId(course.getId()));
+        data.put("hours", hourService.getHoursByCourseId(course.getId()).stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
 
         return JsonResponse.data(data);
     }
