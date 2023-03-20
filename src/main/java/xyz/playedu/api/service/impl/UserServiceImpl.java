@@ -76,7 +76,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
         user.setEmail(email);
         user.setName(name);
-        user.setNickname(name);
         user.setAvatar(avatar);
         user.setPassword(passwordHashed);
         user.setSalt(salt);
@@ -102,11 +101,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional
-    public User updateWithDepIds(User user, String email, String nickname, String name, String avatar, String password, String idCard, Integer[] depIds) {
+    public User updateWithDepIds(User user, String email, String name, String avatar, String password, String idCard, Integer[] depIds) {
         User newUser = new User();
         newUser.setId(user.getId());
         newUser.setEmail(email);
-        newUser.setNickname(nickname);
         newUser.setName(name);
         newUser.setAvatar(avatar);
         newUser.setIdCard(idCard);

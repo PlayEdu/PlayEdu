@@ -7,7 +7,6 @@
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.User">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="email" column="email" jdbcType="VARCHAR"/>
-            <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
@@ -27,13 +26,12 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,email,nickname,
-        name,avatar,password,
-        salt,id_card,credit1,
-        create_ip,create_city,is_active,
-        is_lock,is_verify,verify_at,
-        is_set_password,login_at,created_at,
-        updated_at
+        id,email,name,
+        avatar,password,salt,
+        id_card,credit1,create_ip,
+        create_city,is_active,is_lock,
+        is_verify,verify_at,is_set_password,
+        login_at,created_at,updated_at
     </sql>
     <select id="paginateCount" resultType="java.lang.Long">
         SELECT count(1)

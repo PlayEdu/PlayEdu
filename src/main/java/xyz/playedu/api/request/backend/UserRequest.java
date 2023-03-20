@@ -26,9 +26,6 @@ public class UserRequest {
     @Length(min = 1, max = 20, message = "姓名长度在1-20个字符之间")
     private String name;
 
-    @Length(min = 1, max = 20, message = "昵称长度在1-20个字符之间")
-    private String nickname;
-
     @NotNull(message = "avatar参数不存在")
     @NotBlank(message = "请上传头像")
     private String avatar;

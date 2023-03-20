@@ -57,7 +57,6 @@ public class UserController {
 
         String name = MapUtils.getString(params, "name");
         String email = MapUtils.getString(params, "email");
-        String nickname = MapUtils.getString(params, "nickname");
         String idCard = MapUtils.getString(params, "id_card");
         Integer isActive = MapUtils.getInteger(params, "is_active");
         Integer isLock = MapUtils.getInteger(params, "is_lock");
@@ -68,7 +67,6 @@ public class UserController {
 
         UserPaginateFilter filter = new UserPaginateFilter() {{
             setName(name);
-            setNickname(nickname);
             setEmail(email);
             setIdCard(idCard);
             setIsActive(isActive);
@@ -134,7 +132,7 @@ public class UserController {
             return JsonResponse.error("邮箱已存在");
         }
 
-        userService.updateWithDepIds(user, email, req.getNickname(), req.getName(), req.getAvatar(), req.getPassword(), req.getIdCard(), req.getDepIds());
+        userService.updateWithDepIds(user, email, req.getName(), req.getAvatar(), req.getPassword(), req.getIdCard(), req.getDepIds());
         return JsonResponse.success();
     }
 
@@ -184,10 +182,9 @@ public class UserController {
         for (int i = 0; i < users.length; i++) {
             //c0: 部门ids数组
             //c1: 邮箱
-            //c2: 昵称
+            //c2: 姓名
             //c3: 密码
-            //c4: 姓名
-            //c5: 身份证号
+            //c4: 身份证号
 
             String tmpEmail = users[i][1];
             if (emailMap.get(tmpEmail) != null) {//存在重复
@@ -224,11 +221,10 @@ public class UserController {
             String tmpSalt = HelperUtil.randomString(6);
             String tmpPassword = HelperUtil.MD5(users[i][3] + tmpSalt);
             tmpInsertUser.setEmail(users[i][1]);
-            tmpInsertUser.setNickname(users[i][2]);
             tmpInsertUser.setPassword(tmpPassword);
             tmpInsertUser.setSalt(tmpSalt);
             tmpInsertUser.setName(users[i][4]);
-            tmpInsertUser.setIdCard(users[i][5]);
+            tmpInsertUser.setIdCard(users[i][4]);
             tmpInsertUser.setCreateIp(SystemConstant.INTERNAL_IP);
             tmpInsertUser.setCreateCity(SystemConstant.INTERNAL_IP_AREA);
             tmpInsertUser.setCreatedAt(new Date());
