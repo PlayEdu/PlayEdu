@@ -166,4 +166,12 @@
             </if>
         </where>
     </select>
+    <select id="openCoursesAndShow" resultType="xyz.playedu.api.domain.Course">
+        SELECT `courses`.*
+        FROM `courses`
+                 LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
+        WHERE `course_department`.`course_id` IS NULL
+          AND `courses`.`is_show` = 1
+          LIMIT #{limit}
+    </select>
 </mapper>

@@ -174,6 +174,16 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     public Integer total() {
         return Math.toIntExact(count());
     }
+
+    @Override
+    public List<Course> openCoursesAndShow(Integer limit) {
+        return getBaseMapper().openCoursesAndShow(limit);
+    }
+
+    @Override
+    public List<Course> depCoursesAndShow(List<Integer> depIds) {
+        return list(query().getWrapper().in("id", courseDepartmentService.getCourseIdsByDepIds(depIds)).eq("is_show", 1));
+    }
 }
 
 

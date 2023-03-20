@@ -2,7 +2,7 @@ package xyz.playedu.api.bus;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.playedu.api.PlayEduBContext;
+import xyz.playedu.api.PlayEduBCtx;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.service.AdminPermissionService;
@@ -10,7 +10,6 @@ import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.util.PrivacyUtil;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -55,7 +54,7 @@ public class BackendBus {
     }
 
     public static String valueHidden(String permissionSlug, String type, String value) {
-        HashMap<String, Boolean> permissions = PlayEduBContext.getAdminPer();
+        HashMap<String, Boolean> permissions = PlayEduBCtx.getAdminPer();
         if (permissions.get(permissionSlug) != null) {
             return value;
         }
@@ -76,7 +75,7 @@ public class BackendBus {
         if (superRole == null) {
             return false;
         }
-        List<Integer> roleIds = adminUserService.getRoleIdsByUserId(PlayEduBContext.getAdminUserID());
+        List<Integer> roleIds = adminUserService.getRoleIdsByUserId(PlayEduBCtx.getAdminUserID());
         if (roleIds.size() == 0) {
             return false;
         }

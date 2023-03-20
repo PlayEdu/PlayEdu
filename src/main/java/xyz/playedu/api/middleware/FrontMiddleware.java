@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import xyz.playedu.api.PlayEduFContext;
+import xyz.playedu.api.PlayEduFCtx;
 import xyz.playedu.api.constant.FrontendConstant;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
@@ -18,7 +18,6 @@ import xyz.playedu.api.util.HelperUtil;
 import xyz.playedu.api.util.RequestUtil;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -50,21 +49,22 @@ public class FrontMiddleware implements HandlerInterceptor {
         }
 
         try {
-            JWTPayload payload = jwtService.parse(token, SystemConstant.JWT_PRV_ADMIN_USER);
+            JWTPayload payload = jwtService.parse(token, SystemConstant.JWT_PRV_USER);
 
             User user = userService.find(payload.getSub());
             if (user == null) {
-                return responseTransform(response, 404, "管理员不存在");
+                return responseTransform(response, 404, "请重新登录");
             }
             if (user.getIsLock() == 1) {
-                return responseTransform(response, 403, "当前学员已锁定");
+                return responseTransform(response, 403, "当前学员已锁定无法登录");
             }
 
-            PlayEduFContext.setUserId(user.getId());
-            PlayEduFContext.setUser(user);
+            PlayEduFCtx.setUserId(user.getId());
+            PlayEduFCtx.setUser(user);
 
             return HandlerInterceptor.super.preHandle(request, response, handler);
         } catch (Exception e) {
+            log.error(e.getMessage());
             return responseTransform(response, 401, "请重新登录");
         }
     }
@@ -78,7 +78,7 @@ public class FrontMiddleware implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        PlayEduFContext.remove();
+        PlayEduFCtx.remove();
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }

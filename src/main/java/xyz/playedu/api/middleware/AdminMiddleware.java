@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import xyz.playedu.api.PlayEduBContext;
+import xyz.playedu.api.PlayEduBCtx;
 import xyz.playedu.api.bus.AppBus;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.SystemConstant;
@@ -49,7 +49,7 @@ public class AdminMiddleware implements HandlerInterceptor {
 
         // 读取全局配置
         Map<String, String> systemConfig = configService.keyValues();
-        PlayEduBContext.setConfig(systemConfig);
+        PlayEduBCtx.setConfig(systemConfig);
 
         if (BackendBus.inUnAuthWhitelist(request.getRequestURI())) {
             return HandlerInterceptor.super.preHandle(request, response, handler);
@@ -71,9 +71,9 @@ public class AdminMiddleware implements HandlerInterceptor {
                 return responseTransform(response, 403, "当前管理员禁止登录");
             }
 
-            PlayEduBContext.setAdminUserId(payload.getSub());
-            PlayEduBContext.setAdminUser(adminUser);
-            PlayEduBContext.setAdminPer(backendBus.adminUserPermissions(adminUser.getId()));
+            PlayEduBCtx.setAdminUserId(payload.getSub());
+            PlayEduBCtx.setAdminUser(adminUser);
+            PlayEduBCtx.setAdminPer(backendBus.adminUserPermissions(adminUser.getId()));
 
             return HandlerInterceptor.super.preHandle(request, response, handler);
         } catch (Exception e) {
@@ -93,7 +93,7 @@ public class AdminMiddleware implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        PlayEduBContext.remove();
+        PlayEduBCtx.remove();
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }

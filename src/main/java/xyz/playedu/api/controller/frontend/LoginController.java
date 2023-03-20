@@ -21,7 +21,6 @@ import xyz.playedu.api.util.HelperUtil;
 import xyz.playedu.api.util.IpUtil;
 import xyz.playedu.api.util.RequestUtil;
 
-import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -53,10 +52,13 @@ public class LoginController {
 
         User user = userService.find(email);
         if (user == null) {
-            return JsonResponse.error("邮箱未注册");
+            return JsonResponse.error("邮箱或密码错误");
         }
         if (!HelperUtil.MD5(req.getPassword() + user.getSalt()).equals(user.getPassword())) {
-            return JsonResponse.error("密码错误");
+            return JsonResponse.error("邮箱或密码错误");
+        }
+        if (user.getIsLock() == 1) {
+            return JsonResponse.error("当前学员已锁定无法登录");
         }
 
         JwtToken token = jwtService.generate(user.getId(), RequestUtil.url(), SystemConstant.JWT_PRV_USER);

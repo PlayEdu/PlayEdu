@@ -12,6 +12,7 @@ public class FrontendConstant {
     public final static List<String> UN_AUTH_URI_WHITELIST = new ArrayList<>() {{
         add("/api/v1/system/config");
         add("/api/v1/system/image-captcha");
+        add("/api/v1/auth/login/password");
     }};
 
 }

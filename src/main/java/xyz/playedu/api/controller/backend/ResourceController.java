@@ -4,7 +4,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBContext;
+import xyz.playedu.api.PlayEduBCtx;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
@@ -70,7 +70,7 @@ public class ResourceController {
         filter.setName(name);
 
         if (!backendBus.isSuperAdmin()) {// 非超管只能读取它自己上传的资源
-            filter.setAdminId(PlayEduBContext.getAdminUserID());
+            filter.setAdminId(PlayEduBCtx.getAdminUserID());
         }
 
         PaginationResult<Resource> result = resourceService.paginate(page, size, filter);

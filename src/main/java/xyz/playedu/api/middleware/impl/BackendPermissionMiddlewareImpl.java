@@ -8,7 +8,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.playedu.api.PlayEduBContext;
+import xyz.playedu.api.PlayEduBCtx;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.types.JsonResponse;
@@ -35,7 +35,7 @@ public class BackendPermissionMiddlewareImpl {
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         BackendPermissionMiddleware middleware = signature.getMethod().getAnnotation(BackendPermissionMiddleware.class);
-        Integer adminUserId = PlayEduBContext.getAdminUserID();
+        Integer adminUserId = PlayEduBCtx.getAdminUserID();
         HashMap<String, Boolean> permissions = backendBus.adminUserPermissions(adminUserId);
         if (permissions.get(middleware.slug()) == null) {
             return JsonResponse.error("权限不足", 403);

@@ -8,13 +8,13 @@ import java.util.LinkedHashMap;
  * @Author 杭州白书科技有限公司
  * @create 2023/3/13 09:24
  */
-public class PlayEduFContext {
+public class PlayEduFCtx {
     private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL = new java.lang.ThreadLocal<>();
 
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_USER = "user";
 
-    public PlayEduFContext() {
+    public PlayEduFCtx() {
     }
 
     private static void put(String key, Object val) {

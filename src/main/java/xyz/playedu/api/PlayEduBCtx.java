@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PlayEduBContext {
+public class PlayEduBCtx {
 
     private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL = new java.lang.ThreadLocal<>();
 
@@ -15,7 +15,7 @@ public class PlayEduBContext {
     public final static String KEY_ADMIN_PER = "admin_per";
     public final static String KEY_CONFIG = "config";
 
-    public PlayEduBContext() {
+    public PlayEduBCtx() {
     }
 
     private static void put(String key, Object val) {

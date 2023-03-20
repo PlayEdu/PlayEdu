@@ -5,10 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBContext;
+import xyz.playedu.api.PlayEduBCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.Department;
-import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.DepartmentDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
@@ -19,7 +18,6 @@ import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -119,7 +117,7 @@ public class DepartmentController {
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
         departmentService.deleteById(department.getId());
-        ctx.publishEvent(new DepartmentDestroyEvent(this, PlayEduBContext.getAdminUserID(), department.getId()));
+        ctx.publishEvent(new DepartmentDestroyEvent(this, PlayEduBCtx.getAdminUserID(), department.getId()));
         return JsonResponse.success();
     }
 

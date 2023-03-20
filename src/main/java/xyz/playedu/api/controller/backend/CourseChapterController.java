@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBContext;
+import xyz.playedu.api.PlayEduBCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.CourseChapter;
 import xyz.playedu.api.event.CourseChapterDestroyEvent;
@@ -15,8 +15,6 @@ import xyz.playedu.api.request.backend.CourseChapterSortRequest;
 import xyz.playedu.api.service.CourseChapterService;
 import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.types.JsonResponse;
-
-import java.util.Date;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -65,7 +63,7 @@ public class CourseChapterController {
             return JsonResponse.error("当前章节下面存在课时无法删除");
         }
         chapterService.removeById(chapter.getId());
-        ctx.publishEvent(new CourseChapterDestroyEvent(this, PlayEduBContext.getAdminUserID(), chapter.getCourseId(), chapter.getId()));
+        ctx.publishEvent(new CourseChapterDestroyEvent(this, PlayEduBCtx.getAdminUserID(), chapter.getCourseId(), chapter.getId()));
         return JsonResponse.success();
     }
 

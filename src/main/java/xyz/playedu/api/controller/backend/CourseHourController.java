@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBContext;
+import xyz.playedu.api.PlayEduBCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.CourseChapter;
@@ -75,7 +75,7 @@ public class CourseHourController {
         chapterService.findOrFail(chapterId, courseId);
 
         CourseHour courseHour = hourService.create(courseId, chapterId, req.getSort(), req.getTitle(), type, req.getRid(), req.getDuration());
-        ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBContext.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
+        ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBCtx.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
         return JsonResponse.success();
     }
 
@@ -103,7 +103,7 @@ public class CourseHourController {
     public JsonResponse destroy(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException {
         CourseHour courseHour = hourService.findOrFail(id, courseId);
         hourService.removeById(courseHour.getId());
-        ctx.publishEvent(new CourseHourDestroyEvent(this, PlayEduBContext.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
+        ctx.publishEvent(new CourseHourDestroyEvent(this, PlayEduBCtx.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
         return JsonResponse.success();
     }
 
