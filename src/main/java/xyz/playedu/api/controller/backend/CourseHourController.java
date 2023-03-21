@@ -95,7 +95,6 @@ public class CourseHourController {
         Date now = new Date();
 
         for (CourseHourMultiRequest.HourItem item : req.getHours()) {
-            log.info("hourItem {}", item);
             hours.add(new CourseHour() {{
                 setCourseId(courseId);
                 setChapterId(item.getChapterId());
