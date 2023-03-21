@@ -18,9 +18,9 @@ public interface CourseService extends IService<Course> {
 
     PaginationResult<Course> paginate(int page, int size, CoursePaginateFiler filter);
 
-    Course createWithCategoryIdsAndDepIds(String title, String thumb, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds);
+    Course createWithCategoryIdsAndDepIds(String title, String thumb, String shortDesc, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds);
 
-    void updateWithCategoryIdsAndDepIds(Course course, String title, String thumb, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds);
+    void updateWithCategoryIdsAndDepIds(Course course, String title, String thumb, String shortDesc, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds);
 
     void relateDepartments(Course course, Integer[] depIds);
 

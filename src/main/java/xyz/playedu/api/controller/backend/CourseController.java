@@ -96,6 +96,7 @@ public class CourseController {
         Course course = courseService.createWithCategoryIdsAndDepIds(
                 req.getTitle(),
                 req.getThumb(),
+                req.getShortDesc(),
                 req.getIsRequired(),
                 req.getIsShow(),
                 req.getCategoryIds(),
@@ -186,7 +187,7 @@ public class CourseController {
     @Transactional
     public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated CourseRequest req) throws NotFoundException {
         Course course = courseService.findOrFail(id);
-        courseService.updateWithCategoryIdsAndDepIds(course, req.getTitle(), req.getThumb(), req.getIsRequired(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
+        courseService.updateWithCategoryIdsAndDepIds(course, req.getTitle(), req.getThumb(), req.getShortDesc(), req.getIsRequired(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
         return JsonResponse.success();
     }
 

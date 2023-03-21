@@ -15,13 +15,15 @@ import java.util.Map;
 @Data
 public class CourseRequest {
 
-    @NotNull(message = "title参数不存在")
     @NotBlank(message = "请输入课程标题")
     private String title;
 
-    @NotNull(message = "thumb参数不存在")
     @NotBlank(message = "请上传课程封面")
     private String thumb;
+
+    @NotBlank(message = "请填写课程简介")
+    @JsonProperty("short_desc")
+    private String shortDesc;
 
     @NotNull(message = "is_show参数不存在")
     @JsonProperty("is_show")
