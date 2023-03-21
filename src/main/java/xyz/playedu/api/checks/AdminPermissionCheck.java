@@ -19,101 +19,86 @@ public class AdminPermissionCheck implements ApplicationRunner {
 
     private final Map<String, Map<String, AdminPermission[]>> permissions = new HashMap<>() {{
         put(BPermissionConstant.TYPE_ACTION, new HashMap<>() {{
-            put("管理员", new AdminPermission[]{
-                    new AdminPermission() {{
-                        setSort(0);
-                        setName("列表");
-                        setSlug(BPermissionConstant.ADMIN_USER_INDEX);
-                    }},
-                    new AdminPermission() {{
-                        setSort(10);
-                        setName("新增|编辑|删除");
-                        setSlug(BPermissionConstant.ADMIN_USER_CUD);
-                    }},
-            });
-            put("管理员角色", new AdminPermission[]{
-                    new AdminPermission() {{
-                        setSort(0);
-                        setName("列表|新增|编辑|删除");
-                        setSlug(BPermissionConstant.ADMIN_ROLE);
-                    }},
-            });
-            put("部门", new AdminPermission[]{
-                    new AdminPermission() {{
-                        setSort(0);
-                        setName("新增|编辑|删除");
-                        setSlug(BPermissionConstant.DEPARTMENT_CUD);
-                    }},
-            });
-            put("资源分类", new AdminPermission[]{
-                    new AdminPermission() {{
-                        setSort(0);
-                        setName("新增|编辑|删除");
-                        setSlug(BPermissionConstant.RESOURCE_CATEGORY);
-                    }},
-            });
-            put("资源", new AdminPermission[]{
-                    new AdminPermission() {{
-                        setSort(0);
-                        setName("删除");
-                        setSlug(BPermissionConstant.RESOURCE_DESTROY);
-                    }},
-            });
-            put("学员", new AdminPermission[]{
-                    new AdminPermission() {{
-                        setSort(0);
-                        setName("列表");
-                        setSlug(BPermissionConstant.USER_INDEX);
-                    }},
-                    new AdminPermission() {{
-                        setSort(10);
-                        setName("新增");
-                        setSlug(BPermissionConstant.USER_STORE);
-                    }},
-                    new AdminPermission() {{
-                        setSort(20);
-                        setName("编辑");
-                        setSlug(BPermissionConstant.USER_UPDATE);
-                    }},
-                    new AdminPermission() {{
-                        setSort(30);
-                        setName("删除");
-                        setSlug(BPermissionConstant.USER_DESTROY);
-                    }},
-            });
-            put("线上课", new AdminPermission[]{
-                    new AdminPermission() {{
-                        setSort(0);
-                        setName("新增|编辑|删除");
-                        setSlug(BPermissionConstant.COURSE);
-                    }},
-            });
+            // 管理员
+            put("管理员", new AdminPermission[]{new AdminPermission() {{
+                setSort(0);
+                setName("列表");
+                setSlug(BPermissionConstant.ADMIN_USER_INDEX);
+            }}, new AdminPermission() {{
+                setSort(10);
+                setName("新增|编辑|删除");
+                setSlug(BPermissionConstant.ADMIN_USER_CUD);
+            }},});
+            // 管理员角色
+            put("管理员角色", new AdminPermission[]{new AdminPermission() {{
+                setSort(0);
+                setName("列表|新增|编辑|删除");
+                setSlug(BPermissionConstant.ADMIN_ROLE);
+            }},});
+            // 部门
+            put("部门", new AdminPermission[]{new AdminPermission() {{
+                setSort(0);
+                setName("新增|编辑|删除");
+                setSlug(BPermissionConstant.DEPARTMENT_CUD);
+            }},});
+            // 资源分类
+            put("资源分类", new AdminPermission[]{new AdminPermission() {{
+                setSort(0);
+                setName("新增|编辑|删除");
+                setSlug(BPermissionConstant.RESOURCE_CATEGORY);
+            }},});
+            // 资源
+            put("资源", new AdminPermission[]{new AdminPermission() {{
+                setSort(0);
+                setName("删除");
+                setSlug(BPermissionConstant.RESOURCE_DESTROY);
+            }},});
+            // 学员
+            put("学员", new AdminPermission[]{new AdminPermission() {{
+                setSort(0);
+                setName("列表");
+                setSlug(BPermissionConstant.USER_INDEX);
+            }}, new AdminPermission() {{
+                setSort(10);
+                setName("新增");
+                setSlug(BPermissionConstant.USER_STORE);
+            }}, new AdminPermission() {{
+                setSort(20);
+                setName("编辑");
+                setSlug(BPermissionConstant.USER_UPDATE);
+            }}, new AdminPermission() {{
+                setSort(30);
+                setName("删除");
+                setSlug(BPermissionConstant.USER_DESTROY);
+            }},});
+            // 线上课
+            put("线上课", new AdminPermission[]{new AdminPermission() {{
+                setSort(0);
+                setName("新增|编辑|删除");
+                setSlug(BPermissionConstant.COURSE);
+            }},});
         }});
         put(BPermissionConstant.TYPE_DATA, new HashMap<>() {{
-            put("管理员", new AdminPermission[]{
-                    new AdminPermission() {{
-                        setSort(0);
-                        setName("邮箱");
-                        setSlug(BPermissionConstant.DATA_ADMIN_EMAIL);
-                    }},
-            });
-            put("学员", new AdminPermission[]{
-                    new AdminPermission() {{
-                        setSort(0);
-                        setName("邮箱");
-                        setSlug(BPermissionConstant.DATA_USER_EMAIL);
-                    }},
-                    new AdminPermission() {{
-                        setSort(10);
-                        setName("姓名");
-                        setSlug(BPermissionConstant.DATA_USER_NAME);
-                    }},
-                    new AdminPermission() {{
-                        setSort(20);
-                        setName("身份证号");
-                        setSlug(BPermissionConstant.DATA_USER_ID_CARD);
-                    }},
-            });
+            // 管理员
+            put("管理员", new AdminPermission[]{new AdminPermission() {{
+                setSort(0);
+                setName("邮箱");
+                setSlug(BPermissionConstant.DATA_ADMIN_EMAIL);
+            }},});
+            // 学员
+            put("学员", new AdminPermission[]{new AdminPermission() {{
+                setSort(0);
+                setName("邮箱");
+                setSlug(BPermissionConstant.DATA_USER_EMAIL);
+            }}, new AdminPermission() {{
+                setSort(10);
+                setName("姓名");
+                setSlug(BPermissionConstant.DATA_USER_NAME);
+            }}, new AdminPermission() {{
+                setSort(20);
+                setName("身份证号");
+                setSlug(BPermissionConstant.DATA_USER_ID_CARD);
+            }},});
         }});
     }};
 
