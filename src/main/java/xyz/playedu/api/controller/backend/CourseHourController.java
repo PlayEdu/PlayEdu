@@ -2,6 +2,7 @@ package xyz.playedu.api.controller.backend;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduBCtx;
@@ -13,6 +14,7 @@ import xyz.playedu.api.event.CourseHourCreatedEvent;
 import xyz.playedu.api.event.CourseHourDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
+import xyz.playedu.api.request.backend.CourseHourMultiRequest;
 import xyz.playedu.api.request.backend.CourseHourRequest;
 import xyz.playedu.api.request.backend.CourseHourSortRequest;
 import xyz.playedu.api.service.CourseChapterService;
@@ -76,6 +78,39 @@ public class CourseHourController {
 
         CourseHour courseHour = hourService.create(courseId, chapterId, req.getSort(), req.getTitle(), type, req.getRid(), req.getDuration());
         ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBCtx.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
+        return JsonResponse.success();
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
+    @PostMapping("/create-batch")
+    @Transactional
+    public JsonResponse storeMulti(@PathVariable(name = "courseId") Integer courseId, @RequestBody @Validated CourseHourMultiRequest req) {
+        if (req.getHours().size() == 0) {
+            return JsonResponse.error("参数为空");
+        }
+
+        List<CourseHour> hours = new ArrayList<>();
+        Date now = new Date();
+
+        for (CourseHourMultiRequest.CourseHourItem item : req.getHours()) {
+            hours.add(new CourseHour() {{
+                setCourseId(courseId);
+                setChapterId(item.getChapterId());
+                setSort(item.getSort());
+                setType(item.getType());
+                setRid(item.getRid());
+                setTitle(item.getTitle());
+                setDuration(item.getDuration());
+                setCreatedAt(now);
+            }});
+        }
+
+        hourService.saveBatch(hours);
+
+        // 只需要发布一次event就可以了
+        CourseHour firstHour = hours.get(0);
+        ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBCtx.getAdminUserID(), firstHour.getCourseId(), firstHour.getChapterId(), firstHour.getId()));
+
         return JsonResponse.success();
     }
 
