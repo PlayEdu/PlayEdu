@@ -8,6 +8,7 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="title" column="title" jdbcType="VARCHAR"/>
             <result property="thumb" column="thumb" jdbcType="VARCHAR"/>
+            <result property="shortDesc" column="short_desc" jdbcType="VARCHAR"/>
             <result property="charge" column="charge" jdbcType="INTEGER"/>
             <result property="classHour" column="class_hour" jdbcType="INTEGER"/>
             <result property="isShow" column="is_show" jdbcType="TINYINT"/>
@@ -18,17 +19,11 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,title,thumb,
+        id,title,thumb,short_desc,
         charge,class_hour,is_show,
         is_required,created_at,updated_at,
         deleted_at
     </sql>
-
-    <select id="getCategoryCount" resultType="xyz.playedu.api.types.mapper.CourseCategoryCountMapper">
-        SELECT `resource_course_category`.`category_id` as `cid`, count(*) as `total`
-        FROM `resource_course_category`
-        GROUP BY `resource_course_category`.`category_id`;
-    </select>
 
     <select id="paginate" resultType="xyz.playedu.api.domain.Course">
         SELECT `courses`.*

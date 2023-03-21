@@ -30,8 +30,6 @@ public interface ResourceService extends IService<Resource> {
 
     List<Resource> chunks(List<Integer> ids, List<String> fields);
 
-    Map<Integer, Integer> getCategoryCount(String type);
-
     Integer total(String type);
 
     Integer duration(Integer id);

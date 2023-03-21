@@ -17,8 +17,6 @@ import java.util.List;
 @Mapper
 public interface CourseMapper extends BaseMapper<Course> {
 
-    List<CourseCategoryCountMapper> getCategoryCount();
-
     List<Course> paginate(CoursePaginateFiler filer);
 
     Long paginateCount(CoursePaginateFiler filer);

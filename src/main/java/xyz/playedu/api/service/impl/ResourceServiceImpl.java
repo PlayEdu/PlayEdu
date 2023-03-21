@@ -113,13 +113,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
-    public Map<Integer, Integer> getCategoryCount(String type) {
-        Map<Integer, Integer> data = getBaseMapper().getCategoryCount(type).stream().collect(Collectors.toMap(ResourceCategoryCountMapper::getCid, ResourceCategoryCountMapper::getTotal));
-        data.put(0, getBaseMapper().getNunCategoryCount(type));
-        return data;
-    }
-
-    @Override
     public Integer total(String type) {
         return Math.toIntExact(count(query().getWrapper().eq("type", type).eq("is_hidden", 0)));
     }

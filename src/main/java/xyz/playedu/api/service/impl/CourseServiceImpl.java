@@ -170,11 +170,6 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     }
 
     @Override
-    public Map<Integer, Integer> getCategoryCount() {
-        return getBaseMapper().getCategoryCount().stream().collect(Collectors.toMap(CourseCategoryCountMapper::getCid, CourseCategoryCountMapper::getTotal));
-    }
-
-    @Override
     public Integer total() {
         return Math.toIntExact(count());
     }

@@ -18,10 +18,6 @@ import java.util.Map;
 @Mapper
 public interface ResourceMapper extends BaseMapper<Resource> {
 
-    List<ResourceCategoryCountMapper> getCategoryCount(String type);
-
-    Integer getNunCategoryCount(String type);
-
     List<Resource> paginate(ResourcePaginateFilter filter);
 
     Long paginateCount(ResourcePaginateFilter filter);

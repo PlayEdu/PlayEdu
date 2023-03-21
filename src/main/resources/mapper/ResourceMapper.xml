@@ -29,24 +29,6 @@
         is_hidden
     </sql>
 
-    <select id="getCategoryCount" resultType="xyz.playedu.api.types.mapper.ResourceCategoryCountMapper">
-        SELECT `resource_category`.`cid` as `cid`, count(*) as `total`
-        FROM `resources`
-                 INNER JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
-        WHERE `resources`.`type` = #{type}
-        AND `resources`.`is_hidden` = 0
-        GROUP BY `resource_category`.`cid`;
-    </select>
-
-    <select id="getNunCategoryCount" resultType="java.lang.Integer">
-        SELECT count(1) AS `total`
-        FROM `resources`
-                 LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
-        WHERE `resources`.`type` = #{type}
-          AND `resources`.`is_hidden` = 0
-          AND `resource_category`.`rid` IS NULL;
-    </select>
-
     <select id="paginate" resultType="xyz.playedu.api.domain.Resource">
         SELECT `resources`.*
         FROM `resources`
