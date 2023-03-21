@@ -14,7 +14,6 @@ public class PlayEduFCtx {
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_USER = "user";
     private static final String KEY_JWT_JTI = "jwt_jti";
-    private static final String KEY_TOKEN = "token";
 
     public PlayEduFCtx() {
     }
@@ -58,13 +57,5 @@ public class PlayEduFCtx {
 
     public static String getJwtJti() {
         return (String) get(KEY_JWT_JTI);
-    }
-
-    public static void setToken(String token) {
-        put(KEY_TOKEN, token);
-    }
-
-    public static String getToken() {
-        return (String) get(KEY_TOKEN);
     }
 }

@@ -68,7 +68,7 @@ public class LoginController {
 
     @PostMapping("/logout")
     public JsonResponse logout() throws JwtLogoutException {
-        jwtService.logout(RequestUtil.token(), SystemConstant.JWT_PRV_ADMIN_USER);
+        jwtService.adminUserLogout(RequestUtil.token());
         return JsonResponse.success("success");
     }
 

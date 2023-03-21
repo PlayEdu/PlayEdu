@@ -70,7 +70,7 @@ public class LoginController {
 
     @PostMapping("/logout")
     public JsonResponse logout() throws JwtLogoutException {
-        jwtService.userLogout(PlayEduFCtx.getToken());
+        jwtService.userLogout(RequestUtil.token());
         ctx.publishEvent(new UserLogoutEvent(this, PlayEduFCtx.getUserId(), PlayEduFCtx.getJwtJti()));
         return JsonResponse.success();
     }
