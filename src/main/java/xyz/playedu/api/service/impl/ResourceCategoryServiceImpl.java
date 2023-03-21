@@ -204,6 +204,11 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
     public Map<Integer, List<ResourceCategory>> groupByParent() {
         return list(query().getWrapper().orderByAsc("sort")).stream().collect(Collectors.groupingBy(ResourceCategory::getParentId));
     }
+
+    @Override
+    public Map<Integer, String> id2name() {
+        return all().stream().collect(Collectors.toMap(ResourceCategory::getId, ResourceCategory::getName));
+    }
 }
 
 

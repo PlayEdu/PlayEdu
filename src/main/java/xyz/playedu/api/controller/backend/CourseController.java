@@ -14,10 +14,7 @@ import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseRequest;
-import xyz.playedu.api.service.CourseChapterService;
-import xyz.playedu.api.service.CourseHourService;
-import xyz.playedu.api.service.CourseService;
-import xyz.playedu.api.service.ResourceCategoryService;
+import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
@@ -48,6 +45,9 @@ public class CourseController {
     private CourseHourService hourService;
 
     @Autowired
+    private DepartmentService departmentService;
+
+    @Autowired
     private ApplicationContext ctx;
 
     @GetMapping("/index")
@@ -75,7 +75,12 @@ public class CourseController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());
         data.put("total", result.getTotal());
-        data.put("pure_total", courseService.total());
+
+        List<Integer> courseIds = result.getData().stream().map(Course::getId).toList();
+        data.put("course_category_ids", courseService.getCategoryIdsGroup(courseIds));
+        data.put("course_dep_ids", courseService.getDepIdsGroup(courseIds));
+        data.put("categories", categoryService.id2name());
+        data.put("departments", departmentService.id2name());
 
         return JsonResponse.data(data);
     }

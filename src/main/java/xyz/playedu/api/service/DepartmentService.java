@@ -43,4 +43,6 @@ public interface DepartmentService extends IService<Department> {
     void resetSort(List<Integer> ids);
 
     Map<Integer, List<Department>> groupByParent();
+
+    Map<Integer, String> id2name();
 }

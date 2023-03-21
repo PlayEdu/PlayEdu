@@ -44,9 +44,11 @@ public interface CourseService extends IService<Course> {
 
     List<Course> chunks(List<Integer> ids);
 
-    Integer total();
+    List<Course> getOpenCoursesAndShow(Integer limit);
 
-    List<Course> openCoursesAndShow(Integer limit);
+    List<Course> getDepCoursesAndShow(List<Integer> depIds);
 
-    List<Course> depCoursesAndShow(List<Integer> depIds);
+    Map<Integer, List<Integer>> getCategoryIdsGroup(List<Integer> courseIds);
+
+    Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> courseIds);
 }

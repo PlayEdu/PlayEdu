@@ -1,6 +1,7 @@
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.domain.ResourceCourseCategory;
@@ -12,7 +13,6 @@ import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.mapper.CourseMapper;
 import org.springframework.stereotype.Service;
 import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
-import xyz.playedu.api.types.mapper.CourseCategoryCountMapper;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  * @createDate 2023-02-24 14:14:01
  */
 @Service
+@Slf4j
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements CourseService {
 
     @Autowired
@@ -170,18 +171,40 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     }
 
     @Override
-    public Integer total() {
-        return Math.toIntExact(count());
-    }
-
-    @Override
-    public List<Course> openCoursesAndShow(Integer limit) {
+    public List<Course> getOpenCoursesAndShow(Integer limit) {
         return getBaseMapper().openCoursesAndShow(limit);
     }
 
     @Override
-    public List<Course> depCoursesAndShow(List<Integer> depIds) {
+    public List<Course> getDepCoursesAndShow(List<Integer> depIds) {
         return list(query().getWrapper().in("id", courseDepartmentService.getCourseIdsByDepIds(depIds)).eq("is_show", 1));
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getCategoryIdsGroup(List<Integer> courseIds) {
+        Map<Integer, List<ResourceCourseCategory>> data = courseCategoryService
+                .list(courseCategoryService.query().getWrapper().in("course_id", courseIds))
+                .stream()
+                .collect(Collectors.groupingBy(ResourceCourseCategory::getCourseId));
+        Map<Integer, List<Integer>> result = new HashMap<>();
+        data.forEach((courseId, records) -> {
+            result.put(courseId, records.stream().map(ResourceCourseCategory::getCategoryId).toList());
+        });
+        return result;
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> courseIds) {
+        Map<Integer, List<CourseDepartment>> data = courseDepartmentService
+                .list(courseDepartmentService.query().getWrapper().in("course_id", courseIds))
+                .stream()
+                .collect(Collectors.groupingBy(CourseDepartment::getCourseId));
+        log.info("data {}", data);
+        Map<Integer, List<Integer>> result = new HashMap<>();
+        data.forEach((courseId, records) -> {
+            result.put(courseId, records.stream().map(CourseDepartment::getDepId).toList());
+        });
+        return result;
     }
 }
 

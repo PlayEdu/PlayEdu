@@ -76,12 +76,12 @@ public class UserController {
         }
 
         // 读取部门课
-        List<Course> depCourses = courseService.depCoursesAndShow(new ArrayList<>() {{
+        List<Course> depCourses = courseService.getDepCoursesAndShow(new ArrayList<>() {{
             add(depId);
         }});
 
         // 公开课
-        List<Course> openCourses = courseService.openCoursesAndShow(200);
+        List<Course> openCourses = courseService.getOpenCoursesAndShow(200);
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("open", openCourses.stream().collect(Collectors.groupingBy(Course::getIsRequired)));

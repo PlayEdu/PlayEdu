@@ -15,10 +15,7 @@ import xyz.playedu.api.mapper.DepartmentMapper;
 import org.springframework.stereotype.Service;
 import xyz.playedu.api.service.internal.UserDepartmentService;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -220,6 +217,11 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     public Map<Integer, List<Department>> groupByParent() {
         return list(query().getWrapper().orderByAsc("sort")).stream().collect(Collectors.groupingBy(Department::getParentId));
+    }
+
+    @Override
+    public Map<Integer, String> id2name() {
+        return all().stream().collect(Collectors.toMap(Department::getId, Department::getName));
     }
 }
 
