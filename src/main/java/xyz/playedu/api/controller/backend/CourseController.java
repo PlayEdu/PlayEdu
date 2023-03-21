@@ -60,7 +60,7 @@ public class CourseController {
         String title = MapUtils.getString(params, "title");
         String depIds = MapUtils.getString(params, "dep_ids");
         String categoryIds = MapUtils.getString(params, "category_ids");
-        Integer isRequired = MapUtils.getInteger(params, "is_requried");
+        Integer isRequired = MapUtils.getInteger(params, "is_required");
 
         CoursePaginateFiler filter = new CoursePaginateFiler();
         filter.setTitle(title);
@@ -93,15 +93,7 @@ public class CourseController {
     @PostMapping("/create")
     @Transactional
     public JsonResponse store(@RequestBody @Validated CourseRequest req) throws ParseException {
-        Course course = courseService.createWithCategoryIdsAndDepIds(
-                req.getTitle(),
-                req.getThumb(),
-                req.getShortDesc(),
-                req.getIsRequired(),
-                req.getIsShow(),
-                req.getCategoryIds(),
-                req.getDepIds()
-        );
+        Course course = courseService.createWithCategoryIdsAndDepIds(req.getTitle(), req.getThumb(), req.getShortDesc(), req.getIsRequired(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
 
         Date now = new Date();
 
