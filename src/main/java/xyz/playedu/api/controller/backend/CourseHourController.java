@@ -1,5 +1,6 @@
 package xyz.playedu.api.controller.backend;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ import java.util.*;
  * @create 2023/2/26 17:50
  */
 @RestController
+@Slf4j
 @RequestMapping("/backend/v1/course/{courseId}/hour")
 public class CourseHourController {
 
@@ -92,7 +94,8 @@ public class CourseHourController {
         List<CourseHour> hours = new ArrayList<>();
         Date now = new Date();
 
-        for (CourseHourMultiRequest.CourseHourItem item : req.getHours()) {
+        for (CourseHourMultiRequest.HourItem item : req.getHours()) {
+            log.info("hourItem {}", item);
             hours.add(new CourseHour() {{
                 setCourseId(courseId);
                 setChapterId(item.getChapterId());

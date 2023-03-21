@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
  * @createDate 2023-02-24 14:14:01
  */
 @Service
-@Slf4j
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements CourseService {
 
     @Autowired
@@ -199,7 +198,6 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
                 .list(courseDepartmentService.query().getWrapper().in("course_id", courseIds))
                 .stream()
                 .collect(Collectors.groupingBy(CourseDepartment::getCourseId));
-        log.info("data {}", data);
         Map<Integer, List<Integer>> result = new HashMap<>();
         data.forEach((courseId, records) -> {
             result.put(courseId, records.stream().map(CourseDepartment::getDepId).toList());

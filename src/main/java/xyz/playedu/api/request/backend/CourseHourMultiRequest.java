@@ -1,5 +1,6 @@
 package xyz.playedu.api.request.backend;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -12,7 +13,8 @@ import java.util.List;
 @Data
 public class CourseHourMultiRequest {
     @Data
-    public class CourseHourItem {
+    public static class HourItem {
+        @JsonProperty("chapter_id")
         private Integer chapterId;
         private String title;
         private Integer duration;
@@ -22,5 +24,5 @@ public class CourseHourMultiRequest {
     }
 
     @NotNull(message = "hours参数不存在")
-    private List<CourseHourItem> hours;
+    private List<HourItem> hours;
 }

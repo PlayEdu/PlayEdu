@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -24,11 +27,13 @@ public class CourseHour implements Serializable {
     /**
      * 课程ID
      */
+    @JsonProperty("course_id")
     private Integer courseId;
 
     /**
      * 章节ID
      */
+    @JsonProperty("chapter_id")
     private Integer chapterId;
 
     /**
@@ -59,6 +64,7 @@ public class CourseHour implements Serializable {
     /**
      * 
      */
+    @JsonIgnore
     private Date createdAt;
 
     @TableField(exist = false)
