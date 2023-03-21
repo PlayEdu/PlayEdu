@@ -11,5 +11,9 @@ public interface JWTService {
 
     void logout(String token, String prv) throws JwtLogoutException;
 
+    void userLogout(String token) throws JwtLogoutException;
+
+    void adminUserLogout(String token) throws JwtLogoutException;
+
     JWTPayload parse(String token, String prv) throws JwtLogoutException;
 }

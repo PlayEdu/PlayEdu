@@ -7,6 +7,8 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import xyz.playedu.api.constant.FrontendConstant;
+import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.exception.JwtLogoutException;
 import xyz.playedu.api.service.JWTService;
 import xyz.playedu.api.types.JWTPayload;
@@ -80,6 +82,16 @@ public class JwtServiceImpl implements JWTService {
         String cacheKey = getBlackCacheKey(claims.getId());
         Long expire = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;
         RedisUtil.set(cacheKey, 1, expire);
+    }
+
+    @Override
+    public void userLogout(String token) throws JwtLogoutException {
+        logout(token, SystemConstant.JWT_PRV_USER);
+    }
+
+    @Override
+    public void adminUserLogout(String token) throws JwtLogoutException {
+        logout(token, SystemConstant.JWT_PRV_ADMIN_USER);
     }
 
     private Claims parseToken(String token, String prv) throws JwtLogoutException {

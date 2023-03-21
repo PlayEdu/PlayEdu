@@ -61,6 +61,8 @@ public class FrontMiddleware implements HandlerInterceptor {
 
             PlayEduFCtx.setUserId(user.getId());
             PlayEduFCtx.setUser(user);
+            PlayEduFCtx.setJWtJti(token);
+            PlayEduFCtx.setJWtJti(payload.getJti());
 
             return HandlerInterceptor.super.preHandle(request, response, handler);
         } catch (Exception e) {

@@ -36,6 +36,19 @@ public class UserLoginRecordServiceImpl extends ServiceImpl<UserLoginRecordMappe
         record.setIpArea(area);
         updateById(record);
     }
+
+    @Override
+    public void logout(Integer userid, String jti) {
+        UserLoginRecord record = getOne(query().getWrapper().eq("user_id", userid).eq("jti", jti).eq("is_logout", 0));
+        if (record == null) {
+            return;
+        }
+        UserLoginRecord newRecord = new UserLoginRecord();
+        newRecord.setId(record.getId());
+        newRecord.setIsLogout(1);
+
+        updateById(newRecord);
+    }
 }
 
 

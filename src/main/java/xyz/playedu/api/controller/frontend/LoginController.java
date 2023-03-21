@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import xyz.playedu.api.caches.UserLoginCache;
+import xyz.playedu.api.PlayEduFCtx;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.UserLoginEvent;
+import xyz.playedu.api.event.UserLogoutEvent;
+import xyz.playedu.api.exception.JwtLogoutException;
 import xyz.playedu.api.exception.LimitException;
 import xyz.playedu.api.request.frontend.LoginPasswordRequest;
 import xyz.playedu.api.service.JWTService;
@@ -40,15 +42,9 @@ public class LoginController {
     @Autowired
     private ApplicationContext ctx;
 
-    @Autowired
-    private UserLoginCache userLoginCache;
-
     @PostMapping("/password")
     public JsonResponse password(@RequestBody @Validated LoginPasswordRequest req) throws LimitException {
         String email = req.getEmail();
-
-        // 限流-限制学员10s内登录成功一次
-        userLoginCache.check(email);
 
         User user = userService.find(email);
         if (user == null) {
@@ -70,6 +66,13 @@ public class LoginController {
         ctx.publishEvent(new UserLoginEvent(this, user.getId(), user.getEmail(), token.getToken(), IpUtil.getIpAddress(), RequestUtil.ua()));
 
         return JsonResponse.data(data);
+    }
+
+    @PostMapping("/logout")
+    public JsonResponse logout() throws JwtLogoutException {
+        jwtService.userLogout(PlayEduFCtx.getToken());
+        ctx.publishEvent(new UserLogoutEvent(this, PlayEduFCtx.getUserId(), PlayEduFCtx.getJwtJti()));
+        return JsonResponse.success();
     }
 
 }
