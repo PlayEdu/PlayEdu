@@ -18,6 +18,7 @@ import java.util.*;
 public class AppConfigCheck implements ApplicationRunner {
 
     private static final HashMap<String, AppConfig[]> configs = new HashMap<>() {{
+        // 系统配置
         put("系统", new AppConfig[]{new AppConfig() {{
             setName("网站名");
             setSort(10);
@@ -49,6 +50,7 @@ public class AppConfigCheck implements ApplicationRunner {
             setKeyName("system.h5_url");
             setKeyValue("");
         }},});
+        // 播放器配置
         put("播放器配置", new AppConfig[]{new AppConfig() {{
             setName("播放器封面");
             setSort(10);
