@@ -70,5 +70,6 @@ public class BackendConstant {
     public final static String APP_CONFIG_FIELD_TYPE_INPUT = "input";
     public final static String APP_CONFIG_FIELD_TYPE_TEXT = "text";
     public final static String APP_CONFIG_FIELD_TYPE_SELECT = "select";
+    public final static String APP_CONFIG_FIELD_TYPE_SWITCH = "switch";
 
 }
