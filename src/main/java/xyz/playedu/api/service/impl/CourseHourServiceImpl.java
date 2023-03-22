@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author tengteng
@@ -92,6 +93,11 @@ public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseH
             }});
         }
         updateBatchById(hours);
+    }
+
+    @Override
+    public List<Integer> getRidsByCourseId(Integer courseId, String type) {
+        return list(query().getWrapper().eq("course_id", courseId).eq("type", type)).stream().map(CourseHour::getRid).toList();
     }
 }
 

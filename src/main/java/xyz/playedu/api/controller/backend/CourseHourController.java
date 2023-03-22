@@ -78,6 +78,14 @@ public class CourseHourController {
         Integer chapterId = req.getChapterId();
         chapterService.findOrFail(chapterId, courseId);
 
+        // 课时重复添加校验
+        List<Integer> existsRids = hourService.getRidsByCourseId(courseId, BackendConstant.RESOURCE_TYPE_VIDEO);
+        if (existsRids != null) {
+            if (existsRids.contains(req.getRid())) {
+                return JsonResponse.error("课时已存在");
+            }
+        }
+
         CourseHour courseHour = hourService.create(courseId, chapterId, req.getSort(), req.getTitle(), type, req.getRid(), req.getDuration());
         ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBCtx.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
         return JsonResponse.success();
@@ -91,10 +99,16 @@ public class CourseHourController {
             return JsonResponse.error("参数为空");
         }
 
+        List<Integer> existsRids = hourService.getRidsByCourseId(courseId, BackendConstant.RESOURCE_TYPE_VIDEO);
+
         List<CourseHour> hours = new ArrayList<>();
         Date now = new Date();
 
         for (CourseHourMultiRequest.HourItem item : req.getHours()) {
+            if (existsRids.contains(item.getRid())) {
+                return JsonResponse.error("课时《" + item.getTitle() + "》已存在");
+            }
+
             hours.add(new CourseHour() {{
                 setCourseId(courseId);
                 setChapterId(item.getChapterId());

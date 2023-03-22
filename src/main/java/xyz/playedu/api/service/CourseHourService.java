@@ -7,10 +7,10 @@ import xyz.playedu.api.exception.NotFoundException;
 import java.util.List;
 
 /**
-* @author tengteng
-* @description 针对表【course_hour】的数据库操作Service
-* @createDate 2023-03-15 10:16:45
-*/
+ * @author tengteng
+ * @description 针对表【course_hour】的数据库操作Service
+ * @createDate 2023-03-15 10:16:45
+ */
 public interface CourseHourService extends IService<CourseHour> {
 
     CourseHour findOrFail(Integer id, Integer courseId) throws NotFoundException;
@@ -28,4 +28,6 @@ public interface CourseHourService extends IService<CourseHour> {
     void remove(Integer courseId, Integer chapterId);
 
     void updateSort(List<Integer> ids, Integer cid);
+
+    List<Integer> getRidsByCourseId(Integer courseId, String type);
 }
