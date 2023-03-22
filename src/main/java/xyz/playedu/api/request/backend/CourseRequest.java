@@ -21,7 +21,7 @@ public class CourseRequest {
     @NotBlank(message = "请上传课程封面")
     private String thumb;
 
-    @NotBlank(message = "请填写课程简介")
+    @NotNull(message = "short_desc参数不存在")
     @JsonProperty("short_desc")
     private String shortDesc;
 
