@@ -107,7 +107,7 @@
                     ORDER BY `courses`.`created_at` DESC
                 </when>
                 <otherwise>
-                    ORDER BY `courses`.`id` ASC
+                    ORDER BY `courses`.`id` DESC
                 </otherwise>
             </choose>
         </if>
