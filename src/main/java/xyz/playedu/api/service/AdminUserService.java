@@ -42,4 +42,6 @@ public interface AdminUserService extends IService<AdminUser> {
     void passwordChange(AdminUser user, String password);
 
     List<AdminUser> chunks(List<Integer> ids);
+
+    Long total();
 }

@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -24,11 +26,13 @@ public class UserLearnDurationRecord implements Serializable {
     /**
      * 
      */
+    @JsonProperty("user_id")
     private Integer userId;
 
     /**
      * 
      */
+    @JsonProperty("created_date")
     private Date createdDate;
 
     /**
@@ -39,21 +43,25 @@ public class UserLearnDurationRecord implements Serializable {
     /**
      * 开始时间
      */
+    @JsonProperty("start_at")
     private Date startAt;
 
     /**
      * 结束时间
      */
+    @JsonProperty("end_at")
     private Date endAt;
 
     /**
      * 
      */
+    @JsonProperty("course_id")
     private Integer courseId;
 
     /**
      * 
      */
+    @JsonProperty("hour_id")
     private Integer hourId;
 
     @TableField(exist = false)

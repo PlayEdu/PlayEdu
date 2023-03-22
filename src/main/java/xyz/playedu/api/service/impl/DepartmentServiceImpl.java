@@ -223,6 +223,11 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     public Map<Integer, String> id2name() {
         return all().stream().collect(Collectors.toMap(Department::getId, Department::getName));
     }
+
+    @Override
+    public Long total() {
+        return count();
+    }
 }
 
 

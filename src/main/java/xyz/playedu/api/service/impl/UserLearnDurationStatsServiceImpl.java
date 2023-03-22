@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author tengteng
@@ -16,8 +17,7 @@ import java.util.Date;
  * @createDate 2023-03-22 13:55:29
  */
 @Service
-public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDurationStatsMapper, UserLearnDurationStats>
-        implements UserLearnDurationStatsService {
+public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDurationStatsMapper, UserLearnDurationStats> implements UserLearnDurationStatsService {
 
     @Override
     @SneakyThrows
@@ -42,6 +42,29 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
         newStats.setId(stats.getId());
         newStats.setDuration((int) (stats.getDuration() + duration));
         updateById(newStats);
+    }
+
+    @Override
+    @SneakyThrows
+    public Long todayTotal() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String today = simpleDateFormat.format(new Date());
+        return count(query().getWrapper().eq("created_date", today));
+    }
+
+    @Override
+    @SneakyThrows
+    public Long yesterdayTotal() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String yesterday = simpleDateFormat.format(new Date(System.currentTimeMillis() - 86399000));
+        return count(query().getWrapper().eq("created_date", yesterday));
+    }
+
+    @Override
+    public List<UserLearnDurationStats> top10() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String today = simpleDateFormat.format(new Date());
+        return list(query().getWrapper().eq("created_date", today).orderByDesc("duration").last("limit 10"));
     }
 }
 

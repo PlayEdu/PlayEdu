@@ -1,6 +1,7 @@
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.constant.SystemConstant;
@@ -16,6 +17,7 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -159,6 +161,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public List<User> chunks(List<Integer> ids, List<String> fields) {
         return list(query().getWrapper().in("id", ids).select(fields));
+    }
+
+    @Override
+    public Long total() {
+        return count();
+    }
+
+    @Override
+    @SneakyThrows
+    public Long todayCount() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date now = new Date();
+        String todayDate = simpleDateFormat.format(now);
+        return count(query().getWrapper().between("created_at", simpleDateFormat.parse(todayDate), now));
+    }
+
+    @Override
+    @SneakyThrows
+    public Long yesterdayCount() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String todayDate = simpleDateFormat.format(new Date());
+        String yesterdayDate = simpleDateFormat.format(new Date(System.currentTimeMillis() - 86400000));
+        return count(query().getWrapper().between("created_at", simpleDateFormat.parse(yesterdayDate), simpleDateFormat.parse(todayDate)));
     }
 }
 

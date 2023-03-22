@@ -45,4 +45,6 @@ public interface DepartmentService extends IService<Department> {
     Map<Integer, List<Department>> groupByParent();
 
     Map<Integer, String> id2name();
+
+    Long total();
 }

@@ -175,6 +175,11 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
     public List<AdminUser> chunks(List<Integer> ids) {
         return list(query().getWrapper().in("id", ids));
     }
+
+    @Override
+    public Long total() {
+        return count();
+    }
 }
 
 

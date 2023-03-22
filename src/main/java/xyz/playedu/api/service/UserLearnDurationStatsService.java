@@ -3,6 +3,8 @@ package xyz.playedu.api.service;
 import xyz.playedu.api.domain.UserLearnDurationStats;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * @author tengteng
  * @description 针对表【user_learn_duration_stats】的数据库操作Service
@@ -10,4 +12,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface UserLearnDurationStatsService extends IService<UserLearnDurationStats> {
     void storeOrUpdate(Integer userId, Long startTime, Long endTime);
+
+    Long todayTotal();
+
+    Long yesterdayTotal();
+
+    List<UserLearnDurationStats> top10();
 }

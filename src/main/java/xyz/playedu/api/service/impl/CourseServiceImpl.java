@@ -1,7 +1,6 @@
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.api.domain.ResourceCourseCategory;
@@ -209,6 +208,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             result.put(courseId, records.stream().map(CourseDepartment::getDepId).toList());
         });
         return result;
+    }
+
+    @Override
+    public Long total() {
+        return count();
     }
 }
 

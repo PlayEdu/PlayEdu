@@ -51,4 +51,6 @@ public interface CourseService extends IService<Course> {
     Map<Integer, List<Integer>> getCategoryIdsGroup(List<Integer> courseIds);
 
     Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> courseIds);
+
+    Long total();
 }

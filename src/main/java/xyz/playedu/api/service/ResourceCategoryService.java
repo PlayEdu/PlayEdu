@@ -41,4 +41,6 @@ public interface ResourceCategoryService extends IService<ResourceCategory> {
     Map<Integer, List<ResourceCategory>> groupByParent();
 
     Map<Integer, String> id2name();
+
+    Long total();
 }

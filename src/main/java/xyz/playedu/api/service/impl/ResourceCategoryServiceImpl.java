@@ -209,6 +209,11 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
     public Map<Integer, String> id2name() {
         return all().stream().collect(Collectors.toMap(ResourceCategory::getId, ResourceCategory::getName));
     }
+
+    @Override
+    public Long total() {
+        return count();
+    }
 }
 
 
