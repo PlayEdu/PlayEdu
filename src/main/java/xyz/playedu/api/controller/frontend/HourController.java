@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduFCtx;
+import xyz.playedu.api.FCtx;
 import xyz.playedu.api.bus.UserBus;
 import xyz.playedu.api.caches.CourseCache;
 import xyz.playedu.api.caches.UserCanSeeCourseCache;
@@ -48,7 +48,7 @@ public class HourController {
     @SneakyThrows
     public JsonResponse play(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) {
         Course course = courseCache.findOrFail(courseId);
-        userCanSeeCourseCache.check(PlayEduFCtx.getUser(), course, true);
+        userCanSeeCourseCache.check(FCtx.getUser(), course, true);
         CourseHour hour = hourService.findOrFail(id, courseId);
         Resource resource = resourceService.findOrFail(hour.getRid());
 
@@ -67,7 +67,7 @@ public class HourController {
         if (duration <= 0) {
             return JsonResponse.error("duration参数错误");
         }
-        User user = PlayEduFCtx.getUser();
+        User user = FCtx.getUser();
         // 线上课检测
         Course course = courseCache.findOrFail(courseId);
         // 权限校验
@@ -85,8 +85,8 @@ public class HourController {
     public JsonResponse ping(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) {
         Course course = courseCache.findOrFail(courseId);
         CourseHour hour = hourService.findOrFail(id, courseId);
-        userCanSeeCourseCache.check(PlayEduFCtx.getUser(), course, true);
-        userBus.userLearnDurationRecord(PlayEduFCtx.getUser(), course, hour);
+        userCanSeeCourseCache.check(FCtx.getUser(), course, true);
+        userBus.userLearnDurationRecord(FCtx.getUser(), course, hour);
         return JsonResponse.success();
     }
 

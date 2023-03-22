@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import xyz.playedu.api.PlayEduBCtx;
+import xyz.playedu.api.BCtx;
 import xyz.playedu.api.service.ImageCaptchaService;
 import xyz.playedu.api.types.ImageCaptchaResult;
 import xyz.playedu.api.types.JsonResponse;
@@ -33,7 +33,7 @@ public class SystemController {
 
     @GetMapping("/config")
     public JsonResponse config() {
-        Map<String, String> data = PlayEduBCtx.getConfig();
+        Map<String, String> data = BCtx.getConfig();
         return JsonResponse.data(data);
     }
 

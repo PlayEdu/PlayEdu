@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBCtx;
+import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.CourseChapter;
 import xyz.playedu.api.event.CourseChapterDestroyEvent;
@@ -63,7 +63,7 @@ public class CourseChapterController {
             return JsonResponse.error("当前章节下面存在课时无法删除");
         }
         chapterService.removeById(chapter.getId());
-        ctx.publishEvent(new CourseChapterDestroyEvent(this, PlayEduBCtx.getAdminUserID(), chapter.getCourseId(), chapter.getId()));
+        ctx.publishEvent(new CourseChapterDestroyEvent(this, BCtx.getAdminUserID(), chapter.getCourseId(), chapter.getId()));
         return JsonResponse.success();
     }
 

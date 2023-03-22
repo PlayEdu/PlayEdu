@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBCtx;
+import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.CourseChapter;
@@ -87,7 +87,7 @@ public class CourseHourController {
         }
 
         CourseHour courseHour = hourService.create(courseId, chapterId, req.getSort(), req.getTitle(), type, req.getRid(), req.getDuration());
-        ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBCtx.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
+        ctx.publishEvent(new CourseHourCreatedEvent(this, BCtx.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
         return JsonResponse.success();
     }
 
@@ -125,7 +125,7 @@ public class CourseHourController {
 
         // 只需要发布一次event就可以了
         CourseHour firstHour = hours.get(0);
-        ctx.publishEvent(new CourseHourCreatedEvent(this, PlayEduBCtx.getAdminUserID(), firstHour.getCourseId(), firstHour.getChapterId(), firstHour.getId()));
+        ctx.publishEvent(new CourseHourCreatedEvent(this, BCtx.getAdminUserID(), firstHour.getCourseId(), firstHour.getChapterId(), firstHour.getId()));
 
         return JsonResponse.success();
     }
@@ -154,7 +154,7 @@ public class CourseHourController {
     public JsonResponse destroy(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException {
         CourseHour courseHour = hourService.findOrFail(id, courseId);
         hourService.removeById(courseHour.getId());
-        ctx.publishEvent(new CourseHourDestroyEvent(this, PlayEduBCtx.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
+        ctx.publishEvent(new CourseHourDestroyEvent(this, BCtx.getAdminUserID(), courseHour.getCourseId(), courseHour.getChapterId(), courseHour.getId()));
         return JsonResponse.success();
     }
 

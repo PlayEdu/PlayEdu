@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import xyz.playedu.api.PlayEduFCtx;
+import xyz.playedu.api.FCtx;
 import xyz.playedu.api.constant.FrontendConstant;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
@@ -59,10 +59,10 @@ public class FrontMiddleware implements HandlerInterceptor {
                 return responseTransform(response, 403, "当前学员已锁定无法登录");
             }
 
-            PlayEduFCtx.setUserId(user.getId());
-            PlayEduFCtx.setUser(user);
-            PlayEduFCtx.setJWtJti(token);
-            PlayEduFCtx.setJWtJti(payload.getJti());
+            FCtx.setUserId(user.getId());
+            FCtx.setUser(user);
+            FCtx.setJWtJti(token);
+            FCtx.setJWtJti(payload.getJti());
 
             return HandlerInterceptor.super.preHandle(request, response, handler);
         } catch (Exception e) {
@@ -80,7 +80,7 @@ public class FrontMiddleware implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        PlayEduFCtx.remove();
+        FCtx.remove();
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }

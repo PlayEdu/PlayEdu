@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import xyz.playedu.api.PlayEduFCtx;
+import xyz.playedu.api.FCtx;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.UserLoginEvent;
@@ -71,7 +71,7 @@ public class LoginController {
     @PostMapping("/logout")
     public JsonResponse logout() throws JwtLogoutException {
         jwtService.userLogout(RequestUtil.token());
-        ctx.publishEvent(new UserLogoutEvent(this, PlayEduFCtx.getUserId(), PlayEduFCtx.getJwtJti()));
+        ctx.publishEvent(new UserLogoutEvent(this, FCtx.getUserId(), FCtx.getJwtJti()));
         return JsonResponse.success();
     }
 

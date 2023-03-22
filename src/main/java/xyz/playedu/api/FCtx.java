@@ -8,14 +8,14 @@ import java.util.LinkedHashMap;
  * @Author 杭州白书科技有限公司
  * @create 2023/3/13 09:24
  */
-public class PlayEduFCtx {
+public class FCtx {
     private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL = new java.lang.ThreadLocal<>();
 
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_USER = "user";
     private static final String KEY_JWT_JTI = "jwt_jti";
 
-    public PlayEduFCtx() {
+    public FCtx() {
     }
 
     private static void put(String key, Object val) {

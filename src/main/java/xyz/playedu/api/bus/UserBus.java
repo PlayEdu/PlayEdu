@@ -1,17 +1,15 @@
 package xyz.playedu.api.bus;
 
-import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import xyz.playedu.api.PlayEduFCtx;
+import xyz.playedu.api.FCtx;
 import xyz.playedu.api.caches.UserLastLearnTimeCache;
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.CourseHour;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.UserLearnCourseUpdateEvent;
-import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.UserService;
 
@@ -53,7 +51,7 @@ public class UserBus {
         Long curTime = System.currentTimeMillis();
 
         // 最近一次学习时间
-        Long lastTime = userLastLearnTimeCache.get(PlayEduFCtx.getUserId());
+        Long lastTime = userLastLearnTimeCache.get(FCtx.getUserId());
         // 最大周期为10s
         if (lastTime == null || curTime - lastTime > 10000) {
             lastTime = curTime - 10000;

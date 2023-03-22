@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduBCtx;
+import xyz.playedu.api.BCtx;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AdminUser;
@@ -74,7 +74,7 @@ public class LoginController {
 
     @GetMapping("/detail")
     public JsonResponse detail() {
-        AdminUser user = PlayEduBCtx.getAdminUser();
+        AdminUser user = BCtx.getAdminUser();
         HashMap<String, Boolean> permissions = backendBus.adminUserPermissions(user.getId());
 
         HashMap<String, Object> data = new HashMap<>();
@@ -86,7 +86,7 @@ public class LoginController {
 
     @PutMapping("/password")
     public JsonResponse changePassword(@RequestBody @Validated PasswordChangeRequest req) {
-        AdminUser user = PlayEduBCtx.getAdminUser();
+        AdminUser user = BCtx.getAdminUser();
         String password = HelperUtil.MD5(req.getOldPassword() + user.getSalt());
         if (!password.equals(user.getPassword())) {
             return JsonResponse.error("原密码不正确");

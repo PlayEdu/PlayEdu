@@ -4,7 +4,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.PlayEduFCtx;
+import xyz.playedu.api.FCtx;
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.domain.User;
@@ -39,7 +39,7 @@ public class UserController {
 
     @GetMapping("/detail")
     public JsonResponse detail() {
-        User user = PlayEduFCtx.getUser();
+        User user = FCtx.getUser();
         List<Department> departments = departmentService.listByIds(userService.getDepIdsByUserId(user.getId()));
 
         HashMap<String, Object> data = new HashMap<>();
@@ -56,7 +56,7 @@ public class UserController {
 
     @PutMapping("/password")
     public JsonResponse changePassword(@RequestBody @Validated ChangePasswordRequest req) throws ServiceException {
-        userService.passwordChange(PlayEduFCtx.getUser(), req.getOldPassword(), req.getNewPassword());
+        userService.passwordChange(FCtx.getUser(), req.getOldPassword(), req.getNewPassword());
         return JsonResponse.success();
     }
 
@@ -67,7 +67,7 @@ public class UserController {
             return JsonResponse.error("请选择部门");
         }
 
-        List<Integer> userJoinDepIds = userService.getDepIdsByUserId(PlayEduFCtx.getUserId());
+        List<Integer> userJoinDepIds = userService.getDepIdsByUserId(FCtx.getUserId());
         if (userJoinDepIds == null) {
             return JsonResponse.error("当前学员未加入任何部门");
         }
