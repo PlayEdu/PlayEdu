@@ -1,11 +1,17 @@
 package xyz.playedu.api.bus;
 
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import xyz.playedu.api.PlayEduFCtx;
+import xyz.playedu.api.caches.UserLastLearnTimeCache;
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.CourseHour;
 import xyz.playedu.api.domain.User;
+import xyz.playedu.api.event.UserLearnCourseUpdateEvent;
+import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.UserService;
 
@@ -24,6 +30,12 @@ public class UserBus {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserLastLearnTimeCache userLastLearnTimeCache;
+
+    @Autowired
+    private ApplicationContext ctx;
+
     public boolean canSeeCourse(User user, Course course) {
         List<Integer> courseDepIds = courseService.getDepIdsByCourseId(course.getId());
         if (courseDepIds == null || courseDepIds.size() == 0) {
@@ -35,6 +47,21 @@ public class UserBus {
             return false;
         }
         return CollectionUtils.intersection(courseDepIds, userDepIds).size() > 0;
+    }
+    
+    public void userLearnDurationRecord(User user, Course course, CourseHour hour) {
+        Long curTime = System.currentTimeMillis();
+
+        // 最近一次学习时间
+        Long lastTime = userLastLearnTimeCache.get(PlayEduFCtx.getUserId());
+        // 最大周期为10s
+        if (lastTime == null || curTime - lastTime > 10000) {
+            lastTime = curTime - 10000;
+        }
+
+        userLastLearnTimeCache.put(user.getId(), curTime);
+
+        ctx.publishEvent(new UserLearnCourseUpdateEvent(this, user.getId(), course.getId(), hour.getId(), lastTime, curTime));
     }
 
 }

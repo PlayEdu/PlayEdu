@@ -10,16 +10,16 @@ import lombok.Data;
 
 /**
  * 
- * @TableName user_learn_duration_records
+ * @TableName user_learn_duration_stats
  */
-@TableName(value ="user_learn_duration_records")
+@TableName(value ="user_learn_duration_stats")
 @Data
-public class UserLearnDurationRecord implements Serializable {
+public class UserLearnDurationStats implements Serializable {
     /**
      * 
      */
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Integer id;
 
     /**
      * 
@@ -29,32 +29,12 @@ public class UserLearnDurationRecord implements Serializable {
     /**
      * 
      */
-    private Date createdDate;
-
-    /**
-     * 已学习时长[微秒]
-     */
     private Integer duration;
 
     /**
-     * 开始时间
-     */
-    private Date startAt;
-
-    /**
-     * 结束时间
-     */
-    private Date endAt;
-
-    /**
      * 
      */
-    private Integer courseId;
-
-    /**
-     * 
-     */
-    private Integer hourId;
+    private Date createdDate;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -70,15 +50,11 @@ public class UserLearnDurationRecord implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        UserLearnDurationRecord other = (UserLearnDurationRecord) that;
+        UserLearnDurationStats other = (UserLearnDurationStats) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-            && (this.getCreatedDate() == null ? other.getCreatedDate() == null : this.getCreatedDate().equals(other.getCreatedDate()))
             && (this.getDuration() == null ? other.getDuration() == null : this.getDuration().equals(other.getDuration()))
-            && (this.getStartAt() == null ? other.getStartAt() == null : this.getStartAt().equals(other.getStartAt()))
-            && (this.getEndAt() == null ? other.getEndAt() == null : this.getEndAt().equals(other.getEndAt()))
-            && (this.getCourseId() == null ? other.getCourseId() == null : this.getCourseId().equals(other.getCourseId()))
-            && (this.getHourId() == null ? other.getHourId() == null : this.getHourId().equals(other.getHourId()));
+            && (this.getCreatedDate() == null ? other.getCreatedDate() == null : this.getCreatedDate().equals(other.getCreatedDate()));
     }
 
     @Override
@@ -87,12 +63,8 @@ public class UserLearnDurationRecord implements Serializable {
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
-        result = prime * result + ((getCreatedDate() == null) ? 0 : getCreatedDate().hashCode());
         result = prime * result + ((getDuration() == null) ? 0 : getDuration().hashCode());
-        result = prime * result + ((getStartAt() == null) ? 0 : getStartAt().hashCode());
-        result = prime * result + ((getEndAt() == null) ? 0 : getEndAt().hashCode());
-        result = prime * result + ((getCourseId() == null) ? 0 : getCourseId().hashCode());
-        result = prime * result + ((getHourId() == null) ? 0 : getHourId().hashCode());
+        result = prime * result + ((getCreatedDate() == null) ? 0 : getCreatedDate().hashCode());
         return result;
     }
 
@@ -104,12 +76,8 @@ public class UserLearnDurationRecord implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", userId=").append(userId);
-        sb.append(", createdDate=").append(createdDate);
         sb.append(", duration=").append(duration);
-        sb.append(", startAt=").append(startAt);
-        sb.append(", endAt=").append(endAt);
-        sb.append(", courseId=").append(courseId);
-        sb.append(", hourId=").append(hourId);
+        sb.append(", createdDate=").append(createdDate);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

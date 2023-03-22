@@ -1,17 +1,16 @@
 package xyz.playedu.api.controller.frontend;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.PlayEduFCtx;
+import xyz.playedu.api.bus.UserBus;
 import xyz.playedu.api.caches.CourseCache;
 import xyz.playedu.api.caches.UserCanSeeCourseCache;
 import xyz.playedu.api.domain.*;
-import xyz.playedu.api.exception.NotFoundException;
-import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.request.frontend.CourseHourRecordRequest;
 import xyz.playedu.api.service.CourseHourService;
-import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.types.JsonResponse;
@@ -27,9 +26,6 @@ import java.util.HashMap;
 public class HourController {
 
     @Autowired
-    private CourseService courseService;
-
-    @Autowired
     private CourseHourService hourService;
 
     @Autowired
@@ -39,13 +35,18 @@ public class HourController {
     private UserCourseHourRecordService userCourseHourRecordService;
 
     @Autowired
-    private UserCanSeeCourseCache userCanSeeCourseCache;
+    private UserBus userBus;
 
+
+    // ------- CACHE ----------
+    @Autowired
+    private UserCanSeeCourseCache userCanSeeCourseCache;
     @Autowired
     private CourseCache courseCache;
 
     @GetMapping("/{id}/play")
-    public JsonResponse play(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException, ServiceException {
+    @SneakyThrows
+    public JsonResponse play(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) {
         Course course = courseCache.findOrFail(courseId);
         userCanSeeCourseCache.check(PlayEduFCtx.getUser(), course, true);
         CourseHour hour = hourService.findOrFail(id, courseId);
@@ -60,7 +61,8 @@ public class HourController {
     }
 
     @PostMapping("/{id}/record")
-    public JsonResponse record(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseHourRecordRequest req) throws NotFoundException, ServiceException {
+    @SneakyThrows
+    public JsonResponse record(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseHourRecordRequest req) {
         Integer duration = req.getDuration();
         if (duration <= 0) {
             return JsonResponse.error("duration参数错误");
@@ -79,9 +81,12 @@ public class HourController {
     }
 
     @PostMapping("/{id}/ping")
-    public JsonResponse ping(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) throws NotFoundException, ServiceException {
+    @SneakyThrows
+    public JsonResponse ping(@PathVariable(name = "courseId") Integer courseId, @PathVariable(name = "id") Integer id) {
         Course course = courseCache.findOrFail(courseId);
+        CourseHour hour = hourService.findOrFail(id, courseId);
         userCanSeeCourseCache.check(PlayEduFCtx.getUser(), course, true);
+        userBus.userLearnDurationRecord(PlayEduFCtx.getUser(), course, hour);
         return JsonResponse.success();
     }
 

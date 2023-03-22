@@ -7,14 +7,17 @@
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.UserLearnDurationRecord">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
-            <result property="date" column="date" jdbcType="DATE"/>
+            <result property="createdDate" column="created_date" jdbcType="DATE"/>
             <result property="duration" column="duration" jdbcType="INTEGER"/>
             <result property="startAt" column="start_at" jdbcType="TIMESTAMP"/>
             <result property="endAt" column="end_at" jdbcType="TIMESTAMP"/>
+            <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+            <result property="hourId" column="hour_id" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,date,
-        duration,start_at,end_at
+        id,user_id,created_date,
+        duration,start_at,end_at,
+        course_id,hour_id
     </sql>
 </mapper>

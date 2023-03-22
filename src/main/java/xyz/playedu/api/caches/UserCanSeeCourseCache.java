@@ -25,12 +25,13 @@ public class UserCanSeeCourseCache {
     public boolean check(User user, Course course, boolean isThrow) throws ServiceException {
         boolean result;
         if (RedisUtil.exists(key(user, course))) {
-            result = "1".equals(RedisUtil.get(key(user, course)));
+            String cacheResult = (String) RedisUtil.get(key(user, course));
+            result = "1".equals(cacheResult);
         } else {
             result = userBus.canSeeCourse(user, course);
             put(user, course, result);
         }
-        if (isThrow) {
+        if (!result && isThrow) {
             throw new ServiceException("无权限观看");
         }
         return result;
