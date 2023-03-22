@@ -181,6 +181,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public Map<Integer, List<Integer>> getCategoryIdsGroup(List<Integer> courseIds) {
+        if (courseIds == null || courseIds.size() == 0) {
+            return null;
+        }
         Map<Integer, List<ResourceCourseCategory>> data = courseCategoryService
                 .list(courseCategoryService.query().getWrapper().in("course_id", courseIds))
                 .stream()
@@ -194,6 +197,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> courseIds) {
+        if (courseIds == null || courseIds.size() == 0) {
+            return null;
+        }
         Map<Integer, List<CourseDepartment>> data = courseDepartmentService
                 .list(courseDepartmentService.query().getWrapper().in("course_id", courseIds))
                 .stream()
