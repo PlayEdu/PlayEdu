@@ -6,11 +6,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.constant.SystemConstant;
+import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserLearnDurationStats;
 import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -61,7 +66,16 @@ public class DashboardController {
 
         data.put("user_learn_today", userLearnDurationStatsService.todayTotal());
         data.put("user_learn_yesterday", userLearnDurationStatsService.yesterdayTotal());
-        data.put("user_learn_top10", userLearnDurationStatsService.top10());
+
+        List<UserLearnDurationStats> userLearnTop10 = userLearnDurationStatsService.top10();
+        Map<Integer, User> top10Users = userService.chunks(userLearnTop10.stream().map(UserLearnDurationStats::getUserId).toList(), new ArrayList<String>() {{
+            add("id");
+            add("name");
+            add("avatar");
+            add("email");
+        }}).stream().collect(Collectors.toMap(User::getId, e -> e));
+        data.put("user_learn_top10", userLearnTop10);
+        data.put("user_learn_top10_users", top10Users);
 
         return JsonResponse.data(data);
     }
