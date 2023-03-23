@@ -154,84 +154,78 @@ public class UserController {
 
     @PostMapping("/store-batch")
     @Transactional
-    public JsonResponse batchStore(@RequestBody @Validated UserImportRequest request) {
-        String[][] users = request.getUsers();
-        if (users.length == 0) {
+    public JsonResponse batchStore(@RequestBody @Validated UserImportRequest req) {
+        List<UserImportRequest.UserItem> users = req.getUsers();
+        if (users.size() == 0) {
             return JsonResponse.error("数据为空");
         }
-        if (users.length > 1000) {
+        if (users.size() > 1000) {
             return JsonResponse.error("一次最多导入1000条数据");
         }
 
-        Integer startLine = request.getStartLine();
+        Integer startLine = req.getStartLine();
 
         List<String[]> errorLines = new ArrayList<>();
-        errorLines.add(new String[]{"错误行", "错误信息"});//表头
-
-        // 参数长度校验
-        for (int i = 0; i < users.length; i++) {
-            if (users[i].length != 6) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "参数错误"});
-            }
-        }
-        if (errorLines.size() > 1) {
-            return JsonResponse.error("导入数据有误", errorLines);
-        }
+        errorLines.add(new String[]{"错误行", "错误信息"});//错误表-表头
 
         // 读取存在的部门
         List<Integer> depIds = departmentService.allIds();
 
         // 邮箱输入重复检测 || 部门存在检测
-        HashMap<String, Integer> emailMap = new HashMap<>();
+        HashMap<String, Integer> emailRepeat = new HashMap<>();
         HashMap<String, String[]> depMap = new HashMap<>();
         List<String> emails = new ArrayList<>();
         List<User> insertUsers = new ArrayList<>();
-        for (int i = 0; i < users.length; i++) {
-            //c0: 部门ids数组
-            //c1: 邮箱
-            //c2: 姓名
-            //c3: 密码
-            //c4: 身份证号
+        int i = -1;
+        for (UserImportRequest.UserItem userItem : users) {
+            i++;//索引值
 
-            String tmpEmail = users[i][1];
-            if (emailMap.get(tmpEmail) != null) {//存在重复
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "邮箱重复"});
+            if (userItem.getEmail() == null || userItem.getEmail().trim().length() == 0) {
+                errorLines.add(new String[]{"第" + (i + startLine) + "行", "未输入邮箱账号"});
             } else {
-                emailMap.put(tmpEmail, i + startLine);
+                // 邮箱重复判断
+                Integer repeatLine = emailRepeat.get(userItem.getEmail());
+                if (repeatLine != null) {
+                    errorLines.add(new String[]{"第" + (i + startLine) + "行", "与第" + repeatLine + "行邮箱重复"});
+                } else {
+                    emailRepeat.put(userItem.getEmail(), i + startLine);
+                }
+                emails.add(userItem.getEmail());
             }
 
-            emails.add(tmpEmail);
-
-            // 部门存在检测
-            if (users[i][0] != null && users[i][0].length() > 0) {
-                String[] tmpDepIds = users[i][0].split(",");
+            // 部门数据检测
+            if (userItem.getDepIds() == null || userItem.getDepIds().trim().length() == 0) {
+                errorLines.add(new String[]{"第" + (i + startLine) + "行", "未选择部门"});
+            } else {
+                String[] tmpDepIds = userItem.getDepIds().trim().split(",");
                 for (int j = 0; j < tmpDepIds.length; j++) {
                     if (!depIds.contains(Integer.valueOf(tmpDepIds[j]))) {
                         errorLines.add(new String[]{"第" + (i + startLine) + "行", "部门id[" + tmpDepIds[j] + "]不存在"});
                     }
                 }
-                depMap.put(users[i][1], tmpDepIds);
+                depMap.put(userItem.getEmail(), tmpDepIds);
             }
 
             // 昵称为空检测
-            if (users[i][2] == null || users[i][2].length() == 0) {
+            String tmpName = userItem.getName();
+            if (tmpName == null || tmpName.trim().length() == 0) {
                 errorLines.add(new String[]{"第" + (i + startLine) + "行", "昵称为空"});
             }
 
             // 密码为空检测
-            if (users[i][3] == null || users[i][3].length() == 0) {
+            String tmpPassword = userItem.getPassword();
+            if (tmpPassword == null || tmpPassword.trim().length() == 0) {
                 errorLines.add(new String[]{"第" + (i + startLine) + "行", "密码为空"});
             }
 
-            // 带插入数据
+            // 待插入数据
             User tmpInsertUser = new User();
             String tmpSalt = HelperUtil.randomString(6);
-            String tmpPassword = HelperUtil.MD5(users[i][3] + tmpSalt);
-            tmpInsertUser.setEmail(users[i][1]);
-            tmpInsertUser.setPassword(tmpPassword);
+            tmpInsertUser.setEmail(userItem.getEmail());
+            tmpInsertUser.setPassword(HelperUtil.MD5(tmpPassword + tmpSalt));
             tmpInsertUser.setSalt(tmpSalt);
-            tmpInsertUser.setName(users[i][4]);
-            tmpInsertUser.setIdCard(users[i][4]);
+            tmpInsertUser.setName(tmpName);
+            tmpInsertUser.setIdCard(userItem.getIdCard());
             tmpInsertUser.setCreateIp(SystemConstant.INTERNAL_IP);
             tmpInsertUser.setCreateCity(SystemConstant.INTERNAL_IP_AREA);
             tmpInsertUser.setCreatedAt(new Date());
@@ -248,7 +242,7 @@ public class UserController {
         List<String> existsEmails = userService.existsEmailsByEmails(emails);
         if (existsEmails.size() > 0) {
             for (String tmpEmail : existsEmails) {
-                errorLines.add(new String[]{"第" + emailMap.get(tmpEmail) + "行", "邮箱已注册"});
+                errorLines.add(new String[]{"第" + emailRepeat.get(tmpEmail) + "行", "邮箱已注册"});
             }
         }
         if (errorLines.size() > 1) {
@@ -258,20 +252,20 @@ public class UserController {
         userService.saveBatch(insertUsers);
 
         // 部门关联
-        List<UserDepartment> userDepartments = new ArrayList<>();
+        List<UserDepartment> insertUserDepartments = new ArrayList<>();
         for (User tmpUser : insertUsers) {
             String[] tmpDepIds = depMap.get(tmpUser.getEmail());
-            if (tmpDepIds != null) {
-                for (int i = 0; i < tmpDepIds.length; i++) {
-                    UserDepartment tmpUserDep = new UserDepartment();
-                    tmpUserDep.setUserId(tmpUser.getId());
-                    tmpUserDep.setDepId(Integer.valueOf(tmpDepIds[i]));
-
-                    userDepartments.add(tmpUserDep);
-                }
+            if (tmpDepIds == null) {
+                continue;
+            }
+            for (String tmpDepId : tmpDepIds) {
+                insertUserDepartments.add(new UserDepartment() {{
+                    setUserId(tmpUser.getId());
+                    setDepId(Integer.valueOf(tmpDepId));
+                }});
             }
         }
-        userDepartmentService.saveBatch(userDepartments);
+        userDepartmentService.saveBatch(insertUserDepartments);
 
         return JsonResponse.success();
     }
