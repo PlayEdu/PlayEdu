@@ -50,8 +50,8 @@ public class AppConfigCheck implements ApplicationRunner {
             setKeyName("system.h5_url");
             setKeyValue("");
         }},});
-        // 播放器配置
-        put("播放器配置", new AppConfig[]{new AppConfig() {{
+        // 播放配置
+        put("播放配置", new AppConfig[]{new AppConfig() {{
             setName("播放器封面");
             setSort(10);
             setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_IMAGE);
