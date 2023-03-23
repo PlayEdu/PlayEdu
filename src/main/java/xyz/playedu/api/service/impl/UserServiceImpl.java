@@ -19,7 +19,10 @@ import xyz.playedu.api.util.HelperUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author tengteng
@@ -184,6 +187,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String todayDate = simpleDateFormat.format(new Date());
         String yesterdayDate = simpleDateFormat.format(new Date(System.currentTimeMillis() - 86400000));
         return count(query().getWrapper().between("created_at", simpleDateFormat.parse(yesterdayDate), simpleDateFormat.parse(todayDate)));
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> userIds) {
+        if (userIds == null || userIds.size() == 0) {
+            return null;
+        }
+        Map<Integer, List<UserDepartment>> data = userDepartmentService
+                .list(userDepartmentService.query().getWrapper().in("user_id", userIds))
+                .stream()
+                .collect(Collectors.groupingBy(UserDepartment::getUserId));
+        Map<Integer, List<Integer>> result = new HashMap<>();
+        data.forEach((userId, records) -> {
+            result.put(userId, records.stream().map(UserDepartment::getDepId).toList());
+        });
+        return result;
     }
 }
 

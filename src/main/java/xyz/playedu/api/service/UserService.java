@@ -8,6 +8,7 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tengteng
@@ -44,4 +45,6 @@ public interface UserService extends IService<User> {
     Long todayCount();
 
     Long yesterdayCount();
+
+    Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> userIds);
 }

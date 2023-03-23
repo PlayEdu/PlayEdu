@@ -83,7 +83,14 @@ public class UserController {
         }
 
         PaginationResult<User> result = userService.paginate(page, size, filter);
-        return JsonResponse.data(result);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("data", result.getData());
+        data.put("total", result.getTotal());
+        data.put("user_dep_ids", userService.getDepIdsGroup(result.getData().stream().map(User::getId).toList()));
+        data.put("departments", departmentService.id2name());
+
+        return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_STORE)
