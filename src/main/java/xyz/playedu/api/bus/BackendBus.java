@@ -54,6 +54,9 @@ public class BackendBus {
     }
 
     public static String valueHidden(String permissionSlug, String type, String value) {
+        if (BCtx.isNull()) {//非后管环境返回原值
+            return value;
+        }
         HashMap<String, Boolean> permissions = BCtx.getAdminPer();
         if (permissions.get(permissionSlug) != null) {
             return value;

@@ -1,5 +1,6 @@
 package xyz.playedu.api.controller.frontend;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/v1/user")
+@Slf4j
 public class UserController {
 
     @Autowired

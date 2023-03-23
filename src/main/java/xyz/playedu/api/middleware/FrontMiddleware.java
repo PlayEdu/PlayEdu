@@ -59,9 +59,8 @@ public class FrontMiddleware implements HandlerInterceptor {
                 return responseTransform(response, 403, "当前学员已锁定无法登录");
             }
 
-            FCtx.setUserId(user.getId());
             FCtx.setUser(user);
-            FCtx.setJWtJti(token);
+            FCtx.setUserId(user.getId());
             FCtx.setJWtJti(payload.getJti());
 
             return HandlerInterceptor.super.preHandle(request, response, handler);

@@ -28,7 +28,14 @@ public class BCtx {
     }
 
     private static Object get(String key) {
+        if (THREAD_LOCAL.get() == null) {
+            return null;
+        }
         return THREAD_LOCAL.get().getOrDefault(key, null);
+    }
+
+    public static boolean isNull() {
+        return THREAD_LOCAL.get() == null;
     }
 
     public static void remove() {
