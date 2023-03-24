@@ -40,7 +40,7 @@ public class UploadController {
     @PostMapping("/minio")
     public JsonResponse uploadMinio(@RequestParam HashMap<String, Object> params, MultipartFile file) throws ServiceException {
         String categoryIds = MapUtils.getString(params, "category_ids");
-        Resource res = uploadService.storeMinio(BCtx.getAdminUserID(), file, categoryIds);
+        Resource res = uploadService.storeMinio(BCtx.getId(), file, categoryIds);
         return JsonResponse.data(res);
     }
 
@@ -92,7 +92,7 @@ public class UploadController {
 
         // 视频素材保存
         Resource videoResource = resourceService.create(
-                BCtx.getAdminUserID(),
+                BCtx.getId(),
                 req.getCategoryIds(),
                 type,
                 req.getOriginalFilename(),
@@ -104,7 +104,7 @@ public class UploadController {
                 url
         );
         // 视频封面素材保存
-        Resource posterResource = uploadService.storeBase64Image(BCtx.getAdminUserID(), req.getPoster(), null);
+        Resource posterResource = uploadService.storeBase64Image(BCtx.getId(), req.getPoster(), null);
         // 视频的封面素材改为[隐藏 && 属于视频的子素材]
         resourceService.changeParentId(posterResource.getId(), videoResource.getId());
         // 视频信息

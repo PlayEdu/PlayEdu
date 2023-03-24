@@ -63,7 +63,7 @@ public class CourseChapterController {
             return JsonResponse.error("当前章节下面存在课时无法删除");
         }
         chapterService.removeById(chapter.getId());
-        ctx.publishEvent(new CourseChapterDestroyEvent(this, BCtx.getAdminUserID(), chapter.getCourseId(), chapter.getId()));
+        ctx.publishEvent(new CourseChapterDestroyEvent(this, BCtx.getId(), chapter.getCourseId(), chapter.getId()));
         return JsonResponse.success();
     }
 

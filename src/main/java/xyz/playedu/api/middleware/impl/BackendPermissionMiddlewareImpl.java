@@ -35,7 +35,7 @@ public class BackendPermissionMiddlewareImpl {
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         BackendPermissionMiddleware middleware = signature.getMethod().getAnnotation(BackendPermissionMiddleware.class);
-        Integer adminUserId = BCtx.getAdminUserID();
+        Integer adminUserId = BCtx.getId();
         HashMap<String, Boolean> permissions = backendBus.adminUserPermissions(adminUserId);
         if (permissions.get(middleware.slug()) == null) {
             return JsonResponse.error("权限不足", 403);

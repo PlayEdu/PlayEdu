@@ -124,7 +124,7 @@ public class ResourceCategoryController {
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         ResourceCategory category = categoryService.findOrFail(id);
         categoryService.deleteById(category.getId());
-        ctx.publishEvent(new ResourceCategoryDestroyEvent(this, BCtx.getAdminUserID(), category.getId()));
+        ctx.publishEvent(new ResourceCategoryDestroyEvent(this, BCtx.getId(), category.getId()));
         return JsonResponse.success();
     }
 

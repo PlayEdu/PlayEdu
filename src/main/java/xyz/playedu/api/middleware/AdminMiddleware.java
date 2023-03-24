@@ -71,7 +71,7 @@ public class AdminMiddleware implements HandlerInterceptor {
                 return responseTransform(response, 403, "当前管理员禁止登录");
             }
 
-            BCtx.setAdminUserId(payload.getSub());
+            BCtx.setId(payload.getSub());
             BCtx.setAdminUser(adminUser);
             BCtx.setAdminPer(backendBus.adminUserPermissions(adminUser.getId()));
 

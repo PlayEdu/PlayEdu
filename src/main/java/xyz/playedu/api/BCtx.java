@@ -42,11 +42,11 @@ public class BCtx {
         THREAD_LOCAL.remove();
     }
 
-    public static Integer getAdminUserID() {
+    public static Integer getId() {
         return (Integer) get(KEY_ADMIN_USER_ID);
     }
 
-    public static void setAdminUserId(Integer userId) {
+    public static void setId(Integer userId) {
         put(KEY_ADMIN_USER_ID, userId);
     }
 

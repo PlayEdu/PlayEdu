@@ -70,7 +70,7 @@ public class ResourceController {
         filter.setName(name);
 
         if (!backendBus.isSuperAdmin()) {// 非超管只能读取它自己上传的资源
-            filter.setAdminId(BCtx.getAdminUserID());
+            filter.setAdminId(BCtx.getId());
         }
 
         PaginationResult<Resource> result = resourceService.paginate(page, size, filter);

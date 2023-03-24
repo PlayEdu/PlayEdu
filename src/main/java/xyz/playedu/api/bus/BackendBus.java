@@ -78,7 +78,7 @@ public class BackendBus {
         if (superRole == null) {
             return false;
         }
-        List<Integer> roleIds = adminUserService.getRoleIdsByUserId(BCtx.getAdminUserID());
+        List<Integer> roleIds = adminUserService.getRoleIdsByUserId(BCtx.getId());
         if (roleIds.size() == 0) {
             return false;
         }
