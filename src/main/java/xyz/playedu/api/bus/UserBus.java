@@ -37,7 +37,7 @@ public class UserBus {
     public boolean canSeeCourse(User user, Course course) {
         List<Integer> courseDepIds = courseService.getDepIdsByCourseId(course.getId());
         if (courseDepIds == null || courseDepIds.size() == 0) {
-            //线上课无所属部门=>公开课=>任何学员都可以学习
+            //线上课无所属部门=>任何学员都可以学习
             return true;
         }
         List<Integer> userDepIds = userService.getDepIdsByUserId(user.getId());

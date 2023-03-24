@@ -68,7 +68,7 @@ public class DashboardController {
         data.put("user_learn_yesterday", userLearnDurationStatsService.yesterdayTotal());
 
         List<UserLearnDurationStats> userLearnTop10 = userLearnDurationStatsService.top10();
-        Map<Integer, User> top10Users = userService.chunks(userLearnTop10.stream().map(UserLearnDurationStats::getUserId).toList(), new ArrayList<String>() {{
+        Map<Integer, User> top10Users = userService.chunks(userLearnTop10.stream().map(UserLearnDurationStats::getUserId).toList(), new ArrayList<>() {{
             add("id");
             add("name");
             add("avatar");

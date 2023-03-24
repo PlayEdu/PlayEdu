@@ -6,7 +6,9 @@ import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.mapper.UserCourseRecordMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author tengteng
@@ -63,6 +65,14 @@ public class UserCourseRecordServiceImpl extends ServiceImpl<UserCourseRecordMap
 
             updateById(updateRecord);
         }
+    }
+
+    @Override
+    public List<UserCourseRecord> chunk(Integer userId, List<Integer> courseIds) {
+        if (courseIds == null || courseIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        return list(query().getWrapper().eq("user_id", userId).in("course_id", courseIds));
     }
 }
 

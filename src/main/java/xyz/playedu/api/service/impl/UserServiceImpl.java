@@ -18,10 +18,7 @@ import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -163,6 +160,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<User> chunks(List<Integer> ids, List<String> fields) {
+        if (ids == null || ids.size() == 0) {
+            return new ArrayList<>();
+        }
         return list(query().getWrapper().in("id", ids).select(fields));
     }
 
