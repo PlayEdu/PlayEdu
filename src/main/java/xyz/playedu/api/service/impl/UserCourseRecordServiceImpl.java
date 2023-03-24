@@ -5,6 +5,8 @@ import xyz.playedu.api.domain.UserCourseRecord;
 import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.mapper.UserCourseRecordMapper;
 import org.springframework.stereotype.Service;
+import xyz.playedu.api.types.paginate.CourseUserPaginateFilter;
+import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,6 +75,24 @@ public class UserCourseRecordServiceImpl extends ServiceImpl<UserCourseRecordMap
             return new ArrayList<>();
         }
         return list(query().getWrapper().eq("user_id", userId).in("course_id", courseIds));
+    }
+
+    @Override
+    public PaginationResult<UserCourseRecord> paginate(int page, int size, CourseUserPaginateFilter filter) {
+        Integer pageStart = (page - 1) * size;
+        filter.setPageStart(pageStart);
+        filter.setPageSize(size);
+
+        PaginationResult<UserCourseRecord> result = new PaginationResult<>();
+        result.setTotal(getBaseMapper().paginateTotal(filter));
+        result.setData(getBaseMapper().paginate(filter));
+
+        return result;
+    }
+
+    @Override
+    public void destroy(Integer courseId, List<Integer> ids) {
+        remove(query().getWrapper().in("id", ids).eq("course_id", courseId));
     }
 }
 

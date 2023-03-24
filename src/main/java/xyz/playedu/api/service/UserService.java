@@ -40,6 +40,8 @@ public interface UserService extends IService<User> {
 
     List<User> chunks(List<Integer> ids, List<String> fields);
 
+    List<User> chunks(List<Integer> ids);
+
     Long total();
 
     Long todayCount();

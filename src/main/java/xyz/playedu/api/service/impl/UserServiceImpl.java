@@ -167,6 +167,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    public List<User> chunks(List<Integer> ids) {
+        if (ids == null || ids.size() == 0) {
+            return new ArrayList<>();
+        }
+        return list(query().getWrapper().in("id", ids));
+    }
+
+    @Override
     public Long total() {
         return count();
     }
