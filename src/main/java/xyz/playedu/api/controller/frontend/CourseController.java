@@ -1,14 +1,17 @@
 package xyz.playedu.api.controller.frontend;
 
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import xyz.playedu.api.FCtx;
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.CourseHour;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.service.CourseChapterService;
 import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.service.CourseService;
+import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
@@ -33,6 +36,9 @@ public class CourseController {
     @Autowired
     private CourseHourService hourService;
 
+    @Autowired
+    private UserCourseRecordService userCourseRecordService;
+
     @GetMapping("/index")
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
@@ -49,13 +55,15 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public JsonResponse detail(@PathVariable(name = "id") Integer id) throws NotFoundException {
+    @SneakyThrows
+    public JsonResponse detail(@PathVariable(name = "id") Integer id) {
         Course course = courseService.findOrFail(id);
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
         data.put("chapters", chapterService.getChaptersByCourseId(course.getId()));
         data.put("hours", hourService.getHoursByCourseId(course.getId()).stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put("learn_record", userCourseRecordService.find(FCtx.getUserId(), course.getId()));
 
         return JsonResponse.data(data);
     }
