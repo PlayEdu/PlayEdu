@@ -13,7 +13,6 @@ import org.hibernate.validator.constraints.Length;
 @Data
 public class ResourceCategoryRequest {
 
-    @NotNull(message = "name参数不存在")
     @NotBlank(message = "请输入分类名")
     @Length(min = 1, max = 20, message = "分类名长度在1-20个字符之间")
     private String name;

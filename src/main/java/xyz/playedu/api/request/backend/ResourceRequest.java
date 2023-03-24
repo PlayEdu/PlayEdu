@@ -17,12 +17,10 @@ public class ResourceRequest {
     @JsonProperty("category_id")
     private Integer categoryId;
 
-    @NotNull(message = "name参数不存在")
     @NotBlank(message = "请输入资源名")
     @Length(min = 1, max = 254, message = "资源名长度在1-254个字符之间")
     private String name;
 
-    @NotNull(message = "extension参数不存在")
     @NotBlank(message = "请输入资源扩展")
     @Length(min = 1, max = 254, message = "资源扩展长度在1-20个字符之间")
     private String extension;
@@ -30,7 +28,6 @@ public class ResourceRequest {
     @NotNull(message = "size参数不存在")
     private Long size;
 
-    @NotNull(message = "disk参数不存在")
     @NotBlank(message = "disk值不能为空")
     private String disk;
 
@@ -38,7 +35,6 @@ public class ResourceRequest {
     @JsonProperty("file_id")
     private String fileId;
 
-    @NotNull(message = "path参数不存在")
     @NotBlank(message = "path值不能为空")
     private String path;
 

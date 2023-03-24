@@ -17,16 +17,13 @@ import java.util.Date;
 public class UserRequest {
 
     @NotBlank(message = "请输入邮箱")
-    @NotNull(message = "email参数不存在")
     @Email(message = "请输入正确的邮箱")
     private String email;
 
-    @NotNull(message = "name参数不存在")
     @NotBlank(message = "请输入姓名")
     @Length(min = 1, max = 20, message = "姓名长度在1-20个字符之间")
     private String name;
 
-    @NotNull(message = "avatar参数不存在")
     @NotBlank(message = "请上传头像")
     private String avatar;
 

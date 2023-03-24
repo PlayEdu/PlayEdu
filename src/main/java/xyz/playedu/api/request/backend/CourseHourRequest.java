@@ -16,7 +16,6 @@ public class CourseHourRequest {
     @JsonProperty("chapter_id")
     private Integer chapterId;
 
-    @NotNull(message = "title参数不存在")
     @NotBlank(message = "请输入课时标题")
     private String title;
 
@@ -26,7 +25,6 @@ public class CourseHourRequest {
     @NotNull(message = "sort参数不存在")
     private Integer sort;
 
-    @NotNull(message = "type参数不存在")
     @NotBlank(message = "请选择课时类型")
     private String type;
 

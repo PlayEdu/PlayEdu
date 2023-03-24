@@ -18,7 +18,6 @@ public class CourseCategoryRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @NotNull(message = "name参数不存在")
     @NotBlank(message = "请输入分类名")
     @Length(min = 1, max = 20, message = "分类名长度在1-20个字符之间")
     private String name;

@@ -19,7 +19,6 @@ public class DepartmentRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "请输入部门名称")
-    @NotNull(message = "name参数不存在")
     @Length(min = 1, max = 20, message = "部门名称长度在1-20个字符之间")
     private String name;
 

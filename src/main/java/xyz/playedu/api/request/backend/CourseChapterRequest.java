@@ -13,7 +13,6 @@ import org.hibernate.validator.constraints.Length;
 public class CourseChapterRequest {
 
     @NotBlank(message = "请输入章节名")
-    @NotNull(message = "name参数不存在")
     @Length(min = 1, max = 64, message = "章节名长度在1-64个字符之间")
     private String name;
 

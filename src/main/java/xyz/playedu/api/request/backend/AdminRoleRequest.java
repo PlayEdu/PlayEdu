@@ -19,7 +19,6 @@ public class AdminRoleRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @NotNull(message = "name参数不存在")
     @NotBlank(message = "请输入管理角色名")
     @Length(min = 1, max = 12, message = "管理角色名长度在1-16个字符之间")
     private String name;

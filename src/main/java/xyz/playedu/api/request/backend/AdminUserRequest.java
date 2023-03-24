@@ -20,12 +20,10 @@ public class AdminUserRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @NotNull(message = "name参数不存在")
     @NotBlank(message = "请输入管理员姓名")
     @Length(min = 1, max = 12, message = "管理员姓名长度在1-12个字符之间")
     private String name;
 
-    @NotNull(message = "email参数不存在")
     @NotBlank(message = "请输入管理员邮箱")
     @Email(message = "请输入合法邮箱")
     private String email;
