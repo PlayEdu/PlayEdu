@@ -51,7 +51,7 @@ public class UserBus {
         Long curTime = System.currentTimeMillis();
 
         // 最近一次学习时间
-        Long lastTime = userLastLearnTimeCache.get(FCtx.getUserId());
+        Long lastTime = userLastLearnTimeCache.get(FCtx.getId());
         // 最大周期为10s
         if (lastTime == null || curTime - lastTime > 10000) {
             lastTime = curTime - 10000;

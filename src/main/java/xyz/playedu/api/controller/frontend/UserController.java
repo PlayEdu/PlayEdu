@@ -58,8 +58,8 @@ public class UserController {
 
     @PutMapping("/avatar")
     public JsonResponse changeAvatar(MultipartFile file) {
-        UserUploadImageLog log = uploadService.userAvatar(FCtx.getUserId(), file, FrontendConstant.USER_UPLOAD_IMAGE_TYPE_AVATAR, FrontendConstant.USER_UPLOAD_IMAGE_SCENE_AVATAR);
-        userService.changeAvatar(FCtx.getUserId(), log.getUrl());
+        UserUploadImageLog log = uploadService.userAvatar(FCtx.getId(), file, FrontendConstant.USER_UPLOAD_IMAGE_TYPE_AVATAR, FrontendConstant.USER_UPLOAD_IMAGE_SCENE_AVATAR);
+        userService.changeAvatar(FCtx.getId(), log.getUrl());
         return JsonResponse.success();
     }
 
@@ -76,7 +76,7 @@ public class UserController {
             return JsonResponse.error("请选择部门");
         }
 
-        List<Integer> userJoinDepIds = userService.getDepIdsByUserId(FCtx.getUserId());
+        List<Integer> userJoinDepIds = userService.getDepIdsByUserId(FCtx.getId());
         if (userJoinDepIds == null) {
             return JsonResponse.error("当前学员未加入任何部门");
         }
@@ -112,7 +112,7 @@ public class UserController {
         // -------- 读取学习进度 ----------
         Map<Integer, UserCourseRecord> learnCourseRecords = new HashMap<>();
         if (courses.size() > 0) {
-            learnCourseRecords = userCourseRecordService.chunk(FCtx.getUserId(), courses.stream().map(Course::getId).toList()).stream().collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e));
+            learnCourseRecords = userCourseRecordService.chunk(FCtx.getId(), courses.stream().map(Course::getId).toList()).stream().collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e));
         }
         data.put("learn_course_records", learnCourseRecords);
 
@@ -120,8 +120,8 @@ public class UserController {
         Integer nunRequiredHourCount = 0;//选修课时
         Integer requiredFinishedHourCount = 0;//已完成必修课时
         Integer nunRequiredFinishedHourCount = 0;//已完成选修课时
-        Integer todayLearnDuration = userLearnDurationStatsService.todayUserDuration(FCtx.getUserId());//今日学习时长
-        Integer learnDuration = userLearnDurationStatsService.userDuration(FCtx.getUserId());//学习总时长
+        Integer todayLearnDuration = userLearnDurationStatsService.todayUserDuration(FCtx.getId());//今日学习时长
+        Integer learnDuration = userLearnDurationStatsService.userDuration(FCtx.getId());//学习总时长
 
         // -------- 学习数据统计 ----------
         if (courses.size() > 0) {

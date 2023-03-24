@@ -3,6 +3,8 @@ package xyz.playedu.api.service;
 import xyz.playedu.api.domain.UserCourseHourRecord;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * @author tengteng
  * @description 针对表【user_course_hour_records】的数据库操作Service
@@ -14,4 +16,6 @@ public interface UserCourseHourRecordService extends IService<UserCourseHourReco
     UserCourseHourRecord storeOrUpdate(Integer userId, Integer courseId, Integer hourId, Integer duration, Integer totalDuration);
 
     Integer getFinishedHourCount(Integer userId, Integer courseId);
+
+    List<UserCourseHourRecord> getRecords(Integer userId, Integer courseId);
 }

@@ -60,7 +60,7 @@ public class FrontMiddleware implements HandlerInterceptor {
             }
 
             FCtx.setUser(user);
-            FCtx.setUserId(user.getId());
+            FCtx.setId(user.getId());
             FCtx.setJWtJti(payload.getJti());
 
             return HandlerInterceptor.super.preHandle(request, response, handler);

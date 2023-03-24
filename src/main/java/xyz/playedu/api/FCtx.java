@@ -35,11 +35,11 @@ public class FCtx {
         THREAD_LOCAL.remove();
     }
 
-    public static void setUserId(Integer id) {
+    public static void setId(Integer id) {
         put(KEY_USER_ID, id);
     }
 
-    public static Integer getUserId() {
+    public static Integer getId() {
         return (Integer) get(KEY_USER_ID);
     }
 

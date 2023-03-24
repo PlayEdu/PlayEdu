@@ -10,6 +10,7 @@ import xyz.playedu.api.mapper.UserCourseHourRecordMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author tengteng
@@ -80,6 +81,11 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
     @Override
     public Integer getFinishedHourCount(Integer userId, Integer courseId) {
         return Math.toIntExact(count(query().getWrapper().eq("user_id", userId).eq("course_id", courseId).eq("is_finished", 1)));
+    }
+
+    @Override
+    public List<UserCourseHourRecord> getRecords(Integer userId, Integer courseId) {
+        return list(query().getWrapper().eq("user_id", userId).eq("course_id", courseId));
     }
 }
 
