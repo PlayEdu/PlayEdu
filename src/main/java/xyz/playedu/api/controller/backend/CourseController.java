@@ -100,6 +100,7 @@ public class CourseController {
         Course course = courseService.createWithCategoryIdsAndDepIds(req.getTitle(), req.getThumb(), req.getShortDesc(), req.getIsRequired(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
 
         Date now = new Date();
+        Integer classHourCount = 0;
 
         if (req.getHours().size() > 0) {//无章节课时配置
             List<CourseHour> insertHours = new ArrayList<>();
@@ -118,6 +119,7 @@ public class CourseController {
             }
             if (insertHours.size() > 0) {
                 hourService.saveBatch(insertHours);
+                classHourCount = insertHours.size();
             }
         } else {
             if (req.getChapters() == null || req.getChapters().size() == 0) {
@@ -154,8 +156,14 @@ public class CourseController {
             }
             if (insertHours.size() > 0) {
                 hourService.saveBatch(insertHours);
+                classHourCount = insertHours.size();
             }
         }
+
+        if (classHourCount > 0) {
+            courseService.updateClassHour(course.getId(), classHourCount);
+        }
+
         return JsonResponse.success();
     }
 
