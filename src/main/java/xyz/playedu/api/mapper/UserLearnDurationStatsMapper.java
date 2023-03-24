@@ -13,8 +13,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 @Mapper
 public interface UserLearnDurationStatsMapper extends BaseMapper<UserLearnDurationStats> {
 
-    Integer getUserDateDuration(Integer userId, String createdDate);
-
     Integer getUserDuration(Integer userId);
 
 }

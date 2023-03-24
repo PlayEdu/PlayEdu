@@ -70,7 +70,12 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
     @Override
     public Integer todayUserDuration(Integer userId) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        return getBaseMapper().getUserDateDuration(userId, simpleDateFormat.format(new Date()));
+        String today = simpleDateFormat.format(new Date());
+        UserLearnDurationStats stats = getOne(query().getWrapper().eq("user_id", userId).eq("created_date", today));
+        if (stats == null) {
+            return 0;
+        }
+        return stats.getDuration();
     }
 
     @Override

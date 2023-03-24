@@ -48,6 +48,7 @@ public class Course implements Serializable {
     /**
      * 1:必修,0:选修
      */
+    @JsonProperty("is_required")
     private Integer isRequired;
 
     /**

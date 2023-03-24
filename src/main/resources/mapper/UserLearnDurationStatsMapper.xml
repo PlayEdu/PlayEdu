@@ -15,12 +15,6 @@
         id,user_id,duration,
         created_date
     </sql>
-    <select id="getUserDateDuration" resultType="java.lang.Integer">
-        SELECT `duration`
-        FROM `user_learn_duration_stats`
-        where `user_id` = #{userId}
-          and `created_date` = #{createdDate};
-    </select>
     <select id="getUserDuration" resultType="java.lang.Integer">
         SELECT sum(`duration`)
         FROM `user_learn_duration_stats`
