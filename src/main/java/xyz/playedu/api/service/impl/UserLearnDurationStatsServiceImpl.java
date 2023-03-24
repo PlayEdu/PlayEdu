@@ -66,6 +66,17 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
         String today = simpleDateFormat.format(new Date());
         return list(query().getWrapper().eq("created_date", today).orderByDesc("duration").last("limit 10"));
     }
+
+    @Override
+    public Integer todayUserDuration(Integer userId) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return getBaseMapper().getUserDateDuration(userId, simpleDateFormat.format(new Date()));
+    }
+
+    @Override
+    public Integer userDuration(Integer userId) {
+        return getBaseMapper().getUserDuration(userId);
+    }
 }
 
 
