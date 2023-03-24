@@ -15,4 +15,11 @@ public class FrontendConstant {
         add("/api/v1/auth/login/password");
     }};
 
+
+    public final static String USER_UPLOAD_IMAGE_TYPE_AVATAR = "avatar";
+
+    public final static String USER_UPLOAD_IMAGE_SCENE_AVATAR = "avatar";
+
+    public final static String DIR_AVATAR = "user/avatar/";
+
 }

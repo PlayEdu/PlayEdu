@@ -204,6 +204,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         });
         return result;
     }
+
+    @Override
+    public void changeAvatar(Integer userId, String avatar) {
+        User user = new User();
+        user.setId(userId);
+        user.setAvatar(avatar);
+        updateById(user);
+    }
 }
 
 

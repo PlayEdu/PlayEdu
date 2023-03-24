@@ -47,4 +47,6 @@ public interface UserService extends IService<User> {
     Long yesterdayCount();
 
     Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> userIds);
+
+    void changeAvatar(Integer userId, String avatar);
 }

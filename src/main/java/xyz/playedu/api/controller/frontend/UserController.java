@@ -5,11 +5,10 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import xyz.playedu.api.FCtx;
-import xyz.playedu.api.domain.Course;
-import xyz.playedu.api.domain.Department;
-import xyz.playedu.api.domain.User;
-import xyz.playedu.api.domain.UserCourseRecord;
+import xyz.playedu.api.constant.FrontendConstant;
+import xyz.playedu.api.domain.*;
 import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
 import xyz.playedu.api.service.*;
@@ -42,6 +41,9 @@ public class UserController {
     @Autowired
     private UserLearnDurationStatsService userLearnDurationStatsService;
 
+    @Autowired
+    private UploadService uploadService;
+
     @GetMapping("/detail")
     public JsonResponse detail() {
         User user = FCtx.getUser();
@@ -55,7 +57,9 @@ public class UserController {
     }
 
     @PutMapping("/avatar")
-    public JsonResponse changeAvatar() {
+    public JsonResponse changeAvatar(MultipartFile file) {
+        UserUploadImageLog log = uploadService.userAvatar(FCtx.getUserId(), file, FrontendConstant.USER_UPLOAD_IMAGE_TYPE_AVATAR, FrontendConstant.USER_UPLOAD_IMAGE_SCENE_AVATAR);
+        userService.changeAvatar(FCtx.getUserId(), log.getUrl());
         return JsonResponse.success();
     }
 
@@ -67,7 +71,6 @@ public class UserController {
 
     @GetMapping("/courses")
     public JsonResponse courses(@RequestParam HashMap<String, Object> params) {
-        Integer isRequired = MapUtils.getInteger(params, "is_required");
         Integer depId = MapUtils.getInteger(params, "dep_id");
         if (depId == null || depId == 0) {
             return JsonResponse.error("请选择部门");
