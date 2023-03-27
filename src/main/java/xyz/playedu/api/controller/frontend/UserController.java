@@ -13,6 +13,7 @@ import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
 import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.util.PrivacyUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,6 +49,10 @@ public class UserController {
     public JsonResponse detail() {
         User user = FCtx.getUser();
         List<Department> departments = departmentService.listByIds(userService.getDepIdsByUserId(user.getId()));
+
+        if (user.getIdCard() != null && user.getIdCard().length() > 0) {
+            user.setIdCard(PrivacyUtil.hideIDCard(user.getIdCard()));
+        }
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("user", user);
