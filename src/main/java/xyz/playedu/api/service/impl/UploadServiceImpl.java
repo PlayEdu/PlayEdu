@@ -128,6 +128,7 @@ public class UploadServiceImpl implements UploadService {
         log.setUserId(userId);
         log.setTyped(typed);
         log.setScene(scene);
+        log.setSize(info.getSize());
         log.setDriver(BackendConstant.STORAGE_DRIVER_MINIO);
         log.setPath(info.getSavePath());
         log.setUrl(info.getUrl());
