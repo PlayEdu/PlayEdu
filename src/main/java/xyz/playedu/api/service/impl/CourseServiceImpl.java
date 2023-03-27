@@ -175,7 +175,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public List<Course> getDepCoursesAndShow(List<Integer> depIds) {
-        return list(query().getWrapper().in("id", courseDepartmentService.getCourseIdsByDepIds(depIds)).eq("is_show", 1));
+        List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(depIds);
+        if (courseIds == null || courseIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        return list(query().getWrapper().in("id", courseIds).eq("is_show", 1));
     }
 
     @Override
