@@ -31,6 +31,7 @@
         from `user_course_hour_records` as `t1`
                  inner join (select `course_id`, max(`updated_at`) as `latest_at`
                              from `user_course_hour_records`
+                             where `user_id` = #{userId}
                              group by `course_id`) as `t2`
                             on `t2`.`course_id` = `t1`.`course_id` and
                                `t2`.`latest_at` = `t1`.`updated_at`
