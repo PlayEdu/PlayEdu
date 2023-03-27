@@ -19,7 +19,6 @@ public class UserDestroyListener {
     @Autowired
     private UserService userService;
 
-    @Order(1)
     @EventListener
     public void updateLoginInfo(UserDestroyEvent event) {
         userService.removeRelateDepartmentsByUserId(event.getUserId());

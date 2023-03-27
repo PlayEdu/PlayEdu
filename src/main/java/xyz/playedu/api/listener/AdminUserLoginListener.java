@@ -3,7 +3,6 @@ package xyz.playedu.api.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import xyz.playedu.api.constant.BackendLogConstant;
@@ -26,7 +25,6 @@ public class AdminUserLoginListener {
     @Autowired
     private AdminLogService adminLogService;
 
-    @Order(1)
     @EventListener
     public void updateLoginInfo(AdminUserLoginEvent event) {
         AdminUser adminUser = new AdminUser();
@@ -39,9 +37,8 @@ public class AdminUserLoginListener {
         adminUserService.updateById(adminUser);
     }
 
-    @Order(10)
-    @EventListener
     @Async
+    @EventListener
     public void log(AdminUserLoginEvent event) {
         String area = IpUtil.getRealAddressByIP(event.getIp());
 

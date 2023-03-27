@@ -19,8 +19,8 @@ public class UserLogoutListener {
     @Autowired
     private UserLoginRecordService userLoginRecordService;
 
-    @EventListener
     @Async
+    @EventListener
     public void updateLoginRecord(UserLogoutEvent event) {
         userLoginRecordService.logout(event.getUserId(), event.getJti());
     }

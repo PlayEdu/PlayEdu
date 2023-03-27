@@ -25,8 +25,8 @@ public class UserCourseHourFinishedListener {
     @Autowired
     private CourseHourService hourService;
 
-    @EventListener
     @Async
+    @EventListener
     public void userCourseProgressUpdate(UserCourseHourFinishedEvent evt) {
         Integer hourCount = hourService.getCountByCourseId(evt.getCourseId());
         Integer finishedCount = userCourseHourRecordService.getFinishedHourCount(evt.getUserId(), evt.getCourseId());

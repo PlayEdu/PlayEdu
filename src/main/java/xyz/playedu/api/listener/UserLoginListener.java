@@ -27,8 +27,8 @@ public class UserLoginListener {
     @Autowired
     private JWTService jwtService;
 
-    @EventListener
     @Async
+    @EventListener
     public void updateLoginInfo(UserLoginEvent event) throws JwtLogoutException {
         String ipArea = IpUtil.getRealAddressByIP(event.getIp());
         JWTPayload payload = jwtService.parse(event.getToken(), SystemConstant.JWT_PRV_USER);
