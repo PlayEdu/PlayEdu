@@ -5,23 +5,31 @@
 <mapper namespace="xyz.playedu.api.mapper.UserCourseHourRecordMapper">
 
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.UserCourseHourRecord">
-            <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="userId" column="user_id" jdbcType="INTEGER"/>
-            <result property="courseId" column="course_id" jdbcType="INTEGER"/>
-            <result property="hourId" column="hour_id" jdbcType="INTEGER"/>
-            <result property="totalDuration" column="total_duration" jdbcType="INTEGER"/>
-            <result property="finishedDuration" column="finished_duration" jdbcType="INTEGER"/>
-            <result property="realDuration" column="real_duration" jdbcType="INTEGER"/>
-            <result property="isFinished" column="is_finished" jdbcType="TINYINT"/>
-            <result property="finishedAt" column="finished_at" jdbcType="TIMESTAMP"/>
-            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
-            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+        <result property="hourId" column="hour_id" jdbcType="INTEGER"/>
+        <result property="totalDuration" column="total_duration" jdbcType="INTEGER"/>
+        <result property="finishedDuration" column="finished_duration" jdbcType="INTEGER"/>
+        <result property="realDuration" column="real_duration" jdbcType="INTEGER"/>
+        <result property="isFinished" column="is_finished" jdbcType="TINYINT"/>
+        <result property="finishedAt" column="finished_at" jdbcType="TIMESTAMP"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,course_id,
+        id
+        ,user_id,course_id,
         hour_id,total_duration,finished_duration,
         real_duration,is_finished,finished_at,
         created_at,updated_at
     </sql>
+
+    <select id="getLatestCourseIds" resultType="java.lang.Integer">
+        select distinct `user_course_hour_records`.`course_id`
+        from `user_course_hour_records`
+        where `user_course_hour_records`.`user_id` = #{userId}
+        order by `user_course_hour_records`.`updated_at` desc limit #{size};
+    </select>
 </mapper>

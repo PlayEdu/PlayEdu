@@ -87,6 +87,11 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
     public List<UserCourseHourRecord> getRecords(Integer userId, Integer courseId) {
         return list(query().getWrapper().eq("user_id", userId).eq("course_id", courseId));
     }
+
+    @Override
+    public List<Integer> getLatestCourseIds(Integer userId, Integer size) {
+        return getBaseMapper().getLatestCourseIds(userId, size);
+    }
 }
 
 

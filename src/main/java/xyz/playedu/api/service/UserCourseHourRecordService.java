@@ -18,4 +18,6 @@ public interface UserCourseHourRecordService extends IService<UserCourseHourReco
     Integer getFinishedHourCount(Integer userId, Integer courseId);
 
     List<UserCourseHourRecord> getRecords(Integer userId, Integer courseId);
+
+    List<Integer> getLatestCourseIds(Integer userId, Integer size);
 }

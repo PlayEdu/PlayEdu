@@ -13,6 +13,7 @@ import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
 import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.types.response.UserLatestLearn;
 import xyz.playedu.api.util.PrivacyUtil;
 
 import java.util.*;
@@ -38,6 +39,9 @@ public class UserController {
 
     @Autowired
     private UserCourseRecordService userCourseRecordService;
+
+    @Autowired
+    private UserCourseHourRecordService userCourseHourRecordService;
 
     @Autowired
     private UserLearnDurationStatsService userLearnDurationStatsService;
@@ -157,6 +161,39 @@ public class UserController {
         data.put("stats", stats);
 
         return JsonResponse.data(data);
+    }
+
+    @GetMapping("/latest-learn")
+    public JsonResponse latestLearn() {
+        // 读取当前学员最近100条学习的线上课
+        List<Integer> courseIds = userCourseHourRecordService.getLatestCourseIds(FCtx.getId(), 100);
+        if (courseIds == null || courseIds.size() == 0) {
+            return JsonResponse.data(new ArrayList<>());
+        }
+
+        // 线上课
+        Map<Integer, Course> courses = courseService.chunks(courseIds, new ArrayList<>() {{
+            add("id");
+            add("title");
+            add("thumb");
+            add("short_desc");
+            add("class_hour");
+            add("is_required");
+        }}).stream().collect(Collectors.toMap(Course::getId, e -> e));
+
+        // 获取学员的线上课进度
+        Map<Integer, UserCourseRecord> records = userCourseRecordService.chunk(FCtx.getId(), courseIds).stream().collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e));
+        List<UserLatestLearn> userLatestLearns = new ArrayList<>();
+        for (Integer courseId : courseIds) {
+            UserCourseRecord record = records.get(courseId);
+            Course tmpCourse = courses.get(courseId);
+            userLatestLearns.add(new UserLatestLearn() {{
+                setCourse(tmpCourse);
+                setUserCourseRecord(record);
+            }});
+        }
+
+        return JsonResponse.data(userLatestLearns);
     }
 
 }
