@@ -3,6 +3,8 @@ package xyz.playedu.api.types.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import xyz.playedu.api.domain.Course;
+import xyz.playedu.api.domain.CourseHour;
+import xyz.playedu.api.domain.UserCourseHourRecord;
 import xyz.playedu.api.domain.UserCourseRecord;
 
 /**
@@ -15,4 +17,8 @@ public class UserLatestLearn {
     private Course course;
     @JsonProperty("record")
     private UserCourseRecord userCourseRecord;
+    @JsonProperty("last_learn_hour")
+    private CourseHour lastLearnHour;
+    @JsonProperty("hour_record")
+    private UserCourseHourRecord hourRecord;
 }

@@ -90,8 +90,8 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
     }
 
     @Override
-    public List<Integer> getLatestCourseIds(Integer userId, Integer size) {
-        return getBaseMapper().getLatestCourseIds(userId, size);
+    public List<UserCourseHourRecord> getLatestCourseIds(Integer userId, Integer size) {
+        return getBaseMapper().getUserLatestRecords(userId, size);
     }
 }
 

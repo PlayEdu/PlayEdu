@@ -38,6 +38,9 @@ public class UserController {
     private CourseService courseService;
 
     @Autowired
+    private CourseHourService hourService;
+
+    @Autowired
     private UserCourseRecordService userCourseRecordService;
 
     @Autowired
@@ -166,10 +169,15 @@ public class UserController {
     @GetMapping("/latest-learn")
     public JsonResponse latestLearn() {
         // 读取当前学员最近100条学习的线上课
-        List<Integer> courseIds = userCourseHourRecordService.getLatestCourseIds(FCtx.getId(), 100);
-        if (courseIds == null || courseIds.size() == 0) {
+        List<UserCourseHourRecord> userCourseHourRecords = userCourseHourRecordService.getLatestCourseIds(FCtx.getId(), 100);
+        if (userCourseHourRecords == null || userCourseHourRecords.size() == 0) {
             return JsonResponse.data(new ArrayList<>());
         }
+
+        List<Integer> courseIds = userCourseHourRecords.stream().map(UserCourseHourRecord::getCourseId).toList();
+        List<Integer> hourIds = userCourseHourRecords.stream().map(UserCourseHourRecord::getHourId).toList();
+        Map<Integer, UserCourseHourRecord> hour2Record = userCourseHourRecords.stream().collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e));
+        Map<Integer, Integer> course2hour = userCourseHourRecords.stream().collect(Collectors.toMap(UserCourseHourRecord::getCourseId, UserCourseHourRecord::getHourId));
 
         // 线上课
         Map<Integer, Course> courses = courseService.chunks(courseIds, new ArrayList<>() {{
@@ -181,15 +189,24 @@ public class UserController {
             add("is_required");
         }}).stream().collect(Collectors.toMap(Course::getId, e -> e));
 
+        // 线上课课时
+        Map<Integer, CourseHour> hours = hourService.chunk(hourIds).stream().collect(Collectors.toMap(CourseHour::getId, e -> e));
+
         // 获取学员的线上课进度
         Map<Integer, UserCourseRecord> records = userCourseRecordService.chunk(FCtx.getId(), courseIds).stream().collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e));
         List<UserLatestLearn> userLatestLearns = new ArrayList<>();
         for (Integer courseId : courseIds) {
-            UserCourseRecord record = records.get(courseId);
-            Course tmpCourse = courses.get(courseId);
+            UserCourseRecord record = records.get(courseId);//线上课学习进度
+            Course tmpCourse = courses.get(courseId);//线上课
+            Integer tmpHourId = course2hour.get(courseId);//最近学习的课时id
+            UserCourseHourRecord tmpUserCourseHourRecord = hour2Record.get(tmpHourId);//课时学习进度
+            CourseHour tmpHour = hours.get(tmpHourId);//课时
+
             userLatestLearns.add(new UserLatestLearn() {{
                 setCourse(tmpCourse);
                 setUserCourseRecord(record);
+                setHourRecord(tmpUserCourseHourRecord);
+                setLastLearnHour(tmpHour);
             }});
         }
 

@@ -99,6 +99,11 @@ public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseH
     public List<Integer> getRidsByCourseId(Integer courseId, String type) {
         return list(query().getWrapper().eq("course_id", courseId).eq("type", type)).stream().map(CourseHour::getRid).toList();
     }
+
+    @Override
+    public List<CourseHour> chunk(List<Integer> hourIds) {
+        return list(query().getWrapper().in("id", hourIds));
+    }
 }
 
 

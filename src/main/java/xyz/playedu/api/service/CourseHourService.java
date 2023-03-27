@@ -30,4 +30,6 @@ public interface CourseHourService extends IService<CourseHour> {
     void updateSort(List<Integer> ids, Integer cid);
 
     List<Integer> getRidsByCourseId(Integer courseId, String type);
+
+    List<CourseHour> chunk(List<Integer> hourIds);
 }

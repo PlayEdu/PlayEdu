@@ -26,10 +26,16 @@
         created_at,updated_at
     </sql>
 
-    <select id="getLatestCourseIds" resultType="java.lang.Integer">
-        select distinct `user_course_hour_records`.`course_id`
-        from `user_course_hour_records`
-        where `user_course_hour_records`.`user_id` = #{userId}
-        order by `user_course_hour_records`.`updated_at` desc limit #{size};
+    <select id="getUserLatestRecords" resultType="xyz.playedu.api.domain.UserCourseHourRecord">
+        select `t1`.*
+        from `user_course_hour_records` as `t1`
+                 inner join (select `course_id`, max(`updated_at`) as `latest_at`
+                             from `user_course_hour_records`
+                             group by `course_id`) as `t2`
+                            on `t2`.`course_id` = `t1`.`course_id` and
+                               `t2`.`latest_at` = `t1`.`updated_at`
+        where `t1`.`user_id` = #{userId}
+        order by `t1`.`updated_at` desc
+            limit #{size};
     </select>
 </mapper>

@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Mapper
 public interface UserCourseHourRecordMapper extends BaseMapper<UserCourseHourRecord> {
-    List<Integer> getLatestCourseIds(Integer userId, Integer size);
+    List<UserCourseHourRecord> getUserLatestRecords(Integer userId, Integer size);
 }
 
 
