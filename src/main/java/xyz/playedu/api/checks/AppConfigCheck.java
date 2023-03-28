@@ -25,6 +25,7 @@ public class AppConfigCheck implements ApplicationRunner {
             setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
             setKeyName("system.name");
             setKeyValue("");
+            setHelp("请输入网站名");
         }}, new AppConfig() {{
             setName("Logo");
             setSort(20);
@@ -37,18 +38,28 @@ public class AppConfigCheck implements ApplicationRunner {
             setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
             setKeyName("system.api_url");
             setKeyValue("");
+            setHelp("请输入API访问地址");
         }}, new AppConfig() {{
             setName("PC端口访问地址");
             setSort(40);
             setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
             setKeyName("system.pc_url");
             setKeyValue("");
+            setHelp("请输入PC端访问地址");
         }}, new AppConfig() {{
             setName("H5端口访问地址");
             setSort(50);
             setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
             setKeyName("system.h5_url");
             setKeyValue("");
+            setHelp("请输入H5端访问地址");
+        }}, new AppConfig() {{
+            setName("网站页脚");
+            setSort(60);
+            setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
+            setKeyName("system.pc_index_footer_msg");
+            setKeyValue("");
+            setHelp("自定义一句话显示在前台页脚");
         }},});
         // 播放配置
         put("播放配置", new AppConfig[]{new AppConfig() {{
@@ -57,18 +68,21 @@ public class AppConfigCheck implements ApplicationRunner {
             setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_IMAGE);
             setKeyName("player.poster");
             setKeyValue("");
+            setHelp("播放器封面在学员观看视频时默认显示");
         }}, new AppConfig() {{
             setName("启用跑马灯");
             setSort(20);
             setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_SWITCH);
             setKeyName("player.is_enabled_bullet_secret");
             setKeyValue("0");
+            setHelp("开启之后视频播放器将会随机显示学员信息");
         }}, new AppConfig() {{
             setName("跑马灯内容");
             setSort(30);
             setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
             setKeyName("player.bullet_secret_text");
             setKeyValue("");
+            setHelp("请配置跑马灯显示的内容模板");
         }}, new AppConfig() {{
             setName("跑马灯颜色");
             setSort(40);

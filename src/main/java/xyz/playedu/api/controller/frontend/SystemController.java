@@ -38,6 +38,13 @@ public class SystemController {
         data.put("system-api-url", configs.get("system.api_url"));
         data.put("system-pc-url", configs.get("system.pc_url"));
         data.put("system-h5-url", configs.get("system.h5_url"));
+        data.put("system.pc_index_footer_msg", configs.get("system.pc_index_footer_msg"));
+
+        data.put("player-poster", configs.get("player.poster"));
+        data.put("player-is-enabled-bullet-secret", configs.get("player.is_enabled_bullet_secret"));
+        data.put("player-bullet-secret-text", configs.get("player.bullet_secret_text"));
+        data.put("player-bullet-secret-color", configs.get("player.bullet_secret_color"));
+        data.put("player-bullet-secret-opacity", configs.get("player.bullet_secret_opacity"));
 
         return JsonResponse.data(data);
     }
