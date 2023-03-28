@@ -103,7 +103,6 @@ public class DepartmentController {
         if (userIds != null && userIds.size() > 0) {
             data.put("users", userService.chunks(userIds, new ArrayList<>() {{
                 add("id");
-                add("nickname");
                 add("name");
                 add("avatar");
             }}));

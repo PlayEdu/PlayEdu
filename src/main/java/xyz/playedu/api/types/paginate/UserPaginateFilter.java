@@ -11,14 +11,9 @@ import java.util.Date;
 @Data
 public class UserPaginateFilter {
 
-    private String nickname;
-
     private String name;
-
     private String email;
-
     private String idCard;
-
     private Integer isActive;
     private Integer isLock;
     private Integer isVerify;
