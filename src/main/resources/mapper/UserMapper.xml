@@ -60,9 +60,6 @@
             <if test="name != null and name != ''">
                 AND `users`.`name` LIKE concat('%',#{name},'%')
             </if>
-            <if test="nickname != null and nickname != ''">
-                AND `users`.`nickname` LIKE concat('%',#{nickname},'%')
-            </if>
             <if test="email != null and email != ''">
                 AND `users`.`email` = #{email}
             </if>
@@ -114,9 +111,6 @@
             </if>
             <if test="name != null and name != ''">
                 AND `users`.`name` LIKE concat('%',#{name},'%')
-            </if>
-            <if test="nickname != null and nickname != ''">
-                AND `users`.`nickname` LIKE concat('%',#{nickname},'%')
             </if>
             <if test="email != null and email != ''">
                 AND `users`.`email` = #{email}
