@@ -97,10 +97,13 @@ public class CourseController {
     @PostMapping("/create")
     @Transactional
     public JsonResponse store(@RequestBody @Validated CourseRequest req) throws ParseException {
+        if (req.getShortDesc() != null && req.getShortDesc().length() > 200) {
+            return JsonResponse.error("课程简短介绍不能超过200字");
+        }
         Course course = courseService.createWithCategoryIdsAndDepIds(req.getTitle(), req.getThumb(), req.getShortDesc(), req.getIsRequired(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
 
         Date now = new Date();
-        Integer classHourCount = 0;
+        int classHourCount = 0;
 
         if (req.getHours().size() > 0) {//无章节课时配置
             List<CourseHour> insertHours = new ArrayList<>();
