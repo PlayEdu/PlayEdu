@@ -13,7 +13,7 @@ import java.util.List;
 public interface UserCourseHourRecordService extends IService<UserCourseHourRecord> {
     UserCourseHourRecord find(Integer userId, Integer courseId, Integer hourId);
 
-    UserCourseHourRecord storeOrUpdate(Integer userId, Integer courseId, Integer hourId, Integer duration, Integer totalDuration);
+    void storeOrUpdate(Integer userId, Integer courseId, Integer hourId, Integer duration, Integer totalDuration);
 
     Integer getFinishedHourCount(Integer userId, Integer courseId);
 

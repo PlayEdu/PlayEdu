@@ -1,7 +1,6 @@
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import xyz.playedu.api.domain.UserCourseHourRecord;
@@ -30,12 +29,12 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
     }
 
     @Override
-    public UserCourseHourRecord storeOrUpdate(Integer userId, Integer courseId, Integer hourId, Integer duration, Integer totalDuration) {
+    public void storeOrUpdate(Integer userId, Integer courseId, Integer hourId, Integer duration, Integer totalDuration) {
         UserCourseHourRecord record = find(userId, courseId, hourId);
 
-        // 已看完
+        // 记录存在 && 已看完 => 跳过处理
         if (record != null && record.getIsFinished() == 1) {
-            return record;
+            return;
         }
 
         // 是否看完
@@ -55,28 +54,20 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
             insertRecord.setUpdatedAt(new Date());
 
             save(insertRecord);
+        } else if (record.getFinishedDuration() < duration) {
+            UserCourseHourRecord updateRecord = new UserCourseHourRecord();
+            updateRecord.setId(record.getId());
+            updateRecord.setTotalDuration(totalDuration);
+            updateRecord.setFinishedDuration(duration);
+            updateRecord.setIsFinished(isFinished ? 1 : 0);
+            updateRecord.setFinishedAt(finishedAt);
 
-            record = insertRecord;
-        } else {
-            // 未看完 && 大于存在的观看记录时长
-            if (record.getFinishedDuration() < duration) {
-                UserCourseHourRecord updateRecord = new UserCourseHourRecord();
-                updateRecord.setId(record.getId());
-                updateRecord.setTotalDuration(totalDuration);
-                updateRecord.setFinishedDuration(duration);
-                updateRecord.setIsFinished(isFinished ? 1 : 0);
-                updateRecord.setFinishedAt(finishedAt);
-
-                updateById(updateRecord);
-                record = updateRecord;
-            }
+            updateById(updateRecord);
         }
 
         if (isFinished) {
-            ctx.publishEvent(new UserCourseHourFinishedEvent(this, record.getUserId(), record.getCourseId(), record.getHourId()));
+            ctx.publishEvent(new UserCourseHourFinishedEvent(this, userId, courseId, hourId));
         }
-
-        return record;
     }
 
     @Override
