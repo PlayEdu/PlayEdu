@@ -37,6 +37,9 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
         List<AppConfig> list = new ArrayList<>();
 
         data.forEach((keyNameValue, keyValueValue) -> {
+            if (keyValueValue == null) {
+                return;
+            }
             if ("******".equals(keyNameValue)) {//私密信息默认place
                 return;
             }
