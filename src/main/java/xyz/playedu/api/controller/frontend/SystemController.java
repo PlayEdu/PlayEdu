@@ -38,7 +38,7 @@ public class SystemController {
         data.put("system-api-url", configs.get("system.api_url"));
         data.put("system-pc-url", configs.get("system.pc_url"));
         data.put("system-h5-url", configs.get("system.h5_url"));
-        data.put("system.pc-index-footer-msg", configs.get("system.pc_index_footer_msg"));
+        data.put("system-pc-index-footer-msg", configs.get("system.pc_index_footer_msg"));
 
         data.put("player-poster", configs.get("player.poster"));
         data.put("player-is-enabled-bullet-secret", configs.get("player.is_enabled_bullet_secret"));
