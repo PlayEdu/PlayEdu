@@ -68,11 +68,8 @@ public class HourController {
             return JsonResponse.error("duration参数错误");
         }
         User user = FCtx.getUser();
-        // 线上课检测
         Course course = courseCache.findOrFail(courseId);
-        // 权限校验
         userCanSeeCourseCache.check(user, course, true);
-        // 课时检测
         CourseHour hour = hourService.findOrFail(id, courseId);
 
         userCourseHourRecordService.storeOrUpdate(user.getId(), course.getId(), hour.getId(), duration, hour.getDuration());
