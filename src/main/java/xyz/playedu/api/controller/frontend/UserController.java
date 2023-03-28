@@ -128,10 +128,12 @@ public class UserController {
         }
         data.put("learn_course_records", learnCourseRecords);
 
-        int requiredHourCount = 0;//必修课时
-        int nunRequiredHourCount = 0;//选修课时
+        int requiredCourseCount = 0;
+        int nunRequiredCourseCount = 0;
         int requiredFinishedCourseCount = 0;//已完成必修课
         int nunRequiredFinishedCourseCount = 0;//已完成选修课
+        int requiredHourCount = 0;//必修课时
+        int nunRequiredHourCount = 0;//选修课时
         int requiredFinishedHourCount = 0;//已完成必修课时
         int nunRequiredFinishedHourCount = 0;//已完成选修课时
         int todayLearnDuration = userLearnDurationStatsService.todayUserDuration(FCtx.getId());//今日学习时长
@@ -142,8 +144,10 @@ public class UserController {
             for (Course courseItem : courses) {
                 if (courseItem.getIsRequired() == 1) {
                     requiredHourCount += courseItem.getClassHour();
+                    requiredCourseCount += 1;
                 } else {
                     nunRequiredHourCount += courseItem.getClassHour();
+                    nunRequiredCourseCount += 1;
                 }
                 UserCourseRecord learnRecord = learnCourseRecords.get(courseItem.getId());
                 if (learnRecord == null) {
@@ -163,10 +167,12 @@ public class UserController {
             }
         }
         HashMap<String, Integer> stats = new HashMap<>();
-        stats.put("required_hour_count", requiredHourCount);
-        stats.put("nun_required_hour_count", nunRequiredHourCount);
+        stats.put("required_course_count", requiredCourseCount);
+        stats.put("nun_required_course_count", nunRequiredCourseCount);
         stats.put("required_finished_course_count", requiredFinishedCourseCount);
         stats.put("nun_required_finished_course_count", nunRequiredFinishedCourseCount);
+        stats.put("required_hour_count", requiredHourCount);
+        stats.put("nun_required_hour_count", nunRequiredHourCount);
         stats.put("required_finished_hour_count", requiredFinishedHourCount);
         stats.put("nun_required_finished_hour_count", nunRequiredFinishedHourCount);
         stats.put("today_learn_duration", todayLearnDuration);
