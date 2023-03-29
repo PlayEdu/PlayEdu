@@ -3,6 +3,7 @@ package xyz.playedu.api.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import xyz.playedu.api.domain.UserCourseHourRecord;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ import java.util.List;
 @Mapper
 public interface UserCourseHourRecordMapper extends BaseMapper<UserCourseHourRecord> {
     List<UserCourseHourRecord> getUserLatestRecords(Integer userId, Integer size);
+
+    List<UserCourseHourRecordCountMapper> getUserCourseHourCount(Integer userId, List<Integer> courseIds, Integer isFinished);
 }
 
 

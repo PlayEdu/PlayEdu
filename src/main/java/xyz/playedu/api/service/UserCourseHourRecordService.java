@@ -2,6 +2,7 @@ package xyz.playedu.api.service;
 
 import xyz.playedu.api.domain.UserCourseHourRecord;
 import com.baomidou.mybatisplus.extension.service.IService;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
 
 import java.util.List;
 
@@ -22,4 +23,6 @@ public interface UserCourseHourRecordService extends IService<UserCourseHourReco
     List<UserCourseHourRecord> getLatestCourseIds(Integer userId, Integer size);
 
     void removeByCourseId(Integer courseId);
+
+    List<UserCourseHourRecordCountMapper> getUserCourseHourCount(Integer userId, List<Integer> courseIds, Integer isFinished);
 }

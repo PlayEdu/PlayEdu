@@ -39,4 +39,17 @@
         order by `t1`.`updated_at` desc
             limit #{size};
     </select>
+    <select id="getUserCourseHourCount"
+            resultType="xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper">
+        SELECT `course_id`, count(1) AS `total`
+        FROM `user_course_hour_records`
+        WHERE `user_id` = #{userId}
+        <if test="courseIds != null and #{courseIds}.size() > 0">
+            AND `course_id` IN (<foreach collection="courseIds" item="courseId" separator=",">#{courseId}</foreach>)
+        </if>
+        <if test="isFinished != null">
+            AND `is_finisehd` = #{isFinished}
+        </if>
+        GROUP BY `course_id`;
+    </select>
 </mapper>

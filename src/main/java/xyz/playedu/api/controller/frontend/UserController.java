@@ -13,6 +13,7 @@ import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
 import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
 import xyz.playedu.api.types.response.UserLatestLearn;
 import xyz.playedu.api.util.PrivacyUtil;
 
@@ -121,10 +122,12 @@ public class UserController {
 
         data.put("courses", courses);
 
+        List<Integer> courseIds = courses.stream().map(Course::getId).toList();
+
         // -------- 读取学习进度 ----------
         Map<Integer, UserCourseRecord> learnCourseRecords = new HashMap<>();
         if (courses.size() > 0) {
-            learnCourseRecords = userCourseRecordService.chunk(FCtx.getId(), courses.stream().map(Course::getId).toList()).stream().collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e));
+            learnCourseRecords = userCourseRecordService.chunk(FCtx.getId(), courseIds).stream().collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e));
         }
         data.put("learn_course_records", learnCourseRecords);
 
@@ -167,17 +170,20 @@ public class UserController {
             }
         }
         HashMap<String, Integer> stats = new HashMap<>();
-        stats.put("required_course_count", requiredCourseCount);
-        stats.put("nun_required_course_count", nunRequiredCourseCount);
-        stats.put("required_finished_course_count", requiredFinishedCourseCount);
-        stats.put("nun_required_finished_course_count", nunRequiredFinishedCourseCount);
-        stats.put("required_hour_count", requiredHourCount);
-        stats.put("nun_required_hour_count", nunRequiredHourCount);
-        stats.put("required_finished_hour_count", requiredFinishedHourCount);
-        stats.put("nun_required_finished_hour_count", nunRequiredFinishedHourCount);
-        stats.put("today_learn_duration", todayLearnDuration);
-        stats.put("learn_duration", learnDuration);
+        stats.put("required_course_count", requiredCourseCount);//必修课数量
+        stats.put("nun_required_course_count", nunRequiredCourseCount);//选修课数量
+        stats.put("required_finished_course_count", requiredFinishedCourseCount);//必修已完成线上课数
+        stats.put("nun_required_finished_course_count", nunRequiredFinishedCourseCount);//选修已完成线上课数
+        stats.put("required_hour_count", requiredHourCount);//必修课时总数
+        stats.put("nun_required_hour_count", nunRequiredHourCount);//选修课时总数
+        stats.put("required_finished_hour_count", requiredFinishedHourCount);//必修已完成课时数
+        stats.put("nun_required_finished_hour_count", nunRequiredFinishedHourCount);//选修已完成课时数
+        stats.put("today_learn_duration", todayLearnDuration);//今日学习时长[单位:毫秒]
+        stats.put("learn_duration", learnDuration);//学习总时长[单位:毫秒]
         data.put("stats", stats);
+
+        // 当前学员每个线上课的学习课时数量(只要学习了就算，不一定需要完成)
+        data.put("user_course_hour_count", userCourseHourRecordService.getUserCourseHourCount(FCtx.getId(), courseIds, null).stream().collect(Collectors.toMap(UserCourseHourRecordCountMapper::getCourseId, UserCourseHourRecordCountMapper::getTotal)));
 
         return JsonResponse.data(data);
     }

@@ -34,9 +34,9 @@ spring:
   task:
     execution:
       pool:
-        max-size: 8 #最大线程数量
-        core-size: 4 #初始化线程数量
-        queue-capacity: 1000 #队列最大长度
+        max-size: 4 #最大线程数量
+        core-size: 2 #初始化线程数量
+        queue-capacity: 10000 #队列最大长度
         keep-alive: 60s #线程终止前允许保存的最大时间
       shutdown:
         await-termination: true

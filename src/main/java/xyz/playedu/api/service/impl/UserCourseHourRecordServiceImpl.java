@@ -8,6 +8,7 @@ import xyz.playedu.api.event.UserCourseHourFinishedEvent;
 import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.mapper.UserCourseHourRecordMapper;
 import org.springframework.stereotype.Service;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
 
 import java.util.Date;
 import java.util.List;
@@ -88,6 +89,11 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
     @Override
     public void removeByCourseId(Integer courseId) {
         remove(query().getWrapper().eq("course_id", courseId));
+    }
+
+    @Override
+    public List<UserCourseHourRecordCountMapper> getUserCourseHourCount(Integer userId, List<Integer> courseIds, Integer isFinished) {
+        return getBaseMapper().getUserCourseHourCount(userId, courseIds, isFinished);
     }
 }
 
