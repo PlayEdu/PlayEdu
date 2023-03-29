@@ -87,6 +87,9 @@ public class UploadController {
         if (type == null) {
             return JsonResponse.error("当前格式不支持上传");
         }
+        String extension = req.getExtension();
+        String originalFilename = req.getOriginalFilename().replaceAll("(?i)." + extension, "");
+
         // 合并视频文件
         String url = minioService.merge(req.getFilename(), req.getUploadId());
 
@@ -95,8 +98,8 @@ public class UploadController {
                 BCtx.getId(),
                 req.getCategoryIds(),
                 type,
-                req.getOriginalFilename(),
-                req.getExtension(),
+                originalFilename,
+                extension,
                 req.getSize(),
                 BackendConstant.STORAGE_DRIVER_MINIO,
                 "",

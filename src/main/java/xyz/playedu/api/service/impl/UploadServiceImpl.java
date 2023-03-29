@@ -60,7 +60,7 @@ public class UploadServiceImpl implements UploadService {
         }
 
         // 上传原文件的文件名
-        fileInfo.setOriginalName(filename.replaceAll("." + fileInfo.getExtension(), ""));
+        fileInfo.setOriginalName(filename.replaceAll("(?i)." + fileInfo.getExtension(), ""));
         // 自定义新的存储文件名
         fileInfo.setSaveName(HelperUtil.randomString(32) + "." + fileInfo.getExtension());
         // 生成保存的相对路径
