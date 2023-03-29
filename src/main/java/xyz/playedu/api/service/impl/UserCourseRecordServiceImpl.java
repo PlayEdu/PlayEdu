@@ -94,6 +94,11 @@ public class UserCourseRecordServiceImpl extends ServiceImpl<UserCourseRecordMap
     public void destroy(Integer courseId, List<Integer> ids) {
         remove(query().getWrapper().in("id", ids).eq("course_id", courseId));
     }
+
+    @Override
+    public void removeByCourseId(Integer courseId) {
+        remove(query().getWrapper().eq("course_id", courseId));
+    }
 }
 
 

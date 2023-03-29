@@ -23,4 +23,6 @@ public interface UserCourseRecordService extends IService<UserCourseRecord> {
     PaginationResult<UserCourseRecord> paginate(int page, int size, CourseUserPaginateFilter filter);
 
     void destroy(Integer courseId, List<Integer> ids);
+
+    void removeByCourseId(Integer courseId);
 }
