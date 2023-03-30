@@ -14,6 +14,7 @@ import xyz.playedu.api.event.UserLoginEvent;
 import xyz.playedu.api.event.UserLogoutEvent;
 import xyz.playedu.api.exception.JwtLogoutException;
 import xyz.playedu.api.exception.LimitException;
+import xyz.playedu.api.middleware.ImageCaptchaCheckMiddleware;
 import xyz.playedu.api.request.frontend.LoginPasswordRequest;
 import xyz.playedu.api.service.JWTService;
 import xyz.playedu.api.service.UserService;
@@ -43,6 +44,7 @@ public class LoginController {
     private ApplicationContext ctx;
 
     @PostMapping("/password")
+    @ImageCaptchaCheckMiddleware
     public JsonResponse password(@RequestBody @Validated LoginPasswordRequest req) throws LimitException {
         String email = req.getEmail();
 
