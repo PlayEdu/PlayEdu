@@ -80,7 +80,8 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
 
     @Override
     public Integer userDuration(Integer userId) {
-        return getBaseMapper().getUserDuration(userId);
+        Integer totalDuration = getBaseMapper().getUserDuration(userId);
+        return totalDuration == null ? 0 : totalDuration;
     }
 }
 

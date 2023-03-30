@@ -139,8 +139,8 @@ public class UserController {
         int nunRequiredHourCount = 0;//选修课时
         int requiredFinishedHourCount = 0;//已完成必修课时
         int nunRequiredFinishedHourCount = 0;//已完成选修课时
-        int todayLearnDuration = userLearnDurationStatsService.todayUserDuration(FCtx.getId());//今日学习时长
-        int learnDuration = userLearnDurationStatsService.userDuration(FCtx.getId());//学习总时长
+        Integer todayLearnDuration = userLearnDurationStatsService.todayUserDuration(FCtx.getId());//今日学习时长
+        Integer learnDuration = userLearnDurationStatsService.userDuration(FCtx.getId());//学习总时长
 
         // -------- 学习数据统计 ----------
         if (courses.size() > 0) {
