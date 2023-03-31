@@ -10,6 +10,7 @@ import xyz.playedu.api.mapper.UserCourseHourRecordMapper;
 import org.springframework.stereotype.Service;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -93,6 +94,9 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
 
     @Override
     public List<UserCourseHourRecordCountMapper> getUserCourseHourCount(Integer userId, List<Integer> courseIds, Integer isFinished) {
+        if (courseIds == null || courseIds.size() == 0) {
+            return new ArrayList<>();
+        }
         return getBaseMapper().getUserCourseHourCount(userId, courseIds, isFinished);
     }
 }
