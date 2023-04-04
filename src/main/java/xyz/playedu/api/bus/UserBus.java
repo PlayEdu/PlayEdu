@@ -46,14 +46,14 @@ public class UserBus {
         }
         return CollectionUtils.intersection(courseDepIds, userDepIds).size() > 0;
     }
-    
+
     public void userLearnDurationRecord(User user, Course course, CourseHour hour) {
         Long curTime = System.currentTimeMillis();
 
         // 最近一次学习时间
         Long lastTime = userLastLearnTimeCache.get(FCtx.getId());
-        // 最大周期为10s
-        if (lastTime == null || curTime - lastTime > 10000) {
+        // 最大周期为10s+0.5s的网络延迟
+        if (lastTime == null || curTime - lastTime > 10500) {
             lastTime = curTime - 10000;
         }
 
