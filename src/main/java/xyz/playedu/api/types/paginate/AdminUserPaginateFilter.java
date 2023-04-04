@@ -11,4 +11,6 @@ public class AdminUserPaginateFilter {
 
     private String name;
 
+    private Integer roleId;
+
 }

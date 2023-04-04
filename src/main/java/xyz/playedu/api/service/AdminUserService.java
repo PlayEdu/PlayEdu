@@ -8,6 +8,7 @@ import xyz.playedu.api.types.paginate.AdminUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tengteng
@@ -44,4 +45,6 @@ public interface AdminUserService extends IService<AdminUser> {
     List<AdminUser> chunks(List<Integer> ids);
 
     Long total();
+
+    Map<Integer, List<Integer>> getAdminUserRoleIds(List<Integer> userIds);
 }

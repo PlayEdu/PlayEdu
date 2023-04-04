@@ -6,6 +6,8 @@ import xyz.playedu.api.service.internal.AdminUserRoleService;
 import xyz.playedu.api.mapper.AdminUserRoleMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author tengteng
  * @description 针对表【admin_user_role】的数据库操作Service实现
@@ -13,6 +15,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AdminUserRoleServiceImpl extends ServiceImpl<AdminUserRoleMapper, AdminUserRole> implements AdminUserRoleService {
+    @Override
+    public List<Integer> getAdminUserIds(Integer roleId) {
+        return list(query().getWrapper().eq("role_id", roleId)).stream().map(AdminUserRole::getAdminId).toList();
+    }
 }
 
 

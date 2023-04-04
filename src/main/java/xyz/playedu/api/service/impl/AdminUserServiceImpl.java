@@ -18,9 +18,8 @@ import xyz.playedu.api.types.paginate.AdminUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.util.HelperUtil;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser> implements AdminUserService {
@@ -31,8 +30,17 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
     public PaginationResult<AdminUser> paginate(int page, int size, AdminUserPaginateFilter filter) {
         QueryWrapper<AdminUser> wrapper = query().getWrapper().eq("1", "1");
 
-        if (filter.getName() != null) {
+        if (filter.getName() != null && filter.getName().trim().length() > 0) {
             wrapper.like("name", "%" + filter.getName() + "%");
+        }
+        if (filter.getRoleId() != null) {
+            List<Integer> userIds = userRoleService.getAdminUserIds(filter.getRoleId());
+            if (userIds == null || userIds.size() == 0) {
+                userIds = new ArrayList<>() {{
+                    add(0);
+                }};
+            }
+            wrapper.in("id", userIds);
         }
 
         IPage<AdminUser> pageObj = new Page<>(page, size);
@@ -179,6 +187,16 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
     @Override
     public Long total() {
         return count();
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getAdminUserRoleIds(List<Integer> userIds) {
+        Map<Integer, List<AdminUserRole>> records = userRoleService.list(userRoleService.query().getWrapper().in("admin_id", userIds)).stream().collect(Collectors.groupingBy(AdminUserRole::getAdminId));
+        Map<Integer, List<Integer>> data = new HashMap<>();
+        records.forEach((adminId, record) -> {
+            data.put(adminId, record.stream().map(AdminUserRole::getRoleId).toList());
+        });
+        return data;
     }
 }
 

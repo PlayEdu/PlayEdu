@@ -20,6 +20,8 @@ import xyz.playedu.api.types.JsonResponse;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -38,15 +40,26 @@ public class AdminUserController {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
         String name = MapUtils.getString(params, "name");
+        Integer roleId = MapUtils.getInteger(params, "role_id");
 
         AdminUserPaginateFilter filter = new AdminUserPaginateFilter();
-        if (name != null && name.length() > 0) {
-            filter.setName(name);
-        }
+        filter.setName(name);
+        filter.setRoleId(roleId);
 
         PaginationResult<AdminUser> result = adminUserService.paginate(page, size, filter);
 
-        return JsonResponse.data(result);
+        Map<Integer, List<Integer>> userRoleIds = new HashMap<>();
+        if (result.getData() != null && result.getData().size() > 0) {
+            userRoleIds = adminUserService.getAdminUserRoleIds(result.getData().stream().map(AdminUser::getId).toList());
+        }
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("data", result.getData());
+        data.put("total", result.getTotal());
+        data.put("user_role_ids", userRoleIds);
+        data.put("roles", roleService.list().stream().collect(Collectors.groupingBy(AdminRole::getId)));
+
+        return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)

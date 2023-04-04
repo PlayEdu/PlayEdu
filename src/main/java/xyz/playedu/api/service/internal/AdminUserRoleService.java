@@ -11,4 +11,5 @@ import java.util.List;
  * @createDate 2023-02-21 16:25:43
  */
 public interface AdminUserRoleService extends IService<AdminUserRole> {
+    List<Integer> getAdminUserIds(Integer roleId);
 }
