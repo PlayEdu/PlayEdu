@@ -99,6 +99,11 @@ public class UserCourseRecordServiceImpl extends ServiceImpl<UserCourseRecordMap
     public void removeByCourseId(Integer courseId) {
         remove(query().getWrapper().eq("course_id", courseId));
     }
+
+    @Override
+    public List<UserCourseRecord> chunks(List<Integer> ids, List<String> fields) {
+        return list(query().getWrapper().in("id", ids).select(fields));
+    }
 }
 
 

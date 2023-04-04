@@ -99,6 +99,11 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
         }
         return getBaseMapper().getUserCourseHourCount(userId, courseIds, isFinished);
     }
+
+    @Override
+    public void remove(Integer userId, Integer courseId) {
+        remove(query().getWrapper().eq("user_id", userId).eq("course_id", courseId));
+    }
 }
 
 

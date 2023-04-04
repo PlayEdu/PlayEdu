@@ -2,9 +2,11 @@ package xyz.playedu.api.controller.backend;
 
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.domain.UserCourseRecord;
+import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
 import xyz.playedu.api.request.backend.CourseUserDestroyRequest;
 import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.service.UserService;
@@ -12,7 +14,9 @@ import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.CourseUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -27,6 +31,9 @@ public class CourseUserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ApplicationContext ctx;
 
     @GetMapping("/index")
     public JsonResponse index(@PathVariable(name = "courseId") Integer courseId, @RequestParam HashMap<String, Object> params) {
@@ -61,7 +68,14 @@ public class CourseUserController {
         if (req.getIds().size() == 0) {
             return JsonResponse.error("请选择需要删除的数据");
         }
-        userCourseRecordService.destroy(courseId, req.getIds());
+        List<UserCourseRecord> records = userCourseRecordService.chunks(req.getIds(), new ArrayList<>() {{
+            add("user_id");
+            add("id");
+        }});
+        for (UserCourseRecord record : records) {
+            userCourseRecordService.removeById(record);
+            ctx.publishEvent(new UserCourseRecordDestroyEvent(this, record.getUserId(), courseId));
+        }
         return JsonResponse.success();
     }
 
