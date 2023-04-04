@@ -36,7 +36,6 @@ public class AdminRoleController {
     @Autowired
     private AdminPermissionService permissionService;
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @GetMapping("/index")
     public JsonResponse index() {
         List<AdminRole> data = roleService.list();
