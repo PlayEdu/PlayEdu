@@ -32,7 +32,7 @@ public class UserLearnDurationStats implements Serializable {
     /**
      * 
      */
-    private Integer duration;
+    private Long duration;
 
     /**
      * 

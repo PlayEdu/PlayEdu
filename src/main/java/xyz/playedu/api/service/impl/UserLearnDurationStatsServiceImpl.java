@@ -32,7 +32,7 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
         if (stats == null) {
             UserLearnDurationStats newStats = new UserLearnDurationStats();
             newStats.setUserId(userId);
-            newStats.setDuration(Math.toIntExact(duration));
+            newStats.setDuration(duration);
             newStats.setCreatedDate(simpleDateFormat.parse(date));
             save(newStats);
             return;
@@ -40,7 +40,7 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
 
         UserLearnDurationStats newStats = new UserLearnDurationStats();
         newStats.setId(stats.getId());
-        newStats.setDuration((int) (stats.getDuration() + duration));
+        newStats.setDuration(stats.getDuration() + duration);
         updateById(newStats);
     }
 
@@ -68,20 +68,20 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
     }
 
     @Override
-    public Integer todayUserDuration(Integer userId) {
+    public Long todayUserDuration(Integer userId) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String today = simpleDateFormat.format(new Date());
         UserLearnDurationStats stats = getOne(query().getWrapper().eq("user_id", userId).eq("created_date", today));
         if (stats == null) {
-            return 0;
+            return 0L;
         }
         return stats.getDuration();
     }
 
     @Override
-    public Integer userDuration(Integer userId) {
-        Integer totalDuration = getBaseMapper().getUserDuration(userId);
-        return totalDuration == null ? 0 : totalDuration;
+    public Long userDuration(Integer userId) {
+        Long totalDuration = getBaseMapper().getUserDuration(userId);
+        return totalDuration == null ? 0L : totalDuration;
     }
 }
 

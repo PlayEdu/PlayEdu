@@ -19,7 +19,7 @@ public interface UserLearnDurationStatsService extends IService<UserLearnDuratio
 
     List<UserLearnDurationStats> top10();
 
-    Integer todayUserDuration(Integer userId);
+    Long todayUserDuration(Integer userId);
 
-    Integer userDuration(Integer userId);
+    Long userDuration(Integer userId);
 }

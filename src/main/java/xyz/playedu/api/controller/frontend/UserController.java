@@ -139,8 +139,8 @@ public class UserController {
         int nunRequiredHourCount = 0;//选修课时
         int requiredFinishedHourCount = 0;//已完成必修课时
         int nunRequiredFinishedHourCount = 0;//已完成选修课时
-        Integer todayLearnDuration = userLearnDurationStatsService.todayUserDuration(FCtx.getId());//今日学习时长
-        Integer learnDuration = userLearnDurationStatsService.userDuration(FCtx.getId());//学习总时长
+        Long todayLearnDuration = userLearnDurationStatsService.todayUserDuration(FCtx.getId());//今日学习时长
+        Long learnDuration = userLearnDurationStatsService.userDuration(FCtx.getId());//学习总时长
 
         // -------- 学习数据统计 ----------
         if (courses.size() > 0) {
@@ -169,7 +169,7 @@ public class UserController {
                 }
             }
         }
-        HashMap<String, Integer> stats = new HashMap<>();
+        HashMap<String, Object> stats = new HashMap<>();
         stats.put("required_course_count", requiredCourseCount);//必修课数量
         stats.put("nun_required_course_count", nunRequiredCourseCount);//选修课数量
         stats.put("required_finished_course_count", requiredFinishedCourseCount);//必修已完成线上课数

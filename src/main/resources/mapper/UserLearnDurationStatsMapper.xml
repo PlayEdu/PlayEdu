@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.UserLearnDurationStats">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
-            <result property="duration" column="duration" jdbcType="INTEGER"/>
+            <result property="duration" column="duration" jdbcType="BIGINT"/>
             <result property="createdDate" column="created_date" jdbcType="DATE"/>
     </resultMap>
 
@@ -15,7 +15,7 @@
         id,user_id,duration,
         created_date
     </sql>
-    <select id="getUserDuration" resultType="java.lang.Integer">
+    <select id="getUserDuration" resultType="java.lang.Long">
         SELECT sum(`duration`)
         FROM `user_learn_duration_stats`
         where `user_id` = #{userId};
