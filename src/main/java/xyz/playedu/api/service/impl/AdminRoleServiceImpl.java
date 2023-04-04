@@ -11,6 +11,7 @@ import xyz.playedu.api.service.internal.AdminRolePermissionService;
 import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.mapper.AdminRoleMapper;
 import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.internal.AdminUserRoleService;
 import xyz.playedu.api.util.HelperUtil;
 
 import java.util.ArrayList;
@@ -27,6 +28,9 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
 
     @Autowired
     private AdminRolePermissionService rolePermissionService;
+
+    @Autowired
+    private AdminUserRoleService userRoleService;
 
     @Override
     public AdminRole getBySlug(String slug) {
@@ -98,6 +102,7 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
     public void removeWithPermissions(AdminRole role) {
         removeRelatePermissionByRoleId(role.getId());
         removeById(role.getId());
+        userRoleService.remove(userRoleService.query().getWrapper().eq("role_id", role.getId()));
     }
 
     @Override

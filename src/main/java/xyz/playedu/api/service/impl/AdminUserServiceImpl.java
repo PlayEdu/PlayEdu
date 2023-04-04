@@ -166,8 +166,7 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
 
     @Override
     public void removeRelateRolesByUserId(Integer userId) {
-        QueryWrapper<AdminUserRole> wrapper = userRoleService.query().getWrapper().eq("admin_id", userId);
-        userRoleService.remove(wrapper);
+        userRoleService.remove(userRoleService.query().getWrapper().eq("admin_id", userId));
     }
 
     @Override
