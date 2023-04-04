@@ -35,7 +35,6 @@
                              group by `course_id`) as `t2`
                             on `t2`.`course_id` = `t1`.`course_id` and
                                `t2`.`latest_at` = `t1`.`updated_at`
-        where `t1`.`user_id` = #{userId}
         order by `t1`.`updated_at` desc
             limit #{size};
     </select>
