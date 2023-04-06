@@ -8,9 +8,9 @@ spring:
     proxy-target-class: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: "jdbc:mysql://192.168.3.9:33060/java-meedu?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false"
-    username: "root"
-    password: "root"
+    url: "jdbc:mysql://127.0.0.1:3306/dbname?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false"
+    username: ""
+    password: ""
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       minimum-idle: 5       # 最小连接数
@@ -19,7 +19,7 @@ spring:
   # Redis配置
   data:
     redis:
-      host: "192.168.3.9"
+      host: "127.0.0.1"
       port: 6379
       password:
       database: 0
@@ -44,11 +44,11 @@ spring:
 
 # Minio
 minio:
-  access-key: "username"
-  secret-key: "password"
-  end-point: "http://192.168.3.9:9000"
-  bucket: "playedu"
-  domain: "https://dev-local3.meedu.vip/"
+  access-key: ""
+  secret-key: ""
+  end-point: ""
+  bucket: ""
+  domain: ""
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
