@@ -6,7 +6,7 @@
     <!-- 定义参数 -->
     <property name="log.lever" value="debug"/>
     <property name="log.maxHistory" value="365"/>
-    <property name="log.filePath" value="logs"></property>
+    <property name="log.filePath" value="logs" />
     <property name="log.pattern" value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n"/>
 
     <!-- 控制台设置 -->

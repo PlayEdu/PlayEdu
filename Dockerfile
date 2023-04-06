@@ -1,11 +1,12 @@
-FROM openjdk:17
-MAINTAINER 杭州白书科技有限公司 "tengyongzhi@meedu.vip"
+FROM openjdk:17-slim
+
+WORKDIR /app
 
 # 使用东八区时间环境
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 # 将指定目录下的jar包复制到docker容器的/目录下
-COPY /target/*.jar /app.jar
+COPY /target/playedu-api-*.jar /app/app.jar
 
 # 声明服务运行在8080端口
 EXPOSE 9898
