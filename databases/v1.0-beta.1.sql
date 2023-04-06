@@ -79,6 +79,10 @@ CREATE TABLE `admin_roles` (
   UNIQUE KEY `slug` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+INSERT INTO `admin_roles` (`name`, `slug`, `created_at`, `updated_at`)
+VALUES
+    ('超级管理角色', 'super-role', '2023-02-24 06:19:15', '2023-02-24 06:19:15');
+
 
 
 # Dump of table admin_user_role
@@ -90,6 +94,10 @@ CREATE TABLE `admin_user_role` (
   KEY `admin_id` (`admin_id`),
   KEY `role_id` (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `admin_user_role` (`admin_id`, `role_id`)
+VALUES
+    (1, 1);
 
 
 
@@ -111,6 +119,10 @@ CREATE TABLE `admin_users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `administrators_email_unique` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `admin_users` (`name`, `email`, `password`, `salt`, `login_ip`, `login_at`, `is_ban_login`, `login_times`, `created_at`, `updated_at`)
+VALUES
+    ('超级管理员', 'admin@playedu.xyz', 'd771587aa711961304fa8c1a5273f491', 'VROkTh', '', '2023-04-06 16:51:17', 0, 0, '2023-02-19 18:10:12', '2023-04-06 16:51:17');
 
 
 
