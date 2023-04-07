@@ -1,8 +1,4 @@
-FROM openjdk:17-slim
-
-ENV LANG en_US.UTF-8
-
-RUN apk add --update ttf-dejavu fontconfig && rm -rf /var/cache/apk/*
+FROM openjdk:17
 
 WORKDIR /app
 
