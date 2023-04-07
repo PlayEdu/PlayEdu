@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.bus.BackendBus;
+import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.event.AdminUserLoginEvent;
 import xyz.playedu.api.exception.JwtLogoutException;
+import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.middleware.ImageCaptchaCheckMiddleware;
 import xyz.playedu.api.request.backend.LoginRequest;
 import xyz.playedu.api.request.backend.PasswordChangeRequest;
@@ -93,6 +95,7 @@ public class LoginController {
         return JsonResponse.data(data);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.PASSWORD_CHANGE)
     @PutMapping("/password")
     public JsonResponse changePassword(@RequestBody @Validated PasswordChangeRequest req) {
         AdminUser user = BCtx.getAdminUser();

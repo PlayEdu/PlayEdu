@@ -164,6 +164,20 @@ public class AdminPermissionCheck implements ApplicationRunner {
                                                     }
                                                 },
                                             });
+                                    // 其它
+                                    put(
+                                            "其它",
+                                            new AdminPermission[] {
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(0);
+                                                        setName("修改登录密码");
+                                                        setSlug(
+                                                                BPermissionConstant
+                                                                        .PASSWORD_CHANGE);
+                                                    }
+                                                },
+                                            });
                                 }
                             });
                     put(

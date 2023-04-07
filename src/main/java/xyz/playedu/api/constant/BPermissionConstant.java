@@ -14,6 +14,8 @@ public class BPermissionConstant {
     public static final String TYPE_ACTION = "action";
     public static final String TYPE_DATA = "data";
 
+    public static final String PASSWORD_CHANGE = "password-change";
+
     public static final String ADMIN_USER_INDEX = "admin-user-index";
     public static final String ADMIN_USER_CUD = "admin-user-cud";
 
