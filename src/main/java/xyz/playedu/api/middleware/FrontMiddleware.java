@@ -61,7 +61,7 @@ public class FrontMiddleware implements HandlerInterceptor {
 
             User user = userService.find(payload.getSub());
             if (user == null) {
-                return responseTransform(response, 404, "请重新登录");
+                return responseTransform(response, 401, "请重新登录");
             }
             if (user.getIsLock() == 1) {
                 return responseTransform(response, 403, "当前学员已锁定无法登录");
