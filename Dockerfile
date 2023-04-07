@@ -1,5 +1,9 @@
 FROM openjdk:17-slim
 
+ENV LANG en_US.UTF-8
+
+RUN apk add --update ttf-dejavu fontconfig && rm -rf /var/cache/apk/*
+
 WORKDIR /app
 
 # 使用东八区时间环境
