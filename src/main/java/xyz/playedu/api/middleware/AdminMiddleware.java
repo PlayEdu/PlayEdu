@@ -69,7 +69,7 @@ public class AdminMiddleware implements HandlerInterceptor {
 
             AdminUser adminUser = adminUserService.findById(payload.getSub());
             if (adminUser == null) {
-                return responseTransform(response, 404, "管理员不存在");
+                return responseTransform(response, 401, "管理员不存在");
             }
             if (adminUser.getIsBanLogin() == 1) {
                 return responseTransform(response, 403, "当前管理员禁止登录");
