@@ -12,10 +12,6 @@ import xyz.playedu.api.util.RedisDistributedLock;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @Author 杭州白书科技有限公司
- * @create 2023/3/12 10:45
- */
 @Aspect
 @Component
 public class LockImpl {
