@@ -17,6 +17,15 @@
 + [PC 界面程序](https://github.com/PlayEdu/frontend)
 + [后台界面程序](https://github.com/PlayEdu/backend)
 
+### 技术栈
+
++ Java17 + SpringBoot3 + MySQL
++ React18 + Vite
+
+### 开发团队
+
+杭州白书科技有限公司
+
 ### 使用协议
 
 欢迎使用杭州白书科技有限公司提供的开源培训解决方案！请您仔细阅读以下条款。通过使用 PlayEdu ，您表示同意接受以下所有条款。
