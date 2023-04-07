@@ -53,7 +53,9 @@ minio:
 mybatis:
   mapper-locations: classpath:mapper/*.xml
 
-#mybatis-plus:
+mybatis-plus:
+  global-config:
+    banner: false
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
