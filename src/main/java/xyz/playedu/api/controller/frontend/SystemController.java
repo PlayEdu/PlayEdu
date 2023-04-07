@@ -1,9 +1,14 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.frontend;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import xyz.playedu.api.service.AppConfigService;
 import xyz.playedu.api.service.ImageCaptchaService;
 import xyz.playedu.api.types.ImageCaptchaResult;
@@ -15,17 +20,16 @@ import java.util.Map;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/13 11:26
  */
 @RestController
 @RequestMapping("/api/v1/system")
 public class SystemController {
 
-    @Autowired
-    private AppConfigService appConfigService;
+    @Autowired private AppConfigService appConfigService;
 
-    @Autowired
-    private ImageCaptchaService imageCaptchaService;
+    @Autowired private ImageCaptchaService imageCaptchaService;
 
     @GetMapping("/config")
     public JsonResponse config() {
@@ -59,5 +63,4 @@ public class SystemController {
 
         return JsonResponse.data(data);
     }
-
 }

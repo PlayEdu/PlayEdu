@@ -1,16 +1,22 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import xyz.playedu.api.domain.ResourceCourseCategory;
+
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.CourseDepartment;
+import xyz.playedu.api.domain.ResourceCourseCategory;
 import xyz.playedu.api.exception.NotFoundException;
+import xyz.playedu.api.mapper.CourseMapper;
 import xyz.playedu.api.service.CourseDepartmentService;
 import xyz.playedu.api.service.CourseService;
-import xyz.playedu.api.mapper.CourseMapper;
-import org.springframework.stereotype.Service;
 import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
@@ -26,11 +32,9 @@ import java.util.stream.Collectors;
 @Service
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements CourseService {
 
-    @Autowired
-    private CourseDepartmentService courseDepartmentService;
+    @Autowired private CourseDepartmentService courseDepartmentService;
 
-    @Autowired
-    private ResourceCourseCategoryService courseCategoryService;
+    @Autowired private ResourceCourseCategoryService courseCategoryService;
 
     @Override
     public PaginationResult<Course> paginate(int page, int size, CoursePaginateFiler filter) {
@@ -46,7 +50,14 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     @Transactional
-    public Course createWithCategoryIdsAndDepIds(String title, String thumb, String shortDesc, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
+    public Course createWithCategoryIdsAndDepIds(
+            String title,
+            String thumb,
+            String shortDesc,
+            Integer isRequired,
+            Integer isShow,
+            Integer[] categoryIds,
+            Integer[] depIds) {
         // 创建课程
         Course course = new Course();
         course.setTitle(title);
@@ -73,10 +84,13 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         List<CourseDepartment> courseDepartments = new ArrayList<>();
         for (int i = 0; i < depIds.length; i++) {
             Integer tmpDepId = depIds[i];
-            courseDepartments.add(new CourseDepartment() {{
-                setCourseId(course.getId());
-                setDepId(tmpDepId);
-            }});
+            courseDepartments.add(
+                    new CourseDepartment() {
+                        {
+                            setCourseId(course.getId());
+                            setDepId(tmpDepId);
+                        }
+                    });
         }
         courseDepartmentService.saveBatch(courseDepartments);
     }
@@ -95,10 +109,13 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         List<ResourceCourseCategory> resourceCourseCategories = new ArrayList<>();
         for (int i = 0; i < categoryIds.length; i++) {
             Integer tmpCategoryId = categoryIds[i];
-            resourceCourseCategories.add(new ResourceCourseCategory() {{
-                setCategoryId(tmpCategoryId);
-                setCourseId(course.getId());
-            }});
+            resourceCourseCategories.add(
+                    new ResourceCourseCategory() {
+                        {
+                            setCategoryId(tmpCategoryId);
+                            setCourseId(course.getId());
+                        }
+                    });
         }
         courseCategoryService.saveBatch(resourceCourseCategories);
     }
@@ -111,7 +128,15 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     @Transactional
-    public void updateWithCategoryIdsAndDepIds(Course course, String title, String thumb, String shortDesc, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds) {
+    public void updateWithCategoryIdsAndDepIds(
+            Course course,
+            String title,
+            String thumb,
+            String shortDesc,
+            Integer isRequired,
+            Integer isShow,
+            Integer[] categoryIds,
+            Integer[] depIds) {
         Course newCourse = new Course();
         newCourse.setId(course.getId());
         newCourse.setTitle(title);
@@ -187,14 +212,18 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         if (courseIds == null || courseIds.size() == 0) {
             return null;
         }
-        Map<Integer, List<ResourceCourseCategory>> data = courseCategoryService
-                .list(courseCategoryService.query().getWrapper().in("course_id", courseIds))
-                .stream()
-                .collect(Collectors.groupingBy(ResourceCourseCategory::getCourseId));
+        Map<Integer, List<ResourceCourseCategory>> data =
+                courseCategoryService
+                        .list(courseCategoryService.query().getWrapper().in("course_id", courseIds))
+                        .stream()
+                        .collect(Collectors.groupingBy(ResourceCourseCategory::getCourseId));
         Map<Integer, List<Integer>> result = new HashMap<>();
-        data.forEach((courseId, records) -> {
-            result.put(courseId, records.stream().map(ResourceCourseCategory::getCategoryId).toList());
-        });
+        data.forEach(
+                (courseId, records) -> {
+                    result.put(
+                            courseId,
+                            records.stream().map(ResourceCourseCategory::getCategoryId).toList());
+                });
         return result;
     }
 
@@ -203,14 +232,20 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         if (courseIds == null || courseIds.size() == 0) {
             return null;
         }
-        Map<Integer, List<CourseDepartment>> data = courseDepartmentService
-                .list(courseDepartmentService.query().getWrapper().in("course_id", courseIds))
-                .stream()
-                .collect(Collectors.groupingBy(CourseDepartment::getCourseId));
+        Map<Integer, List<CourseDepartment>> data =
+                courseDepartmentService
+                        .list(
+                                courseDepartmentService
+                                        .query()
+                                        .getWrapper()
+                                        .in("course_id", courseIds))
+                        .stream()
+                        .collect(Collectors.groupingBy(CourseDepartment::getCourseId));
         Map<Integer, List<Integer>> result = new HashMap<>();
-        data.forEach((courseId, records) -> {
-            result.put(courseId, records.stream().map(CourseDepartment::getDepId).toList());
-        });
+        data.forEach(
+                (courseId, records) -> {
+                    result.put(courseId, records.stream().map(CourseDepartment::getDepId).toList());
+                });
         return result;
     }
 
@@ -219,7 +254,3 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         return count();
     }
 }
-
-
-
-

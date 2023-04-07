@@ -1,15 +1,21 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import xyz.playedu.api.domain.ResourceCategory;
 import xyz.playedu.api.domain.ResourceCategoryRelation;
 import xyz.playedu.api.domain.ResourceCourseCategory;
 import xyz.playedu.api.exception.NotFoundException;
-import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.mapper.ResourceCategoryMapper;
-import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.service.internal.ResourceCategoryRelationService;
 import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
 
@@ -25,13 +31,13 @@ import java.util.stream.Collectors;
  * @createDate 2023-02-23 09:50:18
  */
 @Service
-public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMapper, ResourceCategory> implements ResourceCategoryService {
+public class ResourceCategoryServiceImpl
+        extends ServiceImpl<ResourceCategoryMapper, ResourceCategory>
+        implements ResourceCategoryService {
 
-    @Autowired
-    private ResourceCourseCategoryService resourceCourseCategoryService;
+    @Autowired private ResourceCourseCategoryService resourceCourseCategoryService;
 
-    @Autowired
-    private ResourceCategoryRelationService resourceCategoryRelationService;
+    @Autowired private ResourceCategoryRelationService resourceCategoryRelationService;
 
     @Override
     public List<ResourceCategory> listByParentId(Integer id) {
@@ -56,15 +62,16 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
     @Transactional
     public void deleteById(Integer id) throws NotFoundException {
         ResourceCategory category = findOrFail(id);
-        //更新parent_chain
+        // 更新parent_chain
         updateParentChain(category.getParentChain(), childrenParentChain(category));
-        //删除记录
+        // 删除记录
         removeById(category.getId());
     }
 
     @Override
     @Transactional
-    public void update(ResourceCategory category, String name, Integer parentId, Integer sort) throws NotFoundException {
+    public void update(ResourceCategory category, String name, Integer parentId, Integer sort)
+            throws NotFoundException {
         String childrenChainPrefix = childrenParentChain(category);
 
         ResourceCategory data = new ResourceCategory();
@@ -84,7 +91,7 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
             data.setSort(sort);
         }
 
-        //提交更换
+        // 提交更换
         updateById(data);
 
         category = getById(category.getId());
@@ -92,7 +99,8 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
     }
 
     private void updateParentChain(String newChildrenPC, String oldChildrenPC) {
-        List<ResourceCategory> children = list(query().getWrapper().like("parent_chain", oldChildrenPC + "%"));
+        List<ResourceCategory> children =
+                list(query().getWrapper().like("parent_chain", oldChildrenPC + "%"));
         if (children.size() == 0) {
             return;
         }
@@ -105,7 +113,14 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
             // parentChain计算
             String pc = newChildrenPC;
             if (!tmpResourceCategory.getParentChain().equals(oldChildrenPC)) {
-                pc = tmpResourceCategory.getParentChain().replaceFirst(oldChildrenPC + ",", newChildrenPC.length() == 0 ? newChildrenPC : newChildrenPC + ',');
+                pc =
+                        tmpResourceCategory
+                                .getParentChain()
+                                .replaceFirst(
+                                        oldChildrenPC + ",",
+                                        newChildrenPC.length() == 0
+                                                ? newChildrenPC
+                                                : newChildrenPC + ',');
             }
             tmpUpdateResourceCategory.setParentChain(pc);
 
@@ -121,7 +136,6 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
         }
         updateBatchById(updateRows);
     }
-
 
     @Override
     public void create(String name, Integer parentId, Integer sort) throws NotFoundException {
@@ -166,12 +180,20 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
 
     @Override
     public List<Integer> getCourseIdsById(Integer id) {
-        return resourceCourseCategoryService.list(resourceCourseCategoryService.query().getWrapper().eq("category_id", id)).stream().map(ResourceCourseCategory::getCourseId).toList();
+        return resourceCourseCategoryService
+                .list(resourceCourseCategoryService.query().getWrapper().eq("category_id", id))
+                .stream()
+                .map(ResourceCourseCategory::getCourseId)
+                .toList();
     }
 
     @Override
     public List<Integer> getRidsById(Integer id) {
-        return resourceCategoryRelationService.list(resourceCategoryRelationService.query().getWrapper().eq("cid", id)).stream().map(ResourceCategoryRelation::getRid).toList();
+        return resourceCategoryRelationService
+                .list(resourceCategoryRelationService.query().getWrapper().eq("cid", id))
+                .stream()
+                .map(ResourceCategoryRelation::getRid)
+                .toList();
     }
 
     @Override
@@ -183,17 +205,21 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
         int sortVal = 0;
         for (Integer idItem : ids) {
             Integer finalSortVal = ++sortVal;
-            categories.add(new ResourceCategory() {{
-                setId(idItem);
-                setSort(finalSortVal);
-            }});
+            categories.add(
+                    new ResourceCategory() {
+                        {
+                            setId(idItem);
+                            setSort(finalSortVal);
+                        }
+                    });
         }
         updateBatchById(categories);
     }
 
     @Override
     @Transactional
-    public void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException {
+    public void changeParent(Integer id, Integer parentId, List<Integer> ids)
+            throws NotFoundException {
         ResourceCategory category = findOrFail(id);
         update(category, category.getName(), parentId, category.getSort());
         // 重置排序
@@ -202,12 +228,14 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
 
     @Override
     public Map<Integer, List<ResourceCategory>> groupByParent() {
-        return list(query().getWrapper().orderByAsc("sort")).stream().collect(Collectors.groupingBy(ResourceCategory::getParentId));
+        return list(query().getWrapper().orderByAsc("sort")).stream()
+                .collect(Collectors.groupingBy(ResourceCategory::getParentId));
     }
 
     @Override
     public Map<Integer, String> id2name() {
-        return all().stream().collect(Collectors.toMap(ResourceCategory::getId, ResourceCategory::getName));
+        return all().stream()
+                .collect(Collectors.toMap(ResourceCategory::getId, ResourceCategory::getName));
     }
 
     @Override
@@ -215,7 +243,3 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
         return count();
     }
 }
-
-
-
-

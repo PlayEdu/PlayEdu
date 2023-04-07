@@ -1,3 +1,7 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.exception;
 
 public class JwtLogoutException extends Exception {
@@ -17,7 +21,11 @@ public class JwtLogoutException extends Exception {
         super(cause);
     }
 
-    protected JwtLogoutException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected JwtLogoutException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -1,10 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import xyz.playedu.api.domain.UserCourseRecord;
-import xyz.playedu.api.service.UserCourseRecordService;
-import xyz.playedu.api.mapper.UserCourseRecordMapper;
+
 import org.springframework.stereotype.Service;
+
+import xyz.playedu.api.domain.UserCourseRecord;
+import xyz.playedu.api.mapper.UserCourseRecordMapper;
+import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.types.paginate.CourseUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
@@ -18,7 +24,8 @@ import java.util.List;
  * @createDate 2023-03-20 16:41:04
  */
 @Service
-public class UserCourseRecordServiceImpl extends ServiceImpl<UserCourseRecordMapper, UserCourseRecord>
+public class UserCourseRecordServiceImpl
+        extends ServiceImpl<UserCourseRecordMapper, UserCourseRecord>
         implements UserCourseRecordService {
 
     @Override
@@ -27,7 +34,8 @@ public class UserCourseRecordServiceImpl extends ServiceImpl<UserCourseRecordMap
     }
 
     @Override
-    public void storeOrUpdate(Integer userId, Integer courseId, Integer hourCount, Integer finishedCount) {
+    public void storeOrUpdate(
+            Integer userId, Integer courseId, Integer hourCount, Integer finishedCount) {
         if (hourCount == 0) {
             return;
         }
@@ -78,7 +86,8 @@ public class UserCourseRecordServiceImpl extends ServiceImpl<UserCourseRecordMap
     }
 
     @Override
-    public PaginationResult<UserCourseRecord> paginate(int page, int size, CourseUserPaginateFilter filter) {
+    public PaginationResult<UserCourseRecord> paginate(
+            int page, int size, CourseUserPaginateFilter filter) {
         Integer pageStart = (page - 1) * size;
         filter.setPageStart(pageStart);
         filter.setPageSize(size);
@@ -105,7 +114,3 @@ public class UserCourseRecordServiceImpl extends ServiceImpl<UserCourseRecordMap
         return list(query().getWrapper().in("id", ids).select(fields));
     }
 }
-
-
-
-

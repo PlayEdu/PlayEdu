@@ -1,13 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
+
 import xyz.playedu.api.domain.UserCourseHourRecord;
 import xyz.playedu.api.event.UserCourseHourFinishedEvent;
-import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.mapper.UserCourseHourRecordMapper;
-import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
 
 import java.util.ArrayList;
@@ -20,18 +26,28 @@ import java.util.List;
  * @createDate 2023-03-20 16:41:08
  */
 @Service
-public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourRecordMapper, UserCourseHourRecord> implements UserCourseHourRecordService {
+public class UserCourseHourRecordServiceImpl
+        extends ServiceImpl<UserCourseHourRecordMapper, UserCourseHourRecord>
+        implements UserCourseHourRecordService {
 
-    @Autowired
-    private ApplicationContext ctx;
+    @Autowired private ApplicationContext ctx;
 
     @Override
     public UserCourseHourRecord find(Integer userId, Integer courseId, Integer hourId) {
-        return getOne(query().getWrapper().eq("user_id", userId).eq("course_id", courseId).eq("hour_id", hourId));
+        return getOne(
+                query().getWrapper()
+                        .eq("user_id", userId)
+                        .eq("course_id", courseId)
+                        .eq("hour_id", hourId));
     }
 
     @Override
-    public void storeOrUpdate(Integer userId, Integer courseId, Integer hourId, Integer duration, Integer totalDuration) {
+    public void storeOrUpdate(
+            Integer userId,
+            Integer courseId,
+            Integer hourId,
+            Integer duration,
+            Integer totalDuration) {
         UserCourseHourRecord record = find(userId, courseId, hourId);
 
         // 记录存在 && 已看完 => 跳过处理
@@ -74,7 +90,12 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
 
     @Override
     public Integer getFinishedHourCount(Integer userId, Integer courseId) {
-        return Math.toIntExact(count(query().getWrapper().eq("user_id", userId).eq("course_id", courseId).eq("is_finished", 1)));
+        return Math.toIntExact(
+                count(
+                        query().getWrapper()
+                                .eq("user_id", userId)
+                                .eq("course_id", courseId)
+                                .eq("is_finished", 1)));
     }
 
     @Override
@@ -93,7 +114,8 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
     }
 
     @Override
-    public List<UserCourseHourRecordCountMapper> getUserCourseHourCount(Integer userId, List<Integer> courseIds, Integer isFinished) {
+    public List<UserCourseHourRecordCountMapper> getUserCourseHourCount(
+            Integer userId, List<Integer> courseIds, Integer isFinished) {
         if (courseIds == null || courseIds.size() == 0) {
             return new ArrayList<>();
         }
@@ -105,7 +127,3 @@ public class UserCourseHourRecordServiceImpl extends ServiceImpl<UserCourseHourR
         remove(query().getWrapper().eq("user_id", userId).eq("course_id", courseId));
     }
 }
-
-
-
-

@@ -1,9 +1,14 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.service.ImageCaptchaService;
 import xyz.playedu.api.types.ImageCaptchaResult;
@@ -17,8 +22,7 @@ import java.util.Map;
 @RequestMapping("/backend/v1/system")
 public class SystemController {
 
-    @Autowired
-    private ImageCaptchaService imageCaptchaService;
+    @Autowired private ImageCaptchaService imageCaptchaService;
 
     @GetMapping("/image-captcha")
     public JsonResponse imageCaptcha() throws IOException {
@@ -36,5 +40,4 @@ public class SystemController {
         Map<String, String> data = BCtx.getConfig();
         return JsonResponse.data(data);
     }
-
 }

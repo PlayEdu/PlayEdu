@@ -1,15 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 /**
  * @TableName departments
@@ -17,32 +21,22 @@ import lombok.Data;
 @TableName(value = "departments")
 @Data
 public class Department implements Serializable {
-    /**
-     *
-     */
+    /** */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 部门名
-     */
+    /** 部门名 */
     private String name;
 
-    /**
-     * 父id
-     */
+    /** 父id */
     @JsonProperty("parent_id")
     private Integer parentId;
 
-    /**
-     * 父链
-     */
+    /** 父链 */
     @JsonProperty("parent_chain")
     private String parentChain;
 
-    /**
-     * 升序
-     */
+    /** 升序 */
     private Integer sort;
 
     @JsonProperty("created_at")
@@ -67,12 +61,24 @@ public class Department implements Serializable {
         }
         Department other = (Department) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-                && (this.getParentId() == null ? other.getParentId() == null : this.getParentId().equals(other.getParentId()))
-                && (this.getParentChain() == null ? other.getParentChain() == null : this.getParentChain().equals(other.getParentChain()))
-                && (this.getSort() == null ? other.getSort() == null : this.getSort().equals(other.getSort()))
-                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
-                && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()));
+                && (this.getName() == null
+                        ? other.getName() == null
+                        : this.getName().equals(other.getName()))
+                && (this.getParentId() == null
+                        ? other.getParentId() == null
+                        : this.getParentId().equals(other.getParentId()))
+                && (this.getParentChain() == null
+                        ? other.getParentChain() == null
+                        : this.getParentChain().equals(other.getParentChain()))
+                && (this.getSort() == null
+                        ? other.getSort() == null
+                        : this.getSort().equals(other.getSort()))
+                && (this.getCreatedAt() == null
+                        ? other.getCreatedAt() == null
+                        : this.getCreatedAt().equals(other.getCreatedAt()))
+                && (this.getUpdatedAt() == null
+                        ? other.getUpdatedAt() == null
+                        : this.getUpdatedAt().equals(other.getUpdatedAt()));
     }
 
     @Override

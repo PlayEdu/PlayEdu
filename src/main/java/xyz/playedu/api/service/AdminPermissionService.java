@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.domain.AdminPermission;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import xyz.playedu.api.domain.AdminPermission;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,10 +22,9 @@ public interface AdminPermissionService extends IService<AdminPermission> {
 
     List<AdminPermission> listOrderBySortAsc();
 
-    HashMap<String,Boolean> getSlugsByIds(List<Integer> ids);
+    HashMap<String, Boolean> getSlugsByIds(List<Integer> ids);
 
     List<Integer> allIds();
 
     List<AdminPermission> chunks(List<Integer> ids);
-
 }

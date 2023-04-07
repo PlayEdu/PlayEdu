@@ -1,11 +1,18 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.middleware;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.bus.AppBus;
 import xyz.playedu.api.bus.BackendBus;
@@ -26,23 +33,20 @@ import java.util.Map;
 @Slf4j
 public class AdminMiddleware implements HandlerInterceptor {
 
-    @Autowired
-    private JWTService jwtService;
+    @Autowired private JWTService jwtService;
 
-    @Autowired
-    private AdminUserService adminUserService;
+    @Autowired private AdminUserService adminUserService;
 
-    @Autowired
-    private AppBus appBus;
+    @Autowired private AppBus appBus;
 
-    @Autowired
-    private BackendBus backendBus;
+    @Autowired private BackendBus backendBus;
 
-    @Autowired
-    private AppConfigService configService;
+    @Autowired private AppConfigService configService;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(
+            HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
         if ("OPTIONS".equals(request.getMethod())) {
             return HandlerInterceptor.super.preHandle(request, response, handler);
         }
@@ -84,7 +88,8 @@ public class AdminMiddleware implements HandlerInterceptor {
         }
     }
 
-    private boolean responseTransform(HttpServletResponse response, int code, String msg) throws IOException {
+    private boolean responseTransform(HttpServletResponse response, int code, String msg)
+            throws IOException {
         response.setStatus(code);
         response.setContentType("application/json;charset=utf-8");
         response.getWriter().print(HelperUtil.toJsonStr(JsonResponse.error(msg)));
@@ -92,7 +97,9 @@ public class AdminMiddleware implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    public void afterCompletion(
+            HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+            throws Exception {
         BCtx.remove();
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }

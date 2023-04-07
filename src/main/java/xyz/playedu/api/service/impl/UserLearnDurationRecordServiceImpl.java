@@ -1,11 +1,18 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import lombok.SneakyThrows;
-import xyz.playedu.api.domain.UserLearnDurationRecord;
-import xyz.playedu.api.service.UserLearnDurationRecordService;
-import xyz.playedu.api.mapper.UserLearnDurationRecordMapper;
+
 import org.springframework.stereotype.Service;
+
+import xyz.playedu.api.domain.UserLearnDurationRecord;
+import xyz.playedu.api.mapper.UserLearnDurationRecordMapper;
+import xyz.playedu.api.service.UserLearnDurationRecordService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,12 +23,14 @@ import java.util.Date;
  * @createDate 2023-03-20 16:41:12
  */
 @Service
-public class UserLearnDurationRecordServiceImpl extends ServiceImpl<UserLearnDurationRecordMapper, UserLearnDurationRecord>
+public class UserLearnDurationRecordServiceImpl
+        extends ServiceImpl<UserLearnDurationRecordMapper, UserLearnDurationRecord>
         implements UserLearnDurationRecordService {
 
     @Override
     @SneakyThrows
-    public void store(Integer userId, Integer courseId, Integer hourId, Long startTime, Long endTime) {
+    public void store(
+            Integer userId, Integer courseId, Integer hourId, Long startTime, Long endTime) {
         // 处理日期
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String date = simpleDateFormat.format(new Date(endTime));
@@ -38,7 +47,3 @@ public class UserLearnDurationRecordServiceImpl extends ServiceImpl<UserLearnDur
         save(record);
     }
 }
-
-
-
-

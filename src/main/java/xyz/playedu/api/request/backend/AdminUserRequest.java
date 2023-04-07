@@ -1,10 +1,17 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.request.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import lombok.Data;
+
 import org.hibernate.validator.constraints.Length;
 
 import java.io.Serial;
@@ -12,13 +19,13 @@ import java.io.Serializable;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/19 09:43
  */
 @Data
 public class AdminUserRequest implements Serializable {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "请输入管理员姓名")
     @Length(min = 1, max = 12, message = "管理员姓名长度在1-12个字符之间")

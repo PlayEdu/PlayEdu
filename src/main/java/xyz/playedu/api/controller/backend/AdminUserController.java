@@ -1,10 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.domain.AdminUser;
@@ -14,9 +20,9 @@ import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.AdminUserRequest;
 import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.service.AdminUserService;
+import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.AdminUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
-import xyz.playedu.api.types.JsonResponse;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,11 +34,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/backend/v1/admin-user")
 public class AdminUserController {
 
-    @Autowired
-    private AdminUserService adminUserService;
+    @Autowired private AdminUserService adminUserService;
 
-    @Autowired
-    private AdminRoleService roleService;
+    @Autowired private AdminRoleService roleService;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_INDEX)
     @GetMapping("/index")
@@ -50,14 +54,18 @@ public class AdminUserController {
 
         Map<Integer, List<Integer>> userRoleIds = new HashMap<>();
         if (result.getData() != null && result.getData().size() > 0) {
-            userRoleIds = adminUserService.getAdminUserRoleIds(result.getData().stream().map(AdminUser::getId).toList());
+            userRoleIds =
+                    adminUserService.getAdminUserRoleIds(
+                            result.getData().stream().map(AdminUser::getId).toList());
         }
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());
         data.put("total", result.getTotal());
         data.put("user_role_ids", userRoleIds);
-        data.put("roles", roleService.list().stream().collect(Collectors.groupingBy(AdminRole::getId)));
+        data.put(
+                "roles",
+                roleService.list().stream().collect(Collectors.groupingBy(AdminRole::getId)));
 
         return JsonResponse.data(data);
     }
@@ -75,12 +83,18 @@ public class AdminUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @PostMapping("/create")
-    public JsonResponse store(@RequestBody @Validated AdminUserRequest req) throws ServiceException {
+    public JsonResponse store(@RequestBody @Validated AdminUserRequest req)
+            throws ServiceException {
         if (req.getPassword() == null || req.getPassword().length() == 0) {
             return JsonResponse.error("请输入密码");
         }
 
-        adminUserService.createWithRoleIds(req.getName(), req.getEmail(), req.getPassword(), req.getIsBanLogin(), req.getRoleIds());
+        adminUserService.createWithRoleIds(
+                req.getName(),
+                req.getEmail(),
+                req.getPassword(),
+                req.getIsBanLogin(),
+                req.getRoleIds());
 
         return JsonResponse.success();
     }
@@ -100,9 +114,17 @@ public class AdminUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @PutMapping("/{id}")
-    public JsonResponse update(@PathVariable Integer id, @RequestBody @Validated AdminUserRequest req) throws NotFoundException, ServiceException {
+    public JsonResponse update(
+            @PathVariable Integer id, @RequestBody @Validated AdminUserRequest req)
+            throws NotFoundException, ServiceException {
         AdminUser adminUser = adminUserService.findOrFail(id);
-        adminUserService.updateWithRoleIds(adminUser, req.getName(), req.getEmail(), req.getPassword(), req.getIsBanLogin(), req.getRoleIds());
+        adminUserService.updateWithRoleIds(
+                adminUser,
+                req.getName(),
+                req.getEmail(),
+                req.getPassword(),
+                req.getIsBanLogin(),
+                req.getRoleIds());
         return JsonResponse.success();
     }
 
@@ -112,5 +134,4 @@ public class AdminUserController {
         adminUserService.removeWithRoleIds(id);
         return JsonResponse.success();
     }
-
 }

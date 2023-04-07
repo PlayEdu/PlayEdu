@@ -1,15 +1,20 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import xyz.playedu.api.domain.ResourceVideo;
-import xyz.playedu.api.service.ResourceVideoService;
-import xyz.playedu.api.mapper.ResourceVideoMapper;
+
 import org.springframework.stereotype.Service;
+
+import xyz.playedu.api.domain.ResourceVideo;
+import xyz.playedu.api.mapper.ResourceVideoMapper;
+import xyz.playedu.api.service.ResourceVideoService;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author tengteng
@@ -17,7 +22,8 @@ import java.util.Map;
  * @createDate 2023-03-02 15:13:03
  */
 @Service
-public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, ResourceVideo> implements ResourceVideoService {
+public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, ResourceVideo>
+        implements ResourceVideoService {
     @Override
     public void create(Integer resourceId, Integer duration, String poster) {
         ResourceVideo video = new ResourceVideo();
@@ -41,7 +47,3 @@ public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, R
         return list(query().getWrapper().in("rid", resourceIds));
     }
 }
-
-
-
-

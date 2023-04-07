@@ -1,30 +1,28 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
- * 
  * @TableName resource_course_category
  */
-@TableName(value ="resource_course_category")
+@TableName(value = "resource_course_category")
 @Data
 public class ResourceCourseCategory implements Serializable {
-    /**
-     * 
-     */
+    /** */
     @JsonProperty("course_id")
     private Integer courseId;
 
-    /**
-     * 
-     */
+    /** */
     @JsonProperty("category_id")
     private Integer categoryId;
 
@@ -43,8 +41,12 @@ public class ResourceCourseCategory implements Serializable {
             return false;
         }
         ResourceCourseCategory other = (ResourceCourseCategory) that;
-        return (this.getCourseId() == null ? other.getCourseId() == null : this.getCourseId().equals(other.getCourseId()))
-            && (this.getCategoryId() == null ? other.getCategoryId() == null : this.getCategoryId().equals(other.getCategoryId()));
+        return (this.getCourseId() == null
+                        ? other.getCourseId() == null
+                        : this.getCourseId().equals(other.getCourseId()))
+                && (this.getCategoryId() == null
+                        ? other.getCategoryId() == null
+                        : this.getCategoryId().equals(other.getCategoryId()));
     }
 
     @Override

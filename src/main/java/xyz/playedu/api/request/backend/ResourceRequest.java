@@ -1,13 +1,21 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.request.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import lombok.Data;
+
 import org.hibernate.validator.constraints.Length;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/23 10:52
  */
 @Data
@@ -46,5 +54,4 @@ public class ResourceRequest {
     private String poster;
 
     private Integer parentId;
-
 }

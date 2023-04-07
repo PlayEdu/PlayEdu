@@ -1,74 +1,57 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.util.Date;
+
 import lombok.Data;
 
+import java.io.Serializable;
+import java.util.Date;
+
 /**
- * 
  * @TableName user_login_records
  */
-@TableName(value ="user_login_records")
+@TableName(value = "user_login_records")
 @Data
 public class UserLoginRecord implements Serializable {
-    /**
-     * 
-     */
+    /** */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 
-     */
+    /** */
     private Integer userId;
 
-    /**
-     * JTI
-     */
+    /** JTI */
     private String jti;
 
-    /**
-     * 登录ip
-     */
+    /** 登录ip */
     private String ip;
 
-    /**
-     * Ip解析区域
-     */
+    /** Ip解析区域 */
     private String ipArea;
 
-    /**
-     * 浏览器
-     */
+    /** 浏览器 */
     private String browser;
 
-    /**
-     * 浏览器版本
-     */
+    /** 浏览器版本 */
     private String browserVersion;
 
-    /**
-     * 操作系统
-     */
+    /** 操作系统 */
     private String os;
 
-    /**
-     * 过期时间
-     */
+    /** 过期时间 */
     private Long expired;
 
-    /**
-     * 是否注销
-     */
+    /** 是否注销 */
     private Integer isLogout;
 
-    /**
-     * 创建时间
-     */
+    /** 创建时间 */
     private Date createdAt;
 
     @TableField(exist = false)
@@ -87,16 +70,36 @@ public class UserLoginRecord implements Serializable {
         }
         UserLoginRecord other = (UserLoginRecord) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-            && (this.getJti() == null ? other.getJti() == null : this.getJti().equals(other.getJti()))
-            && (this.getIp() == null ? other.getIp() == null : this.getIp().equals(other.getIp()))
-            && (this.getIpArea() == null ? other.getIpArea() == null : this.getIpArea().equals(other.getIpArea()))
-            && (this.getBrowser() == null ? other.getBrowser() == null : this.getBrowser().equals(other.getBrowser()))
-            && (this.getBrowserVersion() == null ? other.getBrowserVersion() == null : this.getBrowserVersion().equals(other.getBrowserVersion()))
-            && (this.getOs() == null ? other.getOs() == null : this.getOs().equals(other.getOs()))
-            && (this.getExpired() == null ? other.getExpired() == null : this.getExpired().equals(other.getExpired()))
-            && (this.getIsLogout() == null ? other.getIsLogout() == null : this.getIsLogout().equals(other.getIsLogout()))
-            && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
+                && (this.getUserId() == null
+                        ? other.getUserId() == null
+                        : this.getUserId().equals(other.getUserId()))
+                && (this.getJti() == null
+                        ? other.getJti() == null
+                        : this.getJti().equals(other.getJti()))
+                && (this.getIp() == null
+                        ? other.getIp() == null
+                        : this.getIp().equals(other.getIp()))
+                && (this.getIpArea() == null
+                        ? other.getIpArea() == null
+                        : this.getIpArea().equals(other.getIpArea()))
+                && (this.getBrowser() == null
+                        ? other.getBrowser() == null
+                        : this.getBrowser().equals(other.getBrowser()))
+                && (this.getBrowserVersion() == null
+                        ? other.getBrowserVersion() == null
+                        : this.getBrowserVersion().equals(other.getBrowserVersion()))
+                && (this.getOs() == null
+                        ? other.getOs() == null
+                        : this.getOs().equals(other.getOs()))
+                && (this.getExpired() == null
+                        ? other.getExpired() == null
+                        : this.getExpired().equals(other.getExpired()))
+                && (this.getIsLogout() == null
+                        ? other.getIsLogout() == null
+                        : this.getIsLogout().equals(other.getIsLogout()))
+                && (this.getCreatedAt() == null
+                        ? other.getCreatedAt() == null
+                        : this.getCreatedAt().equals(other.getCreatedAt()));
     }
 
     @Override
@@ -109,7 +112,9 @@ public class UserLoginRecord implements Serializable {
         result = prime * result + ((getIp() == null) ? 0 : getIp().hashCode());
         result = prime * result + ((getIpArea() == null) ? 0 : getIpArea().hashCode());
         result = prime * result + ((getBrowser() == null) ? 0 : getBrowser().hashCode());
-        result = prime * result + ((getBrowserVersion() == null) ? 0 : getBrowserVersion().hashCode());
+        result =
+                prime * result
+                        + ((getBrowserVersion() == null) ? 0 : getBrowserVersion().hashCode());
         result = prime * result + ((getOs() == null) ? 0 : getOs().hashCode());
         result = prime * result + ((getExpired() == null) ? 0 : getExpired().hashCode());
         result = prime * result + ((getIsLogout() == null) ? 0 : getIsLogout().hashCode());

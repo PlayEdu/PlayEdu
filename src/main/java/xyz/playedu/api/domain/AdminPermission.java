@@ -1,15 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 /**
  * @TableName admin_permissions
@@ -17,36 +21,24 @@ import lombok.Data;
 @TableName(value = "admin_permissions")
 @Data
 public class AdminPermission implements Serializable {
-    /**
-     *
-     */
+    /** */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 类型[行为:action,数据:data]
-     */
+    /** 类型[行为:action,数据:data] */
     private String type;
 
-    /**
-     * 分组
-     */
+    /** 分组 */
     @JsonProperty("group_name")
     private String groupName;
 
-    /**
-     * 升序
-     */
+    /** 升序 */
     private Integer sort;
 
-    /**
-     * 权限名
-     */
+    /** 权限名 */
     private String name;
 
-    /**
-     * slug
-     */
+    /** slug */
     private String slug;
 
     @JsonProperty("created_at")
@@ -68,12 +60,24 @@ public class AdminPermission implements Serializable {
         }
         AdminPermission other = (AdminPermission) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
-                && (this.getGroupName() == null ? other.getGroupName() == null : this.getGroupName().equals(other.getGroupName()))
-                && (this.getSort() == null ? other.getSort() == null : this.getSort().equals(other.getSort()))
-                && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-                && (this.getSlug() == null ? other.getSlug() == null : this.getSlug().equals(other.getSlug()))
-                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
+                && (this.getType() == null
+                        ? other.getType() == null
+                        : this.getType().equals(other.getType()))
+                && (this.getGroupName() == null
+                        ? other.getGroupName() == null
+                        : this.getGroupName().equals(other.getGroupName()))
+                && (this.getSort() == null
+                        ? other.getSort() == null
+                        : this.getSort().equals(other.getSort()))
+                && (this.getName() == null
+                        ? other.getName() == null
+                        : this.getName().equals(other.getName()))
+                && (this.getSlug() == null
+                        ? other.getSlug() == null
+                        : this.getSlug().equals(other.getSlug()))
+                && (this.getCreatedAt() == null
+                        ? other.getCreatedAt() == null
+                        : this.getCreatedAt().equals(other.getCreatedAt()));
     }
 
     @Override

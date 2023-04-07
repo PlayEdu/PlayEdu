@@ -1,3 +1,7 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.types;
 
 import lombok.Data;
@@ -8,39 +12,24 @@ import lombok.Data;
 @Data
 public class JWTPayload {
 
-    /**
-     * subject
-     */
+    /** subject */
     private Integer sub;
 
-    /**
-     * Issued At
-     */
+    /** Issued At */
     private Long iat;
 
-    /**
-     * Expiration Time
-     */
+    /** Expiration Time */
     private Long exp;
 
-    /**
-     * Not Before
-     */
+    /** Not Before */
     private Long nbf;
 
-    /**
-     * JWT ID
-     */
+    /** JWT ID */
     private String jti;
 
-    /**
-     * Issuer
-     */
+    /** Issuer */
     private String iss;
 
-    /**
-     * Payload
-     */
+    /** Payload */
     private String prv;
-
 }

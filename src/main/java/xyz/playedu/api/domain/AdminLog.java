@@ -1,15 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 /**
  * @TableName admin_logs
@@ -17,41 +21,27 @@ import lombok.Data;
 @TableName(value = "admin_logs")
 @Data
 public class AdminLog implements Serializable {
-    /**
-     *
-     */
+    /** */
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /**
-     * 管理员ID
-     */
+    /** 管理员ID */
     @JsonProperty("admin_id")
     private Integer adminId;
 
-    /**
-     * 模块
-     */
+    /** 模块 */
     private String module;
 
-    /**
-     * 操作指令
-     */
+    /** 操作指令 */
     private String opt;
 
-    /**
-     * 备注
-     */
+    /** 备注 */
     private String remark;
 
-    /**
-     * ip
-     */
+    /** ip */
     private String ip;
 
-    /**
-     * 地址
-     */
+    /** 地址 */
     @JsonProperty("ip_area")
     private String ipArea;
 
@@ -74,13 +64,27 @@ public class AdminLog implements Serializable {
         }
         AdminLog other = (AdminLog) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getAdminId() == null ? other.getAdminId() == null : this.getAdminId().equals(other.getAdminId()))
-                && (this.getModule() == null ? other.getModule() == null : this.getModule().equals(other.getModule()))
-                && (this.getOpt() == null ? other.getOpt() == null : this.getOpt().equals(other.getOpt()))
-                && (this.getRemark() == null ? other.getRemark() == null : this.getRemark().equals(other.getRemark()))
-                && (this.getIp() == null ? other.getIp() == null : this.getIp().equals(other.getIp()))
-                && (this.getIpArea() == null ? other.getIpArea() == null : this.getIpArea().equals(other.getIpArea()))
-                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
+                && (this.getAdminId() == null
+                        ? other.getAdminId() == null
+                        : this.getAdminId().equals(other.getAdminId()))
+                && (this.getModule() == null
+                        ? other.getModule() == null
+                        : this.getModule().equals(other.getModule()))
+                && (this.getOpt() == null
+                        ? other.getOpt() == null
+                        : this.getOpt().equals(other.getOpt()))
+                && (this.getRemark() == null
+                        ? other.getRemark() == null
+                        : this.getRemark().equals(other.getRemark()))
+                && (this.getIp() == null
+                        ? other.getIp() == null
+                        : this.getIp().equals(other.getIp()))
+                && (this.getIpArea() == null
+                        ? other.getIpArea() == null
+                        : this.getIpArea().equals(other.getIpArea()))
+                && (this.getCreatedAt() == null
+                        ? other.getCreatedAt() == null
+                        : this.getCreatedAt().equals(other.getCreatedAt()));
     }
 
     @Override

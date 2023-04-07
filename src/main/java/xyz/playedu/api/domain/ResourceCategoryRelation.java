@@ -1,25 +1,26 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
+
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
- * 
  * @TableName resource_category
  */
-@TableName(value ="resource_category")
+@TableName(value = "resource_category")
 @Data
 public class ResourceCategoryRelation implements Serializable {
-    /**
-     * 
-     */
+    /** */
     private Integer cid;
 
-    /**
-     * 
-     */
+    /** */
     private Integer rid;
 
     @TableField(exist = false)
@@ -37,8 +38,12 @@ public class ResourceCategoryRelation implements Serializable {
             return false;
         }
         ResourceCategoryRelation other = (ResourceCategoryRelation) that;
-        return (this.getCid() == null ? other.getCid() == null : this.getCid().equals(other.getCid()))
-            && (this.getRid() == null ? other.getRid() == null : this.getRid().equals(other.getRid()));
+        return (this.getCid() == null
+                        ? other.getCid() == null
+                        : this.getCid().equals(other.getCid()))
+                && (this.getRid() == null
+                        ? other.getRid() == null
+                        : this.getRid().equals(other.getRid()));
     }
 
     @Override

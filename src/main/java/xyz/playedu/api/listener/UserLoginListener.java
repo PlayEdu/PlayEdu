@@ -1,10 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.listener;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.event.UserLoginEvent;
 import xyz.playedu.api.exception.JwtLogoutException;
@@ -15,17 +21,16 @@ import xyz.playedu.api.util.IpUtil;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/10 13:45
  */
 @Component
 @Slf4j
 public class UserLoginListener {
 
-    @Autowired
-    private UserLoginRecordService loginRecordService;
+    @Autowired private UserLoginRecordService loginRecordService;
 
-    @Autowired
-    private JWTService jwtService;
+    @Autowired private JWTService jwtService;
 
     @Async
     @EventListener
@@ -40,7 +45,6 @@ public class UserLoginListener {
                 ipArea,
                 event.getUserAgent().getBrowser().toString(),
                 event.getUserAgent().getVersion(),
-                event.getUserAgent().getOs().toString()
-        );
+                event.getUserAgent().getOs().toString());
     }
 }

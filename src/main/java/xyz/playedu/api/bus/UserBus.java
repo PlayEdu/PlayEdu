@@ -1,9 +1,14 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.bus;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.api.FCtx;
 import xyz.playedu.api.caches.UserLastLearnTimeCache;
 import xyz.playedu.api.domain.Course;
@@ -17,27 +22,24 @@ import java.util.List;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/20 14:56
  */
 @Component
 public class UserBus {
 
-    @Autowired
-    private CourseService courseService;
+    @Autowired private CourseService courseService;
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private UserLastLearnTimeCache userLastLearnTimeCache;
+    @Autowired private UserLastLearnTimeCache userLastLearnTimeCache;
 
-    @Autowired
-    private ApplicationContext ctx;
+    @Autowired private ApplicationContext ctx;
 
     public boolean canSeeCourse(User user, Course course) {
         List<Integer> courseDepIds = courseService.getDepIdsByCourseId(course.getId());
         if (courseDepIds == null || courseDepIds.size() == 0) {
-            //线上课无所属部门=>任何学员都可以学习
+            // 线上课无所属部门=>任何学员都可以学习
             return true;
         }
         List<Integer> userDepIds = userService.getDepIdsByUserId(user.getId());
@@ -59,7 +61,8 @@ public class UserBus {
 
         userLastLearnTimeCache.put(user.getId(), curTime);
 
-        ctx.publishEvent(new UserLearnCourseUpdateEvent(this, user.getId(), course.getId(), hour.getId(), lastTime, curTime));
+        ctx.publishEvent(
+                new UserLearnCourseUpdateEvent(
+                        this, user.getId(), course.getId(), hour.getId(), lastTime, curTime));
     }
-
 }

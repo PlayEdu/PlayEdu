@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.domain.AdminUser;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.types.paginate.AdminUserPaginateFilter;
@@ -26,7 +31,9 @@ public interface AdminUserService extends IService<AdminUser> {
 
     AdminUser findOrFail(Integer id) throws NotFoundException;
 
-    void createWithRoleIds(String name, String email, String password, Integer isBanLogin, Integer[] roleIds) throws ServiceException;
+    void createWithRoleIds(
+            String name, String email, String password, Integer isBanLogin, Integer[] roleIds)
+            throws ServiceException;
 
     void relateRoles(AdminUser user, Integer[] roleIds);
 
@@ -34,7 +41,14 @@ public interface AdminUserService extends IService<AdminUser> {
 
     List<Integer> getRoleIdsByUserId(Integer userId);
 
-    void updateWithRoleIds(AdminUser user, String name, String email, String password, Integer isBanLogin, Integer[] roleIds) throws ServiceException;
+    void updateWithRoleIds(
+            AdminUser user,
+            String name,
+            String email,
+            String password,
+            Integer isBanLogin,
+            Integer[] roleIds)
+            throws ServiceException;
 
     void removeWithRoleIds(Integer userId);
 

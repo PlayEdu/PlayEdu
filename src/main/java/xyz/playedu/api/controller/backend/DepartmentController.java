@@ -1,10 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.Department;
@@ -21,6 +27,7 @@ import java.util.*;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/19 10:33
  */
 @RestController
@@ -28,17 +35,13 @@ import java.util.*;
 @RequestMapping("/backend/v1/department")
 public class DepartmentController {
 
-    @Autowired
-    private DepartmentService departmentService;
+    @Autowired private DepartmentService departmentService;
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private CourseService courseService;
+    @Autowired private CourseService courseService;
 
-    @Autowired
-    private ApplicationContext ctx;
+    @Autowired private ApplicationContext ctx;
 
     @GetMapping("/index")
     public JsonResponse index() {
@@ -48,7 +51,8 @@ public class DepartmentController {
     }
 
     @GetMapping("/departments")
-    public JsonResponse index(@RequestParam(name = "parent_id", defaultValue = "0") Integer parentId) {
+    public JsonResponse index(
+            @RequestParam(name = "parent_id", defaultValue = "0") Integer parentId) {
         List<Department> departments = departmentService.listByParentId(parentId);
         return JsonResponse.data(departments);
     }
@@ -63,7 +67,8 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PostMapping("/create")
-    public JsonResponse store(@RequestBody @Validated DepartmentRequest req) throws NotFoundException {
+    public JsonResponse store(@RequestBody @Validated DepartmentRequest req)
+            throws NotFoundException {
         departmentService.create(req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
@@ -77,7 +82,8 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PutMapping("/{id}")
-    public JsonResponse update(@PathVariable Integer id, @RequestBody DepartmentRequest req) throws NotFoundException {
+    public JsonResponse update(@PathVariable Integer id, @RequestBody DepartmentRequest req)
+            throws NotFoundException {
         Department department = departmentService.findOrFail(id);
         departmentService.update(department, req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
@@ -95,17 +101,29 @@ public class DepartmentController {
         data.put("children", departmentService.listByParentId(id));
 
         if (courseIds != null && courseIds.size() > 0) {
-            data.put("courses", courseService.chunks(courseIds, new ArrayList<>() {{
-                add("id");
-                add("title");
-            }}));
+            data.put(
+                    "courses",
+                    courseService.chunks(
+                            courseIds,
+                            new ArrayList<>() {
+                                {
+                                    add("id");
+                                    add("title");
+                                }
+                            }));
         }
         if (userIds != null && userIds.size() > 0) {
-            data.put("users", userService.chunks(userIds, new ArrayList<>() {{
-                add("id");
-                add("name");
-                add("avatar");
-            }}));
+            data.put(
+                    "users",
+                    userService.chunks(
+                            userIds,
+                            new ArrayList<>() {
+                                {
+                                    add("id");
+                                    add("name");
+                                    add("avatar");
+                                }
+                            }));
         }
 
         return JsonResponse.data(data);
@@ -127,9 +145,9 @@ public class DepartmentController {
     }
 
     @PutMapping("/update/parent")
-    public JsonResponse updateParent(@RequestBody @Validated DepartmentParentRequest req) throws NotFoundException {
+    public JsonResponse updateParent(@RequestBody @Validated DepartmentParentRequest req)
+            throws NotFoundException {
         departmentService.changeParent(req.getId(), req.getParentId(), req.getIds());
         return JsonResponse.success();
     }
-
 }

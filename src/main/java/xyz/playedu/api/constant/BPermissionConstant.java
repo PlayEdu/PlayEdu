@@ -1,36 +1,40 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.constant;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/21 14:57
  */
 public class BPermissionConstant {
 
-    public final static String TYPE_ACTION = "action";
-    public final static String TYPE_DATA = "data";
+    public static final String TYPE_ACTION = "action";
+    public static final String TYPE_DATA = "data";
 
-    public final static String ADMIN_USER_INDEX = "admin-user-index";
-    public final static String ADMIN_USER_CUD = "admin-user-cud";
+    public static final String ADMIN_USER_INDEX = "admin-user-index";
+    public static final String ADMIN_USER_CUD = "admin-user-cud";
 
-    public final static String ADMIN_ROLE = "admin-role";
+    public static final String ADMIN_ROLE = "admin-role";
 
-    public final static String DEPARTMENT_CUD = "department-cud";
+    public static final String DEPARTMENT_CUD = "department-cud";
 
-    public final static String RESOURCE_CATEGORY = "resource-category";
+    public static final String RESOURCE_CATEGORY = "resource-category";
 
-    public final static String USER_INDEX = "user-index";
-    public final static String USER_STORE = "user-store";
-    public final static String USER_UPDATE = "user-update";
-    public final static String USER_DESTROY = "user-destroy";
+    public static final String USER_INDEX = "user-index";
+    public static final String USER_STORE = "user-store";
+    public static final String USER_UPDATE = "user-update";
+    public static final String USER_DESTROY = "user-destroy";
 
-    public final static String COURSE = "course";
-    public final static String COURSE_USER = "course-user";
+    public static final String COURSE = "course";
+    public static final String COURSE_USER = "course-user";
 
-    public final static String RESOURCE_DESTROY = "resource-destroy";
+    public static final String RESOURCE_DESTROY = "resource-destroy";
 
-    public final static String DATA_USER_NAME = "data-user-name";
-    public final static String DATA_USER_EMAIL = "data-user-email";
-    public final static String DATA_USER_ID_CARD = "data-user-id-card";
-    public final static String DATA_ADMIN_EMAIL = "data-admin-email";
-
+    public static final String DATA_USER_NAME = "data-user-name";
+    public static final String DATA_USER_EMAIL = "data-user-email";
+    public static final String DATA_USER_ID_CARD = "data-user-id-card";
+    public static final String DATA_ADMIN_EMAIL = "data-admin-email";
 }

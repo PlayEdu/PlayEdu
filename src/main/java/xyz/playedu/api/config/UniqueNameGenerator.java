@@ -1,3 +1,7 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.config;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -6,6 +10,7 @@ import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/2 21:53
  */
 public class UniqueNameGenerator extends AnnotationBeanNameGenerator {

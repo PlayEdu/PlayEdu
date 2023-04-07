@@ -1,16 +1,22 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.domain.AdminRolePermission;
 import xyz.playedu.api.exception.NotFoundException;
-import xyz.playedu.api.service.internal.AdminRolePermissionService;
-import xyz.playedu.api.service.AdminRoleService;
 import xyz.playedu.api.mapper.AdminRoleMapper;
-import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.AdminRoleService;
+import xyz.playedu.api.service.internal.AdminRolePermissionService;
 import xyz.playedu.api.service.internal.AdminUserRoleService;
 import xyz.playedu.api.util.HelperUtil;
 
@@ -24,13 +30,12 @@ import java.util.List;
  * @createDate 2023-02-21 15:53:27
  */
 @Service
-public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole> implements AdminRoleService {
+public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole>
+        implements AdminRoleService {
 
-    @Autowired
-    private AdminRolePermissionService rolePermissionService;
+    @Autowired private AdminRolePermissionService rolePermissionService;
 
-    @Autowired
-    private AdminUserRoleService userRoleService;
+    @Autowired private AdminUserRoleService userRoleService;
 
     @Override
     public AdminRole getBySlug(String slug) {
@@ -50,7 +55,6 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
         save(role);
 
         relatePermissions(role, permissionIds);
-
     }
 
     @Override
@@ -107,7 +111,8 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
 
     @Override
     public List<Integer> getPermissionIdsByRoleId(Integer roleId) {
-        QueryWrapper<AdminRolePermission> wrapper = rolePermissionService.query().getWrapper().eq("role_id", roleId);
+        QueryWrapper<AdminRolePermission> wrapper =
+                rolePermissionService.query().getWrapper().eq("role_id", roleId);
         List<AdminRolePermission> rolePermissions = rolePermissionService.list(wrapper);
         List<Integer> ids = new ArrayList<>();
         for (AdminRolePermission rolePermission : rolePermissions) {
@@ -118,7 +123,8 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
 
     @Override
     public List<Integer> getPermissionIdsByRoleIds(List<Integer> roleIds) {
-        QueryWrapper<AdminRolePermission> wrapper = rolePermissionService.query().getWrapper().in("role_id", roleIds);
+        QueryWrapper<AdminRolePermission> wrapper =
+                rolePermissionService.query().getWrapper().in("role_id", roleIds);
         List<AdminRolePermission> rolePermissions = rolePermissionService.list(wrapper);
         List<Integer> ids = new ArrayList<>();
         for (AdminRolePermission rolePermission : rolePermissions) {
@@ -129,11 +135,8 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
 
     @Override
     public void removeRelatePermissionByRoleId(Integer roleId) {
-        QueryWrapper<AdminRolePermission> wrapper = rolePermissionService.query().getWrapper().eq("role_id", roleId);
+        QueryWrapper<AdminRolePermission> wrapper =
+                rolePermissionService.query().getWrapper().eq("role_id", roleId);
         rolePermissionService.remove(wrapper);
     }
 }
-
-
-
-

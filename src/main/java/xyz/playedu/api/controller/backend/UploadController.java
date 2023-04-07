@@ -1,11 +1,17 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.Resource;
@@ -17,28 +23,27 @@ import xyz.playedu.api.service.UploadService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
 
-
 import java.util.HashMap;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/28 16:26
  */
 @RestController
 @Slf4j
 @RequestMapping("/backend/v1/upload")
 public class UploadController {
-    @Autowired
-    private MinioService minioService;
+    @Autowired private MinioService minioService;
 
-    @Autowired
-    private UploadService uploadService;
+    @Autowired private UploadService uploadService;
 
-    @Autowired
-    private ResourceService resourceService;
+    @Autowired private ResourceService resourceService;
 
     @PostMapping("/minio")
-    public JsonResponse uploadMinio(@RequestParam HashMap<String, Object> params, MultipartFile file) throws ServiceException {
+    public JsonResponse uploadMinio(
+            @RequestParam HashMap<String, Object> params, MultipartFile file)
+            throws ServiceException {
         String categoryIds = MapUtils.getString(params, "category_ids");
         Resource res = uploadService.storeMinio(BCtx.getId(), file, categoryIds);
         return JsonResponse.data(res);
@@ -55,8 +60,8 @@ public class UploadController {
             return JsonResponse.error("该格式文件不支持上传");
         }
 
-        String filename = HelperUtil.randomString(32) + "." + extension;//文件名
-        String path = BackendConstant.RESOURCE_TYPE_2_DIR.get(type) + filename;//存储路径
+        String filename = HelperUtil.randomString(32) + "." + extension; // 文件名
+        String path = BackendConstant.RESOURCE_TYPE_2_DIR.get(type) + filename; // 存储路径
         String uploadId = minioService.uploadId(path);
 
         HashMap<String, String> data = new HashMap<>();
@@ -82,7 +87,8 @@ public class UploadController {
     }
 
     @PostMapping("/minio/merge-video")
-    public JsonResponse minioMergeVideo(@RequestBody @Validated UploadVideoMergeRequest req) throws ServiceException {
+    public JsonResponse minioMergeVideo(@RequestBody @Validated UploadVideoMergeRequest req)
+            throws ServiceException {
         String type = BackendConstant.RESOURCE_EXT_2_TYPE.get(req.getExtension());
         if (type == null) {
             return JsonResponse.error("当前格式不支持上传");
@@ -94,24 +100,26 @@ public class UploadController {
         String url = minioService.merge(req.getFilename(), req.getUploadId());
 
         // 视频素材保存
-        Resource videoResource = resourceService.create(
-                BCtx.getId(),
-                req.getCategoryIds(),
-                type,
-                originalFilename,
-                extension,
-                req.getSize(),
-                BackendConstant.STORAGE_DRIVER_MINIO,
-                "",
-                req.getFilename(),
-                url
-        );
+        Resource videoResource =
+                resourceService.create(
+                        BCtx.getId(),
+                        req.getCategoryIds(),
+                        type,
+                        originalFilename,
+                        extension,
+                        req.getSize(),
+                        BackendConstant.STORAGE_DRIVER_MINIO,
+                        "",
+                        req.getFilename(),
+                        url);
         // 视频封面素材保存
-        Resource posterResource = uploadService.storeBase64Image(BCtx.getId(), req.getPoster(), null);
+        Resource posterResource =
+                uploadService.storeBase64Image(BCtx.getId(), req.getPoster(), null);
         // 视频的封面素材改为[隐藏 && 属于视频的子素材]
         resourceService.changeParentId(posterResource.getId(), videoResource.getId());
         // 视频信息
-        resourceService.storeResourceVideo(videoResource.getId(), req.getDuration(), posterResource.getUrl());
+        resourceService.storeResourceVideo(
+                videoResource.getId(), req.getDuration(), posterResource.getUrl());
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("url", url);
@@ -137,5 +145,4 @@ public class UploadController {
 
         return JsonResponse.data(data);
     }
-
 }

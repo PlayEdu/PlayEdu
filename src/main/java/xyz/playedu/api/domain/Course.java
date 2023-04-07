@@ -1,16 +1,20 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 /**
  * @TableName courses
@@ -18,59 +22,41 @@ import lombok.Data;
 @TableName(value = "courses")
 @Data
 public class Course implements Serializable {
-    /**
-     *
-     */
+    /** */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 课程标题
-     */
+    /** 课程标题 */
     private String title;
 
-    /**
-     * 课程封面
-     */
+    /** 课程封面 */
     private String thumb;
 
-    /**
-     * 课程价格(分)
-     */
+    /** 课程价格(分) */
     private Integer charge;
 
-    /**
-     * 课程简介
-     */
+    /** 课程简介 */
     @JsonProperty("short_desc")
     private String shortDesc;
 
-    /**
-     * 1:必修,0:选修
-     */
+    /** 1:必修,0:选修 */
     @JsonProperty("is_required")
     private Integer isRequired;
 
-    /**
-     * 课时数
-     */
+    /** 课时数 */
     @JsonProperty("class_hour")
     private Integer classHour;
 
-    /**
-     * 显示[1:是,0:否]
-     */
+    /** 显示[1:是,0:否] */
     @JsonProperty("is_show")
     private Integer isShow;
 
     @JsonProperty("created_at")
     private Date createdAt;
 
-    @JsonIgnore
-    private Date updatedAt;
+    @JsonIgnore private Date updatedAt;
 
-    @JsonIgnore
-    private Date deletedAt;
+    @JsonIgnore private Date deletedAt;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -88,16 +74,36 @@ public class Course implements Serializable {
         }
         Course other = (Course) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getTitle() == null ? other.getTitle() == null : this.getTitle().equals(other.getTitle()))
-                && (this.getThumb() == null ? other.getThumb() == null : this.getThumb().equals(other.getThumb()))
-                && (this.getCharge() == null ? other.getCharge() == null : this.getCharge().equals(other.getCharge()))
-                && (this.getClassHour() == null ? other.getClassHour() == null : this.getClassHour().equals(other.getClassHour()))
-                && (this.getIsShow() == null ? other.getIsShow() == null : this.getIsShow().equals(other.getIsShow()))
-                && (this.getIsRequired() == null ? other.getIsRequired() == null : this.getIsRequired().equals(other.getIsRequired()))
-                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
-                && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()))
-                && (this.getDeletedAt() == null ? other.getDeletedAt() == null : this.getDeletedAt().equals(other.getDeletedAt()))
-                && (this.getShortDesc() == null ? other.getShortDesc() == null : this.getShortDesc().equals(other.getShortDesc()));
+                && (this.getTitle() == null
+                        ? other.getTitle() == null
+                        : this.getTitle().equals(other.getTitle()))
+                && (this.getThumb() == null
+                        ? other.getThumb() == null
+                        : this.getThumb().equals(other.getThumb()))
+                && (this.getCharge() == null
+                        ? other.getCharge() == null
+                        : this.getCharge().equals(other.getCharge()))
+                && (this.getClassHour() == null
+                        ? other.getClassHour() == null
+                        : this.getClassHour().equals(other.getClassHour()))
+                && (this.getIsShow() == null
+                        ? other.getIsShow() == null
+                        : this.getIsShow().equals(other.getIsShow()))
+                && (this.getIsRequired() == null
+                        ? other.getIsRequired() == null
+                        : this.getIsRequired().equals(other.getIsRequired()))
+                && (this.getCreatedAt() == null
+                        ? other.getCreatedAt() == null
+                        : this.getCreatedAt().equals(other.getCreatedAt()))
+                && (this.getUpdatedAt() == null
+                        ? other.getUpdatedAt() == null
+                        : this.getUpdatedAt().equals(other.getUpdatedAt()))
+                && (this.getDeletedAt() == null
+                        ? other.getDeletedAt() == null
+                        : this.getDeletedAt().equals(other.getDeletedAt()))
+                && (this.getShortDesc() == null
+                        ? other.getShortDesc() == null
+                        : this.getShortDesc().equals(other.getShortDesc()));
     }
 
     @Override

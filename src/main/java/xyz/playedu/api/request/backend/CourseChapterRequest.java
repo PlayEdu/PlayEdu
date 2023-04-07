@@ -1,12 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.request.backend;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import lombok.Data;
+
 import org.hibernate.validator.constraints.Length;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/26 17:36
  */
 @Data
@@ -18,5 +25,4 @@ public class CourseChapterRequest {
 
     @NotNull(message = "sort参数不存在")
     private Integer sort;
-
 }

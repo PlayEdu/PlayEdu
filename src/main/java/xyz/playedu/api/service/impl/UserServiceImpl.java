@@ -1,18 +1,25 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import lombok.SneakyThrows;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.exception.ServiceException;
-import xyz.playedu.api.service.internal.UserDepartmentService;
-import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.mapper.UserMapper;
-import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.UserService;
+import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
@@ -29,8 +36,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    @Autowired
-    private UserDepartmentService userDepartmentService;
+    @Autowired private UserDepartmentService userDepartmentService;
 
     @Override
     public boolean emailIsExists(String email) {
@@ -52,12 +58,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<String> existsEmailsByEmails(List<String> emails) {
-        return list(query().getWrapper().in("email", emails).select("id", "email")).stream().map(User::getEmail).toList();
+        return list(query().getWrapper().in("email", emails).select("id", "email")).stream()
+                .map(User::getEmail)
+                .toList();
     }
 
     @Override
     public void removeRelateDepartmentsByUserId(Integer userId) {
-        userDepartmentService.remove(userDepartmentService.query().getWrapper().eq("user_id", userId));
+        userDepartmentService.remove(
+                userDepartmentService.query().getWrapper().eq("user_id", userId));
     }
 
     @Override
@@ -71,7 +80,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional
-    public User createWithDepIds(String email, String name, String avatar, String password, String idCard, Integer[] depIds) {
+    public User createWithDepIds(
+            String email,
+            String name,
+            String avatar,
+            String password,
+            String idCard,
+            Integer[] depIds) {
         String salt = HelperUtil.randomString(6);
         String passwordHashed = HelperUtil.MD5(password + salt);
 
@@ -103,7 +118,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional
-    public User updateWithDepIds(User user, String email, String name, String avatar, String password, String idCard, Integer[] depIds) {
+    public User updateWithDepIds(
+            User user,
+            String email,
+            String name,
+            String avatar,
+            String password,
+            String idCard,
+            Integer[] depIds) {
         User newUser = new User();
         newUser.setId(user.getId());
         newUser.setEmail(email);
@@ -115,7 +137,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             newUser.setPassword(HelperUtil.MD5(password + user.getSalt()));
         }
 
-        if (newUser.getName() != null && newUser.getName().length() > 0 && newUser.getIdCard() != null && newUser.getIdCard().length() > 0) {
+        if (newUser.getName() != null
+                && newUser.getName().length() > 0
+                && newUser.getIdCard() != null
+                && newUser.getIdCard().length() > 0) {
             if (user.getVerifyAt() == null) {
                 newUser.setIsVerify(1);
                 newUser.setVerifyAt(new Date());
@@ -134,7 +159,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<Integer> getDepIdsByUserId(Integer userId) {
-        return userDepartmentService.list(userDepartmentService.query().getWrapper().eq("user_id", userId)).stream().map(UserDepartment::getDepId).toList();
+        return userDepartmentService
+                .list(userDepartmentService.query().getWrapper().eq("user_id", userId))
+                .stream()
+                .map(UserDepartment::getDepId)
+                .toList();
     }
 
     @Override
@@ -148,14 +177,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public void passwordChange(User user, String oldPassword, String newPassword) throws ServiceException {
+    public void passwordChange(User user, String oldPassword, String newPassword)
+            throws ServiceException {
         if (!HelperUtil.MD5(oldPassword + user.getSalt()).equals(user.getPassword())) {
             throw new ServiceException("原密码不正确");
         }
-        updateById(new User() {{
-            setId(user.getId());
-            setPassword(HelperUtil.MD5(newPassword + user.getSalt()));
-        }});
+        updateById(
+                new User() {
+                    {
+                        setId(user.getId());
+                        setPassword(HelperUtil.MD5(newPassword + user.getSalt()));
+                    }
+                });
     }
 
     @Override
@@ -185,7 +218,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         String todayDate = simpleDateFormat.format(now);
-        return count(query().getWrapper().between("created_at", simpleDateFormat.parse(todayDate), now));
+        return count(
+                query().getWrapper().between("created_at", simpleDateFormat.parse(todayDate), now));
     }
 
     @Override
@@ -193,8 +227,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Long yesterdayCount() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String todayDate = simpleDateFormat.format(new Date());
-        String yesterdayDate = simpleDateFormat.format(new Date(System.currentTimeMillis() - 86400000));
-        return count(query().getWrapper().between("created_at", simpleDateFormat.parse(yesterdayDate), simpleDateFormat.parse(todayDate)));
+        String yesterdayDate =
+                simpleDateFormat.format(new Date(System.currentTimeMillis() - 86400000));
+        return count(
+                query().getWrapper()
+                        .between(
+                                "created_at",
+                                simpleDateFormat.parse(yesterdayDate),
+                                simpleDateFormat.parse(todayDate)));
     }
 
     @Override
@@ -202,14 +242,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userIds == null || userIds.size() == 0) {
             return null;
         }
-        Map<Integer, List<UserDepartment>> data = userDepartmentService
-                .list(userDepartmentService.query().getWrapper().in("user_id", userIds))
-                .stream()
-                .collect(Collectors.groupingBy(UserDepartment::getUserId));
+        Map<Integer, List<UserDepartment>> data =
+                userDepartmentService
+                        .list(userDepartmentService.query().getWrapper().in("user_id", userIds))
+                        .stream()
+                        .collect(Collectors.groupingBy(UserDepartment::getUserId));
         Map<Integer, List<Integer>> result = new HashMap<>();
-        data.forEach((userId, records) -> {
-            result.put(userId, records.stream().map(UserDepartment::getDepId).toList());
-        });
+        data.forEach(
+                (userId, records) -> {
+                    result.put(userId, records.stream().map(UserDepartment::getDepId).toList());
+                });
         return result;
     }
 
@@ -221,7 +263,3 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         updateById(user);
     }
 }
-
-
-
-

@@ -1,9 +1,14 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/7 13:29
  */
 public interface MinioService {
@@ -21,5 +26,4 @@ public interface MinioService {
     String merge(String filename, String uploadId);
 
     void removeByPath(String path);
-
 }

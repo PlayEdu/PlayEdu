@@ -1,9 +1,14 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
@@ -25,23 +30,20 @@ import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/23 09:46
  */
 @RestController
 @RequestMapping("/backend/v1/resource-category")
 public class ResourceCategoryController {
 
-    @Autowired
-    private ResourceCategoryService categoryService;
+    @Autowired private ResourceCategoryService categoryService;
 
-    @Autowired
-    private CourseService courseService;
+    @Autowired private CourseService courseService;
 
-    @Autowired
-    private ResourceService resourceService;
+    @Autowired private ResourceService resourceService;
 
-    @Autowired
-    private ApplicationContext ctx;
+    @Autowired private ApplicationContext ctx;
 
     @GetMapping("/index")
     public JsonResponse index() {
@@ -51,7 +53,8 @@ public class ResourceCategoryController {
     }
 
     @GetMapping("/categories")
-    public JsonResponse index(@RequestParam(name = "parent_id", defaultValue = "0") Integer parentId) {
+    public JsonResponse index(
+            @RequestParam(name = "parent_id", defaultValue = "0") Integer parentId) {
         List<ResourceCategory> categories = categoryService.listByParentId(parentId);
         return JsonResponse.data(categories);
     }
@@ -65,7 +68,8 @@ public class ResourceCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PostMapping("/create")
-    public JsonResponse store(@RequestBody @Validated ResourceCategoryRequest req) throws NotFoundException {
+    public JsonResponse store(@RequestBody @Validated ResourceCategoryRequest req)
+            throws NotFoundException {
         categoryService.create(req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
@@ -79,7 +83,8 @@ public class ResourceCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PutMapping("/{id}")
-    public JsonResponse update(@PathVariable Integer id, @RequestBody ResourceCategoryRequest req) throws NotFoundException {
+    public JsonResponse update(@PathVariable Integer id, @RequestBody ResourceCategoryRequest req)
+            throws NotFoundException {
         ResourceCategory category = categoryService.findOrFail(id);
         categoryService.update(category, req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
@@ -98,20 +103,34 @@ public class ResourceCategoryController {
         data.put("images", new ArrayList<>());
 
         if (courseIds != null && courseIds.size() > 0) {
-            data.put("courses", courseService.chunks(courseIds, new ArrayList<>() {{
-                add("id");
-                add("title");
-            }}));
+            data.put(
+                    "courses",
+                    courseService.chunks(
+                            courseIds,
+                            new ArrayList<>() {
+                                {
+                                    add("id");
+                                    add("title");
+                                }
+                            }));
         }
 
         if (rids != null && rids.size() > 0) {
-            Map<String, List<Resource>> resources = resourceService.chunks(rids, new ArrayList<>() {{
-                add("id");
-                add("admin_id");
-                add("type");
-                add("name");
-                add("url");
-            }}).stream().collect(Collectors.groupingBy(Resource::getType));
+            Map<String, List<Resource>> resources =
+                    resourceService
+                            .chunks(
+                                    rids,
+                                    new ArrayList<>() {
+                                        {
+                                            add("id");
+                                            add("admin_id");
+                                            add("type");
+                                            add("name");
+                                            add("url");
+                                        }
+                                    })
+                            .stream()
+                            .collect(Collectors.groupingBy(Resource::getType));
             data.put("videos", resources.get(BackendConstant.RESOURCE_TYPE_VIDEO));
             data.put("images", resources.get(BackendConstant.RESOURCE_TYPE_IMAGE));
         }
@@ -135,9 +154,9 @@ public class ResourceCategoryController {
     }
 
     @PutMapping("/update/parent")
-    public JsonResponse updateParent(@RequestBody @Validated ResourceCategoryParentRequest req) throws NotFoundException {
+    public JsonResponse updateParent(@RequestBody @Validated ResourceCategoryParentRequest req)
+            throws NotFoundException {
         categoryService.changeParent(req.getId(), req.getParentId(), req.getIds());
         return JsonResponse.success();
     }
-
 }

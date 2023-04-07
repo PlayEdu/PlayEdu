@@ -1,12 +1,17 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import xyz.playedu.api.domain.CourseDepartment;
-import xyz.playedu.api.service.CourseDepartmentService;
-import xyz.playedu.api.mapper.CourseDepartmentMapper;
+
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import xyz.playedu.api.domain.CourseDepartment;
+import xyz.playedu.api.mapper.CourseDepartmentMapper;
+import xyz.playedu.api.service.CourseDepartmentService;
+
 import java.util.List;
 
 /**
@@ -15,16 +20,21 @@ import java.util.List;
  * @createDate 2023-02-24 14:53:52
  */
 @Service
-public class CourseDepartmentServiceImpl extends ServiceImpl<CourseDepartmentMapper, CourseDepartment>
+public class CourseDepartmentServiceImpl
+        extends ServiceImpl<CourseDepartmentMapper, CourseDepartment>
         implements CourseDepartmentService {
     @Override
     public List<Integer> getCourseIdsByDepIds(List<Integer> depIds) {
-        return list(query().getWrapper().in("dep_id", depIds)).stream().map(CourseDepartment::getCourseId).toList();
+        return list(query().getWrapper().in("dep_id", depIds)).stream()
+                .map(CourseDepartment::getCourseId)
+                .toList();
     }
 
     @Override
     public List<Integer> getDepIdsByCourseId(Integer courseId) {
-        return list(query().getWrapper().eq("course_id", courseId)).stream().map(CourseDepartment::getDepId).toList();
+        return list(query().getWrapper().eq("course_id", courseId)).stream()
+                .map(CourseDepartment::getDepId)
+                .toList();
     }
 
     @Override
@@ -32,7 +42,3 @@ public class CourseDepartmentServiceImpl extends ServiceImpl<CourseDepartmentMap
         remove(query().getWrapper().eq("course_id", courseId));
     }
 }
-
-
-
-

@@ -1,3 +1,7 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api;
 
 import xyz.playedu.api.domain.AdminUser;
@@ -8,15 +12,15 @@ import java.util.Map;
 
 public class BCtx {
 
-    private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL = new java.lang.ThreadLocal<>();
+    private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL =
+            new java.lang.ThreadLocal<>();
 
-    public final static String KEY_ADMIN_USER_ID = "admin_id";
-    public final static String KEY_ADMIN_USER = "admin_user";
-    public final static String KEY_ADMIN_PER = "admin_per";
-    public final static String KEY_CONFIG = "config";
+    public static final String KEY_ADMIN_USER_ID = "admin_id";
+    public static final String KEY_ADMIN_USER = "admin_user";
+    public static final String KEY_ADMIN_PER = "admin_per";
+    public static final String KEY_CONFIG = "config";
 
-    public BCtx() {
-    }
+    public BCtx() {}
 
     private static void put(String key, Object val) {
         LinkedHashMap<String, Object> hashMap = THREAD_LOCAL.get();
@@ -73,5 +77,4 @@ public class BCtx {
     public static Map<String, String> getConfig() {
         return (Map<String, String>) get(KEY_CONFIG);
     }
-
 }

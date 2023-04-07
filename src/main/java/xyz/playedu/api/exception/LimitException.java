@@ -1,12 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.exception;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/10 14:13
  */
 public class LimitException extends Exception {
-    public LimitException() {
-    }
+    public LimitException() {}
 
     public LimitException(String message) {
         super(message);
@@ -20,7 +24,11 @@ public class LimitException extends Exception {
         super(cause);
     }
 
-    public LimitException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public LimitException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

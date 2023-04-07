@@ -1,8 +1,14 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.util;
 
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
+
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -12,7 +18,8 @@ import java.util.List;
 public class RequestUtil {
 
     public static HttpServletRequest handler() {
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes servletRequestAttributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         return servletRequestAttributes == null ? null : servletRequestAttributes.getRequest();
     }
 
@@ -43,7 +50,8 @@ public class RequestUtil {
 
     public static String uri() {
         Integer portNumber = port();
-        return RequestUtil.domain() + (Arrays.asList(443, 80, 0).contains(portNumber) ? "" : ":" + portNumber);
+        return RequestUtil.domain()
+                + (Arrays.asList(443, 80, 0).contains(portNumber) ? "" : ":" + portNumber);
     }
 
     public static String pathname() {

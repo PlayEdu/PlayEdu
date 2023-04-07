@@ -1,8 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.util.DigestUtils;
 
 import java.io.*;
@@ -13,11 +17,12 @@ import java.util.*;
 
 public class HelperUtil {
 
-
     public static List<Integer> zeroIntegerList() {
-        return new ArrayList<>() {{
-            add(0);
-        }};
+        return new ArrayList<>() {
+            {
+                add(0);
+            }
+        };
     }
 
     public static String MD5(String text) {
@@ -104,12 +109,13 @@ public class HelperUtil {
      * 下载文件
      *
      * @param urlString (文件网址)
-     * @param savePath  (保存路径,如: /www/uploads)
-     * @param filename  (保存名称,如: aa.png)
+     * @param savePath (保存路径,如: /www/uploads)
+     * @param filename (保存名称,如: aa.png)
      * @throws IOException 异常
      * @author fzr
      */
-    public static void download(String urlString, String savePath, String filename) throws IOException {
+    public static void download(String urlString, String savePath, String filename)
+            throws IOException {
         URL url = new URL(urlString);
         URLConnection con = url.openConnection();
         con.setConnectTimeout(20 * 1000);
@@ -119,7 +125,8 @@ public class HelperUtil {
                 throw new IOException("创建目录失败");
             }
         }
-        try (InputStream in = con.getInputStream(); OutputStream out = new FileOutputStream(sf.getPath() + "\\" + filename)) {
+        try (InputStream in = con.getInputStream();
+                OutputStream out = new FileOutputStream(sf.getPath() + "\\" + filename)) {
             byte[] buff = new byte[1024];
             int n;
             while ((n = in.read(buff)) >= 0) {
@@ -137,7 +144,8 @@ public class HelperUtil {
      * @return Object
      * @author fzr
      */
-    public static Map<String, Object> mergeMapByObj(Map<String, Object> map, Map<String, Object> map1) {
+    public static Map<String, Object> mergeMapByObj(
+            Map<String, Object> map, Map<String, Object> map1) {
         HashMap<String, Object> map2 = new HashMap<>();
         map2.putAll(map);
         map2.putAll(map1);
@@ -151,7 +159,8 @@ public class HelperUtil {
      * @return Object
      * @author fzr
      */
-    public static Map<String, String> mergeMapByStr(Map<String, String> map, Map<String, String> map1) {
+    public static Map<String, String> mergeMapByStr(
+            Map<String, String> map, Map<String, String> map1) {
         HashMap<String, String> map2 = new HashMap<>();
         map2.putAll(map);
         map2.putAll(map1);
@@ -167,5 +176,4 @@ public class HelperUtil {
         String[] array = filename.split("\\.");
         return array[array.length - 1].toLowerCase();
     }
-
 }

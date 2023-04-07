@@ -1,11 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.util;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import lombok.extern.slf4j.Slf4j;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -62,10 +67,15 @@ public class IpUtil {
         }
 
         try {
-            String rspStr = HttpUtil.get(IP_URL, new HashMap<>() {{
-                put("ip", ip);
-                put("json", true);
-            }});
+            String rspStr =
+                    HttpUtil.get(
+                            IP_URL,
+                            new HashMap<>() {
+                                {
+                                    put("ip", ip);
+                                    put("json", true);
+                                }
+                            });
             if (StringUtil.isEmpty(rspStr)) {
                 log.error("获取地理位置异常1 {}", ip);
                 return UNKNOWN;
@@ -246,5 +256,4 @@ public class IpUtil {
     public static boolean isUnknown(String checkString) {
         return StringUtil.isBlank(checkString) || "unknown".equalsIgnoreCase(checkString);
     }
-
 }

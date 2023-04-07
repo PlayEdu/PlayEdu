@@ -1,10 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.listener;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.api.constant.BackendLogConstant;
 import xyz.playedu.api.domain.AdminLog;
 import xyz.playedu.api.domain.AdminUser;
@@ -19,11 +25,9 @@ import java.util.Date;
 @Slf4j
 public class AdminUserLoginListener {
 
-    @Autowired
-    private AdminUserService adminUserService;
+    @Autowired private AdminUserService adminUserService;
 
-    @Autowired
-    private AdminLogService adminLogService;
+    @Autowired private AdminLogService adminLogService;
 
     @EventListener
     public void updateLoginInfo(AdminUserLoginEvent event) {
@@ -52,5 +56,4 @@ public class AdminUserLoginListener {
 
         adminLogService.save(adminLog);
     }
-
 }

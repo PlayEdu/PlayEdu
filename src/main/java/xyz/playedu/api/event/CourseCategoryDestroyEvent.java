@@ -1,13 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.event;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.springframework.context.ApplicationEvent;
 
 import java.util.Date;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/24 14:01
  */
 @Setter
@@ -24,5 +30,4 @@ public class CourseCategoryDestroyEvent extends ApplicationEvent {
         this.categoryId = categoryId;
         this.createdAt = new Date();
     }
-
 }

@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.domain.Course;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
@@ -18,9 +23,24 @@ public interface CourseService extends IService<Course> {
 
     PaginationResult<Course> paginate(int page, int size, CoursePaginateFiler filter);
 
-    Course createWithCategoryIdsAndDepIds(String title, String thumb, String shortDesc, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds);
+    Course createWithCategoryIdsAndDepIds(
+            String title,
+            String thumb,
+            String shortDesc,
+            Integer isRequired,
+            Integer isShow,
+            Integer[] categoryIds,
+            Integer[] depIds);
 
-    void updateWithCategoryIdsAndDepIds(Course course, String title, String thumb, String shortDesc, Integer isRequired, Integer isShow, Integer[] categoryIds, Integer[] depIds);
+    void updateWithCategoryIdsAndDepIds(
+            Course course,
+            String title,
+            String thumb,
+            String shortDesc,
+            Integer isRequired,
+            Integer isShow,
+            Integer[] categoryIds,
+            Integer[] depIds);
 
     void relateDepartments(Course course, Integer[] depIds);
 

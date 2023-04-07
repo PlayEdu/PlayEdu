@@ -1,6 +1,11 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.util;
 
 import jakarta.annotation.Resource;
+
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -8,6 +13,7 @@ import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+
 import xyz.playedu.api.constant.SystemConstant;
 
 import java.util.*;
@@ -43,7 +49,7 @@ public class RedisUtil {
     /**
      * 指定缓存失效时间
      *
-     * @param key    键
+     * @param key 键
      * @param second 时间(秒)
      * @author fzr
      */
@@ -55,7 +61,7 @@ public class RedisUtil {
     /**
      * 指定缓存失效时间
      *
-     * @param key         键
+     * @param key 键
      * @param millisecond 时间(毫秒)
      * @author fzr
      */
@@ -147,7 +153,7 @@ public class RedisUtil {
      * 将当前数据库的key移动到给定的数据库db当中
      *
      * @param key 键
-     * @param db  库
+     * @param db 库
      * @return Boolean
      * @author fzr
      */
@@ -190,21 +196,24 @@ public class RedisUtil {
      */
     public static Set<String> matchSet(String pattern) {
         Set<String> keys = new LinkedHashSet<>();
-        RedisUtil.handler().execute((RedisConnection connection) -> {
-            try (Cursor<byte[]> cursor = connection.scan(
-                    ScanOptions.scanOptions()
-                            .count(Long.MAX_VALUE)
-                            .match(pattern)
-                            .build()
-            )) {
-                cursor.forEachRemaining(item -> {
-                    keys.add(RedisSerializer.string().deserialize(item));
-                });
-                return null;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        RedisUtil.handler()
+                .execute(
+                        (RedisConnection connection) -> {
+                            try (Cursor<byte[]> cursor =
+                                    connection.scan(
+                                            ScanOptions.scanOptions()
+                                                    .count(Long.MAX_VALUE)
+                                                    .match(pattern)
+                                                    .build())) {
+                                cursor.forEachRemaining(
+                                        item -> {
+                                            keys.add(RedisSerializer.string().deserialize(item));
+                                        });
+                                return null;
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
 
         return keys;
     }
@@ -224,7 +233,7 @@ public class RedisUtil {
     /**
      * 获取旧值并设置新值
      *
-     * @param key    键
+     * @param key 键
      * @param newVal 新值
      * @return Object
      * @author fzr
@@ -237,7 +246,7 @@ public class RedisUtil {
     /**
      * 设置键值对
      *
-     * @param key   键
+     * @param key 键
      * @param value 值
      * @author fzr
      */
@@ -249,9 +258,9 @@ public class RedisUtil {
     /**
      * 设置键值对并设置时间
      *
-     * @param key   键
+     * @param key 键
      * @param value 值
-     * @param time  time要大于0 如果time小于等于0 将设置无限期
+     * @param time time要大于0 如果time小于等于0 将设置无限期
      * @author fzr
      */
     public static void set(String key, Object value, long time) {
@@ -266,7 +275,7 @@ public class RedisUtil {
     /**
      * 递增
      *
-     * @param key   键
+     * @param key 键
      * @param delta 要增加几(大于0)
      * @return Long
      * @author fzr
@@ -282,7 +291,7 @@ public class RedisUtil {
     /**
      * 递减
      *
-     * @param key   键
+     * @param key 键
      * @param delta 要减少几(小于0)
      * @return Long
      * @author fzr
@@ -300,7 +309,7 @@ public class RedisUtil {
     /**
      * 获取key中field域的值
      *
-     * @param key   键 不能为null
+     * @param key 键 不能为null
      * @param field 项 不能为null
      * @return 值
      * @author fzr
@@ -313,7 +322,7 @@ public class RedisUtil {
     /**
      * 判断key中有没有field域名
      *
-     * @param key   键
+     * @param key 键
      * @param field 字段
      * @return Boolean
      * @author fzr
@@ -350,8 +359,8 @@ public class RedisUtil {
     /**
      * HashSet 并设置时间
      *
-     * @param key  键
-     * @param map  对应多个键值
+     * @param key 键
+     * @param map 对应多个键值
      * @param time 时间(秒)
      * @author fzr
      */
@@ -366,8 +375,8 @@ public class RedisUtil {
     /**
      * 向一张hash表中放入数据,如果不存在将创建
      *
-     * @param key   键
-     * @param item  项
+     * @param key 键
+     * @param item 项
      * @param value 值
      * @author fzr
      */
@@ -379,10 +388,10 @@ public class RedisUtil {
     /**
      * 向一张hash表中放入数据,如果不存在将创建
      *
-     * @param key   键
-     * @param item  项
+     * @param key 键
+     * @param item 项
      * @param value 值
-     * @param time  时间(秒) 注意:如果已存在的hash表有时间,这里将会替换原有的时间
+     * @param time 时间(秒) 注意:如果已存在的hash表有时间,这里将会替换原有的时间
      * @return true 成功 false失败
      * @author fzr
      */
@@ -398,7 +407,7 @@ public class RedisUtil {
     /**
      * 删除hash表中的值
      *
-     * @param key  键 不能为null
+     * @param key 键 不能为null
      * @param item 项 可以使多个 不能为null
      * @author fzr
      */
@@ -410,7 +419,7 @@ public class RedisUtil {
     /**
      * 判断hash表中是否有该项的值
      *
-     * @param key  键 不能为null
+     * @param key 键 不能为null
      * @param item 项 不能为null
      * @return true 存在 false不存在
      * @author fzr
@@ -423,9 +432,9 @@ public class RedisUtil {
     /**
      * hash递增 如果不存在,就会创建一个并把新增后的值返回
      *
-     * @param key  键
+     * @param key 键
      * @param item 项
-     * @param by   要增加几(大于0)
+     * @param by 要增加几(大于0)
      * @return double
      * @author fzr
      */
@@ -437,9 +446,9 @@ public class RedisUtil {
     /**
      * hash递减
      *
-     * @param key  键
+     * @param key 键
      * @param item 项
-     * @param by   要减少记(小于0)
+     * @param by 要减少记(小于0)
      * @return double
      * @author fzr
      */
@@ -465,7 +474,7 @@ public class RedisUtil {
     /**
      * 根据value从一个set中查询,是否存在
      *
-     * @param key   键
+     * @param key 键
      * @param value 值
      * @return true 存在 false不存在
      * @author fzr
@@ -478,7 +487,7 @@ public class RedisUtil {
     /**
      * 将数据放入set缓存
      *
-     * @param key    键
+     * @param key 键
      * @param values 值 可以是多个
      * @return 成功个数
      * @author fzr
@@ -491,8 +500,8 @@ public class RedisUtil {
     /**
      * 将set数据放入缓存
      *
-     * @param key    键
-     * @param time   时间(秒)
+     * @param key 键
+     * @param time 时间(秒)
      * @param values 值 可以是多个
      * @return 成功个数
      * @author fzr
@@ -517,7 +526,7 @@ public class RedisUtil {
     /**
      * 移除值为value的
      *
-     * @param key    键
+     * @param key 键
      * @param values 值 可以是多个
      * @return 移除的个数
      * @author fzr
@@ -532,9 +541,9 @@ public class RedisUtil {
     /**
      * 获取list缓存的内容
      *
-     * @param key   键
+     * @param key 键
      * @param start 开始
-     * @param end   结束 0 到 -1代表所有值
+     * @param end 结束 0 到 -1代表所有值
      * @return List
      * @author fzr
      */
@@ -558,7 +567,7 @@ public class RedisUtil {
     /**
      * 通过索引获取list中的值
      *
-     * @param key   键
+     * @param key 键
      * @param index 索引 index>=0时,0 表头，1 第二个元素,依次类推;index<0时,-1,表尾,-2倒数第二个元素，依次类推
      * @return Object
      * @author fzr
@@ -571,7 +580,7 @@ public class RedisUtil {
     /**
      * 将list放入缓存
      *
-     * @param key   键
+     * @param key 键
      * @param value 值
      * @return boolean
      * @author fzr
@@ -585,8 +594,8 @@ public class RedisUtil {
     /**
      * 将list放入缓存
      *
-     * @param key    键
-     * @param value  值
+     * @param key 键
+     * @param value 值
      * @param second 时间(秒)
      * @return boolean
      * @author fzr
@@ -594,15 +603,14 @@ public class RedisUtil {
     public boolean lSet(String key, Object value, long second) {
         key = redisPrefix + key;
         redisTemplate.opsForList().rightPush(key, value);
-        if (second > 0)
-            expire(key, second);
+        if (second > 0) expire(key, second);
         return true;
     }
 
     /**
      * 将list放入缓存
      *
-     * @param key   键
+     * @param key 键
      * @param value 值
      * @return boolean
      * @author fzr
@@ -616,24 +624,23 @@ public class RedisUtil {
     /**
      * 将list放入缓存
      *
-     * @param key   键
+     * @param key 键
      * @param value 值
-     * @param time  时间(秒)
+     * @param time 时间(秒)
      * @return boolean
      * @author fzr
      */
     public boolean lSet(String key, List<Object> value, Long time) {
         key = redisPrefix + key;
         redisTemplate.opsForList().rightPushAll(key, value);
-        if (time > 0)
-            expire(key, time);
+        if (time > 0) expire(key, time);
         return true;
     }
 
     /**
      * 根据索引修改list中的某条数据
      *
-     * @param key   键
+     * @param key 键
      * @param index 索引
      * @param value 值
      * @return boolean
@@ -648,7 +655,7 @@ public class RedisUtil {
     /**
      * 移除N个值为value
      *
-     * @param key   键
+     * @param key 键
      * @param count 移除多少个
      * @param value 值
      * @return 移除的个数
@@ -658,5 +665,4 @@ public class RedisUtil {
         key = redisPrefix + key;
         return redisTemplate.opsForList().remove(key, count, value);
     }
-
 }

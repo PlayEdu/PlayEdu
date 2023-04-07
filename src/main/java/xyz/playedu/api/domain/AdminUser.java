@@ -1,21 +1,26 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serializable;
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @TableName admin_users
@@ -24,55 +29,35 @@ import xyz.playedu.api.constant.BackendConstant;
 @Data
 @Slf4j
 public class AdminUser implements Serializable {
-    /**
-     *
-     */
+    /** */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 姓名
-     */
+    /** 姓名 */
     private String name;
 
-    /**
-     * 邮箱
-     */
+    /** 邮箱 */
     private String email;
 
-    /**
-     * 密码
-     */
-    @JsonIgnore
-    private String password;
+    /** 密码 */
+    @JsonIgnore private String password;
 
-    /**
-     * Salt
-     */
-    @JsonIgnore
-    private String salt;
+    /** Salt */
+    @JsonIgnore private String salt;
 
-    /**
-     * 登录IP
-     */
+    /** 登录IP */
     @JsonProperty("login_ip")
     private String loginIp;
 
-    /**
-     * 登录时间
-     */
+    /** 登录时间 */
     @JsonProperty("login_at")
     private Date loginAt;
 
-    /**
-     * 1禁止登录,0否
-     */
+    /** 1禁止登录,0否 */
     @JsonProperty("is_ban_login")
     private Integer isBanLogin;
 
-    /**
-     * 登录次数
-     */
+    /** 登录次数 */
     @JsonProperty("login_times")
     private Integer loginTimes;
 
@@ -87,7 +72,10 @@ public class AdminUser implements Serializable {
 
     @JsonGetter("email")
     public String transformEmail() {
-        return BackendBus.valueHidden(BPermissionConstant.DATA_ADMIN_EMAIL, BackendConstant.PRIVACY_FIELD_TYPE_EMAIL, email);
+        return BackendBus.valueHidden(
+                BPermissionConstant.DATA_ADMIN_EMAIL,
+                BackendConstant.PRIVACY_FIELD_TYPE_EMAIL,
+                email);
     }
 
     @Override
@@ -103,16 +91,36 @@ public class AdminUser implements Serializable {
         }
         AdminUser other = (AdminUser) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-                && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
-                && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
-                && (this.getSalt() == null ? other.getSalt() == null : this.getSalt().equals(other.getSalt()))
-                && (this.getLoginIp() == null ? other.getLoginIp() == null : this.getLoginIp().equals(other.getLoginIp()))
-                && (this.getLoginAt() == null ? other.getLoginAt() == null : this.getLoginAt().equals(other.getLoginAt()))
-                && (this.getIsBanLogin() == null ? other.getIsBanLogin() == null : this.getIsBanLogin().equals(other.getIsBanLogin()))
-                && (this.getLoginTimes() == null ? other.getLoginTimes() == null : this.getLoginTimes().equals(other.getLoginTimes()))
-                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
-                && (this.getUpdatedAt() == null ? other.getUpdatedAt() == null : this.getUpdatedAt().equals(other.getUpdatedAt()));
+                && (this.getName() == null
+                        ? other.getName() == null
+                        : this.getName().equals(other.getName()))
+                && (this.getEmail() == null
+                        ? other.getEmail() == null
+                        : this.getEmail().equals(other.getEmail()))
+                && (this.getPassword() == null
+                        ? other.getPassword() == null
+                        : this.getPassword().equals(other.getPassword()))
+                && (this.getSalt() == null
+                        ? other.getSalt() == null
+                        : this.getSalt().equals(other.getSalt()))
+                && (this.getLoginIp() == null
+                        ? other.getLoginIp() == null
+                        : this.getLoginIp().equals(other.getLoginIp()))
+                && (this.getLoginAt() == null
+                        ? other.getLoginAt() == null
+                        : this.getLoginAt().equals(other.getLoginAt()))
+                && (this.getIsBanLogin() == null
+                        ? other.getIsBanLogin() == null
+                        : this.getIsBanLogin().equals(other.getIsBanLogin()))
+                && (this.getLoginTimes() == null
+                        ? other.getLoginTimes() == null
+                        : this.getLoginTimes().equals(other.getLoginTimes()))
+                && (this.getCreatedAt() == null
+                        ? other.getCreatedAt() == null
+                        : this.getCreatedAt().equals(other.getCreatedAt()))
+                && (this.getUpdatedAt() == null
+                        ? other.getUpdatedAt() == null
+                        : this.getUpdatedAt().equals(other.getUpdatedAt()));
     }
 
     @Override

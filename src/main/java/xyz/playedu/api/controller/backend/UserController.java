@@ -1,12 +1,18 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
@@ -17,8 +23,8 @@ import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.UserImportRequest;
 import xyz.playedu.api.request.backend.UserRequest;
 import xyz.playedu.api.service.DepartmentService;
-import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.service.UserService;
+import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
@@ -28,6 +34,7 @@ import java.util.*;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/23 09:48
  */
 @RestController
@@ -35,17 +42,13 @@ import java.util.*;
 @RequestMapping("/backend/v1/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private UserDepartmentService userDepartmentService;
+    @Autowired private UserDepartmentService userDepartmentService;
 
-    @Autowired
-    private DepartmentService departmentService;
+    @Autowired private DepartmentService departmentService;
 
-    @Autowired
-    private ApplicationContext context;
+    @Autowired private ApplicationContext context;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
@@ -65,18 +68,21 @@ public class UserController {
         String createdAt = MapUtils.getString(params, "created_at");
         String depIds = MapUtils.getString(params, "dep_ids");
 
-        UserPaginateFilter filter = new UserPaginateFilter() {{
-            setName(name);
-            setEmail(email);
-            setIdCard(idCard);
-            setIsActive(isActive);
-            setIsLock(isLock);
-            setIsVerify(isVerify);
-            setIsSetPassword(isSetPassword);
-            setDepIds(depIds);
-            setSortAlgo(sortAlgo);
-            setSortField(sortField);
-        }};
+        UserPaginateFilter filter =
+                new UserPaginateFilter() {
+                    {
+                        setName(name);
+                        setEmail(email);
+                        setIdCard(idCard);
+                        setIsActive(isActive);
+                        setIsLock(isLock);
+                        setIsVerify(isVerify);
+                        setIsSetPassword(isSetPassword);
+                        setDepIds(depIds);
+                        setSortAlgo(sortAlgo);
+                        setSortField(sortField);
+                    }
+                };
 
         if (createdAt != null && createdAt.trim().length() > 0) {
             filter.setCreatedAt(createdAt.split(","));
@@ -87,7 +93,9 @@ public class UserController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());
         data.put("total", result.getTotal());
-        data.put("user_dep_ids", userService.getDepIdsGroup(result.getData().stream().map(User::getId).toList()));
+        data.put(
+                "user_dep_ids",
+                userService.getDepIdsGroup(result.getData().stream().map(User::getId).toList()));
         data.put("departments", departmentService.id2name());
 
         return JsonResponse.data(data);
@@ -110,7 +118,13 @@ public class UserController {
         if (password.length() == 0) {
             return JsonResponse.error("请输入密码");
         }
-        userService.createWithDepIds(email, req.getName(), req.getAvatar(), req.getPassword(), req.getIdCard(), req.getDepIds());
+        userService.createWithDepIds(
+                email,
+                req.getName(),
+                req.getAvatar(),
+                req.getPassword(),
+                req.getIdCard(),
+                req.getDepIds());
         return JsonResponse.success();
     }
 
@@ -131,7 +145,9 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_UPDATE)
     @PutMapping("/{id}")
     @Transactional
-    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated UserRequest req) throws NotFoundException {
+    public JsonResponse update(
+            @PathVariable(name = "id") Integer id, @RequestBody @Validated UserRequest req)
+            throws NotFoundException {
         User user = userService.findOrFail(id);
 
         String email = req.getEmail();
@@ -139,7 +155,14 @@ public class UserController {
             return JsonResponse.error("邮箱已存在");
         }
 
-        userService.updateWithDepIds(user, email, req.getName(), req.getAvatar(), req.getPassword(), req.getIdCard(), req.getDepIds());
+        userService.updateWithDepIds(
+                user,
+                email,
+                req.getName(),
+                req.getAvatar(),
+                req.getPassword(),
+                req.getIdCard(),
+                req.getDepIds());
         return JsonResponse.success();
     }
 
@@ -166,7 +189,7 @@ public class UserController {
         Integer startLine = req.getStartLine();
 
         List<String[]> errorLines = new ArrayList<>();
-        errorLines.add(new String[]{"错误行", "错误信息"});//错误表-表头
+        errorLines.add(new String[] {"错误行", "错误信息"}); // 错误表-表头
 
         // 读取存在的部门
         List<Integer> depIds = departmentService.allIds();
@@ -178,15 +201,18 @@ public class UserController {
         List<User> insertUsers = new ArrayList<>();
         int i = -1;
         for (UserImportRequest.UserItem userItem : users) {
-            i++;//索引值
+            i++; // 索引值
 
             if (userItem.getEmail() == null || userItem.getEmail().trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "未输入邮箱账号"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "未输入邮箱账号"});
             } else {
                 // 邮箱重复判断
                 Integer repeatLine = emailRepeat.get(userItem.getEmail());
                 if (repeatLine != null) {
-                    errorLines.add(new String[]{"第" + (i + startLine) + "行", "与第" + repeatLine + "行邮箱重复"});
+                    errorLines.add(
+                            new String[] {
+                                "第" + (i + startLine) + "行", "与第" + repeatLine + "行邮箱重复"
+                            });
                 } else {
                     emailRepeat.put(userItem.getEmail(), i + startLine);
                 }
@@ -195,12 +221,15 @@ public class UserController {
 
             // 部门数据检测
             if (userItem.getDepIds() == null || userItem.getDepIds().trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "未选择部门"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "未选择部门"});
             } else {
                 String[] tmpDepIds = userItem.getDepIds().trim().split(",");
                 for (int j = 0; j < tmpDepIds.length; j++) {
                     if (!depIds.contains(Integer.valueOf(tmpDepIds[j]))) {
-                        errorLines.add(new String[]{"第" + (i + startLine) + "行", "部门id[" + tmpDepIds[j] + "]不存在"});
+                        errorLines.add(
+                                new String[] {
+                                    "第" + (i + startLine) + "行", "部门id[" + tmpDepIds[j] + "]不存在"
+                                });
                     }
                 }
                 depMap.put(userItem.getEmail(), tmpDepIds);
@@ -209,13 +238,13 @@ public class UserController {
             // 昵称为空检测
             String tmpName = userItem.getName();
             if (tmpName == null || tmpName.trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "昵称为空"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "昵称为空"});
             }
 
             // 密码为空检测
             String tmpPassword = userItem.getPassword();
             if (tmpPassword == null || tmpPassword.trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "密码为空"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "密码为空"});
             }
 
             // 待插入数据
@@ -242,7 +271,7 @@ public class UserController {
         List<String> existsEmails = userService.existsEmailsByEmails(emails);
         if (existsEmails.size() > 0) {
             for (String tmpEmail : existsEmails) {
-                errorLines.add(new String[]{"第" + emailRepeat.get(tmpEmail) + "行", "邮箱已注册"});
+                errorLines.add(new String[] {"第" + emailRepeat.get(tmpEmail) + "行", "邮箱已注册"});
             }
         }
         if (errorLines.size() > 1) {
@@ -259,15 +288,17 @@ public class UserController {
                 continue;
             }
             for (String tmpDepId : tmpDepIds) {
-                insertUserDepartments.add(new UserDepartment() {{
-                    setUserId(tmpUser.getId());
-                    setDepId(Integer.valueOf(tmpDepId));
-                }});
+                insertUserDepartments.add(
+                        new UserDepartment() {
+                            {
+                                setUserId(tmpUser.getId());
+                                setDepId(Integer.valueOf(tmpDepId));
+                            }
+                        });
             }
         }
         userDepartmentService.saveBatch(insertUserDepartments);
 
         return JsonResponse.success();
     }
-
 }

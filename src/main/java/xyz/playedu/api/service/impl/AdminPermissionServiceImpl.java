@@ -1,10 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import xyz.playedu.api.domain.AdminPermission;
-import xyz.playedu.api.service.AdminPermissionService;
-import xyz.playedu.api.mapper.AdminPermissionMapper;
+
 import org.springframework.stereotype.Service;
+
+import xyz.playedu.api.domain.AdminPermission;
+import xyz.playedu.api.mapper.AdminPermissionMapper;
+import xyz.playedu.api.service.AdminPermissionService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +22,8 @@ import java.util.List;
  * @createDate 2023-02-20 14:27:50
  */
 @Service
-public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMapper, AdminPermission> implements AdminPermissionService {
+public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMapper, AdminPermission>
+        implements AdminPermissionService {
 
     @Override
     public HashMap<String, Boolean> allSlugs() {
@@ -58,7 +65,3 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
         return list(query().getWrapper().in("id", ids));
     }
 }
-
-
-
-

@@ -1,17 +1,21 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
- * 
  * @TableName category_course
  */
-@TableName(value ="category_course")
+@TableName(value = "category_course")
 @Data
 public class CategoryCourse implements Serializable {
     @JsonProperty("course_id")
@@ -35,8 +39,12 @@ public class CategoryCourse implements Serializable {
             return false;
         }
         CategoryCourse other = (CategoryCourse) that;
-        return (this.getCourseId() == null ? other.getCourseId() == null : this.getCourseId().equals(other.getCourseId()))
-            && (this.getCategoryId() == null ? other.getCategoryId() == null : this.getCategoryId().equals(other.getCategoryId()));
+        return (this.getCourseId() == null
+                        ? other.getCourseId() == null
+                        : this.getCourseId().equals(other.getCourseId()))
+                && (this.getCategoryId() == null
+                        ? other.getCategoryId() == null
+                        : this.getCategoryId().equals(other.getCategoryId()));
     }
 
     @Override

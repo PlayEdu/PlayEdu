@@ -1,8 +1,13 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.frontend;
 
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.exception.NotFoundException;
@@ -17,25 +22,28 @@ import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/13 16:23
  */
 @RestController
 @RequestMapping("/api/v1/department")
 public class DepartmentController {
 
-    @Autowired
-    private DepartmentService departmentService;
+    @Autowired private DepartmentService departmentService;
 
-    @Autowired
-    private CourseService courseService;
+    @Autowired private CourseService courseService;
 
     @GetMapping("/index")
     public JsonResponse index() {
-        return JsonResponse.data(departmentService.all().stream().collect(Collectors.groupingBy(Department::getParentId)));
+        return JsonResponse.data(
+                departmentService.all().stream()
+                        .collect(Collectors.groupingBy(Department::getParentId)));
     }
 
     @GetMapping("/{id}/courses")
-    public JsonResponse courses(@PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) throws NotFoundException {
+    public JsonResponse courses(
+            @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params)
+            throws NotFoundException {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
 
@@ -43,7 +51,7 @@ public class DepartmentController {
         filer.setIsShow(1);
 
         if (id == 0) {
-            filer.setDepIds("0");//无部门所属的线上课
+            filer.setDepIds("0"); // 无部门所属的线上课
         } else {
             Department department = departmentService.findOrFail(id);
             filer.setDepIds(department.getId() + "");
@@ -57,5 +65,4 @@ public class DepartmentController {
 
         return JsonResponse.data(data);
     }
-
 }

@@ -1,12 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.request.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import lombok.Data;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/26 18:00
  */
 @Data
@@ -30,5 +37,4 @@ public class CourseHourRequest {
 
     @NotNull(message = "rid参数不存在")
     private Integer rid;
-
 }

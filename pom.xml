@@ -162,9 +162,12 @@
                 <version>2.36.0</version>
                 <configuration>
                     <java>
-                        <eclipse>
-                            <file>${project.basedir}/spotless.xml</file>
-                        </eclipse>
+                        <googleJavaFormat>
+                            <version>1.16.0</version>
+                            <style>AOSP</style>
+                            <reflowLongStrings>true</reflowLongStrings>
+                        </googleJavaFormat>
+
                         <licenseHeader>
                             <file>${project.basedir}/license-header</file>
                         </licenseHeader>

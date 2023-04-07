@@ -1,9 +1,14 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.SystemConstant;
@@ -27,17 +32,13 @@ import java.util.HashMap;
 @RequestMapping("/backend/v1/auth")
 public class LoginController {
 
-    @Autowired
-    private AdminUserService adminUserService;
+    @Autowired private AdminUserService adminUserService;
 
-    @Autowired
-    private BackendBus backendBus;
+    @Autowired private BackendBus backendBus;
 
-    @Autowired
-    private JWTService jwtService;
+    @Autowired private JWTService jwtService;
 
-    @Autowired
-    private ApplicationContext ctx;
+    @Autowired private ApplicationContext ctx;
 
     @PostMapping("/login")
     @ImageCaptchaCheckMiddleware
@@ -46,7 +47,8 @@ public class LoginController {
         if (adminUser == null) {
             return JsonResponse.error("邮箱或密码错误");
         }
-        String password = HelperUtil.MD5(loginRequest.getPassword() + adminUser.getSalt()).toLowerCase();
+        String password =
+                HelperUtil.MD5(loginRequest.getPassword() + adminUser.getSalt()).toLowerCase();
         if (!adminUser.getPassword().equals(password)) {
             return JsonResponse.error("邮箱或密码错误");
         }
@@ -55,13 +57,20 @@ public class LoginController {
         }
 
         String url = RequestUtil.url();
-        JwtToken token = jwtService.generate(adminUser.getId(), url, SystemConstant.JWT_PRV_ADMIN_USER);
+        JwtToken token =
+                jwtService.generate(adminUser.getId(), url, SystemConstant.JWT_PRV_ADMIN_USER);
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("token", token.getToken());
         data.put("expire", token.getExpire());
 
-        ctx.publishEvent(new AdminUserLoginEvent(this, adminUser.getId(), token.getToken(), IpUtil.getIpAddress(), adminUser.getLoginTimes()));
+        ctx.publishEvent(
+                new AdminUserLoginEvent(
+                        this,
+                        adminUser.getId(),
+                        token.getToken(),
+                        IpUtil.getIpAddress(),
+                        adminUser.getLoginTimes()));
 
         return JsonResponse.data(data);
     }
@@ -94,5 +103,4 @@ public class LoginController {
         adminUserService.passwordChange(user, req.getNewPassword());
         return JsonResponse.success();
     }
-
 }

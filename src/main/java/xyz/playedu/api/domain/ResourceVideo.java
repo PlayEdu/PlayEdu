@@ -1,43 +1,35 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-
 /**
- *
  * @TableName resource_videos
  */
-@TableName(value ="resource_videos")
+@TableName(value = "resource_videos")
 @Data
 public class ResourceVideo implements Serializable {
-    /**
-     *
-     */
+    /** */
     private Integer rid;
 
-    /**
-     * 封面
-     */
+    /** 封面 */
     private String poster;
 
-    /**
-     * 视频时长[s]
-     */
+    /** 视频时长[s] */
     private Integer duration;
 
-    /**
-     * 创建时间
-     */
-    @JsonIgnore
-    private Date createdAt;
+    /** 创建时间 */
+    @JsonIgnore private Date createdAt;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -54,10 +46,18 @@ public class ResourceVideo implements Serializable {
             return false;
         }
         ResourceVideo other = (ResourceVideo) that;
-        return (this.getRid() == null ? other.getRid() == null : this.getRid().equals(other.getRid()))
-            && (this.getPoster() == null ? other.getPoster() == null : this.getPoster().equals(other.getPoster()))
-            && (this.getDuration() == null ? other.getDuration() == null : this.getDuration().equals(other.getDuration()))
-            && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
+        return (this.getRid() == null
+                        ? other.getRid() == null
+                        : this.getRid().equals(other.getRid()))
+                && (this.getPoster() == null
+                        ? other.getPoster() == null
+                        : this.getPoster().equals(other.getPoster()))
+                && (this.getDuration() == null
+                        ? other.getDuration() == null
+                        : this.getDuration().equals(other.getDuration()))
+                && (this.getCreatedAt() == null
+                        ? other.getCreatedAt() == null
+                        : this.getCreatedAt().equals(other.getCreatedAt()));
     }
 
     @Override

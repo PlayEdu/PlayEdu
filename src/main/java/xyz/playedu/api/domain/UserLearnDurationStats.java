@@ -1,42 +1,38 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-
 /**
- * 
  * @TableName user_learn_duration_stats
  */
-@TableName(value ="user_learn_duration_stats")
+@TableName(value = "user_learn_duration_stats")
 @Data
 public class UserLearnDurationStats implements Serializable {
-    /**
-     * 
-     */
+    /** */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 
-     */
+    /** */
     @JsonProperty("user_id")
     private Integer userId;
 
-    /**
-     * 
-     */
+    /** */
     private Long duration;
 
-    /**
-     * 
-     */
+    /** */
     @JsonProperty("created_date")
     private Date createdDate;
 
@@ -56,9 +52,15 @@ public class UserLearnDurationStats implements Serializable {
         }
         UserLearnDurationStats other = (UserLearnDurationStats) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-            && (this.getDuration() == null ? other.getDuration() == null : this.getDuration().equals(other.getDuration()))
-            && (this.getCreatedDate() == null ? other.getCreatedDate() == null : this.getCreatedDate().equals(other.getCreatedDate()));
+                && (this.getUserId() == null
+                        ? other.getUserId() == null
+                        : this.getUserId().equals(other.getUserId()))
+                && (this.getDuration() == null
+                        ? other.getDuration() == null
+                        : this.getDuration().equals(other.getDuration()))
+                && (this.getCreatedDate() == null
+                        ? other.getCreatedDate() == null
+                        : this.getCreatedDate().equals(other.getCreatedDate()));
     }
 
     @Override

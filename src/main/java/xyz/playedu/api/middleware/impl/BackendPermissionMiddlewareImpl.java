@@ -1,6 +1,11 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.middleware.impl;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -8,6 +13,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
@@ -17,6 +23,7 @@ import java.util.HashMap;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/21 16:42
  */
 @Aspect
@@ -24,17 +31,16 @@ import java.util.HashMap;
 @Slf4j
 public class BackendPermissionMiddlewareImpl {
 
-    @Autowired
-    private BackendBus backendBus;
+    @Autowired private BackendBus backendBus;
 
     @Pointcut("@annotation(xyz.playedu.api.middleware.BackendPermissionMiddleware)")
-    private void doPointcut() {
-    }
+    private void doPointcut() {}
 
     @Around("doPointcut()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        BackendPermissionMiddleware middleware = signature.getMethod().getAnnotation(BackendPermissionMiddleware.class);
+        BackendPermissionMiddleware middleware =
+                signature.getMethod().getAnnotation(BackendPermissionMiddleware.class);
         Integer adminUserId = BCtx.getId();
         HashMap<String, Boolean> permissions = backendBus.adminUserPermissions(adminUserId);
         if (permissions.get(middleware.slug()) == null) {

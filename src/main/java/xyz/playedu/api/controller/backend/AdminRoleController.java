@@ -1,9 +1,15 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminPermission;
@@ -23,6 +29,7 @@ import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/21 15:56
  */
 @RestController
@@ -30,11 +37,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AdminRoleController {
 
-    @Autowired
-    private AdminRoleService roleService;
+    @Autowired private AdminRoleService roleService;
 
-    @Autowired
-    private AdminPermissionService permissionService;
+    @Autowired private AdminPermissionService permissionService;
 
     @GetMapping("/index")
     public JsonResponse index() {
@@ -48,7 +53,9 @@ public class AdminRoleController {
         List<AdminPermission> permissions = permissionService.listOrderBySortAsc();
 
         HashMap<String, Object> data = new HashMap<>();
-        data.put("perm_action", permissions.stream().collect(Collectors.groupingBy(AdminPermission::getType)));
+        data.put(
+                "perm_action",
+                permissions.stream().collect(Collectors.groupingBy(AdminPermission::getType)));
 
         return JsonResponse.data(data);
     }
@@ -71,12 +78,17 @@ public class AdminRoleController {
         List<Integer> permData = new ArrayList<>();
         if (permissionIds != null && permissionIds.size() > 0) {
             List<AdminPermission> permissions = permissionService.chunks(permissionIds);
-            Map<String, List<AdminPermission>> permissionsGroup = permissions.stream().collect(Collectors.groupingBy(AdminPermission::getType));
+            Map<String, List<AdminPermission>> permissionsGroup =
+                    permissions.stream().collect(Collectors.groupingBy(AdminPermission::getType));
             if (permissionsGroup.get("action") != null) {
-                permAction = permissionsGroup.get("action").stream().map(AdminPermission::getId).toList();
+                permAction =
+                        permissionsGroup.get("action").stream()
+                                .map(AdminPermission::getId)
+                                .toList();
             }
             if (permissionsGroup.get("data") != null) {
-                permData = permissionsGroup.get("data").stream().map(AdminPermission::getId).toList();
+                permData =
+                        permissionsGroup.get("data").stream().map(AdminPermission::getId).toList();
             }
         }
 
@@ -90,7 +102,9 @@ public class AdminRoleController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @PutMapping("/{id}")
-    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated AdminRoleRequest request) throws NotFoundException {
+    public JsonResponse update(
+            @PathVariable(name = "id") Integer id, @RequestBody @Validated AdminRoleRequest request)
+            throws NotFoundException {
         AdminRole role = roleService.findOrFail(id);
         if (role.getSlug().equals(BackendConstant.SUPER_ADMIN_ROLE)) {
             return JsonResponse.error("超级管理权限无法编辑");
@@ -114,5 +128,4 @@ public class AdminRoleController {
 
         return JsonResponse.success();
     }
-
 }

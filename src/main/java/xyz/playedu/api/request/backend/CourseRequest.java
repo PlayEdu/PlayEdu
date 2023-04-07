@@ -1,15 +1,21 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.request.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/24 14:38
  */
 @Data
@@ -57,29 +63,29 @@ public class CourseRequest {
 
     // 格式
     // [
-    //   {
-    //     'name' => '章节名',
-    //     'hours' => [
-    //       [
-    //         'name' => '课时名',
-    //         'type' => '课时类型',
-    //         'duration' => '时长',
-    //         'rid' => '资源id',
-    //       ],...
-    //     ],
-    //   }...
+    // {
+    // 'name' => '章节名',
+    // 'hours' => [
+    // [
+    // 'name' => '课时名',
+    // 'type' => '课时类型',
+    // 'duration' => '时长',
+    // 'rid' => '资源id',
+    // ],...
+    // ],
+    // }...
     // ]
     @NotNull(message = "chapters参数不存在")
     private List<ChapterItem> chapters;
 
     // 格式
     // [
-    //   {
-    //     'name' => '课时名',
-    //     'type' => '课时类型',
-    //     'duration' => '时长',
-    //     'rid' => '资源id',
-    //   }...
+    // {
+    // 'name' => '课时名',
+    // 'type' => '课时类型',
+    // 'duration' => '时长',
+    // 'rid' => '资源id',
+    // }...
     // ]
     @NotNull(message = "hours参数不存在")
     private List<HourItem> hours;

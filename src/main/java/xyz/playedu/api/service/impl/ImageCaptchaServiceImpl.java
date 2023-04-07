@@ -1,20 +1,29 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
+
 import jakarta.annotation.Resource;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FastByteArrayOutputStream;
+
 import xyz.playedu.api.service.ImageCaptchaService;
 import xyz.playedu.api.types.ImageCaptchaResult;
 import xyz.playedu.api.util.Base64Util;
-import xyz.playedu.api.util.RedisUtil;
 import xyz.playedu.api.util.HelperUtil;
+import xyz.playedu.api.util.RedisUtil;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 @Slf4j
 @Service
@@ -26,8 +35,7 @@ public class ImageCaptchaServiceImpl implements ImageCaptchaService {
     @Value("${playedu.captcha.expire}")
     private Long ConfigExpire;
 
-    @Resource
-    private DefaultKaptcha defaultKaptcha;
+    @Resource private DefaultKaptcha defaultKaptcha;
 
     @Override
     public ImageCaptchaResult generate() throws IOException {
@@ -58,13 +66,13 @@ public class ImageCaptchaServiceImpl implements ImageCaptchaService {
     public boolean verify(String key, String code) {
         String cacheKey = getCacheKey(key);
         Object queryResult = RedisUtil.get(cacheKey);
-        if (queryResult == null) {//未查找到[已过期 | 不存在]
+        if (queryResult == null) { // 未查找到[已过期 | 不存在]
             return false;
         }
         String cacheValue = (String) queryResult;
         boolean verifyResult = cacheValue.equals(code);
 
-        if (verifyResult) {//验证成功删除缓存->防止多次使用
+        if (verifyResult) { // 验证成功删除缓存->防止多次使用
             RedisUtil.del(cacheKey);
         }
 

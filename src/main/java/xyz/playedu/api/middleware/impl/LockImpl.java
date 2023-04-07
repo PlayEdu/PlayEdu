@@ -1,3 +1,7 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.middleware.impl;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -5,6 +9,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.api.exception.LimitException;
 import xyz.playedu.api.middleware.Lock;
 import xyz.playedu.api.util.RedisDistributedLock;

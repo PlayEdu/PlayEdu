@@ -1,13 +1,20 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.request.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotNull;
+
 import lombok.Data;
 
 import java.util.List;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/14 11:07
  */
 @Data

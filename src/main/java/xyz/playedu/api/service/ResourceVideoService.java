@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.domain.ResourceVideo;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import xyz.playedu.api.domain.ResourceVideo;
 
 import java.util.List;
 

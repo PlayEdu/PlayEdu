@@ -1,72 +1,56 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-
 /**
- * 
  * @TableName user_upload_image_logs
  */
-@TableName(value ="user_upload_image_logs")
+@TableName(value = "user_upload_image_logs")
 @Data
 public class UserUploadImageLog implements Serializable {
-    /**
-     * 
-     */
+    /** */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 
-     */
+    /** */
     @JsonProperty("user_id")
     private Integer userId;
 
-    /**
-     * 图片类型
-     */
+    /** 图片类型 */
     private String typed;
 
-    /**
-     * 上传场景
-     */
+    /** 上传场景 */
     private String scene;
 
-    /**
-     * 驱动
-     */
+    /** 驱动 */
     private String driver;
 
-    /**
-     * 相对路径
-     */
+    /** 相对路径 */
     private String path;
 
-    /**
-     * 访问地址
-     */
+    /** 访问地址 */
     private String url;
 
-    /**
-     * 大小,单位:字节
-     */
+    /** 大小,单位:字节 */
     private Long size;
 
-    /**
-     * 文件名
-     */
+    /** 文件名 */
     private String name;
 
-    /**
-     * 
-     */
+    /** */
     @JsonProperty("created_at")
     private Date createdAt;
 
@@ -86,15 +70,33 @@ public class UserUploadImageLog implements Serializable {
         }
         UserUploadImageLog other = (UserUploadImageLog) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-            && (this.getTyped() == null ? other.getTyped() == null : this.getTyped().equals(other.getTyped()))
-            && (this.getScene() == null ? other.getScene() == null : this.getScene().equals(other.getScene()))
-            && (this.getDriver() == null ? other.getDriver() == null : this.getDriver().equals(other.getDriver()))
-            && (this.getPath() == null ? other.getPath() == null : this.getPath().equals(other.getPath()))
-            && (this.getUrl() == null ? other.getUrl() == null : this.getUrl().equals(other.getUrl()))
-            && (this.getSize() == null ? other.getSize() == null : this.getSize().equals(other.getSize()))
-            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-            && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()));
+                && (this.getUserId() == null
+                        ? other.getUserId() == null
+                        : this.getUserId().equals(other.getUserId()))
+                && (this.getTyped() == null
+                        ? other.getTyped() == null
+                        : this.getTyped().equals(other.getTyped()))
+                && (this.getScene() == null
+                        ? other.getScene() == null
+                        : this.getScene().equals(other.getScene()))
+                && (this.getDriver() == null
+                        ? other.getDriver() == null
+                        : this.getDriver().equals(other.getDriver()))
+                && (this.getPath() == null
+                        ? other.getPath() == null
+                        : this.getPath().equals(other.getPath()))
+                && (this.getUrl() == null
+                        ? other.getUrl() == null
+                        : this.getUrl().equals(other.getUrl()))
+                && (this.getSize() == null
+                        ? other.getSize() == null
+                        : this.getSize().equals(other.getSize()))
+                && (this.getName() == null
+                        ? other.getName() == null
+                        : this.getName().equals(other.getName()))
+                && (this.getCreatedAt() == null
+                        ? other.getCreatedAt() == null
+                        : this.getCreatedAt().equals(other.getCreatedAt()));
     }
 
     @Override

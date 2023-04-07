@@ -1,3 +1,7 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.middleware;
 
 import java.lang.annotation.ElementType;
@@ -8,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/12 10:44
  */
 @Target(ElementType.METHOD)

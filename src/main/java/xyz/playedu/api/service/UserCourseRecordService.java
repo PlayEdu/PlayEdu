@@ -1,9 +1,14 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.domain.UserCourseRecord;
 import com.baomidou.mybatisplus.extension.service.IService;
-import xyz.playedu.api.types.paginate.PaginationResult;
+
+import xyz.playedu.api.domain.UserCourseRecord;
 import xyz.playedu.api.types.paginate.CourseUserPaginateFilter;
+import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.util.List;
 
@@ -20,7 +25,8 @@ public interface UserCourseRecordService extends IService<UserCourseRecord> {
 
     List<UserCourseRecord> chunk(Integer userId, List<Integer> courseIds);
 
-    PaginationResult<UserCourseRecord> paginate(int page, int size, CourseUserPaginateFilter filter);
+    PaginationResult<UserCourseRecord> paginate(
+            int page, int size, CourseUserPaginateFilter filter);
 
     void destroy(Integer courseId, List<Integer> ids);
 

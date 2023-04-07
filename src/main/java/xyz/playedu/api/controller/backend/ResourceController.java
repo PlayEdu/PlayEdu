@@ -1,9 +1,14 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.BPermissionConstant;
@@ -27,26 +32,22 @@ import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/23 10:50
  */
 @RestController
 @RequestMapping("/backend/v1/resource")
 public class ResourceController {
 
-    @Autowired
-    private AdminUserService adminUserService;
+    @Autowired private AdminUserService adminUserService;
 
-    @Autowired
-    private ResourceService resourceService;
+    @Autowired private ResourceService resourceService;
 
-    @Autowired
-    private ResourceVideoService resourceVideoService;
+    @Autowired private ResourceVideoService resourceVideoService;
 
-    @Autowired
-    private MinioService minioService;
+    @Autowired private MinioService minioService;
 
-    @Autowired
-    private BackendBus backendBus;
+    @Autowired private BackendBus backendBus;
 
     @GetMapping("/index")
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
@@ -69,7 +70,7 @@ public class ResourceController {
         filter.setCategoryIds(categoryIds);
         filter.setName(name);
 
-        if (!backendBus.isSuperAdmin()) {// 非超管只能读取它自己上传的资源
+        if (!backendBus.isSuperAdmin()) { // 非超管只能读取它自己上传的资源
             filter.setAdminId(BCtx.getId());
         }
 
@@ -79,15 +80,23 @@ public class ResourceController {
         data.put("result", result);
 
         if (type.equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
-            List<ResourceVideo> resourceVideos = resourceVideoService.chunksByRids(result.getData().stream().map(Resource::getId).toList());
-            Map<Integer, ResourceVideo> resourceVideosExtra = resourceVideos.stream().collect(Collectors.toMap(ResourceVideo::getRid, e -> e));
+            List<ResourceVideo> resourceVideos =
+                    resourceVideoService.chunksByRids(
+                            result.getData().stream().map(Resource::getId).toList());
+            Map<Integer, ResourceVideo> resourceVideosExtra =
+                    resourceVideos.stream()
+                            .collect(Collectors.toMap(ResourceVideo::getRid, e -> e));
             data.put("videos_extra", resourceVideosExtra);
         }
 
         // 操作人
         data.put("admin_users", new HashMap<>());
         if (result.getData().size() > 0) {
-            Map<Integer, String> adminUsers = adminUserService.chunks(result.getData().stream().map(Resource::getAdminId).toList()).stream().collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
+            Map<Integer, String> adminUsers =
+                    adminUserService
+                            .chunks(result.getData().stream().map(Resource::getAdminId).toList())
+                            .stream()
+                            .collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
             data.put("admin_users", adminUsers);
         }
 
@@ -130,5 +139,4 @@ public class ResourceController {
         }
         return JsonResponse.success();
     }
-
 }

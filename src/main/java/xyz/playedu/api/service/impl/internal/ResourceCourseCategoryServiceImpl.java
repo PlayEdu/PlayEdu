@@ -1,10 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl.internal;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import xyz.playedu.api.domain.ResourceCourseCategory;
-import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
-import xyz.playedu.api.mapper.ResourceCourseCategoryMapper;
+
 import org.springframework.stereotype.Service;
+
+import xyz.playedu.api.domain.ResourceCourseCategory;
+import xyz.playedu.api.mapper.ResourceCourseCategoryMapper;
+import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
 
 import java.util.List;
 
@@ -14,12 +20,15 @@ import java.util.List;
  * @createDate 2023-03-09 09:54:22
  */
 @Service
-public class ResourceCourseCategoryServiceImpl extends ServiceImpl<ResourceCourseCategoryMapper, ResourceCourseCategory>
+public class ResourceCourseCategoryServiceImpl
+        extends ServiceImpl<ResourceCourseCategoryMapper, ResourceCourseCategory>
         implements ResourceCourseCategoryService {
 
     @Override
     public List<Integer> getCourseIdsByCategoryIds(List<Integer> categoryIds) {
-        return list(query().getWrapper().in("category_id", categoryIds)).stream().map(ResourceCourseCategory::getCourseId).toList();
+        return list(query().getWrapper().in("category_id", categoryIds)).stream()
+                .map(ResourceCourseCategory::getCourseId)
+                .toList();
     }
 
     @Override
@@ -34,10 +43,8 @@ public class ResourceCourseCategoryServiceImpl extends ServiceImpl<ResourceCours
 
     @Override
     public List<Integer> getCategoryIdsByCourseId(Integer courseId) {
-        return list(query().getWrapper().eq("course_id", courseId)).stream().map(ResourceCourseCategory::getCategoryId).toList();
+        return list(query().getWrapper().eq("course_id", courseId)).stream()
+                .map(ResourceCourseCategory::getCategoryId)
+                .toList();
     }
 }
-
-
-
-

@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.domain.CourseChapter;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import xyz.playedu.api.domain.CourseChapter;
 import xyz.playedu.api.exception.NotFoundException;
 
 import java.util.List;
@@ -24,5 +29,4 @@ public interface CourseChapterService extends IService<CourseChapter> {
     CourseChapter findOrFail(Integer id, Integer courseId) throws NotFoundException;
 
     void updateSort(List<Integer> ids, Integer cid);
-
 }

@@ -1,19 +1,21 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.util;
 
-/**
- * Base64工具类
- */
+/** Base64工具类 */
 public final class Base64Util {
-    static private final int BASE_LENGTH = 128;
-    static private final int LOOK_UP_LENGTH = 64;
-    static private final int TWENTY_FOUR_BIT_GROUP = 24;
-    static private final int EIGHT_BIT = 8;
-    static private final int SIXTEEN_BIT = 16;
-    static private final int FOUR_BYTE = 4;
-    static private final int SIGN = -128;
-    static private final char PAD = '=';
-    static final private byte[] base64Alphabet = new byte[BASE_LENGTH];
-    static final private char[] lookUpBase64Alphabet = new char[LOOK_UP_LENGTH];
+    private static final int BASE_LENGTH = 128;
+    private static final int LOOK_UP_LENGTH = 64;
+    private static final int TWENTY_FOUR_BIT_GROUP = 24;
+    private static final int EIGHT_BIT = 8;
+    private static final int SIXTEEN_BIT = 16;
+    private static final int FOUR_BYTE = 4;
+    private static final int SIGN = -128;
+    private static final char PAD = '=';
+    private static final byte[] base64Alphabet = new byte[BASE_LENGTH];
+    private static final char[] lookUpBase64Alphabet = new char[LOOK_UP_LENGTH];
 
     static {
         for (int i = 0; i < BASE_LENGTH; ++i) {
@@ -154,7 +156,10 @@ public final class Base64Util {
 
         for (; i < numberQuadruple - 1; i++) {
 
-            if (!isData((d1 = base64Data[dataIndex++])) || !isData((d2 = base64Data[dataIndex++])) || !isData((d3 = base64Data[dataIndex++])) || !isData((d4 = base64Data[dataIndex++]))) {
+            if (!isData((d1 = base64Data[dataIndex++]))
+                    || !isData((d2 = base64Data[dataIndex++]))
+                    || !isData((d3 = base64Data[dataIndex++]))
+                    || !isData((d4 = base64Data[dataIndex++]))) {
                 return null;
             }
 
@@ -204,7 +209,6 @@ public final class Base64Util {
             decodedData[encodedIndex++] = (byte) (b1 << 2 | b2 >> 4);
             decodedData[encodedIndex++] = (byte) (((b2 & 0xf) << 4) | ((b3 >> 2) & 0xf));
             decodedData[encodedIndex++] = (byte) (b4 | b3 << 6);
-
         }
         return decodedData;
     }
@@ -259,5 +263,4 @@ public final class Base64Util {
         }
         return newSize;
     }
-
 }

@@ -1,17 +1,21 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serializable;
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @TableName app_config
@@ -19,74 +23,48 @@ import lombok.Data;
 @TableName(value = "app_config")
 @Data
 public class AppConfig implements Serializable {
-    /**
-     *
-     */
+    /** */
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /**
-     * 分组
-     */
+    /** 分组 */
     @JsonProperty("group_name")
     private String groupName;
 
-    /**
-     * 名称
-     */
+    /** 名称 */
     private String name;
 
-    /**
-     * 升序
-     */
+    /** 升序 */
     private Integer sort;
 
-    /**
-     *
-     */
+    /** */
     @JsonProperty("field_type")
     private String fieldType;
 
-    /**
-     * 键
-     */
+    /** 键 */
     @JsonProperty("key_name")
     private String keyName;
 
-    /**
-     * 值
-     */
+    /** 值 */
     @JsonProperty("key_value")
     private String keyValue;
 
-    /**
-     * 可选值
-     */
+    /** 可选值 */
     @JsonProperty("option_value")
     private String optionValue;
 
-    /**
-     * 是否私密信息
-     */
+    /** 是否私密信息 */
     @JsonProperty("is_private")
     private Integer isPrivate;
 
-    /**
-     * 帮助信息
-     */
+    /** 帮助信息 */
     private String help;
 
-    /**
-     *
-     */
-    @JsonIgnore
-    private Date createdAt;
+    /** */
+    @JsonIgnore private Date createdAt;
 
-    /**
-     * 1显示,0否
-     */
-    @JsonIgnore
-    private Integer isHidden;
+    /** 1显示,0否 */
+    @JsonIgnore private Integer isHidden;
 
     @JsonGetter("key_value")
     public String transformKeyValue() {
@@ -109,17 +87,39 @@ public class AppConfig implements Serializable {
         }
         AppConfig other = (AppConfig) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getGroupName() == null ? other.getGroupName() == null : this.getGroupName().equals(other.getGroupName()))
-                && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-                && (this.getSort() == null ? other.getSort() == null : this.getSort().equals(other.getSort()))
-                && (this.getFieldType() == null ? other.getFieldType() == null : this.getFieldType().equals(other.getFieldType()))
-                && (this.getKeyName() == null ? other.getKeyName() == null : this.getKeyName().equals(other.getKeyName()))
-                && (this.getKeyValue() == null ? other.getKeyValue() == null : this.getKeyValue().equals(other.getKeyValue()))
-                && (this.getOptionValue() == null ? other.getOptionValue() == null : this.getOptionValue().equals(other.getOptionValue()))
-                && (this.getIsPrivate() == null ? other.getIsPrivate() == null : this.getIsPrivate().equals(other.getIsPrivate()))
-                && (this.getHelp() == null ? other.getHelp() == null : this.getHelp().equals(other.getHelp()))
-                && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
-                && (this.getIsHidden() == null ? other.getIsHidden() == null : this.getIsHidden().equals(other.getIsHidden()));
+                && (this.getGroupName() == null
+                        ? other.getGroupName() == null
+                        : this.getGroupName().equals(other.getGroupName()))
+                && (this.getName() == null
+                        ? other.getName() == null
+                        : this.getName().equals(other.getName()))
+                && (this.getSort() == null
+                        ? other.getSort() == null
+                        : this.getSort().equals(other.getSort()))
+                && (this.getFieldType() == null
+                        ? other.getFieldType() == null
+                        : this.getFieldType().equals(other.getFieldType()))
+                && (this.getKeyName() == null
+                        ? other.getKeyName() == null
+                        : this.getKeyName().equals(other.getKeyName()))
+                && (this.getKeyValue() == null
+                        ? other.getKeyValue() == null
+                        : this.getKeyValue().equals(other.getKeyValue()))
+                && (this.getOptionValue() == null
+                        ? other.getOptionValue() == null
+                        : this.getOptionValue().equals(other.getOptionValue()))
+                && (this.getIsPrivate() == null
+                        ? other.getIsPrivate() == null
+                        : this.getIsPrivate().equals(other.getIsPrivate()))
+                && (this.getHelp() == null
+                        ? other.getHelp() == null
+                        : this.getHelp().equals(other.getHelp()))
+                && (this.getCreatedAt() == null
+                        ? other.getCreatedAt() == null
+                        : this.getCreatedAt().equals(other.getCreatedAt()))
+                && (this.getIsHidden() == null
+                        ? other.getIsHidden() == null
+                        : this.getIsHidden().equals(other.getIsHidden()));
     }
 
     @Override

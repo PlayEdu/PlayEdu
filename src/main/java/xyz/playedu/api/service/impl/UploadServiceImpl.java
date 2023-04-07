@@ -1,10 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.constant.FrontendConstant;
 import xyz.playedu.api.domain.Resource;
@@ -22,20 +28,18 @@ import java.util.Date;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/8 14:02
  */
 @Service
 @Slf4j
 public class UploadServiceImpl implements UploadService {
 
-    @Autowired
-    private ResourceService resourceService;
+    @Autowired private ResourceService resourceService;
 
-    @Autowired
-    private MinioService minioService;
+    @Autowired private MinioService minioService;
 
-    @Autowired
-    private UserUploadImageLogService userUploadImageLogService;
+    @Autowired private UserUploadImageLogService userUploadImageLogService;
 
     @Override
     @SneakyThrows
@@ -69,7 +73,11 @@ public class UploadServiceImpl implements UploadService {
         }
         fileInfo.setSavePath(dir + fileInfo.getSaveName());
         // 保存文件并生成访问url
-        String url = minioService.saveFile(file, fileInfo.getSavePath(), BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(fileInfo.getExtension()));
+        String url =
+                minioService.saveFile(
+                        file,
+                        fileInfo.getSavePath(),
+                        BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(fileInfo.getExtension()));
         fileInfo.setUrl(url);
 
         return fileInfo;
@@ -90,8 +98,7 @@ public class UploadServiceImpl implements UploadService {
                 BackendConstant.STORAGE_DRIVER_MINIO,
                 "",
                 info.getSavePath(),
-                info.getUrl()
-        );
+                info.getUrl());
     }
 
     @Override
@@ -100,7 +107,8 @@ public class UploadServiceImpl implements UploadService {
         // data:image/jpeg;base64,
         String[] base64Rows = content.split(",");
         // 解析出content-type
-        String contentType = base64Rows[0].replaceAll("data:", "").replaceAll(";base64", "").toLowerCase();
+        String contentType =
+                base64Rows[0].replaceAll("data:", "").replaceAll(";base64", "").toLowerCase();
         // 解析出文件格式
         String ext = contentType.replaceAll("image/", "");
         // 通过文件格式解析资源类型
@@ -115,14 +123,27 @@ public class UploadServiceImpl implements UploadService {
         String savePath = BackendConstant.RESOURCE_TYPE_2_DIR.get(type) + filename;
 
         // 保存文件
-        String url = minioService.saveBytes(binary, savePath, BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext));
+        String url =
+                minioService.saveBytes(
+                        binary, savePath, BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext));
         // 上传记录
-        return resourceService.create(adminId, categoryIds, type, filename, ext, (long) binary.length, BackendConstant.STORAGE_DRIVER_MINIO, "", savePath, url);
+        return resourceService.create(
+                adminId,
+                categoryIds,
+                type,
+                filename,
+                ext,
+                (long) binary.length,
+                BackendConstant.STORAGE_DRIVER_MINIO,
+                "",
+                savePath,
+                url);
     }
 
     @Override
     @SneakyThrows
-    public UserUploadImageLog userAvatar(Integer userId, MultipartFile file, String typed, String scene) {
+    public UserUploadImageLog userAvatar(
+            Integer userId, MultipartFile file, String typed, String scene) {
         UploadFileInfo info = upload(file, FrontendConstant.DIR_AVATAR);
         UserUploadImageLog log = new UserUploadImageLog();
         log.setUserId(userId);

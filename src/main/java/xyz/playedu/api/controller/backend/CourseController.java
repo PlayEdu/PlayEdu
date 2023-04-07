@@ -1,12 +1,18 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.*;
@@ -25,6 +31,7 @@ import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/24 14:16
  */
 @RestController
@@ -32,23 +39,17 @@ import java.util.stream.Collectors;
 @RequestMapping("/backend/v1/course")
 public class CourseController {
 
-    @Autowired
-    private CourseService courseService;
+    @Autowired private CourseService courseService;
 
-    @Autowired
-    private ResourceCategoryService categoryService;
+    @Autowired private ResourceCategoryService categoryService;
 
-    @Autowired
-    private CourseChapterService chapterService;
+    @Autowired private CourseChapterService chapterService;
 
-    @Autowired
-    private CourseHourService hourService;
+    @Autowired private CourseHourService hourService;
 
-    @Autowired
-    private DepartmentService departmentService;
+    @Autowired private DepartmentService departmentService;
 
-    @Autowired
-    private ApplicationContext ctx;
+    @Autowired private ApplicationContext ctx;
 
     @GetMapping("/index")
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
@@ -100,25 +101,36 @@ public class CourseController {
         if (req.getShortDesc() != null && req.getShortDesc().length() > 200) {
             return JsonResponse.error("课程简短介绍不能超过200字");
         }
-        Course course = courseService.createWithCategoryIdsAndDepIds(req.getTitle(), req.getThumb(), req.getShortDesc(), req.getIsRequired(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
+        Course course =
+                courseService.createWithCategoryIdsAndDepIds(
+                        req.getTitle(),
+                        req.getThumb(),
+                        req.getShortDesc(),
+                        req.getIsRequired(),
+                        req.getIsShow(),
+                        req.getCategoryIds(),
+                        req.getDepIds());
 
         Date now = new Date();
         int classHourCount = 0;
 
-        if (req.getHours().size() > 0) {//无章节课时配置
+        if (req.getHours().size() > 0) { // 无章节课时配置
             List<CourseHour> insertHours = new ArrayList<>();
             final Integer[] chapterSort = {0};
             for (CourseRequest.HourItem hourItem : req.getHours()) {
-                insertHours.add(new CourseHour() {{
-                    setCourseId(course.getId());
-                    setChapterId(0);
-                    setSort(chapterSort[0]++);
-                    setTitle(hourItem.getName());
-                    setType(hourItem.getType());
-                    setDuration(hourItem.getDuration());
-                    setRid(hourItem.getRid());
-                    setCreatedAt(now);
-                }});
+                insertHours.add(
+                        new CourseHour() {
+                            {
+                                setCourseId(course.getId());
+                                setChapterId(0);
+                                setSort(chapterSort[0]++);
+                                setTitle(hourItem.getName());
+                                setType(hourItem.getType());
+                                setDuration(hourItem.getDuration());
+                                setRid(hourItem.getRid());
+                                setCreatedAt(now);
+                            }
+                        });
             }
             if (insertHours.size() > 0) {
                 hourService.saveBatch(insertHours);
@@ -133,28 +145,34 @@ public class CourseController {
             final Integer[] chapterSort = {0};
 
             for (CourseRequest.ChapterItem chapterItem : req.getChapters()) {
-                CourseChapter tmpChapter = new CourseChapter() {{
-                    setCourseId(course.getId());
-                    setSort(chapterSort[0]++);
-                    setName(chapterItem.getName());
-                    setCreatedAt(now);
-                    setUpdatedAt(now);
-                }};
+                CourseChapter tmpChapter =
+                        new CourseChapter() {
+                            {
+                                setCourseId(course.getId());
+                                setSort(chapterSort[0]++);
+                                setName(chapterItem.getName());
+                                setCreatedAt(now);
+                                setUpdatedAt(now);
+                            }
+                        };
 
                 chapterService.save(tmpChapter);
 
                 final Integer[] hourSort = {0};
                 for (CourseRequest.HourItem hourItem : chapterItem.getHours()) {
-                    insertHours.add(new CourseHour() {{
-                        setChapterId(tmpChapter.getId());
-                        setCourseId(course.getId());
-                        setSort(hourSort[0]++);
-                        setTitle(hourItem.getName());
-                        setType(hourItem.getType());
-                        setDuration(hourItem.getDuration());
-                        setRid(hourItem.getRid());
-                        setCreatedAt(now);
-                    }});
+                    insertHours.add(
+                            new CourseHour() {
+                                {
+                                    setChapterId(tmpChapter.getId());
+                                    setCourseId(course.getId());
+                                    setSort(hourSort[0]++);
+                                    setTitle(hourItem.getName());
+                                    setType(hourItem.getType());
+                                    setDuration(hourItem.getDuration());
+                                    setRid(hourItem.getRid());
+                                    setCreatedAt(now);
+                                }
+                            });
                 }
             }
             if (insertHours.size() > 0) {
@@ -181,8 +199,8 @@ public class CourseController {
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
-        data.put("dep_ids", depIds);//已关联的部门
-        data.put("category_ids", categoryIds);//已关联的分类
+        data.put("dep_ids", depIds); // 已关联的部门
+        data.put("category_ids", categoryIds); // 已关联的分类
         data.put("chapters", chapters);
         data.put("hours", hours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
 
@@ -192,9 +210,19 @@ public class CourseController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PutMapping("/{id}")
     @Transactional
-    public JsonResponse update(@PathVariable(name = "id") Integer id, @RequestBody @Validated CourseRequest req) throws NotFoundException {
+    public JsonResponse update(
+            @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseRequest req)
+            throws NotFoundException {
         Course course = courseService.findOrFail(id);
-        courseService.updateWithCategoryIdsAndDepIds(course, req.getTitle(), req.getThumb(), req.getShortDesc(), req.getIsRequired(), req.getIsShow(), req.getCategoryIds(), req.getDepIds());
+        courseService.updateWithCategoryIdsAndDepIds(
+                course,
+                req.getTitle(),
+                req.getThumb(),
+                req.getShortDesc(),
+                req.getIsRequired(),
+                req.getIsShow(),
+                req.getCategoryIds(),
+                req.getDepIds());
         return JsonResponse.success();
     }
 
@@ -205,5 +233,4 @@ public class CourseController {
         ctx.publishEvent(new CourseDestroyEvent(this, BCtx.getId(), id));
         return JsonResponse.success();
     }
-
 }

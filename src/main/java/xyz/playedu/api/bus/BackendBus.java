@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.bus;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminRole;
@@ -16,14 +21,11 @@ import java.util.List;
 @Component
 public class BackendBus {
 
-    @Autowired
-    private AdminPermissionService permissionService;
+    @Autowired private AdminPermissionService permissionService;
 
-    @Autowired
-    private AdminRoleService adminRoleService;
+    @Autowired private AdminRoleService adminRoleService;
 
-    @Autowired
-    private AdminUserService adminUserService;
+    @Autowired private AdminUserService adminUserService;
 
     public static boolean inUnAuthWhitelist(String uri) {
         return BackendConstant.UN_AUTH_URI_WHITELIST.contains(uri);
@@ -41,9 +43,9 @@ public class BackendBus {
 
         List<Integer> permissionIds;
 
-        if (roleIds.contains(superRole.getId())) {//包含超级管理角色的话返回全部权限
+        if (roleIds.contains(superRole.getId())) { // 包含超级管理角色的话返回全部权限
             permissionIds = permissionService.allIds();
-        } else {//根据相应的roleIds读取权限
+        } else { // 根据相应的roleIds读取权限
             permissionIds = adminRoleService.getPermissionIdsByRoleIds(roleIds);
             if (permissionIds.size() == 0) {
                 return permissions;
@@ -54,7 +56,7 @@ public class BackendBus {
     }
 
     public static String valueHidden(String permissionSlug, String type, String value) {
-        if (BCtx.isNull()) {//非后管环境返回原值
+        if (BCtx.isNull()) { // 非后管环境返回原值
             return value;
         }
         HashMap<String, Boolean> permissions = BCtx.getAdminPer();
@@ -84,5 +86,4 @@ public class BackendBus {
         }
         return roleIds.contains(superRole.getId());
     }
-
 }

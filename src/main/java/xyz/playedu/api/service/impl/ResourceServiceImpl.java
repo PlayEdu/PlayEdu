@@ -1,23 +1,27 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceCategoryRelation;
 import xyz.playedu.api.domain.ResourceVideo;
 import xyz.playedu.api.exception.NotFoundException;
-import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.mapper.ResourceMapper;
-import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.service.ResourceVideoService;
 import xyz.playedu.api.service.internal.ResourceCategoryRelationService;
-import xyz.playedu.api.types.mapper.ResourceCategoryCountMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author tengteng
@@ -25,13 +29,12 @@ import java.util.stream.Collectors;
  * @createDate 2023-02-23 10:50:26
  */
 @Service
-public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
+public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
+        implements ResourceService {
 
-    @Autowired
-    private ResourceVideoService resourceVideoService;
+    @Autowired private ResourceVideoService resourceVideoService;
 
-    @Autowired
-    private ResourceCategoryRelationService relationService;
+    @Autowired private ResourceCategoryRelationService relationService;
 
     @Override
     public PaginationResult<Resource> paginate(int page, int size, ResourcePaginateFilter filter) {
@@ -48,7 +51,17 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     @Override
     @Transactional
-    public Resource create(Integer adminId, String categoryIds, String type, String filename, String ext, Long size, String disk, String fileId, String path, String url) {
+    public Resource create(
+            Integer adminId,
+            String categoryIds,
+            String type,
+            String filename,
+            String ext,
+            Long size,
+            String disk,
+            String fileId,
+            String path,
+            String url) {
         Resource resource = new Resource();
         resource.setAdminId(adminId);
         resource.setType(type);
@@ -62,17 +75,19 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         resource.setCreatedAt(new Date());
         save(resource);
 
-
         if (categoryIds != null && categoryIds.trim().length() > 0) {
             String[] idArray = categoryIds.split(",");
             List<ResourceCategoryRelation> relations = new ArrayList<>();
             for (int i = 0; i < idArray.length; i++) {
                 String tmpId = idArray[i];
 
-                relations.add(new ResourceCategoryRelation() {{
-                    setCid(Integer.valueOf(tmpId));
-                    setRid(resource.getId());
-                }});
+                relations.add(
+                        new ResourceCategoryRelation() {
+                            {
+                                setCid(Integer.valueOf(tmpId));
+                                setRid(resource.getId());
+                            }
+                        });
             }
             relationService.saveBatch(relations);
         }
@@ -119,14 +134,12 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     @Override
     public Integer duration(Integer id) {
-        ResourceVideo resourceVideo = resourceVideoService.getOne(resourceVideoService.query().getWrapper().eq("rid", id));
+        ResourceVideo resourceVideo =
+                resourceVideoService.getOne(
+                        resourceVideoService.query().getWrapper().eq("rid", id));
         if (resourceVideo == null) {
             return null;
         }
         return resourceVideo.getDuration();
     }
 }
-
-
-
-

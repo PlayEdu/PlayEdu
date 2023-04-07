@@ -1,11 +1,17 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import org.springframework.stereotype.Service;
+
 import xyz.playedu.api.domain.CourseChapter;
 import xyz.playedu.api.exception.NotFoundException;
-import xyz.playedu.api.service.CourseChapterService;
 import xyz.playedu.api.mapper.CourseChapterMapper;
-import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.CourseChapterService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,16 +77,15 @@ public class CourseChapterServiceImpl extends ServiceImpl<CourseChapterMapper, C
         List<CourseChapter> chapters = new ArrayList<>();
         final Integer[] sortVal = {0};
         for (Integer idItem : ids) {
-            chapters.add(new CourseChapter() {{
-                setId(idItem);
-                setId(cid);
-                setSort(sortVal[0]++);
-            }});
+            chapters.add(
+                    new CourseChapter() {
+                        {
+                            setId(idItem);
+                            setId(cid);
+                            setSort(sortVal[0]++);
+                        }
+                    });
         }
         updateBatchById(chapters);
     }
 }
-
-
-
-

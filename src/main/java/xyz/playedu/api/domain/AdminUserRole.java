@@ -1,12 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 /**
  * @TableName admin_user_role
@@ -35,8 +39,12 @@ public class AdminUserRole implements Serializable {
             return false;
         }
         AdminUserRole other = (AdminUserRole) that;
-        return (this.getAdminId() == null ? other.getAdminId() == null : this.getAdminId().equals(other.getAdminId()))
-                && (this.getRoleId() == null ? other.getRoleId() == null : this.getRoleId().equals(other.getRoleId()));
+        return (this.getAdminId() == null
+                        ? other.getAdminId() == null
+                        : this.getAdminId().equals(other.getAdminId()))
+                && (this.getRoleId() == null
+                        ? other.getRoleId() == null
+                        : this.getRoleId().equals(other.getRoleId()));
     }
 
     @Override

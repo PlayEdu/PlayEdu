@@ -1,14 +1,18 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl.internal;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.transaction.annotation.Transactional;
-import xyz.playedu.api.domain.UserDepartment;
-import xyz.playedu.api.service.internal.UserDepartmentService;
-import xyz.playedu.api.mapper.UserDepartmentMapper;
+
 import org.springframework.stereotype.Service;
 
+import xyz.playedu.api.domain.UserDepartment;
+import xyz.playedu.api.mapper.UserDepartmentMapper;
+import xyz.playedu.api.service.internal.UserDepartmentService;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,11 +21,14 @@ import java.util.List;
  * @createDate 2023-02-23 15:08:38
  */
 @Service
-public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper, UserDepartment> implements UserDepartmentService {
+public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper, UserDepartment>
+        implements UserDepartmentService {
 
     @Override
     public List<Integer> getUserIdsByDepIds(List<Integer> depIds) {
-        return list(query().getWrapper().in("dep_id", depIds)).stream().map(UserDepartment::getUserId).toList();
+        return list(query().getWrapper().in("dep_id", depIds)).stream()
+                .map(UserDepartment::getUserId)
+                .toList();
     }
 
     @Override
@@ -32,10 +39,13 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         List<UserDepartment> userDepartments = new ArrayList<>();
         for (int i = 0; i < depIds.length; i++) {
             Integer depId = depIds[i];
-            userDepartments.add(new UserDepartment() {{
-                setUserId(userId);
-                setDepId(depId);
-            }});
+            userDepartments.add(
+                    new UserDepartment() {
+                        {
+                            setUserId(userId);
+                            setDepId(depId);
+                        }
+                    });
         }
         saveBatch(userDepartments);
     }
@@ -46,7 +56,3 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         storeDepIds(userId, depIds);
     }
 }
-
-
-
-

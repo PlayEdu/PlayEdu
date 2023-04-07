@@ -1,16 +1,21 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import org.springframework.stereotype.Service;
+
 import xyz.playedu.api.domain.CourseHour;
 import xyz.playedu.api.exception.NotFoundException;
-import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.mapper.CourseHourMapper;
-import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.CourseHourService;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author tengteng
@@ -18,7 +23,8 @@ import java.util.stream.Collectors;
  * @createDate 2023-03-15 10:16:45
  */
 @Service
-public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseHour> implements CourseHourService {
+public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseHour>
+        implements CourseHourService {
 
     @Override
     public CourseHour findOrFail(Integer id, Integer courseId) throws NotFoundException {
@@ -30,7 +36,12 @@ public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseH
     }
 
     @Override
-    public void update(CourseHour courseHour, Integer chapterId, Integer sort, String title, Integer duration) {
+    public void update(
+            CourseHour courseHour,
+            Integer chapterId,
+            Integer sort,
+            String title,
+            Integer duration) {
         CourseHour hour = new CourseHour();
         hour.setId(courseHour.getId());
         hour.setChapterId(chapterId);
@@ -47,7 +58,14 @@ public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseH
     }
 
     @Override
-    public CourseHour create(Integer courseId, Integer chapterId, Integer sort, String title, String type, Integer rid, Integer duration) {
+    public CourseHour create(
+            Integer courseId,
+            Integer chapterId,
+            Integer sort,
+            String title,
+            String type,
+            Integer rid,
+            Integer duration) {
         CourseHour hour = new CourseHour();
         hour.setCourseId(courseId);
         hour.setChapterId(chapterId);
@@ -86,18 +104,23 @@ public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseH
         List<CourseHour> hours = new ArrayList<>();
         final Integer[] sortVal = {0};
         for (Integer idVal : ids) {
-            hours.add(new CourseHour() {{
-                setId(idVal);
-                setCourseId(cid);
-                setSort(sortVal[0]++);
-            }});
+            hours.add(
+                    new CourseHour() {
+                        {
+                            setId(idVal);
+                            setCourseId(cid);
+                            setSort(sortVal[0]++);
+                        }
+                    });
         }
         updateBatchById(hours);
     }
 
     @Override
     public List<Integer> getRidsByCourseId(Integer courseId, String type) {
-        return list(query().getWrapper().eq("course_id", courseId).eq("type", type)).stream().map(CourseHour::getRid).toList();
+        return list(query().getWrapper().eq("course_id", courseId).eq("type", type)).stream()
+                .map(CourseHour::getRid)
+                .toList();
     }
 
     @Override
@@ -105,7 +128,3 @@ public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseH
         return list(query().getWrapper().in("id", hourIds));
     }
 }
-
-
-
-

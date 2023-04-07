@@ -1,3 +1,7 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.util;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -8,9 +12,9 @@ import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/12 10:43
  */
 @Component
@@ -38,10 +42,11 @@ public class RedisDistributedLock {
         if (value == null) {
             return false;
         }
-        DefaultRedisScript<Boolean> script = new DefaultRedisScript<>(
-                "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
-                Boolean.class
-        );
+        DefaultRedisScript<Boolean> script =
+                new DefaultRedisScript<>(
+                        "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del',"
+                                + " KEYS[1]) else return 0 end",
+                        Boolean.class);
         Boolean success = redisTemplate.execute(script, Collections.singletonList(key), value);
         if (Boolean.TRUE.equals(success)) {
             lockValue.remove();

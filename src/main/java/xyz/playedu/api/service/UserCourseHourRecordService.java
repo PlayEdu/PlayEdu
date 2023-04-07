@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.domain.UserCourseHourRecord;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import xyz.playedu.api.domain.UserCourseHourRecord;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
 
 import java.util.List;
@@ -14,7 +19,12 @@ import java.util.List;
 public interface UserCourseHourRecordService extends IService<UserCourseHourRecord> {
     UserCourseHourRecord find(Integer userId, Integer courseId, Integer hourId);
 
-    void storeOrUpdate(Integer userId, Integer courseId, Integer hourId, Integer duration, Integer totalDuration);
+    void storeOrUpdate(
+            Integer userId,
+            Integer courseId,
+            Integer hourId,
+            Integer duration,
+            Integer totalDuration);
 
     Integer getFinishedHourCount(Integer userId, Integer courseId);
 
@@ -26,5 +36,6 @@ public interface UserCourseHourRecordService extends IService<UserCourseHourReco
 
     void remove(Integer userId, Integer courseId);
 
-    List<UserCourseHourRecordCountMapper> getUserCourseHourCount(Integer userId, List<Integer> courseIds, Integer isFinished);
+    List<UserCourseHourRecordCountMapper> getUserCourseHourCount(
+            Integer userId, List<Integer> courseIds, Integer isFinished);
 }

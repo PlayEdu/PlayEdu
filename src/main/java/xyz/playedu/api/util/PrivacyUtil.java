@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.util;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/3 10:51
  */
 public class PrivacyUtil {
@@ -28,13 +33,14 @@ public class PrivacyUtil {
     /**
      * 对字符串进行脱敏操作
      *
-     * @param origin          原始字符串
+     * @param origin 原始字符串
      * @param prefixNoMaskLen 左侧需要保留几位明文字段
      * @param suffixNoMaskLen 右侧需要保留几位明文字段
-     * @param maskStr         用于遮罩的字符串, 如'*'
+     * @param maskStr 用于遮罩的字符串, 如'*'
      * @return 脱敏后结果
      */
-    public static String desValue(String origin, int prefixNoMaskLen, int suffixNoMaskLen, String maskStr) {
+    public static String desValue(
+            String origin, int prefixNoMaskLen, int suffixNoMaskLen, String maskStr) {
         if (origin == null) {
             return null;
         }

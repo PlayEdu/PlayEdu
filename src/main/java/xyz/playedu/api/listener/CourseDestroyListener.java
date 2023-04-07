@@ -1,8 +1,13 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.listener;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.api.service.CourseDepartmentService;
 import xyz.playedu.api.service.UserCourseHourRecordService;
@@ -11,23 +16,19 @@ import xyz.playedu.api.service.internal.ResourceCourseCategoryService;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/24 17:19
  */
 @Component
-
 public class CourseDestroyListener {
 
-    @Autowired
-    private CourseDepartmentService courseDepartmentService;
+    @Autowired private CourseDepartmentService courseDepartmentService;
 
-    @Autowired
-    private ResourceCourseCategoryService courseCategoryService;
+    @Autowired private ResourceCourseCategoryService courseCategoryService;
 
-    @Autowired
-    private UserCourseRecordService userCourseRecordService;
+    @Autowired private UserCourseRecordService userCourseRecordService;
 
-    @Autowired
-    private UserCourseHourRecordService userCourseHourRecordService;
+    @Autowired private UserCourseHourRecordService userCourseHourRecordService;
 
     @EventListener
     public void departmentRelateRemove(CourseDestroyEvent event) {
@@ -44,5 +45,4 @@ public class CourseDestroyListener {
         userCourseRecordService.removeByCourseId(event.getCourseId());
         userCourseHourRecordService.removeByCourseId(event.getCourseId());
     }
-
 }

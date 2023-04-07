@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.domain.AppConfig;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import xyz.playedu.api.domain.AppConfig;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,5 +26,4 @@ public interface AppConfigService extends IService<AppConfig> {
     void saveFromMap(HashMap<String, String> data);
 
     Map<String, String> keyValues();
-
 }

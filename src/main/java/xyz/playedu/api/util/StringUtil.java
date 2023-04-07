@@ -1,21 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.util;
 
 import org.springframework.util.AntPathMatcher;
 
 import java.util.*;
 
-/**
- * 字符串工具类
- */
+/** 字符串工具类 */
 public class StringUtil extends org.apache.commons.lang3.StringUtils {
-    /**
-     * 空字符串
-     */
+    /** 空字符串 */
     private static final String NULL_STR = "";
 
-    /**
-     * 下划线
-     */
+    /** 下划线 */
     private static final char SEPARATOR = '_';
 
     /**
@@ -138,9 +136,7 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
         return isNotNull(object) && object.getClass().isArray();
     }
 
-    /**
-     * 去空格
-     */
+    /** 去空格 */
     public static String trim(String str) {
         return (str == null ? "" : str.trim());
     }
@@ -212,7 +208,6 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
         return str.substring(start, end);
     }
 
-
     /**
      * 字符串转set
      *
@@ -265,24 +260,20 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
      * @param searchCharSequences 需要检查的字符串数组
      * @return 是否包含任意一个字符串
      */
-    public static boolean containsAnyIgnoreCase(CharSequence cs, CharSequence... searchCharSequences) {
-        if (isEmpty(cs) || isEmpty(searchCharSequences))
-        {
+    public static boolean containsAnyIgnoreCase(
+            CharSequence cs, CharSequence... searchCharSequences) {
+        if (isEmpty(cs) || isEmpty(searchCharSequences)) {
             return false;
         }
-        for (CharSequence testStr : searchCharSequences)
-        {
-            if (containsIgnoreCase(cs, testStr))
-            {
+        for (CharSequence testStr : searchCharSequences) {
+            if (containsIgnoreCase(cs, testStr)) {
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * 驼峰转下划线命名
-     */
+    /** 驼峰转下划线命名 */
     public static String toUnderScoreCase(String str) {
         if (str == null) {
             return null;
@@ -310,8 +301,7 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
 
             if (preCharIsUpperCase && cureCharIsUpperCase && !nextCharIsUpperCase) {
                 sb.append(SEPARATOR);
-            } else if ((i != 0 && !preCharIsUpperCase) && cureCharIsUpperCase)
-            {
+            } else if ((i != 0 && !preCharIsUpperCase) && cureCharIsUpperCase) {
                 sb.append(SEPARATOR);
             }
             sb.append(Character.toLowerCase(c));
@@ -339,9 +329,7 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
     }
 
     /**
-     * 将下划线大写方式命名的字符串转换为驼峰式。
-     * 如果转换前的下划线大写方式命名的字符串为空,
-     * 则返回空字符串。 例如：HELLO_WORLD->HelloWorld
+     * 将下划线大写方式命名的字符串转换为驼峰式。 如果转换前的下划线大写方式命名的字符串为空, 则返回空字符串。 例如：HELLO_WORLD->HelloWorld
      *
      * @param name 转换前的下划线大写方式命名的字符串
      * @return 转换后的驼峰式命名的字符串
@@ -352,8 +340,7 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
         if (name == null || name.isEmpty()) {
             // 没必要转换
             return "";
-        }
-        else if (!name.contains("_")) {
+        } else if (!name.contains("_")) {
             // 不含下划线，仅将首字母大写
             return name.substring(0, 1).toUpperCase() + name.substring(1);
         }
@@ -419,10 +406,7 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
     }
 
     /**
-     * 判断url是否与规则配置:
-     * ? 表示单个字符;
-     * * 表示一层路径内的任意字符串，不可跨层级;
-     * ** 表示任意层路径;
+     * 判断url是否与规则配置: ? 表示单个字符; * 表示一层路径内的任意字符串，不可跨层级; ** 表示任意层路径;
      *
      * @param pattern 匹配规则
      * @param url 需要匹配的url
@@ -434,8 +418,7 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
     }
 
     /**
-     * 数字左边补齐0,使之达到指定长度。
-     * 注意，如果数字转换为字符串后,长度大于size,则只保留 最后size个字符。
+     * 数字左边补齐0,使之达到指定长度。 注意，如果数字转换为字符串后,长度大于size,则只保留 最后size个字符。
      *
      * @param num 数字对象
      * @param size 字符串指定长度
@@ -446,8 +429,7 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
     }
 
     /**
-     * 字符串左补齐
-     * 如果原始字符串s长度大于size,则只保留最后size个字符。
+     * 字符串左补齐 如果原始字符串s长度大于size,则只保留最后size个字符。
      *
      * @param s 原始字符串
      * @param size 字符串指定长度
@@ -488,8 +470,8 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
      * @return 格式化后的文本
      */
     public static String format(String strPattern, Object... argArray) {
-        String EMPTY_JSON  = "{}";
-        char C_BACKSLASH   = '\\';
+        String EMPTY_JSON = "{}";
+        char C_BACKSLASH = '\\';
         char C_DELIM_START = '{';
 
         if (isEmpty(argArray) || isEmpty(strPattern)) {
@@ -534,5 +516,4 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
         sbuf.append(strPattern, handledPosition, strPattern.length());
         return sbuf.toString();
     }
-
 }

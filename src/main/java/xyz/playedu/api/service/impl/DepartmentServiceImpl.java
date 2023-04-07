@@ -1,18 +1,25 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import xyz.playedu.api.domain.CourseDepartment;
 import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.exception.NotFoundException;
+import xyz.playedu.api.mapper.DepartmentMapper;
 import xyz.playedu.api.service.CourseDepartmentService;
 import xyz.playedu.api.service.DepartmentService;
-import xyz.playedu.api.mapper.DepartmentMapper;
-import org.springframework.stereotype.Service;
 import xyz.playedu.api.service.internal.UserDepartmentService;
 
 import java.util.*;
@@ -25,13 +32,12 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Department> implements DepartmentService {
+public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Department>
+        implements DepartmentService {
 
-    @Autowired
-    private UserDepartmentService userDepartmentService;
+    @Autowired private UserDepartmentService userDepartmentService;
 
-    @Autowired
-    private CourseDepartmentService courseDepartmentService;
+    @Autowired private CourseDepartmentService courseDepartmentService;
 
     @Override
     public List<Department> listByParentId(Integer id) {
@@ -62,8 +68,9 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
     @Override
     @Transactional
-    public void update(Department department, String name, Integer parentId, Integer sort) throws NotFoundException {
-        //计算该部门作为其它子部门的parentChain值
+    public void update(Department department, String name, Integer parentId, Integer sort)
+            throws NotFoundException {
+        // 计算该部门作为其它子部门的parentChain值
         String childrenChainPrefix = childrenParentChain(department);
 
         Department data = new Department();
@@ -72,18 +79,18 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
         if (!department.getParentId().equals(parentId)) {
             data.setParentId(parentId);
-            if (parentId.equals(0)) {//重置一级部门
+            if (parentId.equals(0)) { // 重置一级部门
                 data.setParentChain("");
             } else {
                 Department parentDepartment = findOrFail(parentId);
                 data.setParentChain(childrenParentChain(parentDepartment));
             }
         }
-        if (!department.getSort().equals(sort)) {//更换部门排序值
+        if (!department.getSort().equals(sort)) { // 更换部门排序值
             data.setSort(sort);
         }
 
-        //提交更换
+        // 提交更换
         updateById(data);
 
         department = getById(department.getId());
@@ -91,7 +98,8 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     }
 
     private void updateParentChain(String newChildrenPC, String oldChildrenPC) {
-        List<Department> children = list(query().getWrapper().like("parent_chain", oldChildrenPC + "%"));
+        List<Department> children =
+                list(query().getWrapper().like("parent_chain", oldChildrenPC + "%"));
         if (children.size() == 0) {
             return;
         }
@@ -104,7 +112,14 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
             // parentChain计算
             String pc = newChildrenPC;
             if (!tmpDepartment.getParentChain().equals(oldChildrenPC)) {
-                pc = tmpDepartment.getParentChain().replaceFirst(oldChildrenPC + ",", newChildrenPC.length() == 0 ? newChildrenPC : newChildrenPC + ',');
+                pc =
+                        tmpDepartment
+                                .getParentChain()
+                                .replaceFirst(
+                                        oldChildrenPC + ",",
+                                        newChildrenPC.length() == 0
+                                                ? newChildrenPC
+                                                : newChildrenPC + ',');
             }
             tmpUpdateDepartment.setParentChain(pc);
 
@@ -174,23 +189,33 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
     @Override
     public void remoteRelateUsersByDepId(Integer depId) {
-        QueryWrapper<UserDepartment> wrapper = userDepartmentService.query().getWrapper().eq("dep_id", depId);
+        QueryWrapper<UserDepartment> wrapper =
+                userDepartmentService.query().getWrapper().eq("dep_id", depId);
         userDepartmentService.remove(wrapper);
     }
 
     @Override
     public List<Integer> getUserIdsByDepId(Integer depId) {
-        return userDepartmentService.list(userDepartmentService.query().getWrapper().eq("dep_id", depId)).stream().map(UserDepartment::getUserId).toList();
+        return userDepartmentService
+                .list(userDepartmentService.query().getWrapper().eq("dep_id", depId))
+                .stream()
+                .map(UserDepartment::getUserId)
+                .toList();
     }
 
     @Override
     public List<Integer> getCourseIdsByDepId(Integer depId) {
-        return courseDepartmentService.list(courseDepartmentService.query().getWrapper().eq("dep_id", depId)).stream().map(CourseDepartment::getCourseId).toList();
+        return courseDepartmentService
+                .list(courseDepartmentService.query().getWrapper().eq("dep_id", depId))
+                .stream()
+                .map(CourseDepartment::getCourseId)
+                .toList();
     }
 
     @Override
     @Transactional
-    public void changeParent(Integer id, Integer parentId, List<Integer> ids) throws NotFoundException {
+    public void changeParent(Integer id, Integer parentId, List<Integer> ids)
+            throws NotFoundException {
         Department department = findOrFail(id);
         update(department, department.getName(), parentId, department.getSort());
         // 重置排序
@@ -206,17 +231,21 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         int sortVal = 0;
         for (Integer idItem : ids) {
             Integer finalSortVal = ++sortVal;
-            departments.add(new Department() {{
-                setId(idItem);
-                setSort(finalSortVal);
-            }});
+            departments.add(
+                    new Department() {
+                        {
+                            setId(idItem);
+                            setSort(finalSortVal);
+                        }
+                    });
         }
         updateBatchById(departments);
     }
 
     @Override
     public Map<Integer, List<Department>> groupByParent() {
-        return list(query().getWrapper().orderByAsc("sort")).stream().collect(Collectors.groupingBy(Department::getParentId));
+        return list(query().getWrapper().orderByAsc("sort")).stream()
+                .collect(Collectors.groupingBy(Department::getParentId));
     }
 
     @Override
@@ -229,7 +258,3 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         return count();
     }
 }
-
-
-
-

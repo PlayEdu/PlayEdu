@@ -1,11 +1,18 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import lombok.SneakyThrows;
-import xyz.playedu.api.domain.UserLearnDurationStats;
-import xyz.playedu.api.service.UserLearnDurationStatsService;
-import xyz.playedu.api.mapper.UserLearnDurationStatsMapper;
+
 import org.springframework.stereotype.Service;
+
+import xyz.playedu.api.domain.UserLearnDurationStats;
+import xyz.playedu.api.mapper.UserLearnDurationStatsMapper;
+import xyz.playedu.api.service.UserLearnDurationStatsService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,7 +24,9 @@ import java.util.List;
  * @createDate 2023-03-22 13:55:29
  */
 @Service
-public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDurationStatsMapper, UserLearnDurationStats> implements UserLearnDurationStatsService {
+public class UserLearnDurationStatsServiceImpl
+        extends ServiceImpl<UserLearnDurationStatsMapper, UserLearnDurationStats>
+        implements UserLearnDurationStatsService {
 
     @Override
     @SneakyThrows
@@ -28,7 +37,8 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
         // duration
         Long duration = endTime - startTime;
 
-        UserLearnDurationStats stats = getOne(query().getWrapper().eq("user_id", userId).eq("created_date", date));
+        UserLearnDurationStats stats =
+                getOne(query().getWrapper().eq("user_id", userId).eq("created_date", date));
         if (stats == null) {
             UserLearnDurationStats newStats = new UserLearnDurationStats();
             newStats.setUserId(userId);
@@ -64,14 +74,19 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
     public List<UserLearnDurationStats> top10() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String today = simpleDateFormat.format(new Date());
-        return list(query().getWrapper().eq("created_date", today).orderByDesc("duration").last("limit 10"));
+        return list(
+                query().getWrapper()
+                        .eq("created_date", today)
+                        .orderByDesc("duration")
+                        .last("limit 10"));
     }
 
     @Override
     public Long todayUserDuration(Integer userId) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String today = simpleDateFormat.format(new Date());
-        UserLearnDurationStats stats = getOne(query().getWrapper().eq("user_id", userId).eq("created_date", today));
+        UserLearnDurationStats stats =
+                getOne(query().getWrapper().eq("user_id", userId).eq("created_date", today));
         if (stats == null) {
             return 0L;
         }
@@ -84,7 +99,3 @@ public class UserLearnDurationStatsServiceImpl extends ServiceImpl<UserLearnDura
         return totalDuration == null ? 0L : totalDuration;
     }
 }
-
-
-
-

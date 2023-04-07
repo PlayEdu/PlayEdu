@@ -1,12 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.request.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import lombok.Data;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/3/8 14:49
  */
 @Data
@@ -37,5 +44,4 @@ public class UploadVideoMergeRequest {
 
     @NotNull(message = "请上传视频封面")
     private String poster;
-
 }

@@ -1,19 +1,25 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.domain.AdminUserRole;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.exception.ServiceException;
-import xyz.playedu.api.service.internal.AdminUserRoleService;
-import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.mapper.AdminUserMapper;
-import org.springframework.stereotype.Service;
+import xyz.playedu.api.service.AdminUserService;
+import xyz.playedu.api.service.internal.AdminUserRoleService;
 import xyz.playedu.api.types.paginate.AdminUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.util.HelperUtil;
@@ -22,12 +28,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser> implements AdminUserService {
+public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser>
+        implements AdminUserService {
 
-    @Autowired
-    private AdminUserRoleService userRoleService;
+    @Autowired private AdminUserRoleService userRoleService;
 
-    public PaginationResult<AdminUser> paginate(int page, int size, AdminUserPaginateFilter filter) {
+    public PaginationResult<AdminUser> paginate(
+            int page, int size, AdminUserPaginateFilter filter) {
         QueryWrapper<AdminUser> wrapper = query().getWrapper().eq("1", "1");
 
         if (filter.getName() != null && filter.getName().trim().length() > 0) {
@@ -36,9 +43,12 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
         if (filter.getRoleId() != null) {
             List<Integer> userIds = userRoleService.getAdminUserIds(filter.getRoleId());
             if (userIds == null || userIds.size() == 0) {
-                userIds = new ArrayList<>() {{
-                    add(0);
-                }};
+                userIds =
+                        new ArrayList<>() {
+                            {
+                                add(0);
+                            }
+                        };
             }
             wrapper.in("id", userIds);
         }
@@ -80,7 +90,9 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
 
     @Override
     @Transactional
-    public void createWithRoleIds(String name, String email, String password, Integer isBanLogin, Integer[] roleIds) throws ServiceException {
+    public void createWithRoleIds(
+            String name, String email, String password, Integer isBanLogin, Integer[] roleIds)
+            throws ServiceException {
         if (emailExists(email)) {
             throw new ServiceException("邮箱已存在");
         }
@@ -124,7 +136,8 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
 
     @Override
     public List<Integer> getRoleIdsByUserId(Integer userId) {
-        QueryWrapper<AdminUserRole> wrapper = userRoleService.query().getWrapper().eq("admin_id", userId);
+        QueryWrapper<AdminUserRole> wrapper =
+                userRoleService.query().getWrapper().eq("admin_id", userId);
         List<AdminUserRole> userRoles = userRoleService.list(wrapper);
         List<Integer> ids = new ArrayList<>();
         for (AdminUserRole userRole : userRoles) {
@@ -135,20 +148,27 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
 
     @Override
     @Transactional
-    public void updateWithRoleIds(AdminUser user, String name, String email, String password, Integer isBanLogin, Integer[] roleIds) throws ServiceException {
+    public void updateWithRoleIds(
+            AdminUser user,
+            String name,
+            String email,
+            String password,
+            Integer isBanLogin,
+            Integer[] roleIds)
+            throws ServiceException {
         AdminUser updateAdminUser = new AdminUser();
         updateAdminUser.setId(user.getId());
         updateAdminUser.setName(name);
         updateAdminUser.setIsBanLogin(isBanLogin);
 
-        if (!user.getEmail().equals(email)) {//更换了邮箱
+        if (!user.getEmail().equals(email)) { // 更换了邮箱
             if (emailExists(email)) {
                 throw new ServiceException("邮箱已存在");
             }
             updateAdminUser.setEmail(email);
         }
 
-        if (password != null && password.length() > 0) {//更换了密码
+        if (password != null && password.length() > 0) { // 更换了密码
             updateAdminUser.setPassword(HelperUtil.MD5(password + user.getSalt()));
         }
 
@@ -190,15 +210,16 @@ public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser
 
     @Override
     public Map<Integer, List<Integer>> getAdminUserRoleIds(List<Integer> userIds) {
-        Map<Integer, List<AdminUserRole>> records = userRoleService.list(userRoleService.query().getWrapper().in("admin_id", userIds)).stream().collect(Collectors.groupingBy(AdminUserRole::getAdminId));
+        Map<Integer, List<AdminUserRole>> records =
+                userRoleService
+                        .list(userRoleService.query().getWrapper().in("admin_id", userIds))
+                        .stream()
+                        .collect(Collectors.groupingBy(AdminUserRole::getAdminId));
         Map<Integer, List<Integer>> data = new HashMap<>();
-        records.forEach((adminId, record) -> {
-            data.put(adminId, record.stream().map(AdminUserRole::getRoleId).toList());
-        });
+        records.forEach(
+                (adminId, record) -> {
+                    data.put(adminId, record.stream().map(AdminUserRole::getRoleId).toList());
+                });
         return data;
     }
 }
-
-
-
-

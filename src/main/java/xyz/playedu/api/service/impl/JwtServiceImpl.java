@@ -1,24 +1,31 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import xyz.playedu.api.constant.FrontendConstant;
+
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.exception.JwtLogoutException;
 import xyz.playedu.api.service.JWTService;
 import xyz.playedu.api.types.JWTPayload;
 import xyz.playedu.api.types.JwtToken;
-import xyz.playedu.api.util.RedisUtil;
 import xyz.playedu.api.util.HelperUtil;
+import xyz.playedu.api.util.RedisUtil;
 
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+
+import javax.crypto.SecretKey;
 
 @Slf4j
 @Service
@@ -46,9 +53,12 @@ public class JwtServiceImpl implements JWTService {
         payload.setSub(userId);
 
         JwtBuilder builder = Jwts.builder();
-        builder.setId(payload.getJti()).setIssuedAt(new Date(payload.getIat())).claim("prv", payload.getPrv());
+        builder.setId(payload.getJti())
+                .setIssuedAt(new Date(payload.getIat()))
+                .claim("prv", payload.getPrv());
         builder.setExpiration(new Date(payload.getExp())).setIssuer(payload.getIss());
-        builder.setSubject(String.valueOf(payload.getSub())).setNotBefore(new Date(payload.getNbf()));
+        builder.setSubject(String.valueOf(payload.getSub()))
+                .setNotBefore(new Date(payload.getNbf()));
         builder.signWith(getSecretKey());
 
         JwtToken token = new JwtToken();
@@ -95,7 +105,14 @@ public class JwtServiceImpl implements JWTService {
     }
 
     private Claims parseToken(String token, String prv) throws JwtLogoutException {
-        Claims claims = (Claims) Jwts.parserBuilder().setSigningKey(getSecretKey()).require("prv", prv).build().parse(token).getBody();
+        Claims claims =
+                (Claims)
+                        Jwts.parserBuilder()
+                                .setSigningKey(getSecretKey())
+                                .require("prv", prv)
+                                .build()
+                                .parse(token)
+                                .getBody();
         if (isInBlack(claims.getId())) {
             throw new JwtLogoutException();
         }
@@ -109,5 +126,4 @@ public class JwtServiceImpl implements JWTService {
     private String getBlackCacheKey(String jti) {
         return ConfigCacheBlackPrefix + jti;
     }
-
 }

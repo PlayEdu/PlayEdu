@@ -1,12 +1,19 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.config;
 
 import jakarta.annotation.Resource;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import xyz.playedu.api.middleware.AdminMiddleware;
 import xyz.playedu.api.middleware.FrontMiddleware;
 
@@ -14,11 +21,9 @@ import xyz.playedu.api.middleware.FrontMiddleware;
 @Slf4j
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    @Resource
-    private AdminMiddleware adminMiddleware;
+    @Resource private AdminMiddleware adminMiddleware;
 
-    @Autowired
-    private FrontMiddleware frontMiddleware;
+    @Autowired private FrontMiddleware frontMiddleware;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

@@ -1,12 +1,16 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 /**
  * @TableName course_department
@@ -35,8 +39,12 @@ public class CourseDepartment implements Serializable {
             return false;
         }
         CourseDepartment other = (CourseDepartment) that;
-        return (this.getCourseId() == null ? other.getCourseId() == null : this.getCourseId().equals(other.getCourseId()))
-                && (this.getDepId() == null ? other.getDepId() == null : this.getDepId().equals(other.getDepId()));
+        return (this.getCourseId() == null
+                        ? other.getCourseId() == null
+                        : this.getCourseId().equals(other.getCourseId()))
+                && (this.getDepId() == null
+                        ? other.getDepId() == null
+                        : this.getDepId().equals(other.getDepId()));
     }
 
     @Override

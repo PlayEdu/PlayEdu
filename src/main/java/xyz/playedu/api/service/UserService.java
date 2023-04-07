@@ -1,7 +1,12 @@
+/**
+ * This file is part of the PlayEdu.
+ * (c) 杭州白书科技有限公司
+ */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import xyz.playedu.api.domain.User;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.types.paginate.PaginationResult;
@@ -30,9 +35,22 @@ public interface UserService extends IService<User> {
 
     User find(String email);
 
-    User createWithDepIds(String email, String name, String avatar, String password, String idCard, Integer[] depIds);
+    User createWithDepIds(
+            String email,
+            String name,
+            String avatar,
+            String password,
+            String idCard,
+            Integer[] depIds);
 
-    User updateWithDepIds(User user, String email, String name, String avatar, String password, String idCard, Integer[] depIds);
+    User updateWithDepIds(
+            User user,
+            String email,
+            String name,
+            String avatar,
+            String password,
+            String idCard,
+            Integer[] depIds);
 
     List<Integer> getDepIdsByUserId(Integer userId);
 
