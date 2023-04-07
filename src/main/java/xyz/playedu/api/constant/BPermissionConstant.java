@@ -30,6 +30,7 @@ public class BPermissionConstant {
 
     public static final String COURSE = "course";
     public static final String COURSE_USER = "course-user";
+    public static final String COURSE_USER_DESTROY = "course-user-destroy";
 
     public static final String RESOURCE_DESTROY = "resource-destroy";
 

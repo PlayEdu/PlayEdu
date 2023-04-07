@@ -10,8 +10,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.UserCourseRecord;
 import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
+import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseUserDestroyRequest;
 import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.service.UserService;
@@ -38,6 +40,7 @@ public class CourseUserController {
 
     @Autowired private ApplicationContext ctx;
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE_USER)
     @GetMapping("/index")
     public JsonResponse index(
             @PathVariable(name = "courseId") Integer courseId,
@@ -72,6 +75,7 @@ public class CourseUserController {
         return JsonResponse.data(data);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE_USER_DESTROY)
     @PostMapping("/destroy")
     public JsonResponse destroy(
             @PathVariable(name = "courseId") Integer courseId,
