@@ -1,6 +1,21 @@
-### 概述
+<p align="center">
+<img src="https://playedu.xyz/images/index/logo-big.png?v=2023032901" width="150"/>
+</p>
 
-**PlayEdu** 是基于 Java + SpringBoot3.0 开发的开源的企业、机构、大学院校的内部培训解决方案。
+<h1 align="center">PlayEdu开源培训系统</h1>
+<p align="center">一款开源的培训系统，您可以使用它快速搭建私有化内部培训平台</p>
+
+### 常用链接
+
++ [官网](https://playedu.xyz)
++ [文档](https://playedu.xyz/docs/docs/intro/)
++ [快速上手](https://playedu.xyz/docs/docs/install/quick)
++ [功能列表](https://playedu.xyz/docs/docs/function)
+
+### 依赖项目
+
++ [PC 界面程序](https://github.com/PlayEdu/frontend)
++ [后台界面程序](https://github.com/PlayEdu/backend)
 
 ### 使用协议
 
