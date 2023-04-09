@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.SystemConstant;
+import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserDepartment;
 import xyz.playedu.api.event.UserDestroyEvent;
@@ -31,6 +32,7 @@ import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -192,14 +194,39 @@ public class UserController {
         errorLines.add(new String[] {"错误行", "错误信息"}); // 错误表-表头
 
         // 读取存在的部门
-        List<Integer> depIds = departmentService.allIds();
+        List<Department> departments = departmentService.all();
+        Map<Integer, String> depId2Name =
+                departments.stream()
+                        .collect(Collectors.toMap(Department::getId, Department::getName));
+        HashMap<String, Integer> depChainNameMap = new HashMap<>();
+        for (Department tmpDepItem : departments) {
+            // 一级部门
+            if (tmpDepItem.getParentChain() == null || tmpDepItem.getParentChain().length() == 0) {
+                depChainNameMap.put(tmpDepItem.getName(), tmpDepItem.getId());
+                continue;
+            }
+
+            // 多级部门
+            String[] tmpChainIds = tmpDepItem.getParentChain().split(",");
+            List<String> tmpChainNames = new ArrayList<>();
+            for (int i = 0; i < tmpChainIds.length; i++) {
+                String tmpName = depId2Name.get(Integer.valueOf(tmpChainIds[i]));
+                if (tmpName == null) {
+                    continue;
+                }
+                tmpChainNames.add(tmpName);
+            }
+            tmpChainNames.add(tmpDepItem.getName());
+            depChainNameMap.put(String.join("-", tmpChainNames), tmpDepItem.getId());
+        }
 
         // 邮箱输入重复检测 || 部门存在检测
         HashMap<String, Integer> emailRepeat = new HashMap<>();
-        HashMap<String, String[]> depMap = new HashMap<>();
+        HashMap<String, Integer[]> depMap = new HashMap<>();
         List<String> emails = new ArrayList<>();
         List<User> insertUsers = new ArrayList<>();
         int i = -1;
+
         for (UserImportRequest.UserItem userItem : users) {
             i++; // 索引值
 
@@ -220,22 +247,28 @@ public class UserController {
             }
 
             // 部门数据检测
-            if (userItem.getDepIds() == null || userItem.getDepIds().trim().length() == 0) {
+            if (userItem.getDeps() == null || userItem.getDeps().trim().length() == 0) {
                 errorLines.add(new String[] {"第" + (i + startLine) + "行", "未选择部门"});
             } else {
-                String[] tmpDepIds = userItem.getDepIds().trim().split(",");
-                for (int j = 0; j < tmpDepIds.length; j++) {
-                    if (!depIds.contains(Integer.valueOf(tmpDepIds[j]))) {
+                String[] tmpDepList = userItem.getDeps().trim().split("\\|");
+                Integer[] tmpDepIds = new Integer[tmpDepList.length];
+                for (int j = 0; j < tmpDepList.length; j++) {
+                    // 获取部门id
+                    Integer tmpDepId = depChainNameMap.get(tmpDepList[j]);
+                    // 判断部门id是否存在
+                    if (tmpDepId == null || tmpDepId == 0) {
                         errorLines.add(
                                 new String[] {
-                                    "第" + (i + startLine) + "行", "部门id[" + tmpDepIds[j] + "]不存在"
+                                    "第" + (i + startLine) + "行", "部门『" + tmpDepList[j] + "』不存在"
                                 });
+                        continue;
                     }
+                    tmpDepIds[j] = tmpDepId;
                 }
                 depMap.put(userItem.getEmail(), tmpDepIds);
             }
 
-            // 昵称为空检测
+            // 姓名为空检测
             String tmpName = userItem.getName();
             if (tmpName == null || tmpName.trim().length() == 0) {
                 errorLines.add(new String[] {"第" + (i + startLine) + "行", "昵称为空"});
@@ -283,16 +316,16 @@ public class UserController {
         // 部门关联
         List<UserDepartment> insertUserDepartments = new ArrayList<>();
         for (User tmpUser : insertUsers) {
-            String[] tmpDepIds = depMap.get(tmpUser.getEmail());
+            Integer[] tmpDepIds = depMap.get(tmpUser.getEmail());
             if (tmpDepIds == null) {
                 continue;
             }
-            for (String tmpDepId : tmpDepIds) {
+            for (Integer tmpDepId : tmpDepIds) {
                 insertUserDepartments.add(
                         new UserDepartment() {
                             {
                                 setUserId(tmpUser.getId());
-                                setDepId(Integer.valueOf(tmpDepId));
+                                setDepId(tmpDepId);
                             }
                         });
             }

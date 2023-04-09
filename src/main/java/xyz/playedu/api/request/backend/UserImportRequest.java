@@ -22,15 +22,13 @@ public class UserImportRequest {
 
     @Data
     public static class UserItem {
+        private String deps;
         private String email;
         private String name;
         private String password;
 
         @JsonProperty("id_card")
         private String idCard;
-
-        @JsonProperty("dep_ids")
-        private String depIds;
     }
 
     @NotNull(message = "请导入数据")
