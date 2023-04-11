@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://playedu.xyz/images/index/logo-big.png?v=2023032901" width="150"/>
+<img src="https://www.playedu.xyz/docs/github-header.jpg"/>
 </p>
 
 <h1 align="center">PlayEdu开源培训系统</h1>
