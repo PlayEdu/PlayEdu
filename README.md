@@ -7,10 +7,10 @@
 
 ### 演示站点
 
-| 站点                                                         | 账号                | 密码     |
-| ------------------------------------------------------------ | ------------------- | -------- |
-| PC 前端 [https://demo.playedu.xyz](https://demo.playedu.xyz) | `1@playedu.xyz`     | `123123` |
-| 后台 [https://admin.playedu.xyz](https://admin.playedu.xyz)  | `admin@playedu.xyz` | `123123` |
+| 站点                                                   | 账号                | 密码     |
+| ------------------------------------------------------ | ------------------- | -------- |
+| [https://demo.playedu.xyz](https://demo.playedu.xyz)   | `1@playedu.xyz`     | `123123` |
+| [https://admin.playedu.xyz](https://admin.playedu.xyz) | `admin@playedu.xyz` | `123123` |
 
 ### 常用链接
 
