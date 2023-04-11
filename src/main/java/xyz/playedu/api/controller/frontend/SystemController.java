@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import xyz.playedu.api.constant.CConfig;
 import xyz.playedu.api.service.AppConfigService;
 import xyz.playedu.api.service.ImageCaptchaService;
 import xyz.playedu.api.types.ImageCaptchaResult;
@@ -37,11 +38,11 @@ public class SystemController {
 
         HashMap<String, String> data = new HashMap<>();
 
-        data.put("system-name", configs.get("system.name"));
-        data.put("system-logo", configs.get("system.logo"));
-        data.put("system-api-url", configs.get("system.api_url"));
-        data.put("system-pc-url", configs.get("system.pc_url"));
-        data.put("system-h5-url", configs.get("system.h5_url"));
+        data.put("system-name", configs.get(CConfig.SYSTEM_NAME));
+        data.put("system-logo", configs.get(CConfig.SYSTEM_LOGO));
+        data.put("system-api-url", configs.get(CConfig.SYSTEM_API_URL));
+        data.put("system-pc-url", configs.get(CConfig.SYSTEM_PC_URL));
+        data.put("system-h5-url", configs.get(CConfig.SYSTEM_H5_URL));
         data.put("system-pc-index-footer-msg", configs.get("system.pc_index_footer_msg"));
 
         data.put("player-poster", configs.get("player.poster"));

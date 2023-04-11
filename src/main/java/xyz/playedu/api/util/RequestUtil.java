@@ -54,6 +54,13 @@ public class RequestUtil {
                 + (Arrays.asList(443, 80, 0).contains(portNumber) ? "" : ":" + portNumber);
     }
 
+    public static String uriWithProtocol() {
+        Integer portNumber = port();
+        return RequestUtil.protocol()
+                + RequestUtil.domain()
+                + (Arrays.asList(443, 80, 0).contains(portNumber) ? "" : ":" + portNumber);
+    }
+
     public static String pathname() {
         HttpServletRequest request = RequestUtil.handler();
         return request == null ? "" : request.getRequestURI();
@@ -71,6 +78,17 @@ public class RequestUtil {
             List<String> urls = Arrays.asList(requestUrl.split("/"));
 
             return urls.get(2).split(":")[0];
+        }
+        return null;
+    }
+
+    public static String protocol() {
+        HttpServletRequest request = RequestUtil.handler();
+        if (request != null) {
+            String requestUrl = request.getRequestURL().toString();
+            List<String> urls = Arrays.asList(requestUrl.split("//"));
+
+            return urls.get(0) + "//";
         }
         return null;
     }

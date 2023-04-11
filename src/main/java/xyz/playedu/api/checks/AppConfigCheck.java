@@ -10,6 +10,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.constant.CConfig;
 import xyz.playedu.api.domain.AppConfig;
 import xyz.playedu.api.service.AppConfigService;
 
@@ -35,7 +36,7 @@ public class AppConfigCheck implements ApplicationRunner {
                                         setName("网站名");
                                         setSort(10);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
-                                        setKeyName("system.name");
+                                        setKeyName(CConfig.SYSTEM_NAME);
                                         setKeyValue("");
                                         setHelp("请输入网站名");
                                     }
@@ -45,7 +46,7 @@ public class AppConfigCheck implements ApplicationRunner {
                                         setName("Logo");
                                         setSort(20);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_IMAGE);
-                                        setKeyName("system.logo");
+                                        setKeyName(CConfig.SYSTEM_LOGO);
                                         setKeyValue("");
                                     }
                                 },
@@ -54,7 +55,7 @@ public class AppConfigCheck implements ApplicationRunner {
                                         setName("API访问地址");
                                         setSort(30);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
-                                        setKeyName("system.api_url");
+                                        setKeyName(CConfig.SYSTEM_API_URL);
                                         setKeyValue("");
                                         setHelp("请输入API访问地址");
                                     }
@@ -64,7 +65,7 @@ public class AppConfigCheck implements ApplicationRunner {
                                         setName("PC端口访问地址");
                                         setSort(40);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
-                                        setKeyName("system.pc_url");
+                                        setKeyName(CConfig.SYSTEM_PC_URL);
                                         setKeyValue("");
                                         setHelp("请输入PC端访问地址");
                                     }
@@ -74,7 +75,7 @@ public class AppConfigCheck implements ApplicationRunner {
                                         setName("H5端口访问地址");
                                         setSort(50);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
-                                        setKeyName("system.h5_url");
+                                        setKeyName(CConfig.SYSTEM_H5_URL);
                                         setKeyValue("");
                                         setHelp("请输入H5端访问地址");
                                     }
@@ -140,6 +141,19 @@ public class AppConfigCheck implements ApplicationRunner {
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
                                         setKeyName("player.bullet_secret_opacity");
                                         setKeyValue("1");
+                                    }
+                                },
+                            });
+                    put(
+                            "学员配置",
+                            new AppConfig[] {
+                                new AppConfig() {
+                                    {
+                                        setName("默认头像");
+                                        setSort(10);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_IMAGE);
+                                        setKeyName(CConfig.MEMBER_DEFAULT_AVATAR);
+                                        setKeyValue("");
                                     }
                                 },
                             });
