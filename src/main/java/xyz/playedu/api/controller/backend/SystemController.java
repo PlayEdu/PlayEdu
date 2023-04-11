@@ -70,7 +70,7 @@ public class SystemController {
         defaultCourseThumbs.add(apiUrl + "/images/courses/thumb1.png");
         defaultCourseThumbs.add(apiUrl + "/images/courses/thumb2.png");
         defaultCourseThumbs.add(apiUrl + "/images/courses/thumb3.png");
-        data.put("default_course_thumbs", defaultCourseThumbs);
+        data.put("default.course_thumbs", defaultCourseThumbs);
 
         return JsonResponse.data(data);
     }
