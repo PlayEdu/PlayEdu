@@ -19,4 +19,9 @@
         parent_chain,sort,created_at,
         updated_at
     </sql>
+    <select id="getDepartmentsUserCount" resultType="xyz.playedu.api.types.mapper.DepartmentsUserCountMapRes">
+        SELECT `dep_id`, count(1) AS `total`
+        FROM user_department
+        GROUP BY dep_id;
+    </select>
 </mapper>

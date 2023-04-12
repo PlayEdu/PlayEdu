@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/23 09:48
  */
 @RestController
@@ -45,17 +46,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/backend/v1/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private UserDepartmentService userDepartmentService;
+    @Autowired private UserDepartmentService userDepartmentService;
 
-    @Autowired
-    private DepartmentService departmentService;
+    @Autowired private DepartmentService departmentService;
 
-    @Autowired
-    private ApplicationContext context;
+    @Autowired private ApplicationContext context;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
@@ -200,7 +197,7 @@ public class UserController {
         String defaultAvatar = BCtx.getConfig().get(CConfig.MEMBER_DEFAULT_AVATAR);
 
         List<String[]> errorLines = new ArrayList<>();
-        errorLines.add(new String[]{"错误行", "错误信息"}); // 错误表-表头
+        errorLines.add(new String[] {"错误行", "错误信息"}); // 错误表-表头
 
         // 读取存在的部门
         List<Department> departments = departmentService.all();
@@ -240,14 +237,14 @@ public class UserController {
             i++; // 索引值
 
             if (userItem.getEmail() == null || userItem.getEmail().trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "未输入邮箱账号"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "未输入邮箱账号"});
             } else {
                 // 邮箱重复判断
                 Integer repeatLine = emailRepeat.get(userItem.getEmail());
                 if (repeatLine != null) {
                     errorLines.add(
-                            new String[]{
-                                    "第" + (i + startLine) + "行", "与第" + repeatLine + "行邮箱重复"
+                            new String[] {
+                                "第" + (i + startLine) + "行", "与第" + repeatLine + "行邮箱重复"
                             });
                 } else {
                     emailRepeat.put(userItem.getEmail(), i + startLine);
@@ -257,7 +254,7 @@ public class UserController {
 
             // 部门数据检测
             if (userItem.getDeps() == null || userItem.getDeps().trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "未选择部门"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "未选择部门"});
             } else {
                 String[] tmpDepList = userItem.getDeps().trim().split("\\|");
                 Integer[] tmpDepIds = new Integer[tmpDepList.length];
@@ -267,8 +264,8 @@ public class UserController {
                     // 判断部门id是否存在
                     if (tmpDepId == null || tmpDepId == 0) {
                         errorLines.add(
-                                new String[]{
-                                        "第" + (i + startLine) + "行", "部门『" + tmpDepList[j] + "』不存在"
+                                new String[] {
+                                    "第" + (i + startLine) + "行", "部门『" + tmpDepList[j] + "』不存在"
                                 });
                         continue;
                     }
@@ -280,13 +277,13 @@ public class UserController {
             // 姓名为空检测
             String tmpName = userItem.getName();
             if (tmpName == null || tmpName.trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "昵称为空"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "昵称为空"});
             }
 
             // 密码为空检测
             String tmpPassword = userItem.getPassword();
             if (tmpPassword == null || tmpPassword.trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "密码为空"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "密码为空"});
             }
 
             // 待插入数据
@@ -314,7 +311,7 @@ public class UserController {
         List<String> existsEmails = userService.existsEmailsByEmails(emails);
         if (existsEmails.size() > 0) {
             for (String tmpEmail : existsEmails) {
-                errorLines.add(new String[]{"第" + emailRepeat.get(tmpEmail) + "行", "邮箱已注册"});
+                errorLines.add(new String[] {"第" + emailRepeat.get(tmpEmail) + "行", "邮箱已注册"});
             }
         }
         if (errorLines.size() > 1) {

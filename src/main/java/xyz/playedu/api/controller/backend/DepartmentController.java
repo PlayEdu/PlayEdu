@@ -47,6 +47,7 @@ public class DepartmentController {
     public JsonResponse index() {
         HashMap<String, Object> data = new HashMap<>();
         data.put("departments", departmentService.groupByParent());
+        data.put("dep_user_count", departmentService.getDepartmentsUserCount());
         return JsonResponse.data(data);
     }
 
@@ -133,7 +134,7 @@ public class DepartmentController {
     @DeleteMapping("/{id}")
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
-        departmentService.deleteById(department.getId());
+        departmentService.destroy(department.getId());
         ctx.publishEvent(new DepartmentDestroyEvent(this, BCtx.getId(), department.getId()));
         return JsonResponse.success();
     }

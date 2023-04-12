@@ -21,6 +21,7 @@ import xyz.playedu.api.mapper.DepartmentMapper;
 import xyz.playedu.api.service.CourseDepartmentService;
 import xyz.playedu.api.service.DepartmentService;
 import xyz.playedu.api.service.internal.UserDepartmentService;
+import xyz.playedu.api.types.mapper.DepartmentsUserCountMapRes;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -60,7 +61,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
     @Override
     @Transactional
-    public void deleteById(Integer id) throws NotFoundException {
+    public void destroy(Integer id) throws NotFoundException {
         Department department = findOrFail(id);
         updateParentChain(department.getParentChain(), childrenParentChain(department));
         removeById(department.getId());
@@ -134,16 +135,6 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
             updateRows.add(tmpUpdateDepartment);
         }
         updateBatchById(updateRows);
-    }
-
-    @Override
-    public List<Integer> allIds() {
-        List<Department> departments = list(query().getWrapper().eq("1", "1").select("id"));
-        List<Integer> ids = new ArrayList<>();
-        for (Department department : departments) {
-            ids.add(department.getId());
-        }
-        return ids;
     }
 
     @Override
@@ -256,5 +247,14 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     public Long total() {
         return count();
+    }
+
+    @Override
+    public Map<Integer, Integer> getDepartmentsUserCount() {
+        return getBaseMapper().getDepartmentsUserCount().stream()
+                .collect(
+                        Collectors.toMap(
+                                DepartmentsUserCountMapRes::getDepId,
+                                DepartmentsUserCountMapRes::getTotal));
     }
 }

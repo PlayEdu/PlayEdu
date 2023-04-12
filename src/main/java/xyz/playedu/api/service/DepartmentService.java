@@ -25,12 +25,10 @@ public interface DepartmentService extends IService<Department> {
 
     Department findOrFail(Integer id) throws NotFoundException;
 
-    void deleteById(Integer id) throws NotFoundException;
+    void destroy(Integer id) throws NotFoundException;
 
     void update(Department department, String name, Integer parentId, Integer sort)
             throws NotFoundException;
-
-    List<Integer> allIds();
 
     String compParentChain(Integer parentId) throws NotFoundException;
 
@@ -53,4 +51,6 @@ public interface DepartmentService extends IService<Department> {
     Map<Integer, String> id2name();
 
     Long total();
+
+    Map<Integer, Integer> getDepartmentsUserCount();
 }

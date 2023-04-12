@@ -9,6 +9,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import xyz.playedu.api.domain.Department;
+import xyz.playedu.api.types.mapper.DepartmentsUserCountMapRes;
+
+import java.util.List;
 
 /**
  * @author tengteng
@@ -16,4 +19,6 @@ import xyz.playedu.api.domain.Department;
  * @createDate 2023-02-19 12:19:45 @Entity xyz.playedu.api.domain.Department
  */
 @Mapper
-public interface DepartmentMapper extends BaseMapper<Department> {}
+public interface DepartmentMapper extends BaseMapper<Department> {
+    List<DepartmentsUserCountMapRes> getDepartmentsUserCount();
+}
