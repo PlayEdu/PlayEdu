@@ -1,47 +1,35 @@
 <p align="center">
-<img src="https://www.playedu.xyz/docs/github-header.jpg"/>
+<img src="https://meedu.cloud.oss.meedu.vip/playedu/%E5%A4%B4%E5%9B%BE.jpg"/>
+</p>
+<p align="center">
+<a href="https://playedu.xyz">官网</a> | <a href="https://playedu.xyz/docs/docs/intro/">文档</a> | <a href="https://playedu.xyz/docs/docs/function">功能列表</a> | <a href="https://playedu.xyz/docs/docs/install/quick">快速上手</a>
 </p>
 
-<h1 align="center">PlayEdu开源培训系统</h1>
-<p align="center">一款开源的培训系统，您可以使用它快速搭建私有化内部培训平台</p>
+### 系统介绍
 
-### 演示站点
+PlayEdu 是由白书科技团队经营多年线上教育系统打造出的一款全新的企业培训方案，致力于为更多企业机构搭建私有化内部培训平台。PlayEdu 基于 Java + MySQL 开发，采用前后端分离模式，前台采用 React18 为核心框架，后台采用 SpringBoot3 为核心框架。
 
-| 站点                                                     | 账号                  | 密码       |
-|--------------------------------------------------------|---------------------|----------|
-| [https://demo.playedu.xyz](https://demo.playedu.xyz)   | `1@playedu.xyz`     | `123123` |
-| [https://admin.playedu.xyz](https://admin.playedu.xyz) | `admin@playedu.xyz` | `123123` |
+### 系统演示
 
-### 功能明细
-
-+ **学员端：** PC端、移动端(开发中)
-+ **线上课：** 关联分类、关联部门、章节课/无章节课
-+ **学员：** 批量导入、关联部门、学习记录、学员信息
-+ **后台管理：** 分类管理(多级)、部门管理(多级)、视频资源管理、图片资源管理、课程管理
-+ **数据统计：** 学习进度明细(任务进度/课程进度/课时进度)、资源明细统计、每日学习排名统计、学员每日学习时长统计、学员总学习时长统计
-+ **播放管理：** 记忆续播、防录屏跑马灯
-+ **其他：** 权限管理、网站管理
-
-### 常用链接
-
-- [官网](https://playedu.xyz)
-- [文档](https://playedu.xyz/docs/docs/intro/)
-- [快速上手](https://playedu.xyz/docs/docs/install/quick)
-- [功能列表](https://playedu.xyz/docs/docs/function)
+| -            | 站点                                                   | 账号                | 密码     |
+| ------------ | ------------------------------------------------------ | ------------------- | -------- |
+| 学员端口     | [https://demo.playedu.xyz](https://demo.playedu.xyz)   | `1@playedu.xyz`     | `123123` |
+| 后台管理端口 | [https://admin.playedu.xyz](https://admin.playedu.xyz) | `admin@playedu.xyz` | `123123` |
 
 ### 依赖项目
 
 - [PC 界面程序](https://github.com/PlayEdu/frontend)
 - [后台界面程序](https://github.com/PlayEdu/backend)
 
-### 技术栈
+### 联系我们
 
-- Java17 + SpringBoot3 + MySQL
-- React18 + Vite
+<p><img src="https://meedu.cloud.oss.meedu.vip/playedu/Playedu%E5%AE%A2%E6%9C%8D.jpg" width="100" /></p>
 
-### 开发团队
+### 界面预览
 
-杭州白书科技有限公司
+![学员端口界面预览](https://meedu.cloud.oss.meedu.vip/playedu/%E5%89%8D%E5%8F%B0%E9%A1%B5%E9%9D%A2.jpg)
+
+![管理后台界面预览](https://meedu.cloud.oss.meedu.vip/playedu/%E5%90%8E%E5%8F%B0%E9%A1%B5%E9%9D%A2.jpg)
 
 ### 使用协议
 
