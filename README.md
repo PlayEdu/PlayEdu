@@ -21,9 +21,9 @@ PlayEdu 是由白书科技团队经营多年线上教育系统打造出的一款
 - [PC 界面程序](https://github.com/PlayEdu/frontend)
 - [后台界面程序](https://github.com/PlayEdu/backend)
 
-### 联系我们
+### 官方交流群
 
-<p><img src="https://meedu.cloud.oss.meedu.vip/playedu/Playedu%E5%AE%A2%E6%9C%8D.jpg" width="100" /></p>
+<p><img src="https://meedu.cloud.oss.meedu.vip/playedu/Playedu%E5%AE%A2%E6%9C%8D.jpg" width="200" /></p>
 
 ### 界面预览
 
