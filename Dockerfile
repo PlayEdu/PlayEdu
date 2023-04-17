@@ -1,3 +1,11 @@
+FROM openjdk:17 as builder
+
+WORKDIR /app
+
+COPY . /app
+
+RUN /app/docker-build.sh
+
 FROM openjdk:17
 
 WORKDIR /app
@@ -6,7 +14,7 @@ WORKDIR /app
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 # 将指定目录下的jar包复制到docker容器的/目录下
-COPY /target/playedu-api-*.jar /app/app.jar
+COPY --from=builder /app/target/playedu-api-*.jar /app/app.jar
 
 # 声明服务运行在8080端口
 EXPOSE 9898
