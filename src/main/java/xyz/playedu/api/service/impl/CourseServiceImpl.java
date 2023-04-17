@@ -43,11 +43,9 @@ import java.util.stream.Collectors;
 @Service
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements CourseService {
 
-    @Autowired
-    private CourseDepartmentService courseDepartmentService;
+    @Autowired private CourseDepartmentService courseDepartmentService;
 
-    @Autowired
-    private ResourceCourseCategoryService courseCategoryService;
+    @Autowired private ResourceCourseCategoryService courseCategoryService;
 
     @Override
     public PaginationResult<Course> paginate(int page, int size, CoursePaginateFiler filter) {
