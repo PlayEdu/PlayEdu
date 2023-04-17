@@ -18,8 +18,8 @@ package xyz.playedu.api.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import xyz.playedu.api.domain.UserCourseRecord;
-import xyz.playedu.api.types.paginate.CourseUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
+import xyz.playedu.api.types.paginate.UserCourseRecordPaginateFilter;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public interface UserCourseRecordService extends IService<UserCourseRecord> {
     List<UserCourseRecord> chunk(Integer userId, List<Integer> courseIds);
 
     PaginationResult<UserCourseRecord> paginate(
-            int page, int size, CourseUserPaginateFilter filter);
+            int page, int size, UserCourseRecordPaginateFilter filter);
 
     void destroy(Integer courseId, List<Integer> ids);
 

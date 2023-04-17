@@ -31,6 +31,12 @@
             <if test="courseId != null">
                 AND `user_course_records`.`course_id` = #{courseId}
             </if>
+            <if test="isFinished != null">
+                AND `user_course_records`.`is_finished` = #{isFinished}
+            </if>
+            <if test="userId != null">
+                AND `user_course_records`.`user_id` = #{userId}
+            </if>
             <if test="name != null and name != ''">
                 AND `users`.`name` LIKE concat('%',#{name},'%')
             </if>
@@ -49,6 +55,12 @@
         <where>
             <if test="courseId != null">
                 AND `user_course_records`.`course_id` = #{courseId}
+            </if>
+            <if test="isFinished != null">
+                AND `user_course_records`.`is_finished` = #{isFinished}
+            </if>
+            <if test="userId != null">
+                AND `user_course_records`.`user_id` = #{userId}
             </if>
             <if test="name != null and name != ''">
                 AND `users`.`name` LIKE concat('%',#{name},'%')

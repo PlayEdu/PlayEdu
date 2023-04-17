@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
 import xyz.playedu.api.domain.UserCourseRecord;
 import xyz.playedu.api.mapper.UserCourseRecordMapper;
 import xyz.playedu.api.service.UserCourseRecordService;
-import xyz.playedu.api.types.paginate.CourseUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
+import xyz.playedu.api.types.paginate.UserCourseRecordPaginateFilter;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -98,7 +98,7 @@ public class UserCourseRecordServiceImpl
 
     @Override
     public PaginationResult<UserCourseRecord> paginate(
-            int page, int size, CourseUserPaginateFilter filter) {
+            int page, int size, UserCourseRecordPaginateFilter filter) {
         Integer pageStart = (page - 1) * size;
         filter.setPageStart(pageStart);
         filter.setPageSize(size);

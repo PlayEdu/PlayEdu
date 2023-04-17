@@ -21,6 +21,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import xyz.playedu.api.domain.UserCourseHourRecord;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
+import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
 
 import java.util.List;
 
@@ -35,4 +36,8 @@ public interface UserCourseHourRecordMapper extends BaseMapper<UserCourseHourRec
 
     List<UserCourseHourRecordCountMapper> getUserCourseHourCount(
             Integer userId, List<Integer> courseIds, Integer isFinished);
+
+    List<UserCourseHourRecord> paginate(UserCourseHourRecordPaginateFilter filter);
+
+    Long paginateCount(UserCourseHourRecordPaginateFilter filter);
 }

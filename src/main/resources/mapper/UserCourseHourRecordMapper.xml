@@ -19,8 +19,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        ,user_id,course_id,
+        id,user_id,course_id,
         hour_id,total_duration,finished_duration,
         real_duration,is_finished,finished_at,
         created_at,updated_at
@@ -50,5 +49,70 @@
             AND `is_finisehd` = #{isFinished}
         </if>
         GROUP BY `course_id`;
+    </select>
+
+    <select id="paginate" resultType="xyz.playedu.api.domain.UserCourseHourRecord">
+        SELECT *
+        FROM `user_course_hour_records` as `t`
+        <where>
+            <if test="userId != null">
+                AND `t`.`user_id` = #{userId}
+            </if>
+            <if test="isFinished != null">
+                AND `t`.`is_finisehd` = #{isFinished}
+            </if>
+        </where>
+        <if test="sortAlgo == 'asc'">
+            <choose>
+                <when test="sortField == 'finished_at'">
+                    ORDER BY `t`.`finished_at` ASC
+                </when>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `t`.`created_at` ASC
+                </when>
+                <when test="sortField == 'updated_at'">
+                    ORDER BY `t`.`updated_at` ASC
+                </when>
+                <when test="sortField == 'real_duration'">
+                    ORDER BY `t`.`real_duration` ASC
+                </when>
+                <otherwise>
+                    ORDER BY `t`.`id` ASC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="sortAlgo != 'asc'">
+            <choose>
+                <when test="sortField == 'finished_at'">
+                    ORDER BY `t`.`finished_at` DESC
+                </when>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `t`.`created_at` DESC
+                </when>
+                <when test="sortField == 'updated_at'">
+                    ORDER BY `t`.`updated_at` DESC
+                </when>
+                <when test="sortField == 'real_duration'">
+                    ORDER BY `t`.`real_duration` DESC
+                </when>
+                <otherwise>
+                    ORDER BY `t`.`id` DESC
+                </otherwise>
+            </choose>
+        </if>
+        LIMIT #{pageStart}, #{pageSize};
+    </select>
+
+    <select id="paginateCount" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM `user_course_hour_records` as `t`
+        <where>
+            <if test="userId != null">
+                AND `t`.`user_id` = #{userId}
+            </if>
+            <if test="isFinished != null">
+                AND `t`.`is_finisehd` = #{isFinished}
+            </if>
+        </where>
     </select>
 </mapper>

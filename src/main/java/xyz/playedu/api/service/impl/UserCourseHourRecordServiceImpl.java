@@ -26,6 +26,8 @@ import xyz.playedu.api.event.UserCourseHourFinishedEvent;
 import xyz.playedu.api.mapper.UserCourseHourRecordMapper;
 import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
+import xyz.playedu.api.types.paginate.PaginationResult;
+import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -136,5 +138,19 @@ public class UserCourseHourRecordServiceImpl
     @Override
     public void remove(Integer userId, Integer courseId) {
         remove(query().getWrapper().eq("user_id", userId).eq("course_id", courseId));
+    }
+
+    @Override
+    public PaginationResult<UserCourseHourRecord> paginate(
+            int page, int size, UserCourseHourRecordPaginateFilter filter) {
+        int pageStart = (page - 1) * size;
+        filter.setPageStart(pageStart);
+        filter.setPageSize(size);
+
+        PaginationResult<UserCourseHourRecord> pageResult = new PaginationResult<>();
+        pageResult.setData(getBaseMapper().paginate(filter));
+        pageResult.setTotal(getBaseMapper().paginateCount(filter));
+
+        return pageResult;
     }
 }

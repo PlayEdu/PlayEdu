@@ -29,8 +29,8 @@ import xyz.playedu.api.request.backend.CourseUserDestroyRequest;
 import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
-import xyz.playedu.api.types.paginate.CourseUserPaginateFilter;
 import xyz.playedu.api.types.paginate.PaginationResult;
+import xyz.playedu.api.types.paginate.UserCourseRecordPaginateFilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +64,7 @@ public class CourseUserController {
         String email = MapUtils.getString(params, "email");
         String idCard = MapUtils.getString(params, "id_card");
 
-        CourseUserPaginateFilter filter = new CourseUserPaginateFilter();
+        UserCourseRecordPaginateFilter filter = new UserCourseRecordPaginateFilter();
         filter.setCourseId(courseId);
         filter.setName(name);
         filter.setEmail(email);

@@ -20,7 +20,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import xyz.playedu.api.domain.UserCourseRecord;
-import xyz.playedu.api.types.paginate.CourseUserPaginateFilter;
+import xyz.playedu.api.types.paginate.UserCourseRecordPaginateFilter;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Mapper
 public interface UserCourseRecordMapper extends BaseMapper<UserCourseRecord> {
-    List<UserCourseRecord> paginate(CourseUserPaginateFilter filter);
+    List<UserCourseRecord> paginate(UserCourseRecordPaginateFilter filter);
 
-    long paginateTotal(CourseUserPaginateFilter filter);
+    long paginateTotal(UserCourseRecordPaginateFilter filter);
 }

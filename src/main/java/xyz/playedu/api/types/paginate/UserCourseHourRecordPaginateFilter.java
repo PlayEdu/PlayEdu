@@ -20,16 +20,14 @@ import lombok.Data;
 /**
  * @Author 杭州白书科技有限公司
  *
- * @create 2023/3/24 16:10
+ * @create 2023/4/17 17:10
  */
 @Data
-public class CourseUserPaginateFilter {
-    private Integer courseId;
-    private String email;
-    private String name;
-    private String idCard;
-    private String sortField;
-    private String sortAlgo;
+public class UserCourseHourRecordPaginateFilter {
+    private Integer userId;
     private Integer pageStart;
     private Integer pageSize;
+    private String sortField;
+    private String sortAlgo;
+    private Integer isFinished;
 }

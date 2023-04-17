@@ -15,6 +15,7 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
@@ -28,19 +29,18 @@ import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.CConfig;
 import xyz.playedu.api.constant.SystemConstant;
-import xyz.playedu.api.domain.Department;
-import xyz.playedu.api.domain.User;
-import xyz.playedu.api.domain.UserDepartment;
+import xyz.playedu.api.domain.*;
 import xyz.playedu.api.event.UserDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.UserImportRequest;
 import xyz.playedu.api.request.backend.UserRequest;
-import xyz.playedu.api.service.DepartmentService;
-import xyz.playedu.api.service.UserService;
+import xyz.playedu.api.service.*;
 import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.PaginationResult;
+import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
+import xyz.playedu.api.types.paginate.UserCourseRecordPaginateFilter;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import xyz.playedu.api.util.HelperUtil;
 
@@ -64,6 +64,14 @@ public class UserController {
     @Autowired private DepartmentService departmentService;
 
     @Autowired private ApplicationContext context;
+
+    @Autowired private UserCourseHourRecordService userCourseHourRecordService;
+
+    @Autowired private UserCourseRecordService userCourseRecordService;
+
+    @Autowired private CourseHourService courseHourService;
+
+    @Autowired private CourseService courseService;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
@@ -351,5 +359,86 @@ public class UserController {
         userDepartmentService.saveBatch(insertUserDepartments);
 
         return JsonResponse.success();
+    }
+
+    @GetMapping("/{id}/latest-learn-hours")
+    @SneakyThrows
+    public JsonResponse latestLearnHours(
+            @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
+        Integer page = MapUtils.getInteger(params, "page", 1);
+        Integer size = MapUtils.getInteger(params, "size", 10);
+        String sortField = MapUtils.getString(params, "sort_field");
+        String sortAlgo = MapUtils.getString(params, "sort_algo");
+        Integer isFinished = MapUtils.getInteger(params, "is_finished");
+
+        UserCourseHourRecordPaginateFilter filter = new UserCourseHourRecordPaginateFilter();
+        filter.setSortAlgo(sortAlgo);
+        filter.setSortField(sortField);
+        filter.setUserId(id);
+        filter.setIsFinished(isFinished);
+
+        PaginationResult<UserCourseHourRecord> result =
+                userCourseHourRecordService.paginate(page, size, filter);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("data", result.getData());
+        data.put("total", result.getTotal());
+        data.put(
+                "hours",
+                courseHourService
+                        .chunk(
+                                result.getData().stream()
+                                        .map(UserCourseHourRecord::getHourId)
+                                        .toList())
+                        .stream()
+                        .collect(Collectors.groupingBy(CourseHour::getId)));
+
+        return JsonResponse.data(data);
+    }
+
+    @GetMapping("/{id}/latest-learn-courses")
+    public JsonResponse latestLearnCourses(
+            @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
+        Integer page = MapUtils.getInteger(params, "page", 1);
+        Integer size = MapUtils.getInteger(params, "size", 10);
+        String sortField = MapUtils.getString(params, "sort_field");
+        String sortAlgo = MapUtils.getString(params, "sort_algo");
+        Integer isFinished = MapUtils.getInteger(params, "is_finished");
+
+        UserCourseRecordPaginateFilter filter = new UserCourseRecordPaginateFilter();
+        filter.setSortAlgo(sortAlgo);
+        filter.setSortField(sortField);
+        filter.setUserId(id);
+        filter.setIsFinished(isFinished);
+
+        PaginationResult<UserCourseRecord> result =
+                userCourseRecordService.paginate(page, size, filter);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("data", result.getData());
+        data.put("total", result.getTotal());
+        data.put(
+                "courses",
+                courseService
+                        .chunks(
+                                result.getData().stream()
+                                        .map(UserCourseRecord::getCourseId)
+                                        .toList())
+                        .stream()
+                        .collect(Collectors.groupingBy(Course::getId)));
+
+        return JsonResponse.data(data);
+    }
+
+    @GetMapping("/{id}/learn-stats")
+    @SneakyThrows
+    public JsonResponse learn(@PathVariable(name = "id") Integer id) {
+        User user = userService.findOrFail(id);
+
+        // 学习时长统计
+        // 今天、昨天、本周、本月
+        // 最近一个月的每天学习时长
+
+        return JsonResponse.data(null);
     }
 }

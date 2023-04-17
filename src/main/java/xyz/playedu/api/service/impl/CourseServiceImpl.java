@@ -43,9 +43,11 @@ import java.util.stream.Collectors;
 @Service
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements CourseService {
 
-    @Autowired private CourseDepartmentService courseDepartmentService;
+    @Autowired
+    private CourseDepartmentService courseDepartmentService;
 
-    @Autowired private ResourceCourseCategoryService courseCategoryService;
+    @Autowired
+    private ResourceCourseCategoryService courseCategoryService;
 
     @Override
     public PaginationResult<Course> paginate(int page, int size, CoursePaginateFiler filter) {
@@ -201,6 +203,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public List<Course> chunks(List<Integer> ids) {
+        if (ids == null || ids.size() == 0) {
+            return new ArrayList<>();
+        }
         return list(query().getWrapper().in("id", ids));
     }
 
