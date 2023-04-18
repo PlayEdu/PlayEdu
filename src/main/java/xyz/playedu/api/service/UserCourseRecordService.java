@@ -36,6 +36,8 @@ public interface UserCourseRecordService extends IService<UserCourseRecord> {
 
     List<UserCourseRecord> chunk(Integer userId, List<Integer> courseIds);
 
+    List<UserCourseRecord> chunk(List<Integer> userId, List<Integer> courseIds);
+
     PaginationResult<UserCourseRecord> paginate(
             int page, int size, UserCourseRecordPaginateFilter filter);
 

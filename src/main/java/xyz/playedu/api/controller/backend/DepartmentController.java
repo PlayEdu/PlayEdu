@@ -17,6 +17,7 @@ package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
@@ -24,21 +25,27 @@ import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.Department;
+import xyz.playedu.api.domain.User;
+import xyz.playedu.api.domain.UserCourseRecord;
 import xyz.playedu.api.event.DepartmentDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.*;
 import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.DepartmentService;
+import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.types.paginate.PaginationResult;
+import xyz.playedu.api.types.paginate.UserPaginateFilter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
- *
  * @create 2023/2/19 10:33
  */
 @RestController
@@ -46,13 +53,20 @@ import java.util.*;
 @RequestMapping("/backend/v1/department")
 public class DepartmentController {
 
-    @Autowired private DepartmentService departmentService;
+    @Autowired
+    private DepartmentService departmentService;
 
-    @Autowired private UserService userService;
+    @Autowired
+    private UserService userService;
 
-    @Autowired private CourseService courseService;
+    @Autowired
+    private CourseService courseService;
 
-    @Autowired private ApplicationContext ctx;
+    @Autowired
+    private UserCourseRecordService userCourseRecordService;
+
+    @Autowired
+    private ApplicationContext ctx;
 
     @GetMapping("/index")
     public JsonResponse index() {
@@ -161,5 +175,62 @@ public class DepartmentController {
             throws NotFoundException {
         departmentService.changeParent(req.getId(), req.getParentId(), req.getIds());
         return JsonResponse.success();
+    }
+
+    @GetMapping("/{id}/users")
+    public JsonResponse users(
+            @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
+        Integer page = MapUtils.getInteger(params, "page", 1);
+        Integer size = MapUtils.getInteger(params, "size", 10);
+        String sortField = MapUtils.getString(params, "sort_field");
+        String sortAlgo = MapUtils.getString(params, "sort_algo");
+
+        String name = MapUtils.getString(params, "name");
+        String email = MapUtils.getString(params, "email");
+        String idCard = MapUtils.getString(params, "id_card");
+        String depIds = String.valueOf(id);
+
+        UserPaginateFilter filter =
+                new UserPaginateFilter() {
+                    {
+                        setName(name);
+                        setEmail(email);
+                        setIdCard(idCard);
+                        setDepIds(depIds);
+                        setSortAlgo(sortAlgo);
+                        setSortField(sortField);
+                    }
+                };
+
+        PaginationResult<User> users = userService.paginate(page, size, filter);
+
+        // 部门关联线上课
+        List<Course> courses =
+                courseService.getDepCoursesAndShow(
+                        new ArrayList<>() {
+                            {
+                                add(id);
+                            }
+                        });
+
+        // 学员的课程学习进度
+        Map<Integer, List<UserCourseRecord>> userCourseRecords = userCourseRecordService
+                .chunk(
+                        users.getData().stream().map(User::getId).toList(),
+                        courses.stream().map(Course::getId).toList())
+                .stream()
+                .collect(Collectors.groupingBy(UserCourseRecord::getUserId));
+        Map<Integer, Map<Integer, UserCourseRecord>> userCourseRecordsMap = new HashMap<>();
+        userCourseRecords.forEach((userId, records) -> {
+            userCourseRecordsMap.put(userId, records.stream().collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e)));
+        });
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("data", users.getData());
+        data.put("total", users.getTotal());
+        data.put("courses", courses.stream().collect(Collectors.groupingBy(Course::getId)));
+        data.put("user_course_records", userCourseRecordsMap);
+
+        return JsonResponse.data(data);
     }
 }
