@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/19 10:33
  */
 @RestController
@@ -53,20 +54,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/backend/v1/department")
 public class DepartmentController {
 
-    @Autowired
-    private DepartmentService departmentService;
+    @Autowired private DepartmentService departmentService;
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private CourseService courseService;
+    @Autowired private CourseService courseService;
 
-    @Autowired
-    private UserCourseRecordService userCourseRecordService;
+    @Autowired private UserCourseRecordService userCourseRecordService;
 
-    @Autowired
-    private ApplicationContext ctx;
+    @Autowired private ApplicationContext ctx;
 
     @GetMapping("/index")
     public JsonResponse index() {
@@ -214,16 +210,23 @@ public class DepartmentController {
                         });
 
         // 学员的课程学习进度
-        Map<Integer, List<UserCourseRecord>> userCourseRecords = userCourseRecordService
-                .chunk(
-                        users.getData().stream().map(User::getId).toList(),
-                        courses.stream().map(Course::getId).toList())
-                .stream()
-                .collect(Collectors.groupingBy(UserCourseRecord::getUserId));
+        Map<Integer, List<UserCourseRecord>> userCourseRecords =
+                userCourseRecordService
+                        .chunk(
+                                users.getData().stream().map(User::getId).toList(),
+                                courses.stream().map(Course::getId).toList())
+                        .stream()
+                        .collect(Collectors.groupingBy(UserCourseRecord::getUserId));
         Map<Integer, Map<Integer, UserCourseRecord>> userCourseRecordsMap = new HashMap<>();
-        userCourseRecords.forEach((userId, records) -> {
-            userCourseRecordsMap.put(userId, records.stream().collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e)));
-        });
+        userCourseRecords.forEach(
+                (userId, records) -> {
+                    userCourseRecordsMap.put(
+                            userId,
+                            records.stream()
+                                    .collect(
+                                            Collectors.toMap(
+                                                    UserCourseRecord::getCourseId, e -> e)));
+                });
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", users.getData());
