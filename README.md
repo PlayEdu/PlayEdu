@@ -23,7 +23,7 @@ PlayEdu 是由白书科技团队经营多年线上教育系统打造出的一款
 
 ### 官方交流群
 
-<p><img src="https://meedu.cloud.oss.meedu.vip/playedu/Playedu%E5%AE%A2%E6%9C%8D.jpg" width="200" /></p>
+<p><img src="https://meedu.cloud.oss.meedu.vip/playedu/PlayEduk%E5%AE%A2%E6%9C%8D-zhu.png" width="200" /></p>
 
 ### 界面预览
 
