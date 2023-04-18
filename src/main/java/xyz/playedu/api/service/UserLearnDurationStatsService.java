@@ -38,4 +38,6 @@ public interface UserLearnDurationStatsService extends IService<UserLearnDuratio
     Long todayUserDuration(Integer userId);
 
     Long userDuration(Integer userId);
+
+    List<UserLearnDurationStats> dateBetween(Integer userId, String startAt, String endAt);
 }

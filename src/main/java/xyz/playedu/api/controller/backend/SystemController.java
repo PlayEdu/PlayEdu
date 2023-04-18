@@ -40,8 +40,7 @@ import java.util.Map;
 @Slf4j
 public class SystemController {
 
-    @Autowired
-    private ImageCaptchaService imageCaptchaService;
+    @Autowired private ImageCaptchaService imageCaptchaService;
 
     @GetMapping("/image-captcha")
     public JsonResponse imageCaptcha() throws IOException {

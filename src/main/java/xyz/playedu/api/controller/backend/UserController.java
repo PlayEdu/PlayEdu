@@ -15,6 +15,9 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import cn.hutool.core.date.DateTime;
+
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,6 +52,7 @@ import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
+ *
  * @create 2023/2/23 09:48
  */
 @RestController
@@ -56,29 +60,23 @@ import java.util.stream.Collectors;
 @RequestMapping("/backend/v1/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private UserDepartmentService userDepartmentService;
+    @Autowired private UserDepartmentService userDepartmentService;
 
-    @Autowired
-    private DepartmentService departmentService;
+    @Autowired private DepartmentService departmentService;
 
-    @Autowired
-    private ApplicationContext context;
+    @Autowired private ApplicationContext context;
 
-    @Autowired
-    private UserCourseHourRecordService userCourseHourRecordService;
+    @Autowired private UserCourseHourRecordService userCourseHourRecordService;
 
-    @Autowired
-    private UserCourseRecordService userCourseRecordService;
+    @Autowired private UserCourseRecordService userCourseRecordService;
 
-    @Autowired
-    private CourseHourService courseHourService;
+    @Autowired private CourseHourService courseHourService;
 
-    @Autowired
-    private CourseService courseService;
+    @Autowired private CourseService courseService;
+
+    @Autowired private UserLearnDurationStatsService userLearnDurationStatsService;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
@@ -224,7 +222,7 @@ public class UserController {
         String defaultAvatar = BCtx.getConfig().get(CConfig.MEMBER_DEFAULT_AVATAR);
 
         List<String[]> errorLines = new ArrayList<>();
-        errorLines.add(new String[]{"错误行", "错误信息"}); // 错误表-表头
+        errorLines.add(new String[] {"错误行", "错误信息"}); // 错误表-表头
 
         // 读取存在的部门
         List<Department> departments = departmentService.all();
@@ -264,14 +262,14 @@ public class UserController {
             i++; // 索引值
 
             if (userItem.getEmail() == null || userItem.getEmail().trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "未输入邮箱账号"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "未输入邮箱账号"});
             } else {
                 // 邮箱重复判断
                 Integer repeatLine = emailRepeat.get(userItem.getEmail());
                 if (repeatLine != null) {
                     errorLines.add(
-                            new String[]{
-                                    "第" + (i + startLine) + "行", "与第" + repeatLine + "行邮箱重复"
+                            new String[] {
+                                "第" + (i + startLine) + "行", "与第" + repeatLine + "行邮箱重复"
                             });
                 } else {
                     emailRepeat.put(userItem.getEmail(), i + startLine);
@@ -281,7 +279,7 @@ public class UserController {
 
             // 部门数据检测
             if (userItem.getDeps() == null || userItem.getDeps().trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "未选择部门"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "未选择部门"});
             } else {
                 String[] tmpDepList = userItem.getDeps().trim().split("\\|");
                 Integer[] tmpDepIds = new Integer[tmpDepList.length];
@@ -291,8 +289,8 @@ public class UserController {
                     // 判断部门id是否存在
                     if (tmpDepId == null || tmpDepId == 0) {
                         errorLines.add(
-                                new String[]{
-                                        "第" + (i + startLine) + "行", "部门『" + tmpDepList[j] + "』不存在"
+                                new String[] {
+                                    "第" + (i + startLine) + "行", "部门『" + tmpDepList[j] + "』不存在"
                                 });
                         continue;
                     }
@@ -304,13 +302,13 @@ public class UserController {
             // 姓名为空检测
             String tmpName = userItem.getName();
             if (tmpName == null || tmpName.trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "昵称为空"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "昵称为空"});
             }
 
             // 密码为空检测
             String tmpPassword = userItem.getPassword();
             if (tmpPassword == null || tmpPassword.trim().length() == 0) {
-                errorLines.add(new String[]{"第" + (i + startLine) + "行", "密码为空"});
+                errorLines.add(new String[] {"第" + (i + startLine) + "行", "密码为空"});
             }
 
             // 待插入数据
@@ -338,7 +336,7 @@ public class UserController {
         List<String> existsEmails = userService.existsEmailsByEmails(emails);
         if (existsEmails.size() > 0) {
             for (String tmpEmail : existsEmails) {
-                errorLines.add(new String[]{"第" + emailRepeat.get(tmpEmail) + "行", "邮箱已注册"});
+                errorLines.add(new String[] {"第" + emailRepeat.get(tmpEmail) + "行", "邮箱已注册"});
             }
         }
         if (errorLines.size() > 1) {
@@ -441,12 +439,47 @@ public class UserController {
     @GetMapping("/{id}/learn-stats")
     @SneakyThrows
     public JsonResponse learn(@PathVariable(name = "id") Integer id) {
-        User user = userService.findOrFail(id);
-
-        // 学习时长统计
-        // 今天、昨天、本周、本月
         // 最近一个月的每天学习时长
+        String todayStr = DateTime.now().toDateStr();
+        String startDateStr = DateTime.of(DateTime.now().getTime() - 86400000L * 30).toDateStr();
+        long startTime = new DateTime(startDateStr).getTime();
+        long endTime = new DateTime(todayStr).getTime();
 
-        return JsonResponse.data(null);
+        List<UserLearnDurationStats> monthRecords =
+                userLearnDurationStatsService.dateBetween(id, startDateStr, todayStr);
+        Map<Date, Long> date2duration =
+                monthRecords.stream()
+                        .collect(
+                                Collectors.toMap(
+                                        UserLearnDurationStats::getCreatedDate,
+                                        UserLearnDurationStats::getDuration));
+
+        @Data
+        class StatsItem {
+            private String key;
+            private Long value;
+        }
+
+        List<StatsItem> data = new ArrayList<>();
+
+        while (startTime <= endTime) {
+            String dateKey = DateTime.of(startTime).toDateStr();
+            Date tmpDate = new Date(startTime);
+
+            Long duration = 0L;
+            if (date2duration.get(tmpDate) != null) {
+                duration = date2duration.get(tmpDate);
+            }
+
+            StatsItem tmpItem = new StatsItem();
+            tmpItem.setKey(dateKey);
+            tmpItem.setValue(duration);
+
+            data.add(tmpItem);
+
+            startTime += 86400000;
+        }
+
+        return JsonResponse.data(data);
     }
 }

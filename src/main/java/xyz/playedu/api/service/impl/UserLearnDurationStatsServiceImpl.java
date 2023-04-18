@@ -109,4 +109,10 @@ public class UserLearnDurationStatsServiceImpl
         Long totalDuration = getBaseMapper().getUserDuration(userId);
         return totalDuration == null ? 0L : totalDuration;
     }
+
+    @Override
+    public List<UserLearnDurationStats> dateBetween(Integer userId, String startAt, String endAt) {
+        return list(
+                query().getWrapper().eq("user_id", userId).between("created_date", startAt, endAt));
+    }
 }
