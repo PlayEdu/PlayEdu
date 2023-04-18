@@ -40,7 +40,8 @@ import java.util.Map;
 @Slf4j
 public class SystemController {
 
-    @Autowired private ImageCaptchaService imageCaptchaService;
+    @Autowired
+    private ImageCaptchaService imageCaptchaService;
 
     @GetMapping("/image-captcha")
     public JsonResponse imageCaptcha() throws IOException {
@@ -74,6 +75,8 @@ public class SystemController {
         String memberDefaultAvatar = configData.get(CConfig.MEMBER_DEFAULT_AVATAR);
         if (memberDefaultAvatar == null || memberDefaultAvatar.trim().length() == 0) {
             data.put(CConfig.MEMBER_DEFAULT_AVATAR, apiUrl + "/images/default_avatar.png");
+        } else {
+            data.put(CConfig.MEMBER_DEFAULT_AVATAR, memberDefaultAvatar);
         }
 
         // 内置的三个线上课封面
