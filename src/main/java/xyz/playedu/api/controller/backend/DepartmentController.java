@@ -69,6 +69,7 @@ public class DepartmentController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("departments", departmentService.groupByParent());
         data.put("dep_user_count", departmentService.getDepartmentsUserCount());
+        data.put("user_total", userService.total());
         return JsonResponse.data(data);
     }
 
