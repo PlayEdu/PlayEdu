@@ -136,6 +136,9 @@ public class CourseHourServiceImpl extends ServiceImpl<CourseHourMapper, CourseH
 
     @Override
     public List<CourseHour> chunk(List<Integer> hourIds) {
+        if (hourIds == null || hourIds.size() == 0) {
+            return new ArrayList<>();
+        }
         return list(query().getWrapper().in("id", hourIds));
     }
 }
