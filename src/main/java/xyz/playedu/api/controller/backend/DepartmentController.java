@@ -175,6 +175,7 @@ public class DepartmentController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_USER_LEARN)
     @GetMapping("/{id}/users")
     public JsonResponse users(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {

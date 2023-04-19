@@ -33,6 +33,7 @@ public class BPermissionConstant {
     public static final String ADMIN_ROLE = "admin-role";
 
     public static final String DEPARTMENT_CUD = "department-cud";
+    public static final String DEPARTMENT_USER_LEARN = "department-user-learn";
 
     public static final String RESOURCE_CATEGORY = "resource-category";
 

@@ -85,6 +85,15 @@ public class AdminPermissionCheck implements ApplicationRunner {
                                                         setSlug(BPermissionConstant.DEPARTMENT_CUD);
                                                     }
                                                 },
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(10);
+                                                        setName("学员学习");
+                                                        setSlug(
+                                                                BPermissionConstant
+                                                                        .DEPARTMENT_USER_LEARN);
+                                                    }
+                                                },
                                             });
                                     // 资源分类
                                     put(
