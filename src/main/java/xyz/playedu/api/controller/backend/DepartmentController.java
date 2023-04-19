@@ -234,7 +234,7 @@ public class DepartmentController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", users.getData());
         data.put("total", users.getTotal());
-        data.put("courses", courses.stream().collect(Collectors.groupingBy(Course::getId)));
+        data.put("courses", courses.stream().collect(Collectors.toMap(Course::getId, e -> e)));
         data.put("user_course_records", userCourseRecordsMap);
 
         return JsonResponse.data(data);
