@@ -98,7 +98,7 @@ public class UserCourseRecordServiceImpl
 
     @Override
     public List<UserCourseRecord> chunk(List<Integer> userIds, List<Integer> courseIds) {
-        if (courseIds == null || courseIds.size() == 0) {
+        if (courseIds == null || courseIds.size() == 0 || userIds == null || userIds.size() == 0) {
             return new ArrayList<>();
         }
         return list(query().getWrapper().in("user_id", userIds).in("course_id", courseIds));
