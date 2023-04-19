@@ -160,12 +160,14 @@ public class DepartmentController {
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PutMapping("/update/sort")
     public JsonResponse resort(@RequestBody @Validated DepartmentSortRequest req) {
         departmentService.resetSort(req.getIds());
         return JsonResponse.success();
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PutMapping("/update/parent")
     public JsonResponse updateParent(@RequestBody @Validated DepartmentParentRequest req)
             throws NotFoundException {
