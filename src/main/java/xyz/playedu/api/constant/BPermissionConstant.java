@@ -40,6 +40,7 @@ public class BPermissionConstant {
     public static final String USER_STORE = "user-store";
     public static final String USER_UPDATE = "user-update";
     public static final String USER_DESTROY = "user-destroy";
+    public static final String USER_LEARN = "user-learn";
 
     public static final String COURSE = "course";
     public static final String COURSE_USER = "course-user";

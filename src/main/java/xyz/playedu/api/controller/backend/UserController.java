@@ -367,7 +367,8 @@ public class UserController {
         return JsonResponse.success();
     }
 
-    @GetMapping("/{id}/latest-learn-hours")
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
+    @GetMapping("/{id}/learn-hours")
     @SneakyThrows
     public JsonResponse latestLearnHours(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
@@ -402,7 +403,8 @@ public class UserController {
         return JsonResponse.data(data);
     }
 
-    @GetMapping("/{id}/latest-learn-courses")
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
+    @GetMapping("/{id}/learn-courses")
     public JsonResponse latestLearnCourses(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
@@ -436,6 +438,7 @@ public class UserController {
         return JsonResponse.data(data);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-stats")
     @SneakyThrows
     public JsonResponse learn(@PathVariable(name = "id") Integer id) {
