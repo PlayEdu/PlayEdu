@@ -398,7 +398,7 @@ public class UserController {
                                         .map(UserCourseHourRecord::getHourId)
                                         .toList())
                         .stream()
-                        .collect(Collectors.groupingBy(CourseHour::getId)));
+                        .collect(Collectors.toMap(CourseHour::getId, e -> e)));
 
         return JsonResponse.data(data);
     }
@@ -450,11 +450,11 @@ public class UserController {
 
         List<UserLearnDurationStats> monthRecords =
                 userLearnDurationStatsService.dateBetween(id, startDateStr, todayStr);
-        Map<Date, Long> date2duration =
+        Map<String, Long> date2duration =
                 monthRecords.stream()
                         .collect(
                                 Collectors.toMap(
-                                        UserLearnDurationStats::getCreatedDate,
+                                        e -> DateTime.of(e.getCreatedDate()).toDateStr(),
                                         UserLearnDurationStats::getDuration));
 
         @Data
@@ -467,11 +467,10 @@ public class UserController {
 
         while (startTime <= endTime) {
             String dateKey = DateTime.of(startTime).toDateStr();
-            Date tmpDate = new Date(startTime);
 
             Long duration = 0L;
-            if (date2duration.get(tmpDate) != null) {
-                duration = date2duration.get(tmpDate);
+            if (date2duration.get(dateKey) != null) {
+                duration = date2duration.get(dateKey);
             }
 
             StatsItem tmpItem = new StatsItem();
