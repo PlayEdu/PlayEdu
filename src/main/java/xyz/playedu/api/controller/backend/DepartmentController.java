@@ -190,6 +190,9 @@ public class DepartmentController {
         String idCard = MapUtils.getString(params, "id_card");
         String depIds = String.valueOf(id);
 
+        String courseIdsStr = MapUtils.getString(params, "course_ids");
+        String showMode = MapUtils.getString(params, "show_mode");
+
         UserPaginateFilter filter =
                 new UserPaginateFilter() {
                     {
@@ -204,21 +207,48 @@ public class DepartmentController {
 
         PaginationResult<User> users = userService.paginate(page, size, filter);
 
-        // 部门关联线上课
-        List<Course> courses =
-                courseService.getDepCoursesAndShow(
-                        new ArrayList<>() {
-                            {
-                                add(id);
-                            }
-                        });
+        List<Course> courses;
+        if (courseIdsStr != null && courseIdsStr.trim().length() > 0) {
+            // 指定了需要显示的线上课
+            courses =
+                    courseService.chunks(
+                            Arrays.stream(courseIdsStr.split(",")).map(Integer::valueOf).toList());
+        } else {
+            if ("only_open".equals(showMode)) {
+                // 公开(无关联部门)线上课
+                courses = courseService.getOpenCoursesAndShow(10000);
+            } else if ("only_dep".equals(showMode)) {
+                // 部门关联线上课
+                courses =
+                        courseService.getDepCoursesAndShow(
+                                new ArrayList<>() {
+                                    {
+                                        add(id);
+                                    }
+                                });
+            } else {
+                // 部门关联线上课
+                courses =
+                        courseService.getDepCoursesAndShow(
+                                new ArrayList<>() {
+                                    {
+                                        add(id);
+                                    }
+                                });
+                List<Course> openCourses = courseService.getOpenCoursesAndShow(10000);
+                ;
+                if (openCourses != null) {
+                    courses.addAll(openCourses);
+                }
+            }
+        }
+
+        List<Integer> courseIds = courses.stream().map(Course::getId).toList();
 
         // 学员的课程学习进度
         Map<Integer, List<UserCourseRecord>> userCourseRecords =
                 userCourseRecordService
-                        .chunk(
-                                users.getData().stream().map(User::getId).toList(),
-                                courses.stream().map(Course::getId).toList())
+                        .chunk(users.getData().stream().map(User::getId).toList(), courseIds)
                         .stream()
                         .collect(Collectors.groupingBy(UserCourseRecord::getUserId));
         Map<Integer, Map<Integer, UserCourseRecord>> userCourseRecordsMap = new HashMap<>();
