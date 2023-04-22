@@ -370,7 +370,7 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-hours")
     @SneakyThrows
-    public JsonResponse latestLearnHours(
+    public JsonResponse learnHours(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
@@ -405,7 +405,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-courses")
-    public JsonResponse latestLearnCourses(
+    public JsonResponse learnCourses(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
@@ -434,6 +434,27 @@ public class UserController {
                                         .toList())
                         .stream()
                         .collect(Collectors.toMap(Course::getId, e -> e)));
+
+        return JsonResponse.data(data);
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
+    @GetMapping("/{id}/learn-course/{courseId}")
+    @SneakyThrows
+    public JsonResponse learnCourseDetail(
+            @PathVariable(name = "id") Integer id,
+            @PathVariable(name = "courseId") Integer courseId) {
+        // 读取线上课下的所有课时
+        List<CourseHour> hours = courseHourService.getHoursByCourseId(courseId);
+        // 读取学员的课时学习记录
+        List<UserCourseHourRecord> records = userCourseHourRecordService.getRecords(id, courseId);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("hours", hours);
+        data.put(
+                "learn_records",
+                records.stream()
+                        .collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e)));
 
         return JsonResponse.data(data);
     }
