@@ -132,4 +132,9 @@ public class UserCourseRecordServiceImpl
     public List<UserCourseRecord> chunks(List<Integer> ids, List<String> fields) {
         return list(query().getWrapper().in("id", ids).select(fields));
     }
+
+    @Override
+    public void destroy(Integer userId, Integer courseId) {
+        remove(query().getWrapper().in("user_id", userId).eq("course_id", courseId));
+    }
 }

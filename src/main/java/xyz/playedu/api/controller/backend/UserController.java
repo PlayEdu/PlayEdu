@@ -505,4 +505,25 @@ public class UserController {
 
         return JsonResponse.data(data);
     }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN_DESTROY)
+    @DeleteMapping("/{id}/learn-course/{courseId}")
+    @SneakyThrows
+    public JsonResponse destroyUserCourse(
+            @PathVariable(name = "id") Integer id,
+            @PathVariable(name = "courseId") Integer courseId) {
+        userCourseRecordService.destroy(id, courseId);
+        return JsonResponse.success();
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN_DESTROY)
+    @DeleteMapping("/{id}/learn-course/{courseId}/hour/{hourId}")
+    @SneakyThrows
+    public JsonResponse destroyUserHour(
+            @PathVariable(name = "id") Integer id,
+            @PathVariable(name = "courseId") Integer courseId,
+            @PathVariable(name = "hourId") Integer hourId) {
+        userCourseHourRecordService.remove(id, courseId, hourId);
+        return JsonResponse.success();
+    }
 }

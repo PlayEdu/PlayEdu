@@ -43,6 +43,8 @@ public interface UserCourseRecordService extends IService<UserCourseRecord> {
 
     void destroy(Integer courseId, List<Integer> ids);
 
+    void destroy(Integer userId, Integer courseId);
+
     void removeByCourseId(Integer courseId);
 
     List<UserCourseRecord> chunks(List<Integer> ids, List<String> fields);

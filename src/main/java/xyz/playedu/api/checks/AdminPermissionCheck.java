@@ -162,6 +162,15 @@ public class AdminPermissionCheck implements ApplicationRunner {
                                                         setSlug(BPermissionConstant.USER_LEARN);
                                                     }
                                                 },
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(50);
+                                                        setName("学习-删除");
+                                                        setSlug(
+                                                                BPermissionConstant
+                                                                        .USER_LEARN_DESTROY);
+                                                    }
+                                                },
                                             });
                                     // 线上课
                                     put(

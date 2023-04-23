@@ -49,6 +49,8 @@ public interface UserCourseHourRecordService extends IService<UserCourseHourReco
 
     void remove(Integer userId, Integer courseId);
 
+    void remove(Integer userId, Integer courseId, Integer hourId);
+
     List<UserCourseHourRecordCountMapper> getUserCourseHourCount(
             Integer userId, List<Integer> courseIds, Integer isFinished);
 
