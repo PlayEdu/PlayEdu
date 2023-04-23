@@ -34,6 +34,7 @@ import xyz.playedu.api.constant.CConfig;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.event.UserCourseHourRecordDestroyEvent;
+import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
 import xyz.playedu.api.event.UserDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
@@ -516,6 +517,7 @@ public class UserController {
             @PathVariable(name = "id") Integer id,
             @PathVariable(name = "courseId") Integer courseId) {
         userCourseRecordService.destroy(id, courseId);
+        ctx.publishEvent(new UserCourseRecordDestroyEvent(this, id, courseId));
         return JsonResponse.success();
     }
 
