@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import xyz.playedu.api.domain.UserCourseRecord;
 import xyz.playedu.api.event.UserCourseHourRecordDestroyEvent;
 import xyz.playedu.api.service.UserCourseRecordService;
 
@@ -38,14 +37,6 @@ public class UserCourseHourRecordDestroyListener {
 
     @EventListener
     public void updateUserCourseRecord(UserCourseHourRecordDestroyEvent e) {
-        UserCourseRecord record = userCourseRecordService.find(e.getUserId(), e.getCourseId());
-        if (record == null) {
-            return;
-        }
-        userCourseRecordService.storeOrUpdate(
-                record.getUserId(),
-                record.getCourseId(),
-                record.getHourCount(),
-                record.getFinishedCount() - 1);
+        userCourseRecordService.decrease(e.getUserId(), e.getCourseId(), 1);
     }
 }

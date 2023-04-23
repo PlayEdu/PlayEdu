@@ -48,4 +48,6 @@ public interface UserCourseRecordService extends IService<UserCourseRecord> {
     void removeByCourseId(Integer courseId);
 
     List<UserCourseRecord> chunks(List<Integer> ids, List<String> fields);
+
+    void decrease(Integer userId, Integer courseId, int count);
 }

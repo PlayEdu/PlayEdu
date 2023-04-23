@@ -137,4 +137,23 @@ public class UserCourseRecordServiceImpl
     public void destroy(Integer userId, Integer courseId) {
         remove(query().getWrapper().in("user_id", userId).eq("course_id", courseId));
     }
+
+    @Override
+    public void decrease(Integer userId, Integer courseId, int count) {
+        UserCourseRecord record = find(userId, courseId);
+        if (record == null) {
+            return;
+        }
+
+        int finishedCount = record.getFinishedCount() - count;
+
+        UserCourseRecord newRecord = new UserCourseRecord();
+        newRecord.setId(record.getId());
+        newRecord.setFinishedCount(finishedCount);
+        newRecord.setFinishedAt(null);
+        newRecord.setProgress(finishedCount * 100 / record.getHourCount());
+        newRecord.setIsFinished(0);
+
+        updateById(newRecord);
+    }
 }
