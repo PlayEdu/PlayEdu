@@ -33,6 +33,7 @@ import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.CConfig;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.*;
+import xyz.playedu.api.event.UserCourseHourRecordDestroyEvent;
 import xyz.playedu.api.event.UserDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
@@ -77,6 +78,8 @@ public class UserController {
     @Autowired private CourseService courseService;
 
     @Autowired private UserLearnDurationStatsService userLearnDurationStatsService;
+
+    @Autowired private ApplicationContext ctx;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
@@ -524,6 +527,7 @@ public class UserController {
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "hourId") Integer hourId) {
         userCourseHourRecordService.remove(id, courseId, hourId);
+        ctx.publishEvent(new UserCourseHourRecordDestroyEvent(this, id, courseId, hourId));
         return JsonResponse.success();
     }
 }
