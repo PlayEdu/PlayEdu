@@ -81,7 +81,7 @@ public class ImageCaptchaServiceImpl implements ImageCaptchaService {
             return false;
         }
         String cacheValue = (String) queryResult;
-        boolean verifyResult = cacheValue.equals(code);
+        boolean verifyResult = cacheValue.equalsIgnoreCase(code);
 
         if (verifyResult) { // 验证成功删除缓存->防止多次使用
             RedisUtil.del(cacheKey);
