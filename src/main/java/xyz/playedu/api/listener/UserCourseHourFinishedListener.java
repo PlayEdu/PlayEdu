@@ -15,8 +15,6 @@
  */
 package xyz.playedu.api.listener;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -33,7 +31,6 @@ import xyz.playedu.api.service.UserCourseRecordService;
  * @create 2023/3/20 17:41
  */
 @Component
-@Slf4j
 public class UserCourseHourFinishedListener {
 
     @Autowired private UserCourseRecordService userCourseRecordService;
@@ -49,13 +46,6 @@ public class UserCourseHourFinishedListener {
         Integer finishedCount =
                 userCourseHourRecordService.getFinishedHourCount(
                         evt.getUserId(), evt.getCourseId());
-        log.info(
-                "UserCourseHourFinishedListener courseId={} userId={} hourCount={}"
-                        + " finishedCount={}",
-                evt.getCourseId(),
-                evt.getUserId(),
-                hourCount,
-                finishedCount);
         userCourseRecordService.storeOrUpdate(
                 evt.getUserId(), evt.getCourseId(), hourCount, finishedCount);
     }

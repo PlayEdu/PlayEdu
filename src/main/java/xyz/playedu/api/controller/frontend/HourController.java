@@ -28,6 +28,7 @@ import xyz.playedu.api.caches.UserCanSeeCourseCache;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.request.frontend.CourseHourRecordRequest;
 import xyz.playedu.api.service.CourseHourService;
+import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.types.JsonResponse;
@@ -43,6 +44,8 @@ import java.util.HashMap;
 @RequestMapping("/api/v1/course/{courseId}/hour")
 public class HourController {
 
+    @Autowired private CourseService courseService;
+
     @Autowired private CourseHourService hourService;
 
     @Autowired private ResourceService resourceService;
@@ -54,6 +57,28 @@ public class HourController {
     // ------- CACHE ----------
     @Autowired private UserCanSeeCourseCache userCanSeeCourseCache;
     @Autowired private CourseCache courseCache;
+
+    @GetMapping("/{id}")
+    @SneakyThrows
+    public JsonResponse detail(
+            @PathVariable(name = "courseId") Integer courseId,
+            @PathVariable(name = "id") Integer id) {
+        Course course = courseService.findOrFail(courseId);
+        CourseHour courseHour = hourService.findOrFail(id, courseId);
+
+        UserCourseHourRecord userCourseHourRecord = null;
+        if (FCtx.getId() != null && FCtx.getId() > 0) {
+            // 学员已登录
+            userCourseHourRecord = userCourseHourRecordService.find(FCtx.getId(), courseId, id);
+        }
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("course", course);
+        data.put("hour", courseHour);
+        data.put("user_hour_record", userCourseHourRecord);
+
+        return JsonResponse.data(data);
+    }
 
     @GetMapping("/{id}/play")
     @SneakyThrows
