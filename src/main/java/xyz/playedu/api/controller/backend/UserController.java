@@ -409,7 +409,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-courses")
-    public JsonResponse learnCourses(
+    public JsonResponse latestLearnCourses(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
@@ -438,6 +438,58 @@ public class UserController {
                                         .toList())
                         .stream()
                         .collect(Collectors.toMap(Course::getId, e -> e)));
+
+        return JsonResponse.data(data);
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
+    @GetMapping("/{id}/all-courses")
+    public JsonResponse allCourses(@PathVariable(name = "id") Integer id) {
+        // 读取学员关联的部门
+        List<Integer> depIds = userService.getDepIdsByUserId(id);
+        List<Department> departments = new ArrayList<>();
+        HashMap<Integer, List<Course>> depCourses = new HashMap<>();
+        List<Integer> courseIds = new ArrayList<>();
+
+        if (depIds != null && depIds.size() > 0) {
+            departments = departmentService.chunk(depIds);
+            depIds.forEach(
+                    (depId) -> {
+                        List<Course> tmpCourses =
+                                courseService.getDepCoursesAndShow(
+                                        new ArrayList<>() {
+                                            {
+                                                add(depId);
+                                            }
+                                        });
+                        depCourses.put(depId, tmpCourses);
+
+                        if (tmpCourses != null && tmpCourses.size() > 0) {
+                            courseIds.addAll(tmpCourses.stream().map(Course::getId).toList());
+                        }
+                    });
+        }
+
+        // 未关联部门课程
+        List<Course> openCourses = courseService.getOpenCoursesAndShow(1000);
+        if (openCourses != null && openCourses.size() > 0) {
+            courseIds.addAll(openCourses.stream().map(Course::getId).toList());
+        }
+
+        // 读取学员的线上课学习记录
+        List<UserCourseRecord> userCourseRecords = new ArrayList<>();
+        if (courseIds.size() > 0) {
+            userCourseRecords = userCourseRecordService.chunk(id, courseIds);
+        }
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("open_courses", openCourses);
+        data.put("departments", departments);
+        data.put("dep_courses", depCourses);
+        data.put(
+                "user_course_records",
+                userCourseRecords.stream()
+                        .collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e)));
 
         return JsonResponse.data(data);
     }

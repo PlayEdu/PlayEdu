@@ -64,4 +64,6 @@ public interface DepartmentService extends IService<Department> {
     Long total();
 
     Map<Integer, Integer> getDepartmentsUserCount();
+
+    List<Department> chunk(List<Integer> ids);
 }

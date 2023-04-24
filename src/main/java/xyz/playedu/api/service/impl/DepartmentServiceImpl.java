@@ -268,4 +268,12 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
                                 DepartmentsUserCountMapRes::getDepId,
                                 DepartmentsUserCountMapRes::getTotal));
     }
+
+    @Override
+    public List<Department> chunk(List<Integer> ids) {
+        if (ids == null || ids.size() == 0) {
+            return new ArrayList<>();
+        }
+        return list(query().getWrapper().in("id", ids));
+    }
 }

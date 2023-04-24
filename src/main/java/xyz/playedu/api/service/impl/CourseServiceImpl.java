@@ -214,6 +214,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public List<Course> getDepCoursesAndShow(List<Integer> depIds) {
+        if (depIds == null || depIds.size() == 0) {
+            return new ArrayList<>();
+        }
         List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(depIds);
         if (courseIds == null || courseIds.size() == 0) {
             return new ArrayList<>();
