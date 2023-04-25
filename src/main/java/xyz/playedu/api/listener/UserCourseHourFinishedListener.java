@@ -17,7 +17,6 @@ package xyz.playedu.api.listener;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.event.UserCourseHourFinishedEvent;
@@ -39,7 +38,6 @@ public class UserCourseHourFinishedListener {
 
     @Autowired private CourseHourService hourService;
 
-    @Async
     @EventListener
     public void userCourseProgressUpdate(UserCourseHourFinishedEvent evt) {
         Integer hourCount = hourService.getCountByCourseId(evt.getCourseId());

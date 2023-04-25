@@ -32,8 +32,10 @@ import xyz.playedu.api.service.CourseService;
 import xyz.playedu.api.service.ResourceService;
 import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.util.RedisDistributedLock;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -57,6 +59,8 @@ public class HourController {
     // ------- CACHE ----------
     @Autowired private UserCanSeeCourseCache userCanSeeCourseCache;
     @Autowired private CourseCache courseCache;
+
+    @Autowired private RedisDistributedLock redisDistributedLock;
 
     @GetMapping("/{id}")
     @SneakyThrows
@@ -108,13 +112,23 @@ public class HourController {
         if (duration <= 0) {
             return JsonResponse.error("duration参数错误");
         }
-        User user = FCtx.getUser();
+
         Course course = courseCache.findOrFail(courseId);
-        userCanSeeCourseCache.check(user, course, true);
         CourseHour hour = hourService.findOrFail(id, courseId);
+        userCanSeeCourseCache.check(FCtx.getUser(), course, true);
+
+        // 获取锁
+        String lockKey = String.format("record:%d", FCtx.getId());
+        boolean tryLock = redisDistributedLock.tryLock(lockKey, 5, TimeUnit.SECONDS);
+        if (!tryLock) {
+            return JsonResponse.error("请稍后再试");
+        }
 
         userCourseHourRecordService.storeOrUpdate(
-                user.getId(), course.getId(), hour.getId(), duration, hour.getDuration());
+                FCtx.getId(), course.getId(), hour.getId(), duration, hour.getDuration());
+
+        // 此处未考虑上面代码执行失败释放锁
+        redisDistributedLock.releaseLock(lockKey);
 
         return JsonResponse.success();
     }
@@ -127,7 +141,19 @@ public class HourController {
         Course course = courseCache.findOrFail(courseId);
         CourseHour hour = hourService.findOrFail(id, courseId);
         userCanSeeCourseCache.check(FCtx.getUser(), course, true);
+
+        // 获取锁
+        String lockKey = String.format("ping:%d", FCtx.getId());
+        boolean tryLock = redisDistributedLock.tryLock(lockKey, 5, TimeUnit.SECONDS);
+        if (!tryLock) {
+            return JsonResponse.error("请稍后再试");
+        }
+
         userBus.userLearnDurationRecord(FCtx.getUser(), course, hour);
+
+        // 此处未考虑上面代码执行失败释放锁
+        redisDistributedLock.releaseLock(lockKey);
+
         return JsonResponse.success();
     }
 }

@@ -15,6 +15,8 @@
  */
 package xyz.playedu.api.service.impl;
 
+import cn.hutool.core.date.DateTime;
+
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import lombok.SneakyThrows;
@@ -42,10 +44,7 @@ public class UserLearnDurationStatsServiceImpl
     @Override
     @SneakyThrows
     public void storeOrUpdate(Integer userId, Long startTime, Long endTime) {
-        // 处理日期
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String date = simpleDateFormat.format(new Date(endTime));
-        // duration
+        String date = new DateTime().toDateStr();
         Long duration = endTime - startTime;
 
         UserLearnDurationStats stats =
@@ -54,7 +53,7 @@ public class UserLearnDurationStatsServiceImpl
             UserLearnDurationStats newStats = new UserLearnDurationStats();
             newStats.setUserId(userId);
             newStats.setDuration(duration);
-            newStats.setCreatedDate(simpleDateFormat.parse(date));
+            newStats.setCreatedDate(new DateTime(date));
             save(newStats);
             return;
         }

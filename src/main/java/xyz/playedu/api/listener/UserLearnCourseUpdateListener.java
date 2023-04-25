@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.event.UserLearnCourseUpdateEvent;
@@ -39,7 +38,6 @@ public class UserLearnCourseUpdateListener {
 
     @Autowired private UserLearnDurationStatsService userLearnDurationStatsService;
 
-    @Async
     @EventListener
     public void storeLearnDuration(UserLearnCourseUpdateEvent event) {
         // 观看时长统计
