@@ -33,6 +33,8 @@ import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.CConfig;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.*;
+import xyz.playedu.api.event.UserCourseHourRecordDestroyEvent;
+import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
 import xyz.playedu.api.event.UserDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
@@ -77,6 +79,8 @@ public class UserController {
     @Autowired private CourseService courseService;
 
     @Autowired private UserLearnDurationStatsService userLearnDurationStatsService;
+
+    @Autowired private ApplicationContext ctx;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
@@ -370,7 +374,7 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-hours")
     @SneakyThrows
-    public JsonResponse latestLearnHours(
+    public JsonResponse learnHours(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
@@ -439,6 +443,79 @@ public class UserController {
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
+    @GetMapping("/{id}/all-courses")
+    public JsonResponse allCourses(@PathVariable(name = "id") Integer id) {
+        // 读取学员关联的部门
+        List<Integer> depIds = userService.getDepIdsByUserId(id);
+        List<Department> departments = new ArrayList<>();
+        HashMap<Integer, List<Course>> depCourses = new HashMap<>();
+        List<Integer> courseIds = new ArrayList<>();
+
+        if (depIds != null && depIds.size() > 0) {
+            departments = departmentService.chunk(depIds);
+            depIds.forEach(
+                    (depId) -> {
+                        List<Course> tmpCourses =
+                                courseService.getDepCoursesAndShow(
+                                        new ArrayList<>() {
+                                            {
+                                                add(depId);
+                                            }
+                                        });
+                        depCourses.put(depId, tmpCourses);
+
+                        if (tmpCourses != null && tmpCourses.size() > 0) {
+                            courseIds.addAll(tmpCourses.stream().map(Course::getId).toList());
+                        }
+                    });
+        }
+
+        // 未关联部门课程
+        List<Course> openCourses = courseService.getOpenCoursesAndShow(1000);
+        if (openCourses != null && openCourses.size() > 0) {
+            courseIds.addAll(openCourses.stream().map(Course::getId).toList());
+        }
+
+        // 读取学员的线上课学习记录
+        List<UserCourseRecord> userCourseRecords = new ArrayList<>();
+        if (courseIds.size() > 0) {
+            userCourseRecords = userCourseRecordService.chunk(id, courseIds);
+        }
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("open_courses", openCourses);
+        data.put("departments", departments);
+        data.put("dep_courses", depCourses);
+        data.put(
+                "user_course_records",
+                userCourseRecords.stream()
+                        .collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e)));
+
+        return JsonResponse.data(data);
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
+    @GetMapping("/{id}/learn-course/{courseId}")
+    @SneakyThrows
+    public JsonResponse learnCourseDetail(
+            @PathVariable(name = "id") Integer id,
+            @PathVariable(name = "courseId") Integer courseId) {
+        // 读取线上课下的所有课时
+        List<CourseHour> hours = courseHourService.getHoursByCourseId(courseId);
+        // 读取学员的课时学习记录
+        List<UserCourseHourRecord> records = userCourseHourRecordService.getRecords(id, courseId);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("hours", hours);
+        data.put(
+                "learn_records",
+                records.stream()
+                        .collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e)));
+
+        return JsonResponse.data(data);
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-stats")
     @SneakyThrows
     public JsonResponse learn(@PathVariable(name = "id") Integer id) {
@@ -483,5 +560,28 @@ public class UserController {
         }
 
         return JsonResponse.data(data);
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN_DESTROY)
+    @DeleteMapping("/{id}/learn-course/{courseId}")
+    @SneakyThrows
+    public JsonResponse destroyUserCourse(
+            @PathVariable(name = "id") Integer id,
+            @PathVariable(name = "courseId") Integer courseId) {
+        userCourseRecordService.destroy(id, courseId);
+        ctx.publishEvent(new UserCourseRecordDestroyEvent(this, id, courseId));
+        return JsonResponse.success();
+    }
+
+    @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN_DESTROY)
+    @DeleteMapping("/{id}/learn-course/{courseId}/hour/{hourId}")
+    @SneakyThrows
+    public JsonResponse destroyUserHour(
+            @PathVariable(name = "id") Integer id,
+            @PathVariable(name = "courseId") Integer courseId,
+            @PathVariable(name = "hourId") Integer hourId) {
+        userCourseHourRecordService.remove(id, courseId, hourId);
+        ctx.publishEvent(new UserCourseHourRecordDestroyEvent(this, id, courseId, hourId));
+        return JsonResponse.success();
     }
 }

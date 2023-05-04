@@ -60,7 +60,7 @@ public class UserCourseRecordServiceImpl
 
         boolean isFinished = finishedCount >= hourCount;
         Date finishedAt = isFinished ? new Date() : null;
-        Integer progress = finishedCount * 100 / hourCount * 100;
+        Integer progress = finishedCount * 10000 / hourCount;
 
         if (record == null) {
             UserCourseRecord insertRecord = new UserCourseRecord();
@@ -131,5 +131,29 @@ public class UserCourseRecordServiceImpl
     @Override
     public List<UserCourseRecord> chunks(List<Integer> ids, List<String> fields) {
         return list(query().getWrapper().in("id", ids).select(fields));
+    }
+
+    @Override
+    public void destroy(Integer userId, Integer courseId) {
+        remove(query().getWrapper().in("user_id", userId).eq("course_id", courseId));
+    }
+
+    @Override
+    public void decrease(Integer userId, Integer courseId, int count) {
+        UserCourseRecord record = find(userId, courseId);
+        if (record == null) {
+            return;
+        }
+
+        int finishedCount = record.getFinishedCount() - count;
+
+        UserCourseRecord newRecord = new UserCourseRecord();
+        newRecord.setId(record.getId());
+        newRecord.setFinishedCount(finishedCount);
+        newRecord.setFinishedAt(null);
+        newRecord.setProgress(finishedCount * 10000 / record.getHourCount());
+        newRecord.setIsFinished(0);
+
+        updateById(newRecord);
     }
 }

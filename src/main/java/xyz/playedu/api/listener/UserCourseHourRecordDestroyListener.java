@@ -21,34 +21,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import xyz.playedu.api.event.UserLearnCourseUpdateEvent;
-import xyz.playedu.api.service.UserLearnDurationRecordService;
-import xyz.playedu.api.service.UserLearnDurationStatsService;
+import xyz.playedu.api.event.UserCourseHourRecordDestroyEvent;
+import xyz.playedu.api.service.UserCourseRecordService;
 
 /**
  * @Author 杭州白书科技有限公司
  *
- * @create 2023/3/22 14:18
+ * @create 2023/4/23 14:51
  */
 @Component
 @Slf4j
-public class UserLearnCourseUpdateListener {
+public class UserCourseHourRecordDestroyListener {
 
-    @Autowired private UserLearnDurationRecordService userLearnDurationRecordService;
-
-    @Autowired private UserLearnDurationStatsService userLearnDurationStatsService;
+    @Autowired private UserCourseRecordService userCourseRecordService;
 
     @EventListener
-    public void storeLearnDuration(UserLearnCourseUpdateEvent event) {
-        // 观看时长统计
-        userLearnDurationStatsService.storeOrUpdate(
-                event.getUserId(), event.getStartAt(), event.getEndAt());
-        // 观看记录
-        userLearnDurationRecordService.store(
-                event.getUserId(),
-                event.getCourseId(),
-                event.getHourId(),
-                event.getStartAt(),
-                event.getEndAt());
+    public void updateUserCourseRecord(UserCourseHourRecordDestroyEvent e) {
+        userCourseRecordService.decrease(e.getUserId(), e.getCourseId(), 1);
     }
 }

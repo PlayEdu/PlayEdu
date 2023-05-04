@@ -60,6 +60,7 @@ public class UserBus {
         return CollectionUtils.intersection(courseDepIds, userDepIds).size() > 0;
     }
 
+    // 注意，调用该方法需要考虑到并发写入问题
     public void userLearnDurationRecord(User user, Course course, CourseHour hour) {
         Long curTime = System.currentTimeMillis();
 

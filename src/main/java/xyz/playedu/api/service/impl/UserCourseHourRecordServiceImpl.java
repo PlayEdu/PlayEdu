@@ -153,4 +153,13 @@ public class UserCourseHourRecordServiceImpl
 
         return pageResult;
     }
+
+    @Override
+    public void remove(Integer userId, Integer courseId, Integer hourId) {
+        remove(
+                query().getWrapper()
+                        .eq("user_id", userId)
+                        .eq("course_id", courseId)
+                        .eq("hour_id", hourId));
+    }
 }
