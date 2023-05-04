@@ -60,7 +60,7 @@ public class UserCourseRecordServiceImpl
 
         boolean isFinished = finishedCount >= hourCount;
         Date finishedAt = isFinished ? new Date() : null;
-        Integer progress = finishedCount * 100 / hourCount * 100;
+        Integer progress = finishedCount * 10000 / hourCount;
 
         if (record == null) {
             UserCourseRecord insertRecord = new UserCourseRecord();
@@ -151,7 +151,7 @@ public class UserCourseRecordServiceImpl
         newRecord.setId(record.getId());
         newRecord.setFinishedCount(finishedCount);
         newRecord.setFinishedAt(null);
-        newRecord.setProgress(finishedCount * 100 / record.getHourCount());
+        newRecord.setProgress(finishedCount * 10000 / record.getHourCount());
         newRecord.setIsFinished(0);
 
         updateById(newRecord);
