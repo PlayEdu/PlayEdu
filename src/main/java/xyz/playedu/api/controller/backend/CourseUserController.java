@@ -118,7 +118,7 @@ public class CourseUserController {
                                 Collectors.toMap(
                                         UserCourseHourRecordUserCountMapper::getUserId,
                                         UserCourseHourRecordUserCountMapper::getTotal)));
-        data.put("courses", courseService.findOrFail(courseId));
+        data.put("course", courseService.findOrFail(courseId));
 
         return JsonResponse.data(data);
     }
