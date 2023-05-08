@@ -171,9 +171,12 @@
     <select id="openCoursesAndShow" resultType="xyz.playedu.api.domain.Course">
         SELECT `courses`.*
         FROM `courses`
-                 LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
+        LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
         WHERE `course_department`.`course_id` IS NULL
-          AND `courses`.`is_show` = 1
-            LIMIT #{limit}
+        AND `courses`.`is_show` = 1
+        <if test="categoryId != null and categoryId > 0">
+            AND `course_department`.`caetgory_id` = #{categoryId}
+        </if>
+        LIMIT #{limit}
     </select>
 </mapper>
