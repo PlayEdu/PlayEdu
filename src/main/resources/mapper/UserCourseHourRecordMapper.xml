@@ -38,7 +38,7 @@
             limit #{size};
     </select>
     <select id="getUserCourseHourCount"
-            resultType="xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper">
+            resultType="xyz.playedu.api.types.mapper.UserCourseHourRecordCourseCountMapper">
         SELECT `course_id`, count(1) AS `total`
         FROM `user_course_hour_records`
         WHERE `user_id` = #{userId}
@@ -114,5 +114,18 @@
                 AND `t`.`is_finisehd` = #{isFinished}
             </if>
         </where>
+    </select>
+    <select id="getUserCourseHourUserCount"
+            resultType="xyz.playedu.api.types.mapper.UserCourseHourRecordUserCountMapper">
+        SELECT `user_id`, count(1) AS `total`
+        FROM `user_course_hour_records`
+        WHERE `course_id` = #{courseId}
+        <if test="userIds != null and #{userIds}.size() > 0">
+            AND `user_id` IN (<foreach collection="userIds" item="userId" separator=",">#{userId}</foreach>)
+        </if>
+        <if test="isFinished != null">
+            AND `is_finisehd` = #{isFinished}
+        </if>
+        GROUP BY `user_id`;
     </select>
 </mapper>

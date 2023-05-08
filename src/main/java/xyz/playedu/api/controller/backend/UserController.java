@@ -43,7 +43,7 @@ import xyz.playedu.api.request.backend.UserRequest;
 import xyz.playedu.api.service.*;
 import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.types.JsonResponse;
-import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
 import xyz.playedu.api.types.paginate.UserCourseRecordPaginateFilter;
@@ -488,8 +488,8 @@ public class UserController {
                 userCourseHourRecordService.getUserCourseHourCount(id, courseIds, null).stream()
                         .collect(
                                 Collectors.toMap(
-                                        UserCourseHourRecordCountMapper::getCourseId,
-                                        UserCourseHourRecordCountMapper::getTotal));
+                                        UserCourseHourRecordCourseCountMapper::getCourseId,
+                                        UserCourseHourRecordCourseCountMapper::getTotal));
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("open_courses", openCourses);

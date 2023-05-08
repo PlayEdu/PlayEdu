@@ -20,7 +20,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import xyz.playedu.api.domain.UserCourseHourRecord;
-import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCourseCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordUserCountMapper;
 import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
 
 import java.util.List;
@@ -34,8 +35,11 @@ import java.util.List;
 public interface UserCourseHourRecordMapper extends BaseMapper<UserCourseHourRecord> {
     List<UserCourseHourRecord> getUserLatestRecords(Integer userId, Integer size);
 
-    List<UserCourseHourRecordCountMapper> getUserCourseHourCount(
+    List<UserCourseHourRecordCourseCountMapper> getUserCourseHourCount(
             Integer userId, List<Integer> courseIds, Integer isFinished);
+
+    List<UserCourseHourRecordUserCountMapper> getUserCourseHourUserCount(
+            Integer courseId, List<Integer> userIds, Integer isFinished);
 
     List<UserCourseHourRecord> paginate(UserCourseHourRecordPaginateFilter filter);
 

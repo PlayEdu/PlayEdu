@@ -28,9 +28,11 @@ import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseUserDestroyRequest;
 import xyz.playedu.api.service.CourseService;
+import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordUserCountMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 
@@ -51,6 +53,8 @@ public class CourseUserController {
     @Autowired private CourseService courseService;
 
     @Autowired private UserCourseRecordService userCourseRecordService;
+
+    @Autowired private UserCourseHourRecordService userCourseHourRecordService;
 
     @Autowired private UserService userService;
 
@@ -85,18 +89,29 @@ public class CourseUserController {
 
         PaginationResult<User> result = userService.paginate(page, size, filter);
 
+        List<Integer> userIds = result.getData().stream().map(User::getId).toList();
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());
         data.put("total", result.getTotal());
         data.put(
                 "user_course_records",
                 userCourseRecordService.chunk(
-                        result.getData().stream().map(User::getId).toList(),
+                        userIds,
                         new ArrayList<>() {
                             {
                                 add(courseId);
                             }
                         }));
+        data.put(
+                "user_course_hour_user_count",
+                userCourseHourRecordService
+                        .getUserCourseHourUserCount(courseId, userIds, null)
+                        .stream()
+                        .collect(
+                                Collectors.toMap(
+                                        UserCourseHourRecordUserCountMapper::getUserId,
+                                        UserCourseHourRecordUserCountMapper::getTotal)));
 
         return JsonResponse.data(data);
     }
