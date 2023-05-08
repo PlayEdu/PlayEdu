@@ -237,11 +237,10 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             if (tmpCourseIds == null || tmpCourseIds.size() == 0) {
                 return new ArrayList<>();
             }
-            // 取交集
-            courseIds.retainAll(tmpCourseIds);
-        }
-        if (courseIds.size() == 0) {
-            return new ArrayList<>();
+            courseIds = courseIds.stream().filter(tmpCourseIds::contains).toList();
+            if (courseIds.size() == 0) {
+                return new ArrayList<>();
+            }
         }
         return list(query().getWrapper().in("id", courseIds).eq("is_show", 1));
     }

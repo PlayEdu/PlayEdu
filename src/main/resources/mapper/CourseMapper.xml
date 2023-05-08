@@ -172,10 +172,13 @@
         SELECT `courses`.*
         FROM `courses`
         LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
+        <if test="categoryId != null and categoryId > 0">
+            INNER JOIN `resource_course_category` ON `resource_course_category`.`course_id` = `courses`.`id`
+        </if>
         WHERE `course_department`.`course_id` IS NULL
         AND `courses`.`is_show` = 1
         <if test="categoryId != null and categoryId > 0">
-            AND `course_department`.`caetgory_id` = #{categoryId}
+            AND `resource_course_category`.`category_id` = #{categoryId}
         </if>
         LIMIT #{limit}
     </select>
