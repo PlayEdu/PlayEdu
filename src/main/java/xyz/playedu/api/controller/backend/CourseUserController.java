@@ -96,13 +96,16 @@ public class CourseUserController {
         data.put("total", result.getTotal());
         data.put(
                 "user_course_records",
-                userCourseRecordService.chunk(
-                        userIds,
-                        new ArrayList<>() {
-                            {
-                                add(courseId);
-                            }
-                        }));
+                userCourseRecordService
+                        .chunk(
+                                userIds,
+                                new ArrayList<>() {
+                                    {
+                                        add(courseId);
+                                    }
+                                })
+                        .stream()
+                        .collect(Collectors.toMap(UserCourseRecord::getUserId, e -> e)));
         data.put(
                 "user_course_hour_user_count",
                 userCourseHourRecordService
