@@ -43,6 +43,7 @@ import xyz.playedu.api.request.backend.UserRequest;
 import xyz.playedu.api.service.*;
 import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
 import xyz.playedu.api.types.paginate.UserCourseRecordPaginateFilter;
@@ -482,6 +483,14 @@ public class UserController {
             userCourseRecords = userCourseRecordService.chunk(id, courseIds);
         }
 
+        // 获取学员线上课的课时学习数量(只要学习了就算，不一定需要已完成)
+        Map<Integer, Integer> userCourseHourCount =
+                userCourseHourRecordService.getUserCourseHourCount(id, courseIds, null).stream()
+                        .collect(
+                                Collectors.toMap(
+                                        UserCourseHourRecordCountMapper::getCourseId,
+                                        UserCourseHourRecordCountMapper::getTotal));
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("open_courses", openCourses);
         data.put("departments", departments);
@@ -490,6 +499,7 @@ public class UserController {
                 "user_course_records",
                 userCourseRecords.stream()
                         .collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e)));
+        data.put("user_course_hour_count", userCourseHourCount);
 
         return JsonResponse.data(data);
     }
