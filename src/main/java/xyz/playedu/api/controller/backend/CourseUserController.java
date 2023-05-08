@@ -15,6 +15,8 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import lombok.SneakyThrows;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -62,6 +64,7 @@ public class CourseUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE_USER)
     @GetMapping("/index")
+    @SneakyThrows
     public JsonResponse index(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestParam HashMap<String, Object> params) {
@@ -115,6 +118,7 @@ public class CourseUserController {
                                 Collectors.toMap(
                                         UserCourseHourRecordUserCountMapper::getUserId,
                                         UserCourseHourRecordUserCountMapper::getTotal)));
+        data.put("courses", courseService.findOrFail(courseId));
 
         return JsonResponse.data(data);
     }
