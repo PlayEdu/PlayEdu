@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import xyz.playedu.api.domain.UserCourseHourRecord;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordUserCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
 
@@ -57,6 +58,9 @@ public interface UserCourseHourRecordService extends IService<UserCourseHourReco
 
     List<UserCourseHourRecordUserCountMapper> getUserCourseHourUserCount(
             Integer courseId, List<Integer> userIds, Integer isFinished);
+
+    List<UserCourseHourRecordUserFirstCreatedAtMapper> getUserCourseHourUserFirstCreatedAt(
+            Integer courseId, List<Integer> userIds);
 
     PaginationResult<UserCourseHourRecord> paginate(
             int page, int size, UserCourseHourRecordPaginateFilter filter);

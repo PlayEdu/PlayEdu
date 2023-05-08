@@ -34,7 +34,7 @@ import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.service.UserCourseRecordService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
-import xyz.playedu.api.types.mapper.UserCourseHourRecordUserCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserPaginateFilter;
 
@@ -110,14 +110,15 @@ public class CourseUserController {
                         .stream()
                         .collect(Collectors.toMap(UserCourseRecord::getUserId, e -> e)));
         data.put(
-                "user_course_hour_user_count",
+                "user_course_hour_user_first_at",
                 userCourseHourRecordService
-                        .getUserCourseHourUserCount(courseId, userIds, null)
+                        .getUserCourseHourUserFirstCreatedAt(courseId, userIds)
                         .stream()
                         .collect(
                                 Collectors.toMap(
-                                        UserCourseHourRecordUserCountMapper::getUserId,
-                                        UserCourseHourRecordUserCountMapper::getTotal)));
+                                        UserCourseHourRecordUserFirstCreatedAtMapper::getUserId,
+                                        UserCourseHourRecordUserFirstCreatedAtMapper
+                                                ::getCreatedAt)));
         data.put("course", courseService.findOrFail(courseId));
 
         return JsonResponse.data(data);

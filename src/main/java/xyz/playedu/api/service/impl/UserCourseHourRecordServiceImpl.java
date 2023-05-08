@@ -27,6 +27,7 @@ import xyz.playedu.api.mapper.UserCourseHourRecordMapper;
 import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordUserCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
 
@@ -171,5 +172,14 @@ public class UserCourseHourRecordServiceImpl
                         .eq("user_id", userId)
                         .eq("course_id", courseId)
                         .eq("hour_id", hourId));
+    }
+
+    @Override
+    public List<UserCourseHourRecordUserFirstCreatedAtMapper> getUserCourseHourUserFirstCreatedAt(
+            Integer courseId, List<Integer> userIds) {
+        if (userIds == null || userIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        return getBaseMapper().getUserCourseHourUserFirstCreatedAt(courseId, userIds);
     }
 }
