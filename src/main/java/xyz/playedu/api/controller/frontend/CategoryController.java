@@ -24,7 +24,9 @@ import xyz.playedu.api.domain.ResourceCategory;
 import xyz.playedu.api.service.ResourceCategoryService;
 import xyz.playedu.api.types.JsonResponse;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/category")
@@ -35,6 +37,10 @@ public class CategoryController {
     @GetMapping("/all")
     public JsonResponse all() {
         List<ResourceCategory> categories = resourceCategoryService.all();
-        return JsonResponse.data(categories);
+        HashMap<String, Object> data = new HashMap<>();
+        data.put(
+                "categories",
+                categories.stream().collect(Collectors.groupingBy(ResourceCategory::getParentId)));
+        return JsonResponse.data(data);
     }
 }
