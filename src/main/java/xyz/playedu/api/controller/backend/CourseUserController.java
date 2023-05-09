@@ -16,6 +16,7 @@
 package xyz.playedu.api.controller.backend;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
  * @create 2023/3/24 16:08
  */
 @RestController
+@Slf4j
 @RequestMapping("/backend/v1/course/{courseId}/user")
 public class CourseUserController {
 
@@ -86,8 +88,7 @@ public class CourseUserController {
         // 所属部门
         List<Integer> depIds = courseService.getDepIdsByCourseId(courseId);
         if (depIds != null && depIds.size() > 0) {
-            filter.setDepIds(
-                    depIds.stream().map(String::valueOf).collect(Collectors.joining(",", "", "")));
+            filter.setDepIds(depIds);
         }
 
         PaginationResult<User> result = userService.paginate(page, size, filter);

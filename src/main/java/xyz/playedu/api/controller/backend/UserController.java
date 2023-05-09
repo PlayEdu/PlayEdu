@@ -99,8 +99,17 @@ public class UserController {
         Integer isVerify = MapUtils.getInteger(params, "is_verify");
         Integer isSetPassword = MapUtils.getInteger(params, "is_set_password");
         String createdAt = MapUtils.getString(params, "created_at");
-        String depIds = MapUtils.getString(params, "dep_ids");
+        String depIdsStr = MapUtils.getString(params, "dep_ids");
+        List<Integer> depIds = null;
+        if (depIdsStr != null && depIdsStr.trim().length() > 0) {
+            if ("0".equals(depIdsStr)) {
+                depIds = new ArrayList<>();
+            } else {
+                depIds = Arrays.stream(depIdsStr.split(",")).map(Integer::valueOf).toList();
+            }
+        }
 
+        List<Integer> finalDepIds = depIds;
         UserPaginateFilter filter =
                 new UserPaginateFilter() {
                     {
@@ -111,7 +120,7 @@ public class UserController {
                         setIsLock(isLock);
                         setIsVerify(isVerify);
                         setIsSetPassword(isSetPassword);
-                        setDepIds(depIds);
+                        setDepIds(finalDepIds);
                         setSortAlgo(sortAlgo);
                         setSortField(sortField);
                     }

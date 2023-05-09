@@ -17,6 +17,8 @@ package xyz.playedu.api.types.paginate;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author 杭州白书科技有限公司
  *
@@ -36,7 +38,7 @@ public class UserPaginateFilter {
     // 创建时间范围过滤
     private String[] createdAt;
 
-    private String depIds;
+    private List<Integer> depIds;
 
     // 排序控制
     private String sortField;
