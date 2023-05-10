@@ -30,10 +30,7 @@ import xyz.playedu.api.domain.UserCourseRecord;
 import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseUserDestroyRequest;
-import xyz.playedu.api.service.CourseService;
-import xyz.playedu.api.service.UserCourseHourRecordService;
-import xyz.playedu.api.service.UserCourseRecordService;
-import xyz.playedu.api.service.UserService;
+import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
@@ -62,6 +59,8 @@ public class CourseUserController {
 
     @Autowired private UserService userService;
 
+    @Autowired private DepartmentService departmentService;
+
     @Autowired private ApplicationContext ctx;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE_USER)
@@ -77,6 +76,7 @@ public class CourseUserController {
         String name = MapUtils.getString(params, "name");
         String email = MapUtils.getString(params, "email");
         String idCard = MapUtils.getString(params, "id_card");
+        Integer depId = MapUtils.getInteger(params, "dep_id");
 
         UserPaginateFilter filter = new UserPaginateFilter();
         filter.setName(name);
@@ -86,9 +86,18 @@ public class CourseUserController {
         filter.setIdCard(idCard);
 
         // 所属部门
-        List<Integer> depIds = courseService.getDepIdsByCourseId(courseId);
-        if (depIds != null && depIds.size() > 0) {
-            filter.setDepIds(depIds);
+        if (depId != null && depId > 0) { // 设置过滤部门
+            filter.setDepIds(
+                    new ArrayList<>() {
+                        {
+                            add(depId);
+                        }
+                    });
+        } else { // 默认读取课程关联的全部部门
+            List<Integer> depIds = courseService.getDepIdsByCourseId(courseId);
+            if (depIds != null && depIds.size() > 0) {
+                filter.setDepIds(depIds);
+            }
         }
 
         PaginationResult<User> result = userService.paginate(page, size, filter);
@@ -121,6 +130,10 @@ public class CourseUserController {
                                         UserCourseHourRecordUserFirstCreatedAtMapper
                                                 ::getCreatedAt)));
         data.put("course", courseService.findOrFail(courseId));
+        data.put(
+                "user_dep_ids",
+                userService.getDepIdsGroup(result.getData().stream().map(User::getId).toList()));
+        data.put("departments", departmentService.id2name());
 
         return JsonResponse.data(data);
     }
