@@ -43,6 +43,7 @@ import xyz.playedu.api.request.backend.UserRequest;
 import xyz.playedu.api.service.*;
 import xyz.playedu.api.service.internal.UserDepartmentService;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
 import xyz.playedu.api.types.paginate.UserCourseRecordPaginateFilter;
@@ -98,8 +99,17 @@ public class UserController {
         Integer isVerify = MapUtils.getInteger(params, "is_verify");
         Integer isSetPassword = MapUtils.getInteger(params, "is_set_password");
         String createdAt = MapUtils.getString(params, "created_at");
-        String depIds = MapUtils.getString(params, "dep_ids");
+        String depIdsStr = MapUtils.getString(params, "dep_ids");
+        List<Integer> depIds = null;
+        if (depIdsStr != null && depIdsStr.trim().length() > 0) {
+            if ("0".equals(depIdsStr)) {
+                depIds = new ArrayList<>();
+            } else {
+                depIds = Arrays.stream(depIdsStr.split(",")).map(Integer::valueOf).toList();
+            }
+        }
 
+        List<Integer> finalDepIds = depIds;
         UserPaginateFilter filter =
                 new UserPaginateFilter() {
                     {
@@ -110,7 +120,7 @@ public class UserController {
                         setIsLock(isLock);
                         setIsVerify(isVerify);
                         setIsSetPassword(isSetPassword);
-                        setDepIds(depIds);
+                        setDepIds(finalDepIds);
                         setSortAlgo(sortAlgo);
                         setSortField(sortField);
                     }
@@ -482,6 +492,14 @@ public class UserController {
             userCourseRecords = userCourseRecordService.chunk(id, courseIds);
         }
 
+        // 获取学员线上课的课时学习数量(只要学习了就算，不一定需要已完成)
+        Map<Integer, Integer> userCourseHourCount =
+                userCourseHourRecordService.getUserCourseHourCount(id, courseIds, null).stream()
+                        .collect(
+                                Collectors.toMap(
+                                        UserCourseHourRecordCourseCountMapper::getCourseId,
+                                        UserCourseHourRecordCourseCountMapper::getTotal));
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("open_courses", openCourses);
         data.put("departments", departments);
@@ -490,6 +508,7 @@ public class UserController {
                 "user_course_records",
                 userCourseRecords.stream()
                         .collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e)));
+        data.put("user_course_hour_count", userCourseHourCount);
 
         return JsonResponse.data(data);
     }

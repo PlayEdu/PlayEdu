@@ -38,11 +38,11 @@
             limit #{size};
     </select>
     <select id="getUserCourseHourCount"
-            resultType="xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper">
+            resultType="xyz.playedu.api.types.mapper.UserCourseHourRecordCourseCountMapper">
         SELECT `course_id`, count(1) AS `total`
         FROM `user_course_hour_records`
         WHERE `user_id` = #{userId}
-        <if test="courseIds != null and #{courseIds}.size() > 0">
+        <if test="courseIds != null and courseIds.size > 0">
             AND `course_id` IN (<foreach collection="courseIds" item="courseId" separator=",">#{courseId}</foreach>)
         </if>
         <if test="isFinished != null">
@@ -114,5 +114,36 @@
                 AND `t`.`is_finisehd` = #{isFinished}
             </if>
         </where>
+    </select>
+    <select id="getUserCourseHourUserCount"
+            resultType="xyz.playedu.api.types.mapper.UserCourseHourRecordUserCountMapper">
+        SELECT `user_id`, count(1) AS `total`
+        FROM `user_course_hour_records`
+        WHERE `course_id` = #{courseId}
+        <if test="userIds != null and userIds.size > 0">
+            AND `user_id` IN (<foreach collection="userIds" item="userId" separator=",">#{userId}</foreach>)
+        </if>
+        <if test="isFinished != null">
+            AND `is_finisehd` = #{isFinished}
+        </if>
+        GROUP BY `user_id`;
+    </select>
+    <select id="getUserCourseHourUserFirstCreatedAt"
+            resultType="xyz.playedu.api.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper">
+        SELECT `t1`.`created_at`, `t1`.`user_id`
+        FROM `user_course_hour_records` AS `t1`
+        INNER JOIN (SELECT `t2`.`user_id`, min(`t2`.`created_at`) as `created_at`
+        FROM `user_course_hour_records` AS `t2`
+        WHERE `t2`.`course_id` = #{courseId}
+        <if test="userIds != null and userIds.size > 0">
+            AND `t2`.`user_id` IN (<foreach collection="userIds" item="userId" separator=",">#{userId}</foreach>)
+        </if>
+        GROUP BY `t2`.`user_id`) AS `t3`
+        ON `t3`.`user_id` = `t1`.`user_id`
+        AND `t3`.`created_at` = `t1`.`created_at`
+        WHERE `t1`.`course_id` = #{courseId}
+        <if test="userIds != null and userIds.size > 0">
+            AND `t1`.`user_id` IN (<foreach collection="userIds" item="userId" separator=",">#{userId}</foreach>)
+        </if>
     </select>
 </mapper>

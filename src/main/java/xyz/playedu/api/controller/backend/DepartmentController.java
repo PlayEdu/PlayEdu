@@ -188,7 +188,12 @@ public class DepartmentController {
         String name = MapUtils.getString(params, "name");
         String email = MapUtils.getString(params, "email");
         String idCard = MapUtils.getString(params, "id_card");
-        String depIds = String.valueOf(id);
+        List<Integer> depIds =
+                new ArrayList<>() {
+                    {
+                        add(id);
+                    }
+                };
 
         String courseIdsStr = MapUtils.getString(params, "course_ids");
         String showMode = MapUtils.getString(params, "show_mode");

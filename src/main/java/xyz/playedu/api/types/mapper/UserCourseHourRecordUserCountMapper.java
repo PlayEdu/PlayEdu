@@ -13,37 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.types.paginate;
+package xyz.playedu.api.types.mapper;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * @Author 杭州白书科技有限公司
  *
- * @create 2023/2/23 14:23
+ * @create 2023/5/8 11:22
  */
 @Data
-public class UserPaginateFilter {
+public class UserCourseHourRecordUserCountMapper {
+    @JsonProperty("user_id")
+    private Integer userId;
 
-    private String name;
-    private String email;
-    private String idCard;
-    private Integer isActive;
-    private Integer isLock;
-    private Integer isVerify;
-    private Integer isSetPassword;
-
-    // 创建时间范围过滤
-    private String[] createdAt;
-
-    private List<Integer> depIds;
-
-    // 排序控制
-    private String sortField;
-    private String sortAlgo;
-
-    private Integer pageStart;
-    private Integer pageSize;
+    private Integer total;
 }

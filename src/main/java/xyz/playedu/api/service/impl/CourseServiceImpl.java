@@ -209,7 +209,40 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public List<Course> getOpenCoursesAndShow(Integer limit) {
-        return getBaseMapper().openCoursesAndShow(limit);
+        return getBaseMapper().openCoursesAndShow(limit, 0);
+    }
+
+    @Override
+    public List<Course> getOpenCoursesAndShow(Integer limit, Integer categoryId) {
+        return getBaseMapper().openCoursesAndShow(limit, categoryId);
+    }
+
+    @Override
+    public List<Course> getDepCoursesAndShow(List<Integer> depIds, Integer categoryId) {
+        if (depIds == null || depIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(depIds);
+        if (courseIds == null || courseIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        if (categoryId != null && categoryId > 0) {
+            List<Integer> tmpCourseIds =
+                    courseCategoryService.getCourseIdsByCategoryIds(
+                            new ArrayList<>() {
+                                {
+                                    add(categoryId);
+                                }
+                            });
+            if (tmpCourseIds == null || tmpCourseIds.size() == 0) {
+                return new ArrayList<>();
+            }
+            courseIds = courseIds.stream().filter(tmpCourseIds::contains).toList();
+            if (courseIds.size() == 0) {
+                return new ArrayList<>();
+            }
+        }
+        return list(query().getWrapper().in("id", courseIds).eq("is_show", 1));
     }
 
     @Override

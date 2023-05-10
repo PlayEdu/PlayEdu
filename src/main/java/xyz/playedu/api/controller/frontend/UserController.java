@@ -30,7 +30,7 @@ import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
 import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
-import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.api.types.response.UserLatestLearn;
 import xyz.playedu.api.util.PrivacyUtil;
 
@@ -106,6 +106,8 @@ public class UserController {
             return JsonResponse.error("请选择部门");
         }
 
+        Integer categoryId = MapUtils.getInteger(params, "category_id");
+
         List<Integer> userJoinDepIds = userService.getDepIdsByUserId(FCtx.getId());
         if (userJoinDepIds == null) {
             return JsonResponse.error("当前学员未加入任何部门");
@@ -126,9 +128,10 @@ public class UserController {
                             {
                                 add(depId);
                             }
-                        });
+                        },
+                        categoryId);
         // 全部部门课
-        List<Course> openCourses = courseService.getOpenCoursesAndShow(500);
+        List<Course> openCourses = courseService.getOpenCoursesAndShow(500, categoryId);
         // 汇总到一个list中
         if (depCourses != null && depCourses.size() > 0) {
             courses.addAll(depCourses);
@@ -218,8 +221,8 @@ public class UserController {
                         .stream()
                         .collect(
                                 Collectors.toMap(
-                                        UserCourseHourRecordCountMapper::getCourseId,
-                                        UserCourseHourRecordCountMapper::getTotal)));
+                                        UserCourseHourRecordCourseCountMapper::getCourseId,
+                                        UserCourseHourRecordCourseCountMapper::getTotal)));
 
         return JsonResponse.data(data);
     }

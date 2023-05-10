@@ -15,6 +15,9 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -22,19 +25,21 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserCourseRecord;
 import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.CourseUserDestroyRequest;
-import xyz.playedu.api.service.UserCourseRecordService;
-import xyz.playedu.api.service.UserService;
+import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
-import xyz.playedu.api.types.paginate.UserCourseRecordPaginateFilter;
+import xyz.playedu.api.types.paginate.UserPaginateFilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -42,17 +47,25 @@ import java.util.List;
  * @create 2023/3/24 16:08
  */
 @RestController
+@Slf4j
 @RequestMapping("/backend/v1/course/{courseId}/user")
 public class CourseUserController {
 
+    @Autowired private CourseService courseService;
+
     @Autowired private UserCourseRecordService userCourseRecordService;
 
+    @Autowired private UserCourseHourRecordService userCourseHourRecordService;
+
     @Autowired private UserService userService;
+
+    @Autowired private DepartmentService departmentService;
 
     @Autowired private ApplicationContext ctx;
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE_USER)
     @GetMapping("/index")
+    @SneakyThrows
     public JsonResponse index(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestParam HashMap<String, Object> params) {
@@ -63,25 +76,64 @@ public class CourseUserController {
         String name = MapUtils.getString(params, "name");
         String email = MapUtils.getString(params, "email");
         String idCard = MapUtils.getString(params, "id_card");
+        Integer depId = MapUtils.getInteger(params, "dep_id");
 
-        UserCourseRecordPaginateFilter filter = new UserCourseRecordPaginateFilter();
-        filter.setCourseId(courseId);
+        UserPaginateFilter filter = new UserPaginateFilter();
         filter.setName(name);
         filter.setEmail(email);
-        filter.setIdCard(idCard);
         filter.setSortAlgo(sortAlgo);
         filter.setSortField(sortField);
+        filter.setIdCard(idCard);
 
-        PaginationResult<UserCourseRecord> result =
-                userCourseRecordService.paginate(page, size, filter);
+        // 所属部门
+        if (depId != null && depId > 0) { // 设置过滤部门
+            filter.setDepIds(
+                    new ArrayList<>() {
+                        {
+                            add(depId);
+                        }
+                    });
+        } else { // 默认读取课程关联的全部部门
+            List<Integer> depIds = courseService.getDepIdsByCourseId(courseId);
+            if (depIds != null && depIds.size() > 0) {
+                filter.setDepIds(depIds);
+            }
+        }
+
+        PaginationResult<User> result = userService.paginate(page, size, filter);
+
+        List<Integer> userIds = result.getData().stream().map(User::getId).toList();
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());
         data.put("total", result.getTotal());
         data.put(
-                "users",
-                userService.chunks(
-                        result.getData().stream().map(UserCourseRecord::getUserId).toList()));
+                "user_course_records",
+                userCourseRecordService
+                        .chunk(
+                                userIds,
+                                new ArrayList<>() {
+                                    {
+                                        add(courseId);
+                                    }
+                                })
+                        .stream()
+                        .collect(Collectors.toMap(UserCourseRecord::getUserId, e -> e)));
+        data.put(
+                "user_course_hour_user_first_at",
+                userCourseHourRecordService
+                        .getUserCourseHourUserFirstCreatedAt(courseId, userIds)
+                        .stream()
+                        .collect(
+                                Collectors.toMap(
+                                        UserCourseHourRecordUserFirstCreatedAtMapper::getUserId,
+                                        UserCourseHourRecordUserFirstCreatedAtMapper
+                                                ::getCreatedAt)));
+        data.put("course", courseService.findOrFail(courseId));
+        data.put(
+                "user_dep_ids",
+                userService.getDepIdsGroup(result.getData().stream().map(User::getId).toList()));
+        data.put("departments", departmentService.id2name());
 
         return JsonResponse.data(data);
     }

@@ -25,7 +25,9 @@ import xyz.playedu.api.domain.UserCourseHourRecord;
 import xyz.playedu.api.event.UserCourseHourFinishedEvent;
 import xyz.playedu.api.mapper.UserCourseHourRecordMapper;
 import xyz.playedu.api.service.UserCourseHourRecordService;
-import xyz.playedu.api.types.mapper.UserCourseHourRecordCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordCourseCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordUserCountMapper;
+import xyz.playedu.api.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
 import xyz.playedu.api.types.paginate.PaginationResult;
 import xyz.playedu.api.types.paginate.UserCourseHourRecordPaginateFilter;
 
@@ -127,12 +129,21 @@ public class UserCourseHourRecordServiceImpl
     }
 
     @Override
-    public List<UserCourseHourRecordCountMapper> getUserCourseHourCount(
+    public List<UserCourseHourRecordCourseCountMapper> getUserCourseHourCount(
             Integer userId, List<Integer> courseIds, Integer isFinished) {
         if (courseIds == null || courseIds.size() == 0) {
             return new ArrayList<>();
         }
         return getBaseMapper().getUserCourseHourCount(userId, courseIds, isFinished);
+    }
+
+    @Override
+    public List<UserCourseHourRecordUserCountMapper> getUserCourseHourUserCount(
+            Integer courseId, List<Integer> userIds, Integer isFinished) {
+        if (userIds == null || userIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        return getBaseMapper().getUserCourseHourUserCount(courseId, userIds, isFinished);
     }
 
     @Override
@@ -161,5 +172,14 @@ public class UserCourseHourRecordServiceImpl
                         .eq("user_id", userId)
                         .eq("course_id", courseId)
                         .eq("hour_id", hourId));
+    }
+
+    @Override
+    public List<UserCourseHourRecordUserFirstCreatedAtMapper> getUserCourseHourUserFirstCreatedAt(
+            Integer courseId, List<Integer> userIds) {
+        if (userIds == null || userIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        return getBaseMapper().getUserCourseHourUserFirstCreatedAt(courseId, userIds);
     }
 }

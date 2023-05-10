@@ -36,24 +36,23 @@
     <select id="paginateCount" resultType="java.lang.Long">
         SELECT count(1)
         FROM `users`
-        <if test="depIds != null and depIds != ''">
-            <choose>
-                <when test="depIds.indexOf('0') == 0">
-                    LEFT JOIN `user_department` ON `user_department`.`user_id` = `users`.`id`
-                </when>
-                <otherwise>
-                    INNER JOIN `user_department` ON `user_department`.`user_id` = `users`.`id`
-                </otherwise>
-            </choose>
-        </if>
         <where>
-            <if test="depIds != null and depIds != ''">
+            <if test="depIds != null">
                 <choose>
-                    <when test="depIds.indexOf('0') == 0">
-                        AND `user_department`.`user_id` IS NULL
+                    <when test="depIds.size == 0">
+                        AND `users`.`id` IN (
+                        SELECT `users`.`id` from `users` LEFT JOIN `user_department` ON `user_department`.`user_id` =
+                        `users`.`id`
+                        WHERE `user_department`.`user_id` IS NULL
+                        )
                     </when>
                     <otherwise>
-                        AND `user_department`.`dep_id` IN (#{depIds})
+                        AND `users`.`id` IN (
+                        SELECT `users`.`id` from `users` LEFT JOIN `user_department` ON `user_department`.`user_id` =
+                        `users`.`id`
+                        WHERE `user_department`.`dep_id` IN (<foreach collection="depIds" item="depId" separator=",">
+                        #{depId}</foreach>)
+                        )
                     </otherwise>
                 </choose>
             </if>
@@ -78,7 +77,7 @@
             <if test="isSetPassword != null">
                 AND `users`.`is_set_password` = #{isSetPassword}
             </if>
-            <if test="createdAt != null">
+            <if test="createdAt != null and createdAt.size == 2">
                 AND `users`.`created_at` BETWEEN
                 <foreach collection="createdAt" item="createdAtItem" separator=" AND ">#{createdAtItem}</foreach>
             </if>
@@ -88,24 +87,23 @@
     <select id="paginate" resultType="xyz.playedu.api.domain.User">
         SELECT `users`.*
         FROM `users`
-        <if test="depIds != null and depIds != ''">
-            <choose>
-                <when test="depIds.indexOf('0') == 0">
-                    LEFT JOIN `user_department` ON `user_department`.`user_id` = `users`.`id`
-                </when>
-                <otherwise>
-                    INNER JOIN `user_department` ON `user_department`.`user_id` = `users`.`id`
-                </otherwise>
-            </choose>
-        </if>
         <where>
-            <if test="depIds != null and depIds != ''">
+            <if test="depIds != null">
                 <choose>
-                    <when test="depIds.indexOf('0') == 0">
-                        AND `user_department`.`user_id` IS NULL
+                    <when test="depIds.size == 0">
+                        AND `users`.`id` IN (
+                        SELECT `users`.`id` from `users` LEFT JOIN `user_department` ON `user_department`.`user_id` =
+                        `users`.`id`
+                        WHERE `user_department`.`user_id` IS NULL
+                        )
                     </when>
                     <otherwise>
-                        AND `user_department`.`dep_id` IN (#{depIds})
+                        AND `users`.`id` IN (
+                        SELECT `users`.`id` from `users` LEFT JOIN `user_department` ON `user_department`.`user_id` =
+                        `users`.`id`
+                        WHERE `user_department`.`dep_id` IN (<foreach collection="depIds" item="depId" separator=",">
+                        #{depId}</foreach>)
+                        )
                     </otherwise>
                 </choose>
             </if>
@@ -130,7 +128,7 @@
             <if test="isSetPassword != null">
                 AND `users`.`is_set_password` = #{isSetPassword}
             </if>
-            <if test="createdAt != null">
+            <if test="createdAt != null and createdAt.size == 2">
                 AND `users`.`created_at` BETWEEN
                 <foreach collection="createdAt" item="createdAtItem" separator=" AND ">#{createdAtItem}</foreach>
             </if>
