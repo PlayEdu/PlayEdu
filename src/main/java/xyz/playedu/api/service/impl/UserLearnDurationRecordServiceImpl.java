@@ -57,4 +57,9 @@ public class UserLearnDurationRecordServiceImpl
 
         save(record);
     }
+
+    @Override
+    public void remove(Integer userId) {
+        remove(query().getWrapper().eq("user_id", userId));
+    }
 }

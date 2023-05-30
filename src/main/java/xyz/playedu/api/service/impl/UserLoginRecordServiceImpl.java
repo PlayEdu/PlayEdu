@@ -55,14 +55,6 @@ public class UserLoginRecordServiceImpl extends ServiceImpl<UserLoginRecordMappe
     }
 
     @Override
-    public void saveIpArea(Integer id, String area) {
-        UserLoginRecord record = new UserLoginRecord();
-        record.setId(id);
-        record.setIpArea(area);
-        updateById(record);
-    }
-
-    @Override
     public void logout(Integer userid, String jti) {
         UserLoginRecord record =
                 getOne(
@@ -78,5 +70,10 @@ public class UserLoginRecordServiceImpl extends ServiceImpl<UserLoginRecordMappe
         newRecord.setIsLogout(1);
 
         updateById(newRecord);
+    }
+
+    @Override
+    public void remove(Integer userId) {
+        remove(query().getWrapper().eq("user_id", userId));
     }
 }

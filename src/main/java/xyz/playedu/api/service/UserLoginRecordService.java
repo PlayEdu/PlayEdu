@@ -35,7 +35,7 @@ public interface UserLoginRecordService extends IService<UserLoginRecord> {
             String browserVersion,
             String os);
 
-    void saveIpArea(Integer id, String area);
-
     void logout(Integer userid, String jti);
+
+    void remove(Integer userId);
 }
