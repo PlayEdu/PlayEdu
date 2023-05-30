@@ -52,7 +52,11 @@ public class MinioServiceImpl implements MinioService {
 
     @Override
     public String url(String path) {
-        return c.getDomain() + c.getBucket() + "/" + path;
+        return c.getDomain()
+                + (c.getDomain().endsWith("/") ? "" : "/")
+                + c.getBucket()
+                + "/"
+                + path;
     }
 
     @Override
