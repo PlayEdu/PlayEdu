@@ -154,6 +154,15 @@ public class AppConfigCheck implements ApplicationRunner {
                                         setKeyValue("1");
                                     }
                                 },
+                                new AppConfig() {
+                                    {
+                                        setName("禁止拖拽播放");
+                                        setSort(60);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_SWITCH);
+                                        setKeyName("player.disabled_drag");
+                                        setKeyValue("0");
+                                    }
+                                },
                             });
                     put(
                             "学员配置",
