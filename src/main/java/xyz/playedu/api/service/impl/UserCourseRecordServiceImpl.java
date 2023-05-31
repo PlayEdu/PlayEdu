@@ -139,6 +139,11 @@ public class UserCourseRecordServiceImpl
     }
 
     @Override
+    public void destroy(Integer userId) {
+        remove(query().getWrapper().in("user_id", userId));
+    }
+
+    @Override
     public void decrease(Integer userId, Integer courseId, int count) {
         UserCourseRecord record = find(userId, courseId);
         if (record == null) {

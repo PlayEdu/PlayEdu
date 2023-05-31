@@ -36,11 +36,6 @@ import xyz.playedu.api.util.HelperUtil;
 
 import java.util.HashMap;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/28 16:26
- */
 @RestController
 @Slf4j
 @RequestMapping("/backend/v1/upload")

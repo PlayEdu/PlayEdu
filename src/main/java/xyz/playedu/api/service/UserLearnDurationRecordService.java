@@ -26,4 +26,6 @@ import xyz.playedu.api.domain.UserLearnDurationRecord;
  */
 public interface UserLearnDurationRecordService extends IService<UserLearnDurationRecord> {
     void store(Integer userId, Integer courseId, Integer hourId, Long startTime, Long endTime);
+
+    void remove(Integer userId);
 }

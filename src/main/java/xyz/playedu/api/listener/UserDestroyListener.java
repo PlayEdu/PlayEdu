@@ -22,7 +22,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.event.UserDestroyEvent;
-import xyz.playedu.api.service.UserService;
+import xyz.playedu.api.service.*;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -35,8 +35,23 @@ public class UserDestroyListener {
 
     @Autowired private UserService userService;
 
+    @Autowired private UserCourseHourRecordService userCourseHourRecordService;
+
+    @Autowired private UserCourseRecordService userCourseRecordService;
+
+    @Autowired private UserLearnDurationRecordService userLearnDurationRecordService;
+
+    @Autowired private UserLearnDurationStatsService userLearnDurationStatsService;
+
+    @Autowired private UserLoginRecordService userLoginRecordService;
+
     @EventListener
-    public void updateLoginInfo(UserDestroyEvent event) {
+    public void remoteRelation(UserDestroyEvent event) {
         userService.removeRelateDepartmentsByUserId(event.getUserId());
+        userCourseHourRecordService.remove(event.getUserId());
+        userCourseRecordService.destroy(event.getUserId());
+        userLearnDurationRecordService.remove(event.getUserId());
+        userLearnDurationStatsService.remove(event.getUserId());
+        userLoginRecordService.remove(event.getUserId());
     }
 }

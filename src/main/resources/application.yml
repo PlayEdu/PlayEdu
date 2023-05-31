@@ -47,14 +47,6 @@ spring:
         await-termination: true
       thread-name-prefix: "playedu-default-thread"
 
-# Minio
-minio:
-  access-key: ""
-  secret-key: ""
-  end-point: ""
-  bucket: ""
-  domain: ""
-
 mybatis:
   mapper-locations: classpath:mapper/*.xml
 

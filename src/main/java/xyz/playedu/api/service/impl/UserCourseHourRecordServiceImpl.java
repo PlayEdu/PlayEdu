@@ -152,6 +152,11 @@ public class UserCourseHourRecordServiceImpl
     }
 
     @Override
+    public void remove(Integer userId) {
+        remove(query().getWrapper().eq("user_id", userId));
+    }
+
+    @Override
     public PaginationResult<UserCourseHourRecord> paginate(
             int page, int size, UserCourseHourRecordPaginateFilter filter) {
         int pageStart = (page - 1) * size;

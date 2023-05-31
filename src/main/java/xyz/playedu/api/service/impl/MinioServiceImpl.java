@@ -15,10 +15,7 @@
  */
 package xyz.playedu.api.service.impl;
 
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
+import io.minio.*;
 import io.minio.http.Method;
 
 import lombok.SneakyThrows;
@@ -27,8 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import xyz.playedu.api.config.MinioConfig;
+import xyz.playedu.api.exception.ServiceException;
+import xyz.playedu.api.service.AppConfigService;
 import xyz.playedu.api.service.MinioService;
+import xyz.playedu.api.types.config.MinioConfig;
 import xyz.playedu.api.vendor.PlayEduMinioClient;
 
 import java.io.ByteArrayInputStream;
@@ -36,70 +35,111 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/3/7 13:29
- */
 @Service
 public class MinioServiceImpl implements MinioService {
 
-    @Autowired private MinioConfig c;
+    private MinioConfig minioConfig = null;
 
-    @Autowired private MinioClient client;
+    @Autowired private AppConfigService appConfigService;
 
-    @Autowired private PlayEduMinioClient playEduMinioClient;
+    @SneakyThrows
+    private MinioConfig getMinioConfig() {
+        if (minioConfig == null) {
+            minioConfig = appConfigService.getMinioConfig();
+            if (minioConfig.getAccessKey().isBlank()
+                    || minioConfig.getSecretKey().isBlank()
+                    || minioConfig.getBucket().isBlank()
+                    || minioConfig.getDomain().isBlank()
+                    || minioConfig.getEndpoint().isBlank()) {
+                throw new ServiceException("MinIO服务未配置");
+            }
+        }
+        return minioConfig;
+    }
+
+    private String bucket() {
+        return getMinioConfig().getBucket();
+    }
+
+    public MinioClient getMinioClient() {
+        MinioConfig c = getMinioConfig();
+
+        return MinioClient.builder()
+                .endpoint(c.getEndpoint())
+                .credentials(c.getAccessKey(), c.getSecretKey())
+                .build();
+    }
+
+    public PlayEduMinioClient getPlayEduMinioClient() {
+        MinioConfig c = getMinioConfig();
+
+        MinioAsyncClient client =
+                PlayEduMinioClient.builder()
+                        .endpoint(c.getEndpoint())
+                        .credentials(c.getAccessKey(), c.getSecretKey())
+                        .build();
+
+        return new PlayEduMinioClient(client);
+    }
 
     @Override
     public String url(String path) {
-        return c.getDomain() + c.getBucket() + "/" + path;
+        MinioConfig c = getMinioConfig();
+
+        return c.getDomain()
+                + (c.getDomain().endsWith("/") ? "" : "/")
+                + c.getBucket()
+                + "/"
+                + path;
     }
 
     @Override
     @SneakyThrows
     public String saveFile(MultipartFile file, String savePath, String contentType) {
         PutObjectArgs objectArgs =
-                PutObjectArgs.builder().bucket(c.getBucket()).object(savePath).stream(
+                PutObjectArgs.builder().bucket(bucket()).object(savePath).stream(
                                 file.getInputStream(), file.getSize(), -1)
                         .contentType(contentType)
                         .build();
-        client.putObject(objectArgs);
+        getMinioClient().putObject(objectArgs);
 
         return url(savePath);
     }
 
     @Override
     public String uploadId(String path) {
-        return playEduMinioClient.uploadId(c.getBucket(), path);
+        return getPlayEduMinioClient().uploadId(bucket(), path);
     }
 
     @Override
     @SneakyThrows
     public String chunkPreSignUrl(String filename, String partNumber, String uploadId) {
         Map<String, String> extraQueryParams = new HashMap<>();
-        extraQueryParams.put("partNumber", partNumber + "");
+        extraQueryParams.put("partNumber", partNumber);
         extraQueryParams.put("uploadId", uploadId);
 
-        return client.getPresignedObjectUrl(
-                GetPresignedObjectUrlArgs.builder()
-                        .bucket(c.getBucket())
-                        .object(filename)
-                        .method(Method.PUT)
-                        .expiry(60 * 60 * 24)
-                        .extraQueryParams(extraQueryParams)
-                        .build());
+        return getMinioClient()
+                .getPresignedObjectUrl(
+                        GetPresignedObjectUrlArgs.builder()
+                                .bucket(bucket())
+                                .object(filename)
+                                .method(Method.PUT)
+                                .expiry(60 * 60 * 24)
+                                .extraQueryParams(extraQueryParams)
+                                .build());
     }
 
     @Override
     public String merge(String filename, String uploadId) {
-        playEduMinioClient.merge(c.getBucket(), filename, uploadId);
+        getPlayEduMinioClient().merge(bucket(), filename, uploadId);
         return url(filename);
     }
 
     @Override
     @SneakyThrows
     public void removeByPath(String path) {
-        client.removeObject(RemoveObjectArgs.builder().bucket(c.getBucket()).object(path).build());
+        getMinioClient()
+                .removeObject(RemoveObjectArgs.builder().bucket(bucket()).object(path).build());
     }
 
     @Override
@@ -108,12 +148,12 @@ public class MinioServiceImpl implements MinioService {
         InputStream inputStream = new ByteArrayInputStream(file);
 
         PutObjectArgs objectArgs =
-                PutObjectArgs.builder().bucket(c.getBucket()).object(savePath).stream(
+                PutObjectArgs.builder().bucket(bucket()).object(savePath).stream(
                                 inputStream, file.length, -1)
                         .contentType(contentType)
                         .build();
 
-        client.putObject(objectArgs);
+        getMinioClient().putObject(objectArgs);
 
         return url(savePath);
     }

@@ -61,6 +61,7 @@ public class SystemController {
         data.put("player-bullet-secret-text", configs.get("player.bullet_secret_text"));
         data.put("player-bullet-secret-color", configs.get("player.bullet_secret_color"));
         data.put("player-bullet-secret-opacity", configs.get("player.bullet_secret_opacity"));
+        data.put("player-disabled-drag", configs.get("player.disabled_drag"));
 
         return JsonResponse.data(data);
     }

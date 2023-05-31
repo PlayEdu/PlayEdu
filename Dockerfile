@@ -1,4 +1,4 @@
-FROM openjdk:17 as builder
+FROM eclipse-temurin:17 as builder
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY . /app
 
 RUN /app/docker-build.sh
 
-FROM openjdk:17
+FROM eclipse-temurin:17
 
 WORKDIR /app
 

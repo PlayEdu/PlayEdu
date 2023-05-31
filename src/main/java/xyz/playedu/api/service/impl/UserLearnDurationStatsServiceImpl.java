@@ -114,4 +114,9 @@ public class UserLearnDurationStatsServiceImpl
         return list(
                 query().getWrapper().eq("user_id", userId).between("created_date", startAt, endAt));
     }
+
+    @Override
+    public void remove(Integer userId) {
+        remove(query().getWrapper().eq("user_id", userId));
+    }
 }
