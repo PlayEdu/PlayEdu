@@ -15,26 +15,18 @@
  */
 package xyz.playedu.api.service.impl;
 
-import com.google.code.kaptcha.impl.DefaultKaptcha;
-
-import jakarta.annotation.Resource;
+import cn.hutool.captcha.CaptchaUtil;
+import cn.hutool.captcha.LineCaptcha;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FastByteArrayOutputStream;
 
 import xyz.playedu.api.service.ImageCaptchaService;
 import xyz.playedu.api.types.ImageCaptchaResult;
-import xyz.playedu.api.util.Base64Util;
 import xyz.playedu.api.util.HelperUtil;
 import xyz.playedu.api.util.RedisUtil;
-
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 @Slf4j
 @Service
@@ -46,29 +38,21 @@ public class ImageCaptchaServiceImpl implements ImageCaptchaService {
     @Value("${playedu.captcha.expire}")
     private Long ConfigExpire;
 
-    @Resource private DefaultKaptcha defaultKaptcha;
-
     @Override
-    public ImageCaptchaResult generate() throws IOException {
+    public ImageCaptchaResult generate() {
         ImageCaptchaResult imageCaptcha = new ImageCaptchaResult();
-        BufferedImage image;
+
+        // 生成验证码
+        LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(240, 100, 4, 1);
 
         // 图形验证码的key[api是无状态的需要key来锁定验证码的值]
         String randomKey = HelperUtil.randomString(16);
         imageCaptcha.setKey(randomKey);
-
-        // 生成验证码
-        imageCaptcha.setCode(defaultKaptcha.createText());
-        image = defaultKaptcha.createImage(imageCaptcha.getCode());
+        imageCaptcha.setCode(lineCaptcha.getCode());
+        imageCaptcha.setImage("data:image/png;base64," + lineCaptcha.getImageBase64());
 
         // 写入到redis中
-        RedisUtil.set(getCacheKey(randomKey), imageCaptcha.getCode(), ConfigExpire);
-
-        FastByteArrayOutputStream os = new FastByteArrayOutputStream();
-        ImageIO.write(image, "png", os);
-
-        String base64 = "data:image/png;base64," + Base64Util.encode(os.toByteArray());
-        imageCaptcha.setImage(base64);
+        RedisUtil.set(getCacheKey(imageCaptcha.getKey()), imageCaptcha.getCode(), ConfigExpire);
 
         return imageCaptcha;
     }
