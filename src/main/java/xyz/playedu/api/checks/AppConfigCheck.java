@@ -177,6 +177,55 @@ public class AppConfigCheck implements ApplicationRunner {
                                     }
                                 },
                             });
+                    put(
+                            "MinIO",
+                            new AppConfig[] {
+                                new AppConfig() {
+                                    {
+                                        setName("AccessKey");
+                                        setSort(10);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(CConfig.MINIO_ACCESS_KEY);
+                                        setKeyValue("");
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("SecretKey");
+                                        setSort(20);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(CConfig.MINIO_SECRET_KEY);
+                                        setKeyValue("");
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("Bucket");
+                                        setSort(30);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(CConfig.MINIO_BUCKET);
+                                        setKeyValue("");
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("Endpoint");
+                                        setSort(40);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(CConfig.MINIO_ENDPOINT);
+                                        setKeyValue("");
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("Domain");
+                                        setSort(50);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(CConfig.MINIO_DOMAIN);
+                                        setKeyValue("");
+                                    }
+                                },
+                            });
                 }
             };
 

@@ -19,9 +19,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import org.springframework.stereotype.Service;
 
+import xyz.playedu.api.constant.CConfig;
 import xyz.playedu.api.domain.AppConfig;
 import xyz.playedu.api.mapper.AppConfigMapper;
 import xyz.playedu.api.service.AppConfigService;
+import xyz.playedu.api.types.config.MinioConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,5 +90,17 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
     public Map<String, String> keyValues() {
         return list(query().getWrapper().eq("is_hidden", 0)).stream()
                 .collect(Collectors.toMap(AppConfig::getKeyName, AppConfig::getKeyValue));
+    }
+
+    @Override
+    public MinioConfig getMinioConfig() {
+        MinioConfig minioConfig = new MinioConfig();
+        Map<String, String> config = keyValues();
+        minioConfig.setAccessKey(config.get(CConfig.MINIO_ACCESS_KEY));
+        minioConfig.setSecretKey(config.get(CConfig.MINIO_SECRET_KEY));
+        minioConfig.setBucket(config.get(CConfig.MINIO_BUCKET));
+        minioConfig.setEndpoint(config.get(CConfig.MINIO_ENDPOINT));
+        minioConfig.setDomain(config.get(CConfig.MINIO_DOMAIN));
+        return minioConfig;
     }
 }

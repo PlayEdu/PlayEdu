@@ -13,26 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.service;
+package xyz.playedu.api.types.config;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import lombok.Data;
 
-import xyz.playedu.api.domain.AppConfig;
-import xyz.playedu.api.types.config.MinioConfig;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public interface AppConfigService extends IService<AppConfig> {
-
-    Map<String, Long> allKeys();
-
-    List<AppConfig> allShow();
-
-    void saveFromMap(HashMap<String, String> data);
-
-    Map<String, String> keyValues();
-
-    MinioConfig getMinioConfig();
+@Data
+public class MinioConfig {
+    private String accessKey;
+    private String secretKey;
+    private String bucket;
+    private String endpoint;
+    private String domain;
 }
