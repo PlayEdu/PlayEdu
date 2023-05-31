@@ -38,23 +38,19 @@ import java.util.Map;
 @Service
 public class MinioServiceImpl implements MinioService {
 
-    private MinioConfig minioConfig = null;
-
     @Autowired private AppConfigService appConfigService;
 
     @SneakyThrows
     private MinioConfig getMinioConfig() {
-        if (minioConfig == null) {
-            minioConfig = appConfigService.getMinioConfig();
-            if (minioConfig.getAccessKey().isBlank()
-                    || minioConfig.getSecretKey().isBlank()
-                    || minioConfig.getBucket().isBlank()
-                    || minioConfig.getDomain().isBlank()
-                    || minioConfig.getEndpoint().isBlank()) {
-                throw new ServiceException("MinIO服务未配置");
-            }
+        MinioConfig c = appConfigService.getMinioConfig();
+        if (c.getAccessKey().isBlank()
+                || c.getSecretKey().isBlank()
+                || c.getBucket().isBlank()
+                || c.getDomain().isBlank()
+                || c.getEndpoint().isBlank()) {
+            throw new ServiceException("MinIO服务未配置");
         }
-        return minioConfig;
+        return c;
     }
 
     private String bucket() {
