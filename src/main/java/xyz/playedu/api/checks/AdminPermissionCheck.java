@@ -214,6 +214,18 @@ public class AdminPermissionCheck implements ApplicationRunner {
                                                     }
                                                 },
                                             });
+                                    // 系统配置
+                                    put(
+                                            "系统配置",
+                                            new AdminPermission[] {
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(0);
+                                                        setName("系统配置");
+                                                        setSlug(BPermissionConstant.SYSTEM_CONFIG);
+                                                    }
+                                                },
+                                            });
                                 }
                             });
                     put(

@@ -18,7 +18,9 @@ package xyz.playedu.api.controller.backend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.AppConfig;
+import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.request.backend.AppConfigRequest;
 import xyz.playedu.api.service.AppConfigService;
 import xyz.playedu.api.types.JsonResponse;
@@ -36,12 +38,14 @@ public class AppConfigController {
 
     @Autowired private AppConfigService configService;
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.SYSTEM_CONFIG)
     @GetMapping("")
     public JsonResponse index() {
         List<AppConfig> configs = configService.allShow();
         return JsonResponse.data(configs);
     }
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.SYSTEM_CONFIG)
     @PutMapping("")
     public JsonResponse save(@RequestBody AppConfigRequest req) {
         configService.saveFromMap(req.getData());

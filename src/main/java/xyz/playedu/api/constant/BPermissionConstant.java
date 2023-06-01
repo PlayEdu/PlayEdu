@@ -50,6 +50,10 @@ public class BPermissionConstant {
 
     public static final String RESOURCE_DESTROY = "resource-destroy";
 
+    public static final String SYSTEM_CONFIG = "system-config";
+
+    // ##### 友情分割线 ##################################################
+
     public static final String DATA_USER_NAME = "data-user-name";
     public static final String DATA_USER_EMAIL = "data-user-email";
     public static final String DATA_USER_ID_CARD = "data-user-id-card";
