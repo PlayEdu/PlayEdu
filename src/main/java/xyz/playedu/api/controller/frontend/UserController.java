@@ -69,9 +69,7 @@ public class UserController {
         List<Department> departments =
                 departmentService.listByIds(userService.getDepIdsByUserId(user.getId()));
 
-        if (user.getIdCard() != null && user.getIdCard().length() > 0) {
-            user.setIdCard(PrivacyUtil.hideIDCard(user.getIdCard()));
-        }
+        user.setIdCard(PrivacyUtil.hideIDCard(user.getIdCard()));
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("user", user);

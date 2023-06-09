@@ -67,13 +67,15 @@ public class BackendBus {
     }
 
     public static String valueHidden(String permissionSlug, String type, String value) {
-        if (BCtx.isNull()) { // 非后管环境返回原值
+        if (BCtx.isNull() || value == null) { // 非后管环境直接返回 || 值为null不需要处理
             return value;
         }
+
         HashMap<String, Boolean> permissions = BCtx.getAdminPer();
         if (permissions.get(permissionSlug) != null) {
             return value;
         }
+
         if (BackendConstant.PRIVACY_FIELD_TYPE_EMAIL.equals(type)) {
             return PrivacyUtil.hideEmail(value);
         } else if (BackendConstant.PRIVACY_FIELD_TYPE_PHONE.equals(type)) {

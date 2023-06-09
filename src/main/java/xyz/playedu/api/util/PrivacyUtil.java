@@ -15,22 +15,26 @@
  */
 package xyz.playedu.api.util;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/3/3 10:51
- */
 public class PrivacyUtil {
 
     public static String hidePhone(String phone) {
+        if (phone == null) {
+            return null;
+        }
         return phone.replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
     }
 
     public static String hideEmail(String email) {
+        if (email == null) {
+            return null;
+        }
         return email.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
     }
 
     public static String hideIDCard(String idCard) {
+        if (idCard == null) {
+            return null;
+        }
         return idCard.replaceAll("(\\d{4})\\d{10}(\\w{4})", "$1*****$2");
     }
 
