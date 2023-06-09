@@ -89,13 +89,15 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         if (categoryIds != null && categoryIds.trim().length() > 0) {
             String[] idArray = categoryIds.split(",");
             List<ResourceCategoryRelation> relations = new ArrayList<>();
-            for (int i = 0; i < idArray.length; i++) {
-                String tmpId = idArray[i];
-
+            for (String s : idArray) {
+                int tmpId = Integer.parseInt(s);
+                if (tmpId == 0) {
+                    continue;
+                }
                 relations.add(
                         new ResourceCategoryRelation() {
                             {
-                                setCid(Integer.valueOf(tmpId));
+                                setCid(tmpId);
                                 setRid(resource.getId());
                             }
                         });
