@@ -13,24 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.service;
+package xyz.playedu.api.config;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import lombok.Data;
 
-import xyz.playedu.api.domain.UserLoginRecord;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-public interface UserLoginRecordService extends IService<UserLoginRecord> {
-    UserLoginRecord store(
-            Integer userId,
-            String jti,
-            Long expired,
-            String ip,
-            String ipArea,
-            String browser,
-            String browserVersion,
-            String os);
-
-    void logout(Integer userid, String jti);
-
-    void remove(Integer userId);
+@Configuration
+@Data
+public class AuthConfig {
+    @Value("${sa-token.timeout}")
+    private Integer expired;
 }

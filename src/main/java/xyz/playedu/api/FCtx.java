@@ -19,11 +19,6 @@ import xyz.playedu.api.domain.User;
 
 import java.util.LinkedHashMap;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/3/13 09:24
- */
 public class FCtx {
     private static final java.lang.ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL =
             new java.lang.ThreadLocal<>();

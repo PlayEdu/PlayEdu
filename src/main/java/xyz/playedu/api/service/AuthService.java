@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.types;
+package xyz.playedu.api.service;
 
-import lombok.Data;
+import java.util.HashMap;
 
-@Data
-public class JwtToken {
+public interface AuthService {
+    String loginUsingId(Integer userId, String loginUrl, String prv);
 
-    private String token;
+    boolean check(String prv);
 
-    private Long expire;
+    Integer userId();
+
+    void logout();
+
+    String jti();
+
+    Long expired();
+
+    HashMap<String, String> parse(String token);
 }

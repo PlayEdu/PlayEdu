@@ -27,15 +27,12 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.bus.AppBus;
 import xyz.playedu.api.bus.BackendBus;
-import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.service.AppConfigService;
-import xyz.playedu.api.service.JWTService;
-import xyz.playedu.api.types.JWTPayload;
+import xyz.playedu.api.service.BackendAuthService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
-import xyz.playedu.api.util.RequestUtil;
 
 import java.io.IOException;
 import java.util.Map;
@@ -44,7 +41,7 @@ import java.util.Map;
 @Slf4j
 public class AdminMiddleware implements HandlerInterceptor {
 
-    @Autowired private JWTService jwtService;
+    @Autowired private BackendAuthService authService;
 
     @Autowired private AdminUserService adminUserService;
 
@@ -70,33 +67,23 @@ public class AdminMiddleware implements HandlerInterceptor {
             return HandlerInterceptor.super.preHandle(request, response, handler);
         }
 
-        String token = RequestUtil.token();
-        if (token.length() == 0) {
+        if (!authService.check()) {
             return responseTransform(response, 401, "请登录");
         }
 
-        try {
-            JWTPayload payload = jwtService.parse(token, SystemConstant.JWT_PRV_ADMIN_USER);
-
-            AdminUser adminUser = adminUserService.findById(payload.getSub());
-            if (adminUser == null) {
-                return responseTransform(response, 401, "管理员不存在");
-            }
-            if (adminUser.getIsBanLogin() == 1) {
-                return responseTransform(response, 403, "当前管理员禁止登录");
-            }
-
-            BCtx.setId(payload.getSub());
-            BCtx.setAdminUser(adminUser);
-            BCtx.setAdminPer(backendBus.adminUserPermissions(adminUser.getId()));
-
-            return HandlerInterceptor.super.preHandle(request, response, handler);
-        } catch (Exception e) {
-            if (appBus.isDev()) {
-                log.debug("jwt解析失败:" + e.getMessage());
-            }
-            return responseTransform(response, 401, "请重新登录");
+        AdminUser adminUser = adminUserService.findById(authService.userId());
+        if (adminUser == null) {
+            return responseTransform(response, 401, "管理员不存在");
         }
+        if (adminUser.getIsBanLogin() == 1) {
+            return responseTransform(response, 403, "当前管理员禁止登录");
+        }
+
+        BCtx.setId(authService.userId());
+        BCtx.setAdminUser(adminUser);
+        BCtx.setAdminPer(backendBus.adminUserPermissions(adminUser.getId()));
+
+        return HandlerInterceptor.super.preHandle(request, response, handler);
     }
 
     private boolean responseTransform(HttpServletResponse response, int code, String msg)

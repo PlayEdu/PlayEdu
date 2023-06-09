@@ -15,20 +15,18 @@
  */
 package xyz.playedu.api.service;
 
-import xyz.playedu.api.exception.JwtLogoutException;
-import xyz.playedu.api.types.JWTPayload;
-import xyz.playedu.api.types.JwtToken;
+import java.util.HashMap;
 
-public interface JWTService {
-    JwtToken generate(Integer userId, String iss, String prv);
+public interface BackendAuthService {
+    String loginUsingId(Integer userId, String loginUrl);
 
-    boolean isInBlack(String jti);
+    boolean check();
 
-    void logout(String token, String prv) throws JwtLogoutException;
+    Integer userId();
 
-    void userLogout(String token) throws JwtLogoutException;
+    void logout();
 
-    void adminUserLogout(String token) throws JwtLogoutException;
+    String jti();
 
-    JWTPayload parse(String token, String prv) throws JwtLogoutException;
+    HashMap<String, String> parse(String token);
 }

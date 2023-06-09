@@ -15,22 +15,18 @@
  */
 package xyz.playedu.api.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import java.util.HashMap;
 
-import xyz.playedu.api.domain.UserLoginRecord;
+public interface FrontendAuthService {
+    String loginUsingId(Integer userId, String loginUrl);
 
-public interface UserLoginRecordService extends IService<UserLoginRecord> {
-    UserLoginRecord store(
-            Integer userId,
-            String jti,
-            Long expired,
-            String ip,
-            String ipArea,
-            String browser,
-            String browserVersion,
-            String os);
+    boolean check();
 
-    void logout(Integer userid, String jti);
+    Integer userId();
 
-    void remove(Integer userId);
+    void logout();
+
+    String jti();
+
+    HashMap<String, String> parse(String token);
 }

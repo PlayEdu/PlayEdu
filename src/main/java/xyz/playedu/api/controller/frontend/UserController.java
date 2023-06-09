@@ -66,8 +66,11 @@ public class UserController {
     @GetMapping("/detail")
     public JsonResponse detail() {
         User user = FCtx.getUser();
-        List<Department> departments =
-                departmentService.listByIds(userService.getDepIdsByUserId(user.getId()));
+        List<Department> departments = new ArrayList<>();
+        List<Integer> depIds = userService.getDepIdsByUserId(user.getId());
+        if (depIds != null && depIds.size() > 0) {
+            departmentService.listByIds(depIds);
+        }
 
         user.setIdCard(PrivacyUtil.hideIDCard(user.getIdCard()));
 

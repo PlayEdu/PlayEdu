@@ -22,36 +22,34 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.event.UserLoginEvent;
-import xyz.playedu.api.exception.JwtLogoutException;
-import xyz.playedu.api.service.JWTService;
+import xyz.playedu.api.service.FrontendAuthService;
 import xyz.playedu.api.service.UserLoginRecordService;
-import xyz.playedu.api.types.JWTPayload;
 import xyz.playedu.api.util.IpUtil;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/3/10 13:45
- */
+import java.util.HashMap;
+
 @Component
 @Slf4j
 public class UserLoginListener {
 
     @Autowired private UserLoginRecordService loginRecordService;
 
-    @Autowired private JWTService jwtService;
+    @Autowired private FrontendAuthService authService;
 
     @Async
     @EventListener
-    public void updateLoginInfo(UserLoginEvent event) throws JwtLogoutException {
+    public void updateLoginInfo(UserLoginEvent event) {
         String ipArea = IpUtil.getRealAddressByIP(event.getIp());
-        JWTPayload payload = jwtService.parse(event.getToken(), SystemConstant.JWT_PRV_USER);
+
+        HashMap<String, String> tokenData = authService.parse(event.getToken());
+        String jti = tokenData.get("jti");
+        Long exp = Long.parseLong(tokenData.get("exp"));
+
         loginRecordService.store(
                 event.getUserId(),
-                payload.getJti(),
-                payload.getExp(),
+                jti,
+                exp,
                 event.getIp(),
                 ipArea,
                 event.getUserAgent().getBrowser().toString(),

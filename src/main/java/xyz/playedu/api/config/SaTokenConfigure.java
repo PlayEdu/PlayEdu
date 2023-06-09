@@ -13,34 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.types;
+package xyz.playedu.api.config;
 
-import lombok.Data;
+import cn.dev33.satoken.jwt.StpLogicJwtForSimple;
+import cn.dev33.satoken.stp.StpLogic;
 
-/**
- * @see https://www.rfc-editor.org/rfc/rfc7519#section-4.1
- */
-@Data
-public class JWTPayload {
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-    /** subject */
-    private Integer sub;
-
-    /** Issued At */
-    private Long iat;
-
-    /** Expiration Time */
-    private Long exp;
-
-    /** Not Before */
-    private Long nbf;
-
-    /** JWT ID */
-    private String jti;
-
-    /** Issuer */
-    private String iss;
-
-    /** Payload */
-    private String prv;
+@Configuration
+public class SaTokenConfigure {
+    // Sa-Token 整合 jwt (Simple 简单模式)
+    @Bean
+    public StpLogic getStpLogicJwt() {
+        return new StpLogicJwtForSimple();
+    }
 }
