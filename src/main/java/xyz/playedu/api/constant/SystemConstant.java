@@ -30,4 +30,6 @@ public class SystemConstant {
     public static final String INTERNAL_IP = "127.0.0.1";
 
     public static final String INTERNAL_IP_AREA = "内网";
+
+    public static final String CONFIG_MASK = "********";
 }

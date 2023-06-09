@@ -27,11 +27,6 @@ import xyz.playedu.api.service.AppConfigService;
 
 import java.util.*;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/3/9 13:29
- */
 @Component
 public class AppConfigCheck implements ApplicationRunner {
 
@@ -196,6 +191,7 @@ public class AppConfigCheck implements ApplicationRunner {
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
                                         setKeyName(CConfig.MINIO_SECRET_KEY);
                                         setKeyValue("");
+                                        setIsPrivate(1);
                                     }
                                 },
                                 new AppConfig() {
