@@ -60,6 +60,10 @@ public class SystemController {
         String apiUrl = configData.get(CConfig.SYSTEM_API_URL);
         if (apiUrl == null || apiUrl.trim().length() == 0) {
             apiUrl = RequestUtil.uriWithProtocol();
+        } else {
+            if (apiUrl.endsWith("/")) {
+                apiUrl = apiUrl.substring(0, apiUrl.length() - 1);
+            }
         }
 
         HashMap<String, Object> data = new HashMap<>();
