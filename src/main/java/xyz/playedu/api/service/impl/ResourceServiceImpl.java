@@ -155,4 +155,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         }
         return resourceVideo.getDuration();
     }
+
+    @Override
+    public void categoryChange(List<Integer> ids, Integer categoryId) {
+        relationService.rebuild(ids, categoryId);
+    }
 }

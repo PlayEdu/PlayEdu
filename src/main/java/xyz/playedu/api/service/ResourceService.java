@@ -24,11 +24,6 @@ import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
 import java.util.List;
 
-/**
- * @author tengteng
- * @description 针对表【resources】的数据库操作Service
- * @createDate 2023-02-23 10:50:26
- */
 public interface ResourceService extends IService<Resource> {
 
     PaginationResult<Resource> paginate(int page, int size, ResourcePaginateFilter filter);
@@ -58,4 +53,6 @@ public interface ResourceService extends IService<Resource> {
     Integer total(String type);
 
     Integer duration(Integer id);
+
+    void categoryChange(List<Integer> ids, Integer categoryId);
 }

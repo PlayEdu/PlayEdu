@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.service.internal;
+package xyz.playedu.api.request.backend;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import xyz.playedu.api.domain.ResourceCategoryRelation;
+import jakarta.validation.constraints.NotNull;
+
+import lombok.Data;
 
 import java.util.List;
 
-public interface ResourceCategoryRelationService extends IService<ResourceCategoryRelation> {
-    public void rebuild(List<Integer> ids, Integer categoryId);
+@Data
+public class ResourceCategoryChangeRequest {
+    @NotNull(message = "参数为空")
+    private List<Integer> ids;
+
+    @NotNull(message = "请选择分类")
+    @JsonProperty("category_id")
+    private Integer categoryId;
 }
