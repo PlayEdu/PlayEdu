@@ -191,7 +191,7 @@
                         </googleJavaFormat>
 
                         <licenseHeader>
-                            <file>${project.basedir}/license-header</file>
+                            <file>${project.basedir}/license-header.txt</file>
                         </licenseHeader>
                     </java>
                 </configuration>
