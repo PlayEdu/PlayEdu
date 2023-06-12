@@ -69,7 +69,7 @@ public class UserController {
         List<Department> departments = new ArrayList<>();
         List<Integer> depIds = userService.getDepIdsByUserId(user.getId());
         if (depIds != null && depIds.size() > 0) {
-            departmentService.listByIds(depIds);
+            departments = departmentService.listByIds(depIds);
         }
 
         user.setIdCard(PrivacyUtil.hideIDCard(user.getIdCard()));
