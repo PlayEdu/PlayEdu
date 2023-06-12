@@ -10,7 +10,7 @@
     </parent>
     <groupId>xyz.playedu</groupId>
     <artifactId>playedu-api</artifactId>
-    <version>1.0-beta.5</version>
+    <version>1.0-beta.7</version>
     <name>playedu-api</name>
     <description>playedu-api</description>
     <properties>
