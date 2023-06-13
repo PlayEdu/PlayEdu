@@ -18,6 +18,7 @@ package xyz.playedu.api.checks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.constant.BackendConstant;
@@ -26,11 +27,7 @@ import xyz.playedu.api.service.AdminRoleService;
 
 import java.util.Date;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/23 22:09
- */
+@Order(1010)
 @Component
 public class AdminRoleCheck implements ApplicationRunner {
 

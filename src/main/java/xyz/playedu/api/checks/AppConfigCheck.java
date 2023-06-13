@@ -18,6 +18,7 @@ package xyz.playedu.api.checks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.constant.BackendConstant;
@@ -28,6 +29,7 @@ import xyz.playedu.api.service.AppConfigService;
 import java.util.*;
 
 @Component
+@Order(1000)
 public class AppConfigCheck implements ApplicationRunner {
 
     private static final HashMap<String, AppConfig[]> configs =

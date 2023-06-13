@@ -18,6 +18,7 @@ package xyz.playedu.api.checks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.constant.BPermissionConstant;
@@ -26,6 +27,7 @@ import xyz.playedu.api.service.AdminPermissionService;
 
 import java.util.*;
 
+@Order(1020)
 @Component
 public class AdminPermissionCheck implements ApplicationRunner {
 
