@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 杭州白书科技有限公司
+ * Copyright (C) 2023 杭州白书科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,18 +23,15 @@ import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.BPermissionConstant;
-import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.event.AdminUserLoginEvent;
-import xyz.playedu.api.exception.JwtLogoutException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.middleware.ImageCaptchaCheckMiddleware;
 import xyz.playedu.api.request.backend.LoginRequest;
 import xyz.playedu.api.request.backend.PasswordChangeRequest;
 import xyz.playedu.api.service.AdminUserService;
-import xyz.playedu.api.service.JWTService;
+import xyz.playedu.api.service.BackendAuthService;
 import xyz.playedu.api.types.JsonResponse;
-import xyz.playedu.api.types.JwtToken;
 import xyz.playedu.api.util.HelperUtil;
 import xyz.playedu.api.util.IpUtil;
 import xyz.playedu.api.util.RequestUtil;
@@ -49,7 +46,7 @@ public class LoginController {
 
     @Autowired private BackendBus backendBus;
 
-    @Autowired private JWTService jwtService;
+    @Autowired private BackendAuthService authService;
 
     @Autowired private ApplicationContext ctx;
 
@@ -69,19 +66,16 @@ public class LoginController {
             return JsonResponse.error("当前用户已禁止登录");
         }
 
-        String url = RequestUtil.url();
-        JwtToken token =
-                jwtService.generate(adminUser.getId(), url, SystemConstant.JWT_PRV_ADMIN_USER);
+        String token = authService.loginUsingId(adminUser.getId(), RequestUtil.url());
 
         HashMap<String, Object> data = new HashMap<>();
-        data.put("token", token.getToken());
-        data.put("expire", token.getExpire());
+        data.put("token", token);
 
         ctx.publishEvent(
                 new AdminUserLoginEvent(
                         this,
                         adminUser.getId(),
-                        token.getToken(),
+                        token,
                         IpUtil.getIpAddress(),
                         adminUser.getLoginTimes()));
 
@@ -89,8 +83,8 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
-    public JsonResponse logout() throws JwtLogoutException {
-        jwtService.adminUserLogout(RequestUtil.token());
+    public JsonResponse logout() {
+        authService.logout();
         return JsonResponse.success("success");
     }
 

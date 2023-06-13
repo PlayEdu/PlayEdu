@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 杭州白书科技有限公司
+ * Copyright (C) 2023 杭州白书科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package xyz.playedu.api.checks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.constant.BPermissionConstant;
@@ -26,11 +27,7 @@ import xyz.playedu.api.service.AdminPermissionService;
 
 import java.util.*;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/20 14:31
- */
+@Order(1020)
 @Component
 public class AdminPermissionCheck implements ApplicationRunner {
 
@@ -106,20 +103,6 @@ public class AdminPermissionCheck implements ApplicationRunner {
                                                         setSlug(
                                                                 BPermissionConstant
                                                                         .RESOURCE_CATEGORY);
-                                                    }
-                                                },
-                                            });
-                                    // 资源
-                                    put(
-                                            "资源",
-                                            new AdminPermission[] {
-                                                new AdminPermission() {
-                                                    {
-                                                        setSort(0);
-                                                        setName("删除");
-                                                        setSlug(
-                                                                BPermissionConstant
-                                                                        .RESOURCE_DESTROY);
                                                     }
                                                 },
                                             });
@@ -211,6 +194,18 @@ public class AdminPermissionCheck implements ApplicationRunner {
                                                         setSlug(
                                                                 BPermissionConstant
                                                                         .PASSWORD_CHANGE);
+                                                    }
+                                                },
+                                            });
+                                    // 系统配置
+                                    put(
+                                            "系统配置",
+                                            new AdminPermission[] {
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(0);
+                                                        setName("系统配置");
+                                                        setSlug(BPermissionConstant.SYSTEM_CONFIG);
                                                     }
                                                 },
                                             });

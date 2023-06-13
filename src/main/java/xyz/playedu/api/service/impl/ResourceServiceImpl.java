@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 杭州白书科技有限公司
+ * Copyright (C) 2023 杭州白书科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -89,13 +89,15 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         if (categoryIds != null && categoryIds.trim().length() > 0) {
             String[] idArray = categoryIds.split(",");
             List<ResourceCategoryRelation> relations = new ArrayList<>();
-            for (int i = 0; i < idArray.length; i++) {
-                String tmpId = idArray[i];
-
+            for (String s : idArray) {
+                int tmpId = Integer.parseInt(s);
+                if (tmpId == 0) {
+                    continue;
+                }
                 relations.add(
                         new ResourceCategoryRelation() {
                             {
-                                setCid(Integer.valueOf(tmpId));
+                                setCid(tmpId);
                                 setRid(resource.getId());
                             }
                         });
@@ -152,5 +154,31 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             return null;
         }
         return resourceVideo.getDuration();
+    }
+
+    @Override
+    @Transactional
+    public void updateNameAndCategoryId(Integer id, String name, Integer categoryId) {
+        Resource resource = new Resource();
+        resource.setId(id);
+        resource.setName(name);
+        updateById(resource);
+
+        relationService.rebuild(
+                id,
+                new ArrayList<>() {
+                    {
+                        add(categoryId);
+                    }
+                });
+    }
+
+    @Override
+    public List<Integer> categoryIds(Integer resourceId) {
+        return relationService
+                .list(relationService.query().getWrapper().eq("rid", resourceId))
+                .stream()
+                .map(ResourceCategoryRelation::getCid)
+                .toList();
     }
 }

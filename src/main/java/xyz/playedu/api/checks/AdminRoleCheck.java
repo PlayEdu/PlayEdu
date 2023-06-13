@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 杭州白书科技有限公司
+ * Copyright (C) 2023 杭州白书科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package xyz.playedu.api.checks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.constant.BackendConstant;
@@ -26,11 +27,7 @@ import xyz.playedu.api.service.AdminRoleService;
 
 import java.util.Date;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/23 22:09
- */
+@Order(1010)
 @Component
 public class AdminRoleCheck implements ApplicationRunner {
 

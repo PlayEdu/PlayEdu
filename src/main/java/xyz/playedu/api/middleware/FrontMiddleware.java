@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 杭州白书科技有限公司
+ * Copyright (C) 2023 杭州白书科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,27 +26,19 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import xyz.playedu.api.FCtx;
 import xyz.playedu.api.constant.FrontendConstant;
-import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
-import xyz.playedu.api.service.JWTService;
+import xyz.playedu.api.service.FrontendAuthService;
 import xyz.playedu.api.service.UserService;
-import xyz.playedu.api.types.JWTPayload;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
-import xyz.playedu.api.util.RequestUtil;
 
 import java.io.IOException;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/3/13 09:40
- */
 @Component
 @Slf4j
 public class FrontMiddleware implements HandlerInterceptor {
 
-    @Autowired private JWTService jwtService;
+    @Autowired private FrontendAuthService authService;
 
     @Autowired private UserService userService;
 
@@ -62,31 +54,23 @@ public class FrontMiddleware implements HandlerInterceptor {
             return HandlerInterceptor.super.preHandle(request, response, handler);
         }
 
-        String token = RequestUtil.token();
-        if (token.length() == 0) {
+        if (!authService.check()) {
             return responseTransform(response, 401, "请登录");
         }
 
-        try {
-            JWTPayload payload = jwtService.parse(token, SystemConstant.JWT_PRV_USER);
-
-            User user = userService.find(payload.getSub());
-            if (user == null) {
-                return responseTransform(response, 401, "请重新登录");
-            }
-            if (user.getIsLock() == 1) {
-                return responseTransform(response, 403, "当前学员已锁定无法登录");
-            }
-
-            FCtx.setUser(user);
-            FCtx.setId(user.getId());
-            FCtx.setJWtJti(payload.getJti());
-
-            return HandlerInterceptor.super.preHandle(request, response, handler);
-        } catch (Exception e) {
-            log.error(e.getMessage());
+        User user = userService.find(authService.userId());
+        if (user == null) {
             return responseTransform(response, 401, "请重新登录");
         }
+        if (user.getIsLock() == 1) {
+            return responseTransform(response, 403, "当前学员已锁定无法登录");
+        }
+
+        FCtx.setUser(user);
+        FCtx.setId(user.getId());
+        FCtx.setJWtJti(authService.jti());
+
+        return HandlerInterceptor.super.preHandle(request, response, handler);
     }
 
     private boolean responseTransform(HttpServletResponse response, int code, String msg)

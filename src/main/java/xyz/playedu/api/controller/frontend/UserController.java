@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 杭州白书科技有限公司
+ * Copyright (C) 2023 杭州白书科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,12 +66,13 @@ public class UserController {
     @GetMapping("/detail")
     public JsonResponse detail() {
         User user = FCtx.getUser();
-        List<Department> departments =
-                departmentService.listByIds(userService.getDepIdsByUserId(user.getId()));
-
-        if (user.getIdCard() != null && user.getIdCard().length() > 0) {
-            user.setIdCard(PrivacyUtil.hideIDCard(user.getIdCard()));
+        List<Department> departments = new ArrayList<>();
+        List<Integer> depIds = userService.getDepIdsByUserId(user.getId());
+        if (depIds != null && depIds.size() > 0) {
+            departments = departmentService.listByIds(depIds);
         }
+
+        user.setIdCard(PrivacyUtil.hideIDCard(user.getIdCard()));
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("user", user);

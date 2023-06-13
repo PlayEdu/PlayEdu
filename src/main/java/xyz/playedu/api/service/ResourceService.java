@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 杭州白书科技有限公司
+ * Copyright (C) 2023 杭州白书科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,11 +24,6 @@ import xyz.playedu.api.types.paginate.ResourcePaginateFilter;
 
 import java.util.List;
 
-/**
- * @author tengteng
- * @description 针对表【resources】的数据库操作Service
- * @createDate 2023-02-23 10:50:26
- */
 public interface ResourceService extends IService<Resource> {
 
     PaginationResult<Resource> paginate(int page, int size, ResourcePaginateFilter filter);
@@ -58,4 +53,8 @@ public interface ResourceService extends IService<Resource> {
     Integer total(String type);
 
     Integer duration(Integer id);
+
+    void updateNameAndCategoryId(Integer id, String name, Integer categoryId);
+
+    List<Integer> categoryIds(Integer resourceId);
 }

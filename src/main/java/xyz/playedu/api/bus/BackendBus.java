@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 杭州白书科技有限公司
+ * Copyright (C) 2023 杭州白书科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,13 +67,15 @@ public class BackendBus {
     }
 
     public static String valueHidden(String permissionSlug, String type, String value) {
-        if (BCtx.isNull()) { // 非后管环境返回原值
+        if (BCtx.isNull() || value == null) { // 非后管环境直接返回 || 值为null不需要处理
             return value;
         }
+
         HashMap<String, Boolean> permissions = BCtx.getAdminPer();
         if (permissions.get(permissionSlug) != null) {
             return value;
         }
+
         if (BackendConstant.PRIVACY_FIELD_TYPE_EMAIL.equals(type)) {
             return PrivacyUtil.hideEmail(value);
         } else if (BackendConstant.PRIVACY_FIELD_TYPE_PHONE.equals(type)) {

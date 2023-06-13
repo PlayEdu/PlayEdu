@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17 as builder
+FROM eclipse-temurin:17-alpine as builder
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY . /app
 
 RUN /app/docker-build.sh
 
-FROM eclipse-temurin:17
+FROM eclipse-temurin:17-alpine
 
 WORKDIR /app
 

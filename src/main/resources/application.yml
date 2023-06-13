@@ -56,15 +56,18 @@ mybatis-plus:
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+sa-token:
+  token-name: "Authorization"
+  timeout: 1296000 #token有效期[单位:秒,默认15天]
+  is-concurrent: false #限制同时登录
+  is-share: false
+  jwt-secret-key: "playeduxyz"
+  token-prefix: "Bearer"
+
 # PlayEdu
 playedu:
   # 图形验证码
   captcha:
     expire: 300 #有效期[单位:秒,默认5分钟]
     cache-prefix: "captcha:key:" #存储key的前缀
-  # JWT
-  jwt:
-    key: "eJTJSLPv13fw9twbuPoeicypLqnSfYWL" #32个字符,加密key用来加密jwt的数据[运行本系统之前请务必修改]
-    expire: 1296000 #token有效期[单位:秒,默认15天]
-    cache-black-prefix: "jwt:blk:" #主动注销的token黑名单缓存前缀
 
