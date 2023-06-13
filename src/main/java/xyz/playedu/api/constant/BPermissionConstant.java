@@ -35,8 +35,6 @@ public class BPermissionConstant {
     public static final String DEPARTMENT_CUD = "department-cud";
     public static final String DEPARTMENT_USER_LEARN = "department-user-learn";
 
-    public static final String RESOURCE_CATEGORY = "resource-category";
-
     public static final String USER_INDEX = "user-index";
     public static final String USER_STORE = "user-store";
     public static final String USER_UPDATE = "user-update";
@@ -48,7 +46,9 @@ public class BPermissionConstant {
     public static final String COURSE_USER = "course-user";
     public static final String COURSE_USER_DESTROY = "course-user-destroy";
 
+    public static final String RESOURCE_CATEGORY = "resource-category";
     public static final String RESOURCE_DESTROY = "resource-destroy";
+    public static final String RESOURCE_UPDATE = "resource-update";
 
     public static final String SYSTEM_CONFIG = "system-config";
 

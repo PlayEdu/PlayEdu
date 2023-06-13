@@ -31,18 +31,21 @@ public class ResourceCategoryRelationServiceImpl
         extends ServiceImpl<ResourceCategoryRelationMapper, ResourceCategoryRelation>
         implements ResourceCategoryRelationService {
     @Override
-    public void rebuild(List<Integer> ids, Integer categoryId) {
-        remove(query().getWrapper().in("rid", ids));
+    public void rebuild(Integer resourceId, List<Integer> categoryIds) {
+        remove(query().getWrapper().eq("rid", resourceId));
+
         List<ResourceCategoryRelation> data = new ArrayList<>();
-        ids.forEach(
-                (item) ->
-                        data.add(
-                                new ResourceCategoryRelation() {
-                                    {
-                                        setCid(categoryId);
-                                        setRid(item);
-                                    }
-                                }));
+        categoryIds.forEach(
+                categoryId -> {
+                    data.add(
+                            new ResourceCategoryRelation() {
+                                {
+                                    setCid(categoryId);
+                                    setRid(resourceId);
+                                }
+                            });
+                });
+
         saveBatch(data);
     }
 }

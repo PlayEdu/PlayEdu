@@ -157,7 +157,19 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     }
 
     @Override
-    public void categoryChange(List<Integer> ids, Integer categoryId) {
-        relationService.rebuild(ids, categoryId);
+    @Transactional
+    public void updateNameAndCategoryId(Integer id, String name, Integer categoryId) {
+        Resource resource = new Resource();
+        resource.setId(id);
+        resource.setName(name);
+        updateById(resource);
+
+        relationService.rebuild(
+                id,
+                new ArrayList<>() {
+                    {
+                        add(categoryId);
+                    }
+                });
     }
 }

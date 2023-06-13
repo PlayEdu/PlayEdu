@@ -25,7 +25,6 @@ import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.event.AdminUserLoginEvent;
-import xyz.playedu.api.exception.JwtLogoutException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.middleware.ImageCaptchaCheckMiddleware;
 import xyz.playedu.api.request.backend.LoginRequest;
@@ -84,7 +83,7 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
-    public JsonResponse logout() throws JwtLogoutException {
+    public JsonResponse logout() {
         authService.logout();
         return JsonResponse.success("success");
     }

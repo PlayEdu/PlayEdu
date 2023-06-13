@@ -26,11 +26,6 @@ import xyz.playedu.api.service.AdminPermissionService;
 
 import java.util.*;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/20 14:31
- */
 @Component
 public class AdminPermissionCheck implements ApplicationRunner {
 
@@ -120,6 +115,15 @@ public class AdminPermissionCheck implements ApplicationRunner {
                                                         setSlug(
                                                                 BPermissionConstant
                                                                         .RESOURCE_DESTROY);
+                                                    }
+                                                },
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(10);
+                                                        setName("编辑");
+                                                        setSlug(
+                                                                BPermissionConstant
+                                                                        .RESOURCE_UPDATE);
                                                     }
                                                 },
                                             });

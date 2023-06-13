@@ -15,9 +15,12 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import lombok.SneakyThrows;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
@@ -29,8 +32,8 @@ import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceVideo;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
-import xyz.playedu.api.request.backend.ResourceCategoryChangeRequest;
 import xyz.playedu.api.request.backend.ResourceDestroyMultiRequest;
+import xyz.playedu.api.request.backend.ResourceUpdateRequest;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.service.MinioService;
 import xyz.playedu.api.service.ResourceService;
@@ -147,30 +150,14 @@ public class ResourceController {
         return JsonResponse.success();
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_DESTROY)
-    @PutMapping("/category")
-    public JsonResponse categoryChange(@RequestBody ResourceCategoryChangeRequest req) {
-        if (req.getIds().size() == 0) {
-            return JsonResponse.error("请选择需要删除的资源");
-        }
-        if (req.getCategoryId() <= 0) {
-            return JsonResponse.error("请选择分类");
-        }
-
-        List<Integer> ids = req.getIds();
-        if (!backendBus.isSuperAdmin()) { // 非超管校验owner
-            ids =
-                    resourceService.chunks(req.getIds()).stream()
-                            .filter(r -> r.getAdminId().equals(BCtx.getId()))
-                            .map(Resource::getId)
-                            .toList();
-            if (ids.size() == 0) {
-                return JsonResponse.error("无权限操作");
-            }
-        }
-
-        resourceService.categoryChange(ids, req.getCategoryId());
-
+    @PutMapping("/{id}")
+    @SneakyThrows
+    public JsonResponse update(
+            @RequestBody @Validated ResourceUpdateRequest req,
+            @PathVariable(name = "id") Integer id) {
+        Resource resource = resourceService.findOrFail(id);
+        resourceService.updateNameAndCategoryId(
+                resource.getId(), req.getName(), req.getCategoryId());
         return JsonResponse.success();
     }
 }
