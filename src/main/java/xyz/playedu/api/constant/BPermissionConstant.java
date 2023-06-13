@@ -15,11 +15,6 @@
  */
 package xyz.playedu.api.constant;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/21 14:57
- */
 public class BPermissionConstant {
 
     public static final String TYPE_ACTION = "action";
@@ -47,8 +42,6 @@ public class BPermissionConstant {
     public static final String COURSE_USER_DESTROY = "course-user-destroy";
 
     public static final String RESOURCE_CATEGORY = "resource-category";
-    public static final String RESOURCE_DESTROY = "resource-destroy";
-    public static final String RESOURCE_UPDATE = "resource-update";
 
     public static final String SYSTEM_CONFIG = "system-config";
 

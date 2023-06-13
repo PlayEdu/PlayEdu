@@ -25,13 +25,12 @@ import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.bus.BackendBus;
-import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceVideo;
 import xyz.playedu.api.exception.NotFoundException;
-import xyz.playedu.api.middleware.BackendPermissionMiddleware;
+import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.request.backend.ResourceDestroyMultiRequest;
 import xyz.playedu.api.request.backend.ResourceUpdateRequest;
 import xyz.playedu.api.service.AdminUserService;
@@ -113,11 +112,18 @@ public class ResourceController {
         return JsonResponse.data(data);
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_DESTROY)
     @DeleteMapping("/{id}")
     @Transactional
+    @SneakyThrows
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
         Resource resource = resourceService.findOrFail(id);
+
+        if (!backendBus.isSuperAdmin()) {
+            if (!resource.getAdminId().equals(BCtx.getId())) {
+                throw new ServiceException("无权限");
+            }
+        }
+
         // 删除文件
         minioService.removeByPath(resource.getPath());
         // 如果是视频资源文件则删除对应的时长关联记录
@@ -129,25 +135,53 @@ public class ResourceController {
         return JsonResponse.success();
     }
 
-    @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_DESTROY)
     @PostMapping("/destroy-multi")
-    @Transactional
+    @SneakyThrows
     public JsonResponse multiDestroy(@RequestBody ResourceDestroyMultiRequest req) {
         if (req.getIds() == null || req.getIds().size() == 0) {
             return JsonResponse.error("请选择需要删除的资源");
         }
+
         List<Resource> resources = resourceService.chunks(req.getIds());
         if (resources == null || resources.size() == 0) {
             return JsonResponse.success();
         }
+
         for (Resource resourceItem : resources) {
+            // 权限校验
+            if (!backendBus.isSuperAdmin()) {
+                if (!resourceItem.getAdminId().equals(BCtx.getId())) {
+                    throw new ServiceException("无权限");
+                }
+            }
+
+            // 删除资源源文件
             minioService.removeByPath(resourceItem.getPath());
+            // 如果是视频资源的话还需要删除视频的关联资源，如: 封面截图
             if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(resourceItem.getType())) {
                 resourceVideoService.removeByRid(resourceItem.getId());
             }
+            // 删除数据库的记录
             resourceService.removeById(resourceItem.getId());
         }
         return JsonResponse.success();
+    }
+
+    @GetMapping("/{id}")
+    @SneakyThrows
+    public JsonResponse edit(@PathVariable(name = "id") Integer id) {
+        Resource resource = resourceService.findOrFail(id);
+
+        if (!backendBus.isSuperAdmin()) {
+            if (!resource.getAdminId().equals(BCtx.getId())) {
+                throw new ServiceException("无权限");
+            }
+        }
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("resources", resource);
+        data.put("category_ids", resourceService.categoryIds(id));
+        return JsonResponse.data(data);
     }
 
     @PutMapping("/{id}")
@@ -156,6 +190,13 @@ public class ResourceController {
             @RequestBody @Validated ResourceUpdateRequest req,
             @PathVariable(name = "id") Integer id) {
         Resource resource = resourceService.findOrFail(id);
+
+        if (!backendBus.isSuperAdmin()) {
+            if (!resource.getAdminId().equals(BCtx.getId())) {
+                throw new ServiceException("无权限");
+            }
+        }
+
         resourceService.updateNameAndCategoryId(
                 resource.getId(), req.getName(), req.getCategoryId());
         return JsonResponse.success();

@@ -104,29 +104,6 @@ public class AdminPermissionCheck implements ApplicationRunner {
                                                     }
                                                 },
                                             });
-                                    // 资源
-                                    put(
-                                            "资源",
-                                            new AdminPermission[] {
-                                                new AdminPermission() {
-                                                    {
-                                                        setSort(0);
-                                                        setName("删除");
-                                                        setSlug(
-                                                                BPermissionConstant
-                                                                        .RESOURCE_DESTROY);
-                                                    }
-                                                },
-                                                new AdminPermission() {
-                                                    {
-                                                        setSort(10);
-                                                        setName("编辑");
-                                                        setSlug(
-                                                                BPermissionConstant
-                                                                        .RESOURCE_UPDATE);
-                                                    }
-                                                },
-                                            });
                                     // 学员
                                     put(
                                             "学员",

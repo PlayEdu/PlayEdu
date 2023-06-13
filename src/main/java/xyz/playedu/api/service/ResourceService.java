@@ -55,4 +55,6 @@ public interface ResourceService extends IService<Resource> {
     Integer duration(Integer id);
 
     void updateNameAndCategoryId(Integer id, String name, Integer categoryId);
+
+    List<Integer> categoryIds(Integer resourceId);
 }

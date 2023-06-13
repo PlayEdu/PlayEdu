@@ -172,4 +172,13 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                     }
                 });
     }
+
+    @Override
+    public List<Integer> categoryIds(Integer resourceId) {
+        return relationService
+                .list(relationService.query().getWrapper().eq("rid", resourceId))
+                .stream()
+                .map(ResourceCategoryRelation::getCid)
+                .toList();
+    }
 }
