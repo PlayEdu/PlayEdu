@@ -65,7 +65,9 @@ public class LoginController {
         String limitKey = "login-limit:" + req.getEmail();
         Long reqCount = rateLimiterService.current(limitKey, 600L);
         if (reqCount >= 10) {
-            return JsonResponse.error("多次账密错误，账号被锁10分钟");
+            Long exp = RedisUtil.ttl(limitKey);
+            return JsonResponse.error(
+                    String.format("您的账号已被锁定，请%s后重试", exp > 60 ? exp / 60 + "分钟" : exp + "秒"));
         }
 
         if (!HelperUtil.MD5(req.getPassword() + user.getSalt()).equals(user.getPassword())) {
