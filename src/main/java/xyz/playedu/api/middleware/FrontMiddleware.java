@@ -25,12 +25,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import xyz.playedu.api.FCtx;
+import xyz.playedu.api.config.PlayEduConfig;
 import xyz.playedu.api.constant.FrontendConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.service.FrontendAuthService;
+import xyz.playedu.api.service.RateLimiterService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
+import xyz.playedu.api.util.IpUtil;
 
 import java.io.IOException;
 
@@ -42,12 +45,22 @@ public class FrontMiddleware implements HandlerInterceptor {
 
     @Autowired private UserService userService;
 
+    @Autowired private RateLimiterService rateLimiterService;
+
+    @Autowired private PlayEduConfig playEduConfig;
+
     @Override
     public boolean preHandle(
             HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         if ("OPTIONS".equals(request.getMethod())) {
             return HandlerInterceptor.super.preHandle(request, response, handler);
+        }
+
+        String reqCountKey = "api-limiter:" + IpUtil.getIpAddress();
+        Long reqCount = rateLimiterService.current(reqCountKey, playEduConfig.getLimiterDuration());
+        if (reqCount > playEduConfig.getLimiterLimit()) {
+            return responseTransform(response, 429, "太多请求");
         }
 
         if (FrontendConstant.UN_AUTH_URI_WHITELIST.contains(request.getRequestURI())) {

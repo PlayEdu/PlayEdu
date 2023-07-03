@@ -26,4 +26,10 @@ public class PlayEduConfig {
 
     @Value("${spring.profiles.active}")
     private String env;
+
+    @Value("${playedu.limiter.duration}")
+    private Long limiterDuration;
+
+    @Value("${playedu.limiter.limit}")
+    private Long limiterLimit;
 }

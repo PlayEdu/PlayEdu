@@ -32,11 +32,6 @@ import xyz.playedu.api.types.JsonResponse;
 
 import java.util.HashMap;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/21 16:42
- */
 @Aspect
 @Component
 @Slf4j

@@ -38,11 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/21 15:56
- */
 @RestController
 @RequestMapping("/backend/v1/admin-role")
 @Slf4j

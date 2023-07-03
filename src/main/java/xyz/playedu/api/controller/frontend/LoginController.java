@@ -28,13 +28,14 @@ import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.UserLoginEvent;
 import xyz.playedu.api.event.UserLogoutEvent;
 import xyz.playedu.api.exception.LimitException;
-import xyz.playedu.api.middleware.ImageCaptchaCheckMiddleware;
 import xyz.playedu.api.request.frontend.LoginPasswordRequest;
 import xyz.playedu.api.service.FrontendAuthService;
+import xyz.playedu.api.service.RateLimiterService;
 import xyz.playedu.api.service.UserService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
 import xyz.playedu.api.util.IpUtil;
+import xyz.playedu.api.util.RedisUtil;
 import xyz.playedu.api.util.RequestUtil;
 
 import java.util.HashMap;
@@ -49,8 +50,9 @@ public class LoginController {
 
     @Autowired private ApplicationContext ctx;
 
+    @Autowired private RateLimiterService rateLimiterService;
+
     @PostMapping("/password")
-    @ImageCaptchaCheckMiddleware
     public JsonResponse password(@RequestBody @Validated LoginPasswordRequest req)
             throws LimitException {
         String email = req.getEmail();
@@ -59,9 +61,19 @@ public class LoginController {
         if (user == null) {
             return JsonResponse.error("邮箱或密码错误");
         }
+
+        String limitKey = "login-limit:" + req.getEmail();
+        Long reqCount = rateLimiterService.current(limitKey, 600L);
+        if (reqCount >= 10) {
+            return JsonResponse.error("登录失败次数过多，请稍候再试");
+        }
+
         if (!HelperUtil.MD5(req.getPassword() + user.getSalt()).equals(user.getPassword())) {
             return JsonResponse.error("邮箱或密码错误");
         }
+
+        RedisUtil.del(limitKey);
+
         if (user.getIsLock() == 1) {
             return JsonResponse.error("当前学员已锁定无法登录");
         }

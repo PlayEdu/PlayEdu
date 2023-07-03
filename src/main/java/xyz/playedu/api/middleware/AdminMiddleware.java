@@ -25,14 +25,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import xyz.playedu.api.BCtx;
-import xyz.playedu.api.bus.AppBus;
 import xyz.playedu.api.bus.BackendBus;
+import xyz.playedu.api.config.PlayEduConfig;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.service.AppConfigService;
 import xyz.playedu.api.service.BackendAuthService;
+import xyz.playedu.api.service.RateLimiterService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
+import xyz.playedu.api.util.IpUtil;
 
 import java.io.IOException;
 import java.util.Map;
@@ -45,11 +47,13 @@ public class AdminMiddleware implements HandlerInterceptor {
 
     @Autowired private AdminUserService adminUserService;
 
-    @Autowired private AppBus appBus;
-
     @Autowired private BackendBus backendBus;
 
     @Autowired private AppConfigService configService;
+
+    @Autowired private RateLimiterService rateLimiterService;
+
+    @Autowired private PlayEduConfig playEduConfig;
 
     @Override
     public boolean preHandle(
@@ -57,6 +61,12 @@ public class AdminMiddleware implements HandlerInterceptor {
             throws Exception {
         if ("OPTIONS".equals(request.getMethod())) {
             return HandlerInterceptor.super.preHandle(request, response, handler);
+        }
+
+        String reqCountKey = "api-limiter:" + IpUtil.getIpAddress();
+        Long reqCount = rateLimiterService.current(reqCountKey, playEduConfig.getLimiterDuration());
+        if (reqCount > playEduConfig.getLimiterLimit()) {
+            return responseTransform(response, 429, "太多请求");
         }
 
         // 读取全局配置

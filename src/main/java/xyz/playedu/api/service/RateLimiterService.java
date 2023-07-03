@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.middleware;
+package xyz.playedu.api.service;
 
-import java.lang.annotation.*;
+public interface RateLimiterService {
 
-@Documented
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ImageCaptchaCheckMiddleware {}
+    public Long current(String key, Long seconds);
+}

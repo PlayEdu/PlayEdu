@@ -13,25 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.bus;
+package xyz.playedu.api.service.impl;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
-import xyz.playedu.api.config.PlayEduConfig;
-import xyz.playedu.api.constant.SystemConstant;
+import xyz.playedu.api.service.RateLimiterService;
+import xyz.playedu.api.util.RedisUtil;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/19 12:06
- */
+import java.util.Arrays;
+
 @Component
-public class AppBus {
+@Slf4j
+public class RateLimiterServiceImpl implements RateLimiterService {
 
-    @Autowired private PlayEduConfig playEduConfig;
+    @Autowired
+    @Qualifier("rateLimiterScript")
+    private RedisScript<Long> redisScript;
 
-    public boolean isDev() {
-        return !playEduConfig.getEnv().equals(SystemConstant.ENV_PROD);
+    @Override
+    public Long current(String key, Long seconds) {
+        Long current = RedisUtil.handler().execute(redisScript, Arrays.asList(key, seconds + ""));
+        log.info("key={},count={}", key, current);
+        return current;
     }
 }

@@ -17,19 +17,15 @@ package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.CConfig;
-import xyz.playedu.api.service.ImageCaptchaService;
-import xyz.playedu.api.types.ImageCaptchaResult;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.RequestUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,19 +35,6 @@ import java.util.Map;
 @RequestMapping("/backend/v1/system")
 @Slf4j
 public class SystemController {
-
-    @Autowired private ImageCaptchaService imageCaptchaService;
-
-    @GetMapping("/image-captcha")
-    public JsonResponse imageCaptcha() throws IOException {
-        ImageCaptchaResult imageCaptchaResult = imageCaptchaService.generate();
-
-        HashMap<String, String> data = new HashMap<>();
-        data.put("key", imageCaptchaResult.getKey());
-        data.put("image", imageCaptchaResult.getImage());
-
-        return JsonResponse.data(data);
-    }
 
     @GetMapping("/config")
     public JsonResponse config() {
