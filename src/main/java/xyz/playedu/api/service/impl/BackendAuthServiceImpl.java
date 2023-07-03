@@ -26,11 +26,12 @@ import java.util.HashMap;
 
 @Service
 public class BackendAuthServiceImpl implements BackendAuthService {
-    @Autowired private AuthService authService;
+    @Autowired
+    private AuthService authService;
 
     @Override
     public String loginUsingId(Integer userId, String loginUrl) {
-        return authService.loginUsingId(userId, loginUrl, SystemConstant.JWT_PRV_ADMIN_USER);
+        return authService.loginUsingId(100000000 + userId, loginUrl, SystemConstant.JWT_PRV_ADMIN_USER);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class BackendAuthServiceImpl implements BackendAuthService {
 
     @Override
     public Integer userId() {
-        return authService.userId();
+        return authService.userId() - 100000000;
     }
 
     @Override
