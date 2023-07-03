@@ -104,6 +104,10 @@ public class RedisUtil {
         return redisTemplate.getExpire(key, TimeUnit.SECONDS);
     }
 
+    public static Long ttlWithoutPrefix(String key) {
+        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+    }
+
     /**
      * 根据key获取过期时间
      *
