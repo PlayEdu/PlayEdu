@@ -63,7 +63,7 @@ public class LoginController {
         String limitKey = "admin-login-limit:" + loginRequest.getEmail();
         Long reqCount = rateLimiterService.current(limitKey, 3600L);
         if (reqCount > 5) {
-            return JsonResponse.error("连续五次错误，请稍后再试");
+            return JsonResponse.error("多次账密错误，账号被锁1个小时");
         }
 
         String password =

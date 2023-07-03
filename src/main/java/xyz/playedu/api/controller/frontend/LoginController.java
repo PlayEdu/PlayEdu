@@ -65,7 +65,7 @@ public class LoginController {
         String limitKey = "login-limit:" + req.getEmail();
         Long reqCount = rateLimiterService.current(limitKey, 600L);
         if (reqCount >= 10) {
-            return JsonResponse.error("登录失败次数过多，请稍候再试");
+            return JsonResponse.error("多次账密错误，账号被锁30分钟");
         }
 
         if (!HelperUtil.MD5(req.getPassword() + user.getSalt()).equals(user.getPassword())) {
