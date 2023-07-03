@@ -67,4 +67,4 @@ sa-token:
 playedu:
   limiter:
     duration: 60
-    limit: 120
+    limit: 240
