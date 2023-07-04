@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>xyz.playedu</groupId>
     <artifactId>playedu-api</artifactId>
-    <version>1.0-beta.7</version>
+    <version>1.1</version>
     <name>playedu-api</name>
     <description>playedu-api</description>
     <properties>
@@ -130,11 +130,6 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.16</version>
-        </dependency>
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-captcha</artifactId>
             <version>5.8.16</version>
         </dependency>
 

@@ -40,11 +40,6 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/24 14:16
- */
 @RestController
 @Slf4j
 @RequestMapping("/backend/v1/course")

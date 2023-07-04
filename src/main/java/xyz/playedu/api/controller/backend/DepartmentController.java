@@ -44,11 +44,6 @@ import xyz.playedu.api.types.paginate.UserPaginateFilter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/19 10:33
- */
 @RestController
 @Slf4j
 @RequestMapping("/backend/v1/department")

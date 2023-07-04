@@ -37,11 +37,6 @@ import xyz.playedu.api.util.PrivacyUtil;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/3/13 09:21
- */
 @RestController
 @RequestMapping("/api/v1/user")
 @Slf4j

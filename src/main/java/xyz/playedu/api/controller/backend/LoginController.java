@@ -26,14 +26,15 @@ import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.event.AdminUserLoginEvent;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
-import xyz.playedu.api.middleware.ImageCaptchaCheckMiddleware;
 import xyz.playedu.api.request.backend.LoginRequest;
 import xyz.playedu.api.request.backend.PasswordChangeRequest;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.service.BackendAuthService;
+import xyz.playedu.api.service.RateLimiterService;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.HelperUtil;
 import xyz.playedu.api.util.IpUtil;
+import xyz.playedu.api.util.RedisUtil;
 import xyz.playedu.api.util.RequestUtil;
 
 import java.util.HashMap;
@@ -50,20 +51,33 @@ public class LoginController {
 
     @Autowired private ApplicationContext ctx;
 
+    @Autowired private RateLimiterService rateLimiterService;
+
     @PostMapping("/login")
-    @ImageCaptchaCheckMiddleware
     public JsonResponse login(@RequestBody @Validated LoginRequest loginRequest) {
         AdminUser adminUser = adminUserService.findByEmail(loginRequest.email);
         if (adminUser == null) {
             return JsonResponse.error("邮箱或密码错误");
         }
+
+        String limitKey = "admin-login-limit:" + loginRequest.getEmail();
+        Long reqCount = rateLimiterService.current(limitKey, 3600L);
+        if (reqCount > 5) {
+            Long exp = RedisUtil.ttlWithoutPrefix(limitKey);
+            return JsonResponse.error(
+                    String.format("您的账号已被锁定，请%s后重试", exp > 60 ? exp / 60 + "分钟" : exp + "秒"));
+        }
+
         String password =
                 HelperUtil.MD5(loginRequest.getPassword() + adminUser.getSalt()).toLowerCase();
         if (!adminUser.getPassword().equals(password)) {
             return JsonResponse.error("邮箱或密码错误");
         }
+
+        RedisUtil.del(limitKey);
+
         if (adminUser.getIsBanLogin().equals(1)) {
-            return JsonResponse.error("当前用户已禁止登录");
+            return JsonResponse.error("当前管理员已禁止登录");
         }
 
         String token = authService.loginUsingId(adminUser.getId(), RequestUtil.url());

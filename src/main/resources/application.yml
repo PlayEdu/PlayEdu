@@ -64,10 +64,7 @@ sa-token:
   jwt-secret-key: "playeduxyz"
   token-prefix: "Bearer"
 
-# PlayEdu
 playedu:
-  # 图形验证码
-  captcha:
-    expire: 300 #有效期[单位:秒,默认5分钟]
-    cache-prefix: "captcha:key:" #存储key的前缀
-
+  limiter:
+    duration: 60
+    limit: 240
