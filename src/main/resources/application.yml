@@ -65,6 +65,8 @@ sa-token:
   token-prefix: "Bearer"
 
 playedu:
+  core:
+    testing: false
   limiter:
     duration: 60
     limit: 240
