@@ -28,7 +28,7 @@ import lombok.Data;
  * @create 2023/3/8 14:49
  */
 @Data
-public class UploadVideoMergeRequest {
+public class UploadFileMergeRequest {
 
     @NotBlank(message = "请输入课程标题")
     private String filename;

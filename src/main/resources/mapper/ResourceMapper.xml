@@ -61,7 +61,10 @@
             AND `resources`.`extension` = #{extension}
         </if>
         <if test="type != null and type != ''">
-            AND `resources`.`type` = #{type}
+            AND `resources`.`type` IN
+            <foreach item="item" collection="type.split(',')" open="(" separator="," close=")">
+                #{item}
+            </foreach>
         </if>
         <if test="adminId != null and adminId != 0">
             AND `resources`.`admin_id` = #{adminId}
@@ -127,7 +130,10 @@
             AND `resources`.`extension` = #{extension}
         </if>
         <if test="type != null and type != ''">
-            AND `resources`.`type` = #{type}
+            AND `resources`.`type` IN
+            <foreach item="item" collection="type.split(',')" open="(" separator="," close=")">
+                #{item}
+            </foreach>
         </if>
         <if test="adminId != null and adminId != 0">
             AND `resources`.`admin_id` = #{adminId}
