@@ -140,4 +140,46 @@
         </if>
     </select>
 
+    <select id="paginateType" resultType="java.lang.String">
+        SELECT DISTINCT ( `resources`.`type` )
+        FROM `resources`
+        <choose>
+            <when test="categoryIds != null and categoryIds != ''">
+                <choose>
+                    <when test="categoryIds.indexOf('0') == 0">
+                        LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
+                        WHERE `resources`.`is_hidden` = 0
+                        AND `resource_category`.`cid` IS NULL
+                    </when>
+                    <otherwise>
+                        INNER JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
+                        WHERE `resources`.`is_hidden` = 0
+                        AND `resource_category`.`cid` IN (#{categoryIds})
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                WHERE `resources`.`is_hidden` = 0
+            </otherwise>
+        </choose>
+        <if test="name != null and name != ''">
+            AND `resources`.`name` LIKE concat('%',#{name},'%')
+        </if>
+        <if test="disk != null and disk != ''">
+            AND `resources`.`disk` = #{disk}
+        </if>
+        <if test="extension != null and extension != ''">
+            AND `resources`.`extension` = #{extension}
+        </if>
+        <if test="type != null and type != ''">
+            AND `resources`.`type` IN
+            <foreach item="item" collection="type.split(',')" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="adminId != null and adminId != 0">
+            AND `resources`.`admin_id` = #{adminId}
+        </if>
+    </select>
+
 </mapper>

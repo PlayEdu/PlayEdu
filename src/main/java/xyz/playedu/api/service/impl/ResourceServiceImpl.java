@@ -61,6 +61,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     }
 
     @Override
+    public List<String> paginateType(ResourcePaginateFilter filter) {
+        return getBaseMapper().paginateType(filter);
+    }
+
+    @Override
     @Transactional
     public Resource create(
             Integer adminId,

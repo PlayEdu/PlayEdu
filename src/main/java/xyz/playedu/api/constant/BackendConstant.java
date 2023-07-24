@@ -40,6 +40,11 @@ public class BackendConstant {
     public static final String RESOURCE_TYPE_RAR = "RAR";
     public static final String RESOURCE_TYPE_TXT = "TXT";
 
+    public static final String RESOURCE_TYPE_ANNEX =
+            RESOURCE_TYPE_PDF +","+ RESOURCE_TYPE_TXT +","+
+            RESOURCE_TYPE_ZIP +","+ RESOURCE_TYPE_RAR +","+
+            RESOURCE_TYPE_WORD +","+RESOURCE_TYPE_PPT +","+RESOURCE_TYPE_EXCEL;
+
     public static final HashMap<String, String> RESOURCE_EXT_2_CONTENT_TYPE =
             new HashMap<>() {
                 {

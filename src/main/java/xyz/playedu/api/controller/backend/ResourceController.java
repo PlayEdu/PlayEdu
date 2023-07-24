@@ -109,6 +109,11 @@ public class ResourceController {
             data.put("admin_users", adminUsers);
         }
 
+        if(!type.equals(BackendConstant.RESOURCE_TYPE_VIDEO) &&
+                !type.equals(BackendConstant.RESOURCE_TYPE_IMAGE)){
+            filter.setType(BackendConstant.RESOURCE_TYPE_ANNEX);
+            data.put("existingType",resourceService.paginateType(filter));
+        }
         return JsonResponse.data(data);
     }
 
