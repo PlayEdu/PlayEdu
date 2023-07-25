@@ -8,16 +8,22 @@
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="adminId" column="admin_id" jdbcType="INTEGER"/>
             <result property="module" column="module" jdbcType="VARCHAR"/>
-            <result property="opt" column="opt" jdbcType="VARCHAR"/>
-            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="opt" column="opt" jdbcType="INTEGER"/>
+            <result property="method" column="method" jdbcType="VARCHAR"/>
+            <result property="requestMethod" column="request_method" jdbcType="VARCHAR"/>
+            <result property="url" column="url" jdbcType="VARCHAR"/>
+            <result property="param" column="param" jdbcType="VARCHAR"/>
+            <result property="result" column="result" jdbcType="VARCHAR"/>
             <result property="ip" column="ip" jdbcType="VARCHAR"/>
             <result property="ipArea" column="ip_area" jdbcType="VARCHAR"/>
+            <result property="errorMsg" column="error_msg" jdbcType="VARCHAR"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,admin_id,module,
-        opt,remark,ip,
-        ip_area,created_at
+        id,admin_id,module,title,
+        opt,method,request_method,url,param,result,
+        ip,ip_area,error_msg,created_at
     </sql>
 </mapper>
