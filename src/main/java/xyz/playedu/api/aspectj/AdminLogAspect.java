@@ -15,6 +15,7 @@
  */
 package xyz.playedu.api.aspectj;
 
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import xyz.playedu.api.util.RequestUtil;
 import xyz.playedu.api.util.StringUtil;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -44,6 +46,9 @@ public class AdminLogAspect {
     @Autowired private BackendAuthService authService;
 
     @Autowired private AdminLogService adminLogService;
+
+    /** 排除敏感属性字段 */
+    public static final String[] EXCLUDE_PROPERTIES = { "password", "oldPassword", "newPassword", "confirmPassword" };
 
     /**
      * Controller层切点 注解拦截
@@ -98,16 +103,24 @@ public class AdminLogAspect {
             }
             adminLog.setRequestMethod(request.getMethod());
             adminLog.setUrl(request.getRequestURL().toString());
+            String params = "";
             Map<String, String[]> parameterMap = request.getParameterMap();
             if (StringUtil.isNotEmpty(parameterMap)) {
-                String params = JSONUtil.toJsonStr(parameterMap);
-                adminLog.setParam(StringUtils.substring(params, 0, 2000));
+                params = JSONUtil.toJsonStr(parameterMap);
             }else {
                 Object[] args = joinPoint.getArgs();
                 if (StringUtil.isNotNull(args)) {
-                    String params = StringUtil.arrayToString(args);
-                    adminLog.setParam(StringUtils.substring(params, 0, 2000));
+                    params = StringUtil.arrayToString(args);
                 }
+            }
+            if(StringUtil.isNotEmpty(params)){
+                JSONObject paramObj = JSONUtil.parseObj(params);
+                for(String i : Arrays.asList(EXCLUDE_PROPERTIES)){
+                    if(paramObj.containsKey(i)){
+                        paramObj.put(i,"******");
+                    }
+                }
+                adminLog.setParam(StringUtils.substring(JSONUtil.toJsonStr(paramObj), 0, 2000));
             }
             adminLog.setResult(JSONUtil.toJsonStr(jsonResult));
             adminLog.setIp(IpUtil.getIpAddress());
