@@ -102,6 +102,12 @@ public class AdminLogAspect {
             if (StringUtil.isNotEmpty(parameterMap)) {
                 String params = JSONUtil.toJsonStr(parameterMap);
                 adminLog.setParam(StringUtils.substring(params, 0, 2000));
+            }else {
+                Object[] args = joinPoint.getArgs();
+                if (StringUtil.isNotNull(args)) {
+                    String params = StringUtil.arrayToString(args);
+                    adminLog.setParam(StringUtils.substring(params, 0, 2000));
+                }
             }
             adminLog.setResult(JSONUtil.toJsonStr(jsonResult));
             adminLog.setIp(IpUtil.getIpAddress());
