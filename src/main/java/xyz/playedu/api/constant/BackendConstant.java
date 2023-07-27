@@ -40,7 +40,7 @@ public class BackendConstant {
     public static final String RESOURCE_TYPE_RAR = "RAR";
     public static final String RESOURCE_TYPE_TXT = "TXT";
 
-    public static final String RESOURCE_TYPE_ANNEX =
+    public static final String RESOURCE_TYPE_ATTACHMENT =
             RESOURCE_TYPE_PDF +","+ RESOURCE_TYPE_TXT +","+
             RESOURCE_TYPE_ZIP +","+ RESOURCE_TYPE_RAR +","+
             RESOURCE_TYPE_WORD +","+RESOURCE_TYPE_PPT +","+RESOURCE_TYPE_EXCEL;

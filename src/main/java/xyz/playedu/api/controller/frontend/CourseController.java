@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.FCtx;
+import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.CourseHour;
 import xyz.playedu.api.domain.UserCourseHourRecord;
@@ -31,6 +32,7 @@ import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +43,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/course")
 public class CourseController {
+
+    @Autowired private ResourceService resourceService;
 
     @Autowired private CourseService courseService;
 
@@ -72,19 +76,15 @@ public class CourseController {
     public JsonResponse detail(@PathVariable(name = "id") Integer id) {
         Course course = courseService.findOrFail(id);
 
+        List<CourseHour> courseHours = hourService.getHoursByCourseId(course.getId());
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
         data.put("chapters", chapterService.getChaptersByCourseId(course.getId()));
-        data.put(
-                "hours",
-                hourService.getHoursByCourseId(course.getId()).stream()
-                        .collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put("hours", courseHours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
         data.put("learn_record", userCourseRecordService.find(FCtx.getId(), course.getId()));
-        data.put(
-                "learn_hour_records",
-                userCourseHourRecordService.getRecords(FCtx.getId(), course.getId()).stream()
-                        .collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e)));
-
+        data.put("learn_hour_records", userCourseHourRecordService.getRecords(FCtx.getId(), course.getId()).stream().collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e)));
+        data.put("resource_attachments", resourceService.chunks(courseHours.stream().map(CourseHour::getRid).collect(Collectors.toList())).stream().filter(resource -> BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(resource.getType())).collect(Collectors.toList()));
         return JsonResponse.data(data);
     }
 }
