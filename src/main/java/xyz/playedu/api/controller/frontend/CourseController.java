@@ -44,8 +44,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/course")
 public class CourseController {
 
-    @Autowired private ResourceService resourceService;
-
     @Autowired private CourseService courseService;
 
     @Autowired private CourseChapterService chapterService;
@@ -81,10 +79,21 @@ public class CourseController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
         data.put("chapters", chapterService.getChaptersByCourseId(course.getId()));
-        data.put("hours", courseHours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put(
+                "hours",
+                courseHours.stream()
+                        .filter(courseHour -> BackendConstant.RESOURCE_TYPE_VIDEO.equals(courseHour.getType()))
+                        .collect(Collectors.groupingBy(CourseHour::getChapterId)));
         data.put("learn_record", userCourseRecordService.find(FCtx.getId(), course.getId()));
-        data.put("learn_hour_records", userCourseHourRecordService.getRecords(FCtx.getId(), course.getId()).stream().collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e)));
-        data.put("resource_attachments", resourceService.chunks(courseHours.stream().map(CourseHour::getRid).collect(Collectors.toList())).stream().filter(resource -> BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(resource.getType())).collect(Collectors.toList()));
+        data.put(
+                "learn_hour_records",
+                userCourseHourRecordService.getRecords(FCtx.getId(), course.getId()).stream()
+                        .collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e)));
+        data.put(
+                "attachments",
+                courseHours.stream()
+                        .filter(courseHour -> BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(courseHour.getType()))
+                        .collect(Collectors.groupingBy(CourseHour::getChapterId)));
         return JsonResponse.data(data);
     }
 }

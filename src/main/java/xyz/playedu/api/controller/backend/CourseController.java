@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
@@ -208,8 +209,8 @@ public class CourseController {
         data.put("dep_ids", depIds); // 已关联的部门
         data.put("category_ids", categoryIds); // 已关联的分类
         data.put("chapters", chapters);
-        data.put("hours", hours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
-
+        data.put("hours", hours.stream().filter(courseHour -> BackendConstant.RESOURCE_TYPE_VIDEO.equals(courseHour.getType())).collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put("attachments", hours.stream().filter(courseHour -> BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(courseHour.getType())).collect(Collectors.groupingBy(CourseHour::getChapterId)));
         return JsonResponse.data(data);
     }
 
