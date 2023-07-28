@@ -16,6 +16,7 @@
 package xyz.playedu.api.util;
 
 import cn.hutool.json.JSONUtil;
+
 import org.springframework.util.AntPathMatcher;
 
 import java.util.*;
@@ -537,8 +538,8 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
                     try {
                         Object jsonObj = JSONUtil.toJsonStr(o);
                         result.append(jsonObj.toString());
+                    } catch (Exception e) {
                     }
-                    catch (Exception e) {}
                 }
             }
         }

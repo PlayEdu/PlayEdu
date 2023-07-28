@@ -22,15 +22,10 @@ import java.lang.annotation.*;
 @Target({ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Log
-{
-    /**
-     * 标题
-     */
+public @interface Log {
+    /** 标题 */
     public String title() default "";
 
-    /**
-     * 功能
-     */
+    /** 功能 */
     public BusinessType businessType() default BusinessType.OTHER;
 }

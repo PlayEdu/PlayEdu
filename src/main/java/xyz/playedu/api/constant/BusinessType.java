@@ -15,40 +15,25 @@
  */
 package xyz.playedu.api.constant;
 
-public enum BusinessType
-{
-    /**
-     * 其它
-     */
+public enum BusinessType {
+    /** 其它 */
     OTHER,
 
-    /**
-     * 新增
-     */
+    /** 新增 */
     INSERT,
 
-    /**
-     * 修改
-     */
+    /** 修改 */
     UPDATE,
 
-    /**
-     * 删除
-     */
+    /** 删除 */
     DELETE,
 
-    /**
-     * 查询
-     */
+    /** 查询 */
     GET,
 
-    /**
-     * 登录
-     */
+    /** 登录 */
     LOGIN,
 
-    /**
-     * 退出登录
-     */
+    /** 退出登录 */
     LOGOUT
 }

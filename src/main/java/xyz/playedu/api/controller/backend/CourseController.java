@@ -209,8 +209,22 @@ public class CourseController {
         data.put("dep_ids", depIds); // 已关联的部门
         data.put("category_ids", categoryIds); // 已关联的分类
         data.put("chapters", chapters);
-        data.put("hours", hours.stream().filter(courseHour -> BackendConstant.RESOURCE_TYPE_VIDEO.equals(courseHour.getType())).collect(Collectors.groupingBy(CourseHour::getChapterId)));
-        data.put("attachments", hours.stream().filter(courseHour -> BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(courseHour.getType())).collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put(
+                "hours",
+                hours.stream()
+                        .filter(
+                                courseHour ->
+                                        BackendConstant.RESOURCE_TYPE_VIDEO.equals(
+                                                courseHour.getType()))
+                        .collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put(
+                "attachments",
+                hours.stream()
+                        .filter(
+                                courseHour ->
+                                        BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(
+                                                courseHour.getType()))
+                        .collect(Collectors.groupingBy(CourseHour::getChapterId)));
         return JsonResponse.data(data);
     }
 

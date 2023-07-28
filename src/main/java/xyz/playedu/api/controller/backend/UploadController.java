@@ -120,13 +120,15 @@ public class UploadController {
                         url);
 
         // 视频资源特殊处理--视频封面资源
-        if(BackendConstant.RESOURCE_TYPE_VIDEO.equals(type)){
+        if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(type)) {
             // 视频封面素材保存
-            Resource posterResource = uploadService.storeBase64Image(BCtx.getId(), req.getPoster(), null);
+            Resource posterResource =
+                    uploadService.storeBase64Image(BCtx.getId(), req.getPoster(), null);
             // 视频的封面素材改为[隐藏 && 属于视频的子素材]
             resourceService.changeParentId(posterResource.getId(), videoResource.getId());
             // 视频信息
-            resourceService.storeResourceVideo(videoResource.getId(), req.getDuration(), posterResource.getUrl());
+            resourceService.storeResourceVideo(
+                    videoResource.getId(), req.getDuration(), posterResource.getUrl());
         }
 
         HashMap<String, Object> data = new HashMap<>();

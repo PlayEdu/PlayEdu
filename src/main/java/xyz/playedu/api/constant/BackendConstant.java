@@ -36,14 +36,24 @@ public class BackendConstant {
     public static final String RESOURCE_TYPE_WORD = "WORD";
     public static final String RESOURCE_TYPE_PPT = "PPT";
     public static final String RESOURCE_TYPE_EXCEL = "EXCEL";
-    public static final String RESOURCE_TYPE_ZIP= "ZIP";
+    public static final String RESOURCE_TYPE_ZIP = "ZIP";
     public static final String RESOURCE_TYPE_RAR = "RAR";
     public static final String RESOURCE_TYPE_TXT = "TXT";
 
     public static final String RESOURCE_TYPE_ATTACHMENT =
-            RESOURCE_TYPE_PDF +","+ RESOURCE_TYPE_TXT +","+
-            RESOURCE_TYPE_ZIP +","+ RESOURCE_TYPE_RAR +","+
-            RESOURCE_TYPE_WORD +","+RESOURCE_TYPE_PPT +","+RESOURCE_TYPE_EXCEL;
+            RESOURCE_TYPE_PDF
+                    + ","
+                    + RESOURCE_TYPE_TXT
+                    + ","
+                    + RESOURCE_TYPE_ZIP
+                    + ","
+                    + RESOURCE_TYPE_RAR
+                    + ","
+                    + RESOURCE_TYPE_WORD
+                    + ","
+                    + RESOURCE_TYPE_PPT
+                    + ","
+                    + RESOURCE_TYPE_EXCEL;
 
     public static final HashMap<String, String> RESOURCE_EXT_2_CONTENT_TYPE =
             new HashMap<>() {
@@ -55,11 +65,17 @@ public class BackendConstant {
                     put("pdf", "application/pdf");
                     put("mp4", "video/mp4");
                     put("doc", "application/msword");
-                    put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+                    put(
+                            "docx",
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
                     put("ppt", "application/vnd.ms-powerpoint");
-                    put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+                    put(
+                            "pptx",
+                            "application/vnd.openxmlformats-officedocument.presentationml.presentation");
                     put("xls", "application/vnd.ms-excel");
-                    put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    put(
+                            "xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                     put("txt", "text/plain");
                     put("zip", "application/zip");
                     put("rar", "application/x-rar");

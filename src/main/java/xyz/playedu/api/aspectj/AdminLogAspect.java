@@ -17,14 +17,18 @@ package xyz.playedu.api.aspectj;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+
 import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.domain.AdminLog;
 import xyz.playedu.api.service.AdminLogService;
@@ -48,11 +52,11 @@ public class AdminLogAspect {
     @Autowired private AdminLogService adminLogService;
 
     /** 排除敏感属性字段 */
-    public static final String[] EXCLUDE_PROPERTIES = { "password", "oldPassword", "newPassword", "confirmPassword" };
+    public static final String[] EXCLUDE_PROPERTIES = {
+        "password", "oldPassword", "newPassword", "confirmPassword"
+    };
 
-    /**
-     * Controller层切点 注解拦截
-     */
+    /** Controller层切点 注解拦截 */
     @Pointcut("@annotation(xyz.playedu.api.annotation.Log)")
     public void logPointCut() {}
 
@@ -68,7 +72,7 @@ public class AdminLogAspect {
 
     /**
      * 拦截异常操作
-     * 
+     *
      * @param joinPoint 切点
      * @param e 异常
      */
@@ -107,17 +111,17 @@ public class AdminLogAspect {
             Map<String, String[]> parameterMap = request.getParameterMap();
             if (StringUtil.isNotEmpty(parameterMap)) {
                 params = JSONUtil.toJsonStr(parameterMap);
-            }else {
+            } else {
                 Object[] args = joinPoint.getArgs();
                 if (StringUtil.isNotNull(args)) {
                     params = StringUtil.arrayToString(args);
                 }
             }
-            if(StringUtil.isNotEmpty(params)){
+            if (StringUtil.isNotEmpty(params)) {
                 JSONObject paramObj = JSONUtil.parseObj(params);
-                for(String i : Arrays.asList(EXCLUDE_PROPERTIES)){
-                    if(paramObj.containsKey(i)){
-                        paramObj.put(i,"******");
+                for (String i : Arrays.asList(EXCLUDE_PROPERTIES)) {
+                    if (paramObj.containsKey(i)) {
+                        paramObj.put(i, "******");
                     }
                 }
                 adminLog.setParam(StringUtils.substring(JSONUtil.toJsonStr(paramObj), 0, 2000));
@@ -134,13 +138,11 @@ public class AdminLogAspect {
             adminLogService.save(adminLog);
         } catch (Exception exp) {
             // 记录本地异常日志
-            log.error("异常信息:"+exp.getMessage(),e);
+            log.error("异常信息:" + exp.getMessage(), e);
         }
     }
 
-    /**
-     * 是否存在注解，如果存在就获取
-     */
+    /** 是否存在注解，如果存在就获取 */
     private Log getAnnotationLog(JoinPoint joinPoint) throws Exception {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();

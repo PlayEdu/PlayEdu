@@ -146,7 +146,8 @@ public class AdminLog implements Serializable {
         result = prime * result + ((getTitle() == null) ? 0 : getTitle().hashCode());
         result = prime * result + ((getOpt() == null) ? 0 : getOpt().hashCode());
         result = prime * result + ((getMethod() == null) ? 0 : getMethod().hashCode());
-        result = prime * result + ((getRequestMethod() == null) ? 0 : getRequestMethod().hashCode());
+        result =
+                prime * result + ((getRequestMethod() == null) ? 0 : getRequestMethod().hashCode());
         result = prime * result + ((getUrl() == null) ? 0 : getUrl().hashCode());
         result = prime * result + ((getParam() == null) ? 0 : getParam().hashCode());
         result = prime * result + ((getResult() == null) ? 0 : getResult().hashCode());

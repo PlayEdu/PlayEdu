@@ -82,7 +82,10 @@ public class CourseController {
         data.put(
                 "hours",
                 courseHours.stream()
-                        .filter(courseHour -> BackendConstant.RESOURCE_TYPE_VIDEO.equals(courseHour.getType()))
+                        .filter(
+                                courseHour ->
+                                        BackendConstant.RESOURCE_TYPE_VIDEO.equals(
+                                                courseHour.getType()))
                         .collect(Collectors.groupingBy(CourseHour::getChapterId)));
         data.put("learn_record", userCourseRecordService.find(FCtx.getId(), course.getId()));
         data.put(
@@ -92,7 +95,10 @@ public class CourseController {
         data.put(
                 "attachments",
                 courseHours.stream()
-                        .filter(courseHour -> BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(courseHour.getType()))
+                        .filter(
+                                courseHour ->
+                                        BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(
+                                                courseHour.getType()))
                         .collect(Collectors.groupingBy(CourseHour::getChapterId)));
         return JsonResponse.data(data);
     }
