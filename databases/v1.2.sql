@@ -19,3 +19,15 @@ CREATE TABLE `admin_logs`
     PRIMARY KEY (`id`),
     KEY              `a_m_o` (`admin_id`,`module`,`opt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `course_attachment` (
+     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+     `course_id` int(11) NOT NULL DEFAULT '0' COMMENT '课程ID',
+     `sort` int(11) NOT NULL DEFAULT '0' COMMENT '升序',
+     `title` varchar(255) NOT NULL DEFAULT '' COMMENT '附件名',
+     `type` varchar(20) NOT NULL DEFAULT '' COMMENT '附件类型',
+     `rid` int(11) NOT NULL DEFAULT '0' COMMENT '资源id',
+     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`),
+     KEY `course_id` (`course_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
