@@ -112,7 +112,7 @@ public class ResourceController {
         if(!type.equals(BackendConstant.RESOURCE_TYPE_VIDEO) &&
                 !type.equals(BackendConstant.RESOURCE_TYPE_IMAGE)){
             filter.setType(BackendConstant.RESOURCE_TYPE_ATTACHMENT);
-            data.put("existingType",resourceService.paginateType(filter));
+            data.put("existing_types",resourceService.paginateType(filter));
         }
         return JsonResponse.data(data);
     }

@@ -105,7 +105,7 @@ public class CourseController {
     @PostMapping("/create")
     @Transactional
     public JsonResponse store(@RequestBody @Validated CourseRequest req) throws ParseException {
-        if (req.getShortDesc() != null && req.getShortDesc().length() > 200) {
+        if (req.getShortDesc().length() > 200) {
             return JsonResponse.error("课程简短介绍不能超过200字");
         }
         Course course =
@@ -144,7 +144,7 @@ public class CourseController {
                 classHourCount = insertHours.size();
             }
         } else {
-            if (req.getChapters() == null || req.getChapters().size() == 0) {
+            if (req.getChapters().size() == 0) {
                 return JsonResponse.error("请配置课时");
             }
 
