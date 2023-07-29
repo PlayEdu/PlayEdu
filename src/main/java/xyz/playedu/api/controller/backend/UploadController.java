@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.exception.ServiceException;
 import xyz.playedu.api.request.backend.UploadFileMergeRequest;
@@ -47,6 +49,7 @@ public class UploadController {
     @Autowired private ResourceService resourceService;
 
     @PostMapping("/minio")
+    @Log(title = "上传-MinIO", businessType = BusinessType.UPLOAD)
     public JsonResponse uploadMinio(
             @RequestParam HashMap<String, Object> params, MultipartFile file)
             throws ServiceException {
@@ -56,6 +59,7 @@ public class UploadController {
     }
 
     @GetMapping("/minio/upload-id")
+    @Log(title = "上传-MinIO-uploadId", businessType = BusinessType.UPLOAD)
     public JsonResponse minioUploadId(@RequestParam HashMap<String, Object> params) {
         String extension = MapUtils.getString(params, "extension");
         if (extension == null || extension.trim().length() == 0) {
@@ -79,6 +83,7 @@ public class UploadController {
     }
 
     @GetMapping("/minio/pre-sign-url")
+    @Log(title = "上传-MinIO-签名URL", businessType = BusinessType.UPLOAD)
     public JsonResponse minioPreSignUrl(@RequestParam HashMap<String, Object> params) {
         String uploadId = MapUtils.getString(params, "upload_id");
         Integer partNumber = MapUtils.getInteger(params, "part_number");
@@ -93,6 +98,7 @@ public class UploadController {
     }
 
     @PostMapping("/minio/merge-file")
+    @Log(title = "上传-MinIO-文件合并", businessType = BusinessType.UPLOAD)
     public JsonResponse minioMergeFile(@RequestBody @Validated UploadFileMergeRequest req)
             throws ServiceException {
         String type = BackendConstant.RESOURCE_EXT_2_TYPE.get(req.getExtension());
@@ -138,6 +144,7 @@ public class UploadController {
     }
 
     @GetMapping("/minio/merge")
+    @Log(title = "上传-MinIO-文件合并", businessType = BusinessType.UPLOAD)
     public JsonResponse minioMerge(@RequestParam HashMap<String, Object> params) {
         String filename = MapUtils.getString(params, "filename");
         String uploadId = MapUtils.getString(params, "upload_id");

@@ -35,5 +35,8 @@ public enum BusinessType {
     LOGIN,
 
     /** 退出登录 */
-    LOGOUT
+    LOGOUT,
+
+    /** 上传 */
+    UPLOAD
 }

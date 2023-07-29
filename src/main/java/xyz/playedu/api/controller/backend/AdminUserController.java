@@ -22,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.exception.NotFoundException;
@@ -51,6 +53,7 @@ public class AdminUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_INDEX)
     @GetMapping("/index")
+    @Log(title = "管理员-列表", businessType = BusinessType.GET)
     public JsonResponse Index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
@@ -83,6 +86,7 @@ public class AdminUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @GetMapping("/create")
+    @Log(title = "管理员-新建", businessType = BusinessType.GET)
     public JsonResponse create() {
         List<AdminRole> roles = roleService.list();
 
@@ -94,9 +98,10 @@ public class AdminUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @PostMapping("/create")
+    @Log(title = "管理员-新建", businessType = BusinessType.INSERT)
     public JsonResponse store(@RequestBody @Validated AdminUserRequest req)
             throws ServiceException {
-        if (req.getPassword() == null || req.getPassword().length() == 0) {
+        if (req.getPassword().length() == 0) {
             return JsonResponse.error("请输入密码");
         }
 
@@ -112,6 +117,7 @@ public class AdminUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @GetMapping("/{id}")
+    @Log(title = "管理员-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(@PathVariable Integer id) throws NotFoundException {
         AdminUser adminUser = adminUserService.findOrFail(id);
         List<Integer> roleIds = adminUserService.getRoleIdsByUserId(adminUser.getId());
@@ -125,6 +131,7 @@ public class AdminUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @PutMapping("/{id}")
+    @Log(title = "管理员-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(
             @PathVariable Integer id, @RequestBody @Validated AdminUserRequest req)
             throws NotFoundException, ServiceException {
@@ -141,6 +148,7 @@ public class AdminUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_USER_CUD)
     @DeleteMapping("/{id}")
+    @Log(title = "管理员-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(@PathVariable Integer id) {
         adminUserService.removeWithRoleIds(id);
         return JsonResponse.success();

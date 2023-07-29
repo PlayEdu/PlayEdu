@@ -24,8 +24,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.bus.BackendBus;
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceVideo;
@@ -59,6 +61,7 @@ public class ResourceController {
     @Autowired private BackendBus backendBus;
 
     @GetMapping("/index")
+    @Log(title = "资源-列表", businessType = BusinessType.GET)
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
@@ -120,6 +123,7 @@ public class ResourceController {
     @DeleteMapping("/{id}")
     @Transactional
     @SneakyThrows
+    @Log(title = "资源-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
         Resource resource = resourceService.findOrFail(id);
 
@@ -142,6 +146,7 @@ public class ResourceController {
 
     @PostMapping("/destroy-multi")
     @SneakyThrows
+    @Log(title = "资源-批量列表", businessType = BusinessType.DELETE)
     public JsonResponse multiDestroy(@RequestBody ResourceDestroyMultiRequest req) {
         if (req.getIds() == null || req.getIds().size() == 0) {
             return JsonResponse.error("请选择需要删除的资源");
@@ -174,6 +179,7 @@ public class ResourceController {
 
     @GetMapping("/{id}")
     @SneakyThrows
+    @Log(title = "资源-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(@PathVariable(name = "id") Integer id) {
         Resource resource = resourceService.findOrFail(id);
 
@@ -191,6 +197,7 @@ public class ResourceController {
 
     @PutMapping("/{id}")
     @SneakyThrows
+    @Log(title = "资源-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(
             @RequestBody @Validated ResourceUpdateRequest req,
             @PathVariable(name = "id") Integer id) {

@@ -25,7 +25,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
@@ -62,6 +65,7 @@ public class CourseController {
     @Autowired private ApplicationContext ctx;
 
     @GetMapping("/index")
+    @Log(title = "线上课-列表", businessType = BusinessType.GET)
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
@@ -107,6 +111,7 @@ public class CourseController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create")
     @Transactional
+    @Log(title = "线上课-新建", businessType = BusinessType.INSERT)
     public JsonResponse store(@RequestBody @Validated CourseRequest req) throws ParseException {
         if (req.getShortDesc().length() > 200) {
             return JsonResponse.error("课程简短介绍不能超过200字");
@@ -222,6 +227,7 @@ public class CourseController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/{id}")
+    @Log(title = "线上课-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
         Course course = courseService.findOrFail(id);
         List<Integer> depIds = courseService.getDepIdsByCourseId(course.getId());
@@ -248,6 +254,7 @@ public class CourseController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PutMapping("/{id}")
     @Transactional
+    @Log(title = "线上课-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(
             @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseRequest req)
             throws NotFoundException {
@@ -266,6 +273,7 @@ public class CourseController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @DeleteMapping("/{id}")
+    @Log(title = "线上课-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
         courseService.removeById(id);
         ctx.publishEvent(new CourseDestroyEvent(this, BCtx.getId(), id));

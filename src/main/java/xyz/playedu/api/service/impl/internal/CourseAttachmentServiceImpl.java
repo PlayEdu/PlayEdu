@@ -16,7 +16,9 @@
 package xyz.playedu.api.service.impl.internal;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import org.springframework.stereotype.Service;
+
 import xyz.playedu.api.domain.CourseAttachment;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.mapper.CourseAttachmentMapper;
@@ -27,12 +29,14 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class CourseAttachmentServiceImpl extends ServiceImpl<CourseAttachmentMapper, CourseAttachment>
+public class CourseAttachmentServiceImpl
+        extends ServiceImpl<CourseAttachmentMapper, CourseAttachment>
         implements CourseAttachmentService {
 
     @Override
     public CourseAttachment findOrFail(Integer id, Integer courseId) throws NotFoundException {
-        CourseAttachment attachment = getOne(query().getWrapper().eq("id", id).eq("course_id", courseId));
+        CourseAttachment attachment =
+                getOne(query().getWrapper().eq("id", id).eq("course_id", courseId));
         if (attachment == null) {
             throw new NotFoundException("附件不存在");
         }
@@ -40,10 +44,7 @@ public class CourseAttachmentServiceImpl extends ServiceImpl<CourseAttachmentMap
     }
 
     @Override
-    public void update(
-            CourseAttachment courseAttachment,
-            Integer sort,
-            String title) {
+    public void update(CourseAttachment courseAttachment, Integer sort, String title) {
         CourseAttachment attachment = new CourseAttachment();
         attachment.setId(courseAttachment.getId());
         attachment.setSort(sort);
@@ -59,11 +60,7 @@ public class CourseAttachmentServiceImpl extends ServiceImpl<CourseAttachmentMap
 
     @Override
     public CourseAttachment create(
-            Integer courseId,
-            Integer sort,
-            String title,
-            String type,
-            Integer rid) {
+            Integer courseId, Integer sort, String title, String type, Integer rid) {
         CourseAttachment attachment = new CourseAttachment();
         attachment.setCourseId(courseId);
         attachment.setSort(sort);

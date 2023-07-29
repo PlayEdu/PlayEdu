@@ -16,6 +16,7 @@
 package xyz.playedu.api.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+
 import xyz.playedu.api.domain.CourseAttachment;
 import xyz.playedu.api.exception.NotFoundException;
 
@@ -29,12 +30,7 @@ public interface CourseAttachmentService extends IService<CourseAttachment> {
 
     List<CourseAttachment> getAttachmentsByCourseId(Integer courseId);
 
-    CourseAttachment create(
-            Integer courseId,
-            Integer sort,
-            String title,
-            String type,
-            Integer rid);
+    CourseAttachment create(Integer courseId, Integer sort, String title, String type, Integer rid);
 
     Integer getCountByCourseId(Integer courseId);
 

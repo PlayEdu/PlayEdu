@@ -18,7 +18,9 @@ package xyz.playedu.api.controller.backend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.AppConfig;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
@@ -30,11 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/3/9 11:14
- */
 @RestController
 @RequestMapping("/backend/v1/app-config")
 public class AppConfigController {
@@ -43,6 +40,7 @@ public class AppConfigController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.SYSTEM_CONFIG)
     @GetMapping("")
+    @Log(title = "系统配置-读取", businessType = BusinessType.GET)
     public JsonResponse index() {
         List<AppConfig> configs = configService.allShow();
         List<AppConfig> data = new ArrayList<>();
@@ -57,6 +55,7 @@ public class AppConfigController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.SYSTEM_CONFIG)
     @PutMapping("")
+    @Log(title = "系统配置-保存", businessType = BusinessType.UPDATE)
     public JsonResponse save(@RequestBody AppConfigRequest req) {
         HashMap<String, String> data = new HashMap<>();
         req.getData()
