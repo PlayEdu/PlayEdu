@@ -201,7 +201,7 @@ public class CourseController {
         }
 
         // 课程附件
-        if (req.getAttachments().size() > 0) {
+        if (null != req.getAttachments() && req.getAttachments().size() > 0) {
             List<CourseAttachment> insertAttachments = new ArrayList<>();
             final Integer[] sort = {0};
             for (CourseRequest.AttachmentItem attachmentItem : req.getAttachments()) {
@@ -235,11 +235,13 @@ public class CourseController {
         List<CourseChapter> chapters = chapterService.getChaptersByCourseId(course.getId());
         List<CourseHour> hours = hourService.getHoursByCourseId(course.getId());
         List<CourseAttachment> attachments = attachmentService.getAttachmentsByCourseId(course.getId());
-        Map<Integer,String> resourceMap = resourceService.chunks(attachments.stream().map(CourseAttachment::getRid).toList())
-                .stream().collect(Collectors.toMap(Resource::getId, Resource::getUrl));
-        attachments.forEach(courseAttachment -> {
-            courseAttachment.setUrl(resourceMap.get(courseAttachment.getRid()));
-        });
+        if(null != attachments && attachments.size() > 0){
+            Map<Integer,String> resourceMap = resourceService.chunks(attachments.stream().map(CourseAttachment::getRid).toList())
+                    .stream().collect(Collectors.toMap(Resource::getId, Resource::getUrl));
+            attachments.forEach(courseAttachment -> {
+                courseAttachment.setUrl(resourceMap.get(courseAttachment.getRid()));
+            });
+        }
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);

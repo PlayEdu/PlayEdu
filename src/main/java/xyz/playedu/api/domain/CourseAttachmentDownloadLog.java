@@ -19,46 +19,45 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * @TableName course_attachment
+ * @TableName course_attachment_download_log
  */
-@TableName(value = "course_attachment")
+@TableName(value = "course_attachment_download_log")
 @Data
-public class CourseAttachment implements Serializable {
+public class CourseAttachmentDownloadLog implements Serializable {
     /** */
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
+
+    /** 学员ID */
+    @JsonProperty("user_id")
+    private Integer userId;
 
     /** 课程ID */
     @JsonProperty("course_id")
     private Integer courseId;
 
-    /** 升序 */
-    private Integer sort;
-
-    /** 附件名 */
+    /** 标题 */
     private String title;
 
-    /** 附件类型 */
-    private String type;
+    /** 课程附件ID */
+    @JsonProperty("courser_attachment_id")
+    private Integer courserAttachmentId;
 
-    /** 资源id */
+    /** 资源ID */
     private Integer rid;
 
-    /** 资源url */
-    @TableField(exist = false)
-    private String url;
+    /** IP */
+    private String ip;
 
-    /** */
-    @JsonIgnore private Date createdAt;
+    @JsonProperty("created_at")
+    private Date createdAt;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -74,26 +73,26 @@ public class CourseAttachment implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        CourseAttachment other = (CourseAttachment) that;
+        CourseAttachmentDownloadLog other = (CourseAttachmentDownloadLog) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
+                && (this.getUserId() == null
+                        ? other.getUserId() == null
+                        : this.getUserId().equals(other.getUserId()))
                 && (this.getCourseId() == null
                         ? other.getCourseId() == null
                         : this.getCourseId().equals(other.getCourseId()))
-                && (this.getSort() == null
-                        ? other.getSort() == null
-                        : this.getSort().equals(other.getSort()))
                 && (this.getTitle() == null
                         ? other.getTitle() == null
                         : this.getTitle().equals(other.getTitle()))
-                && (this.getType() == null
-                        ? other.getType() == null
-                        : this.getType().equals(other.getType()))
+                && (this.getCourserAttachmentId() == null
+                        ? other.getCourserAttachmentId() == null
+                        : this.getCourserAttachmentId().equals(other.getCourserAttachmentId()))
                 && (this.getRid() == null
                         ? other.getRid() == null
                         : this.getRid().equals(other.getRid()))
-                && (this.getUrl() == null
-                        ? other.getUrl() == null
-                        : this.getUrl().equals(other.getUrl()))
+                && (this.getIp() == null
+                        ? other.getIp() == null
+                        : this.getIp().equals(other.getIp()))
                 && (this.getCreatedAt() == null
                         ? other.getCreatedAt() == null
                         : this.getCreatedAt().equals(other.getCreatedAt()));
@@ -104,12 +103,12 @@ public class CourseAttachment implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
+        result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
         result = prime * result + ((getCourseId() == null) ? 0 : getCourseId().hashCode());
-        result = prime * result + ((getSort() == null) ? 0 : getSort().hashCode());
         result = prime * result + ((getTitle() == null) ? 0 : getTitle().hashCode());
-        result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
+        result = prime * result + ((getCourserAttachmentId() == null) ? 0 : getCourserAttachmentId().hashCode());
         result = prime * result + ((getRid() == null) ? 0 : getRid().hashCode());
-        result = prime * result + ((getUrl() == null) ? 0 : getUrl().hashCode());
+        result = prime * result + ((getIp() == null) ? 0 : getIp().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
         return result;
     }
@@ -121,12 +120,12 @@ public class CourseAttachment implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
+        sb.append(", userId=").append(userId);
         sb.append(", courseId=").append(courseId);
-        sb.append(", sort=").append(sort);
         sb.append(", title=").append(title);
-        sb.append(", type=").append(type);
+        sb.append(", courserAttachmentId=").append(courserAttachmentId);
         sb.append(", rid=").append(rid);
-        sb.append(", url=").append(url);
+        sb.append(", ip=").append(ip);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

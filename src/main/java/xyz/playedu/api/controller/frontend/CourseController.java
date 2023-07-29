@@ -22,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.FCtx;
-import xyz.playedu.api.constant.BackendConstant;
-import xyz.playedu.api.domain.Course;
-import xyz.playedu.api.domain.CourseHour;
-import xyz.playedu.api.domain.UserCourseHourRecord;
+import xyz.playedu.api.domain.*;
 import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
@@ -33,6 +30,7 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +47,10 @@ public class CourseController {
     @Autowired private CourseChapterService chapterService;
 
     @Autowired private CourseHourService hourService;
+
+    @Autowired private CourseAttachmentService attachmentService;
+
+    @Autowired private ResourceService resourceService;
 
     @Autowired private UserCourseRecordService userCourseRecordService;
 
@@ -76,30 +78,24 @@ public class CourseController {
 
         List<CourseHour> courseHours = hourService.getHoursByCourseId(course.getId());
 
+        List<CourseAttachment> attachments = attachmentService.getAttachmentsByCourseId(course.getId());
+        if(null != attachments && attachments.size() > 0){
+            Map<Integer,String> resourceMap = resourceService.chunks(attachments.stream().map(CourseAttachment::getRid).toList())
+                    .stream().collect(Collectors.toMap(Resource::getId, Resource::getUrl));
+            attachments.forEach(courseAttachment -> {
+                courseAttachment.setUrl(resourceMap.get(courseAttachment.getRid()));
+            });
+        }
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
         data.put("chapters", chapterService.getChaptersByCourseId(course.getId()));
-        data.put(
-                "hours",
-                courseHours.stream()
-                        .filter(
-                                courseHour ->
-                                        BackendConstant.RESOURCE_TYPE_VIDEO.equals(
-                                                courseHour.getType()))
-                        .collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put("hours", courseHours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
         data.put("learn_record", userCourseRecordService.find(FCtx.getId(), course.getId()));
-        data.put(
-                "learn_hour_records",
+        data.put("learn_hour_records",
                 userCourseHourRecordService.getRecords(FCtx.getId(), course.getId()).stream()
                         .collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e)));
-        data.put(
-                "attachments",
-                courseHours.stream()
-                        .filter(
-                                courseHour ->
-                                        BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(
-                                                courseHour.getType()))
-                        .collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put("attachments", attachments);
         return JsonResponse.data(data);
     }
 }

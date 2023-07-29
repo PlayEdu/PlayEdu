@@ -31,3 +31,15 @@ CREATE TABLE `course_attachment` (
      PRIMARY KEY (`id`),
      KEY `course_id` (`course_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `course_attachment_download_log` (
+     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+     `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '学员ID',
+     `course_id` int(11) NOT NULL DEFAULT '0' COMMENT '课程ID',
+     `title` varchar(255) NOT NULL DEFAULT '' COMMENT '课程标题',
+     `courser_attachment_id` int(11) NOT NULL DEFAULT '0' COMMENT '课程附件id',
+     `rid` int(11) NOT NULL DEFAULT '0' COMMENT '资源id',
+     `ip`  varchar(45) NOT NULL DEFAULT '' COMMENT '下载ip',
+     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
