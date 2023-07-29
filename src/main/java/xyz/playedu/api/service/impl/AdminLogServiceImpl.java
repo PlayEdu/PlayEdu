@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import xyz.playedu.api.domain.AdminLog;
 import xyz.playedu.api.mapper.AdminLogMapper;
 import xyz.playedu.api.service.AdminLogService;
+import xyz.playedu.api.types.paginate.AdminLogPaginateFiler;
+import xyz.playedu.api.types.paginate.PaginationResult;
 
 /**
  * @author tengteng
@@ -30,4 +32,16 @@ import xyz.playedu.api.service.AdminLogService;
  */
 @Service
 public class AdminLogServiceImpl extends ServiceImpl<AdminLogMapper, AdminLog>
-        implements AdminLogService {}
+        implements AdminLogService {
+    @Override
+    public PaginationResult<AdminLog> paginate(int page, int size, AdminLogPaginateFiler filter) {
+        filter.setPageStart((page - 1) * size);
+        filter.setPageSize(size);
+
+        PaginationResult<AdminLog> pageResult = new PaginationResult<>();
+        pageResult.setData(getBaseMapper().paginate(filter));
+        pageResult.setTotal(getBaseMapper().paginateCount(filter));
+
+        return pageResult;
+    }
+}

@@ -26,4 +26,64 @@
         opt,method,request_method,url,param,result,
         ip,ip_area,error_msg,created_at
     </sql>
+
+    <select id="paginate" resultType="xyz.playedu.api.domain.AdminLog">
+        SELECT `admin_logs`.*
+        FROM `admin_logs`
+        <where>
+            <if test="adminId != null">
+                AND `admin_logs`.`admin_id` = #{adminId}
+            </if>
+            <if test="module != null and module != ''">
+                AND `admin_logs`.`module` LIKE concat('%',#{module},'%')
+            </if>
+            <if test="title != null and title != ''">
+                AND `admin_logs`.`title` LIKE concat('%',#{title},'%')
+            </if>
+            <if test="opt != null">
+                AND `admin_logs`.`opt` = #{opt}
+            </if>
+        </where>
+
+        <if test="sortAlgo == 'asc'">
+            <choose>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `admin_logs`.`created_at` ASC
+                </when>
+                <otherwise>
+                    ORDER BY `admin_logs`.`id` ASC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="sortAlgo != 'asc'">
+            <choose>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `admin_logs`.`created_at` DESC
+                </when>
+                <otherwise>
+                    ORDER BY `admin_logs`.`id` DESC
+                </otherwise>
+            </choose>
+        </if>
+        LIMIT #{pageStart}, #{pageSize};
+    </select>
+
+    <select id="paginateCount" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM `admin_logs`
+        <where>
+            <if test="adminId != null">
+                AND `admin_logs`.`admin_id` = #{adminId}
+            </if>
+            <if test="module != null and module != ''">
+                AND `admin_logs`.`module` LIKE concat('%',#{module},'%')
+            </if>
+            <if test="title != null and title != ''">
+                AND `admin_logs`.`title` LIKE concat('%',#{title},'%')
+            </if>
+            <if test="opt != null">
+                AND `admin_logs`.`opt` = #{opt}
+            </if>
+        </where>
+    </select>
 </mapper>

@@ -40,6 +40,9 @@ public class AdminLog implements Serializable {
     @JsonProperty("admin_id")
     private Integer adminId;
 
+    @TableField(exist = false)
+    private String adminName;
+
     /** 模块 */
     private String module;
 
