@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -38,7 +37,6 @@ import xyz.playedu.api.util.RequestUtil;
 import xyz.playedu.api.util.StringUtil;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -155,19 +153,19 @@ public class AdminLogAspect {
     public JSONObject excludeProperties(String jsonData) {
         JSONObject jsonObjectResult = new JSONObject();
         // 把传入String类型转换成JSONObject对象
-        if(JSONUtil.isTypeJSON(jsonData)){
+        if (JSONUtil.isTypeJSON(jsonData)) {
             JSONObject jsonObject = JSONUtil.parseObj(jsonData);
             for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
-                if(StringUtil.isNotNull(value)){
+                if (StringUtil.isNotNull(value)) {
                     // 如果value依旧是json类型的话继续递归解析
                     if (JSONUtil.isTypeJSON(value.toString())) {
                         jsonObjectResult.put(key, excludeProperties(entry.getValue().toString()));
                     } else {
                         // 如果value是单纯的数据,执行脱敏操作
-                        for (String i : Arrays.asList(EXCLUDE_PROPERTIES)) {
-                            if(key.equals(i)){
+                        for (String i : EXCLUDE_PROPERTIES) {
+                            if (key.equals(i)) {
                                 jsonObjectResult.put(key, "******");
                             }
                         }

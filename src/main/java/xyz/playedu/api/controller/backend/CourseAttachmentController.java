@@ -22,8 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.CourseAttachment;
 import xyz.playedu.api.exception.NotFoundException;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
@@ -44,6 +46,7 @@ public class CourseAttachmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create")
+    @Log(title = "线上课-附件-新建", businessType = BusinessType.INSERT)
     public JsonResponse store(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseAttachmentRequest req)
@@ -71,6 +74,7 @@ public class CourseAttachmentController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create-batch")
     @Transactional
+    @Log(title = "线上课-附件-批量新建", businessType = BusinessType.INSERT)
     public JsonResponse storeMulti(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseAttachmentMultiRequest req) {
@@ -107,6 +111,7 @@ public class CourseAttachmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/{id}")
+    @Log(title = "线上课-附件-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id)
@@ -117,6 +122,7 @@ public class CourseAttachmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PutMapping("/{id}")
+    @Log(title = "线上课-附件-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id,
@@ -129,6 +135,7 @@ public class CourseAttachmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @DeleteMapping("/{id}")
+    @Log(title = "线上课-附件-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id)
@@ -139,6 +146,7 @@ public class CourseAttachmentController {
     }
 
     @PutMapping("/update/sort")
+    @Log(title = "线上课-附件-排序调整", businessType = BusinessType.UPDATE)
     public JsonResponse updateSort(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseAttachmentSortRequest req) {
