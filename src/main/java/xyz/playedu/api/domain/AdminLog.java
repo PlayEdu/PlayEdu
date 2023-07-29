@@ -41,6 +41,7 @@ public class AdminLog implements Serializable {
     private Integer adminId;
 
     @TableField(exist = false)
+    @JsonProperty("admin_name")
     private String adminName;
 
     /** 模块 */
