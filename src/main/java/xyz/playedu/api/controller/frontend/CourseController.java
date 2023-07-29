@@ -99,7 +99,7 @@ public class CourseController {
         return JsonResponse.data(data);
     }
 
-    @GetMapping("/{courseId}/attach/{id}")
+    @GetMapping("/{courseId}/attach/{id}/download")
     @SneakyThrows
     public JsonResponse attachmentDownload(
             @PathVariable(name = "courseId") Integer courseId,
