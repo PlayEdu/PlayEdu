@@ -153,14 +153,14 @@ public class AdminLogAspect {
     public JSONObject excludeProperties(String jsonData) {
         JSONObject jsonObjectResult = new JSONObject();
         // 把传入String类型转换成JSONObject对象
-        if (JSONUtil.isTypeJSON(jsonData)) {
+        if (JSONUtil.isTypeJSONObject(jsonData)) {
             JSONObject jsonObject = JSONUtil.parseObj(jsonData);
             for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (StringUtil.isNotNull(value)) {
                     // 如果value依旧是json类型的话继续递归解析
-                    if (JSONUtil.isTypeJSON(value.toString())) {
+                    if (JSONUtil.isTypeJSONObject(value.toString())) {
                         jsonObjectResult.put(key, excludeProperties(entry.getValue().toString()));
                     } else {
                         // 如果value是单纯的数据,执行脱敏操作
