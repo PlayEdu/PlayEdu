@@ -43,6 +43,12 @@
             <if test="opt != null">
                 AND `admin_logs`.`opt` = #{opt}
             </if>
+            <if test="startTime != null and startTime != ''">
+                AND `admin_logs`.`created_at` &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND `admin_logs`.`created_at` &lt;= #{endTime}
+            </if>
         </where>
 
         <if test="sortAlgo == 'asc'">
@@ -83,6 +89,12 @@
             </if>
             <if test="opt != null">
                 AND `admin_logs`.`opt` = #{opt}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                AND `admin_logs`.`created_at` &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND `admin_logs`.`created_at` &lt;= #{endTime}
             </if>
         </where>
     </select>

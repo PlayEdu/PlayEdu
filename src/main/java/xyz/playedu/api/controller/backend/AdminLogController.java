@@ -38,6 +38,7 @@ import xyz.playedu.api.types.paginate.AdminLogPaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -65,6 +66,8 @@ public class AdminLogController {
         String module = MapUtils.getString(params, "module");
         String title = MapUtils.getString(params, "title");
         Integer opt = MapUtils.getInteger(params, "opt");
+        String startTime = MapUtils.getString(params, "start_time");
+        String endTime = MapUtils.getString(params, "end_time");
 
         AdminLogPaginateFiler filter = new AdminLogPaginateFiler();
         if (backendBus.isSuperAdmin()) {
@@ -75,22 +78,23 @@ public class AdminLogController {
         filter.setModule(module);
         filter.setTitle(title);
         filter.setOpt(opt);
+        filter.setStartTime(startTime);
+        filter.setEndTime(endTime);
         filter.setSortField(sortField);
         filter.setSortAlgo(sortAlgo);
 
         PaginationResult<AdminLog> result = adminLogService.paginate(page, size, filter);
-
-        Map<Integer, String> adminUserMap =
-                adminUserService
-                        .chunks(result.getData().stream().map(AdminLog::getAdminId).toList())
-                        .stream()
-                        .collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
-
-        result.getData()
-                .forEach(
-                        adminLog -> {
-                            adminLog.setAdminName(adminUserMap.get(adminLog.getAdminId()));
-                        });
+        if(result.getTotal() > 0){
+            List<AdminUser> adminUsers =  adminUserService.chunks(result.getData().stream().map(AdminLog::getAdminId).toList());
+            if(null != adminUsers && adminUsers.size() > 0){
+                Map<Integer, String> adminUserMap = adminUsers.stream().collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
+                result.getData()
+                        .forEach(
+                                adminLog -> {
+                                    adminLog.setAdminName(adminUserMap.get(adminLog.getAdminId()));
+                                });
+            }
+        }
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());

@@ -28,6 +28,10 @@ public class AdminLogPaginateFiler {
 
     private Integer opt;
 
+    private String startTime;
+
+    private String endTime;
+
     private String sortField;
 
     private String sortAlgo;
