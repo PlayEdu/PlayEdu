@@ -71,6 +71,18 @@ public class AdminPermissionCheck implements ApplicationRunner {
                                                     }
                                                 },
                                             });
+                                    // 管理员日志
+                                    put(
+                                            "管理员日志",
+                                            new AdminPermission[] {
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(0);
+                                                        setName("列表");
+                                                        setSlug(BPermissionConstant.ADMIN_LOG);
+                                                    }
+                                                },
+                                            });
                                     // 部门
                                     put(
                                             "部门",

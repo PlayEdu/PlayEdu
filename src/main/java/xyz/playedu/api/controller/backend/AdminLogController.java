@@ -16,17 +16,21 @@
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.bus.BackendBus;
+import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.*;
+import xyz.playedu.api.middleware.BackendPermissionMiddleware;
 import xyz.playedu.api.service.AdminLogService;
 import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.types.JsonResponse;
@@ -48,6 +52,7 @@ public class AdminLogController {
 
     @Autowired private BackendBus backendBus;
 
+    @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_LOG)
     @GetMapping("/index")
     @Log(title = "管理员日志-列表", businessType = BusinessType.GET)
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
@@ -62,9 +67,9 @@ public class AdminLogController {
         Integer opt = MapUtils.getInteger(params, "opt");
 
         AdminLogPaginateFiler filter = new AdminLogPaginateFiler();
-        if(backendBus.isSuperAdmin()){
+        if (backendBus.isSuperAdmin()) {
             filter.setAdminId(adminId);
-        }else {
+        } else {
             filter.setAdminId(BCtx.getId());
         }
         filter.setModule(module);
@@ -75,12 +80,17 @@ public class AdminLogController {
 
         PaginationResult<AdminLog> result = adminLogService.paginate(page, size, filter);
 
-        Map<Integer, String> adminUserMap =  adminUserService.chunks(result.getData().stream().map(AdminLog::getAdminId).toList())
-                .stream().collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
+        Map<Integer, String> adminUserMap =
+                adminUserService
+                        .chunks(result.getData().stream().map(AdminLog::getAdminId).toList())
+                        .stream()
+                        .collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
 
-        result.getData().forEach(adminLog -> {
-            adminLog.setAdminName(adminUserMap.get(adminLog.getAdminId()));
-        });
+        result.getData()
+                .forEach(
+                        adminLog -> {
+                            adminLog.setAdminName(adminUserMap.get(adminLog.getAdminId()));
+                        });
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());
