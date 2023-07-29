@@ -29,7 +29,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.constant.CConfig;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.*;
@@ -85,6 +87,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
+    @Log(title = "学员-列表", businessType = BusinessType.GET)
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
@@ -146,12 +149,14 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_STORE)
     @GetMapping("/create")
+    @Log(title = "学员-新建", businessType = BusinessType.GET)
     public JsonResponse create() {
         return JsonResponse.data(null);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_STORE)
     @PostMapping("/create")
+    @Log(title = "学员-新建", businessType = BusinessType.INSERT)
     public JsonResponse store(@RequestBody @Validated UserRequest req) {
         String email = req.getEmail();
         if (userService.emailIsExists(email)) {
@@ -173,6 +178,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_UPDATE)
     @GetMapping("/{id}")
+    @Log(title = "学员-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
         User user = userService.findOrFail(id);
 
@@ -188,6 +194,7 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_UPDATE)
     @PutMapping("/{id}")
     @Transactional
+    @Log(title = "学员-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(
             @PathVariable(name = "id") Integer id, @RequestBody @Validated UserRequest req)
             throws NotFoundException {
@@ -211,6 +218,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_DESTROY)
     @DeleteMapping("/{id}")
+    @Log(title = "学员-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
         User user = userService.findOrFail(id);
         userService.removeById(user.getId());
@@ -220,6 +228,7 @@ public class UserController {
 
     @PostMapping("/store-batch")
     @Transactional
+    @Log(title = "学员-批量导入", businessType = BusinessType.INSERT)
     public JsonResponse batchStore(@RequestBody @Validated UserImportRequest req) {
         List<UserImportRequest.UserItem> users = req.getUsers();
         if (users.size() == 0) {
@@ -384,6 +393,7 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-hours")
     @SneakyThrows
+    @Log(title = "学员-已学习课时列表", businessType = BusinessType.GET)
     public JsonResponse learnHours(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
@@ -419,6 +429,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-courses")
+    @Log(title = "学员-已学习课程列表", businessType = BusinessType.GET)
     public JsonResponse latestLearnCourses(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
@@ -454,6 +465,7 @@ public class UserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/all-courses")
+    @Log(title = "学员-课程", businessType = BusinessType.GET)
     public JsonResponse allCourses(@PathVariable(name = "id") Integer id) {
         // 读取学员关联的部门
         List<Integer> depIds = userService.getDepIdsByUserId(id);
@@ -516,6 +528,7 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-course/{courseId}")
     @SneakyThrows
+    @Log(title = "学员-单个课程的学习记录", businessType = BusinessType.GET)
     public JsonResponse learnCourseDetail(
             @PathVariable(name = "id") Integer id,
             @PathVariable(name = "courseId") Integer courseId) {
@@ -537,6 +550,7 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN)
     @GetMapping("/{id}/learn-stats")
     @SneakyThrows
+    @Log(title = "学员-学习统计", businessType = BusinessType.GET)
     public JsonResponse learn(@PathVariable(name = "id") Integer id) {
         // 最近一个月的每天学习时长
         String todayStr = DateTime.now().toDateStr();
@@ -584,6 +598,7 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN_DESTROY)
     @DeleteMapping("/{id}/learn-course/{courseId}")
     @SneakyThrows
+    @Log(title = "学员-线上课学习记录删除", businessType = BusinessType.DELETE)
     public JsonResponse destroyUserCourse(
             @PathVariable(name = "id") Integer id,
             @PathVariable(name = "courseId") Integer courseId) {
@@ -595,6 +610,7 @@ public class UserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.USER_LEARN_DESTROY)
     @DeleteMapping("/{id}/learn-course/{courseId}/hour/{hourId}")
     @SneakyThrows
+    @Log(title = "学员-线上课课时学习记录删除", businessType = BusinessType.DELETE)
     public JsonResponse destroyUserHour(
             @PathVariable(name = "id") Integer id,
             @PathVariable(name = "courseId") Integer courseId,

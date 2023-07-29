@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.constant.CConfig;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.util.RequestUtil;
@@ -37,6 +39,7 @@ import java.util.Map;
 public class SystemController {
 
     @GetMapping("/config")
+    @Log(title = "其它-系统配置", businessType = BusinessType.GET)
     public JsonResponse config() {
         Map<String, String> configData = BCtx.getConfig();
 

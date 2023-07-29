@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.constant.SystemConstant;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserLearnDurationStats;
@@ -57,6 +59,7 @@ public class DashboardController {
     @Autowired private UserLearnDurationStatsService userLearnDurationStatsService;
 
     @GetMapping("/index")
+    @Log(title = "主面板", businessType = BusinessType.GET)
     public JsonResponse index() {
         HashMap<String, Object> data = new HashMap<>();
         data.put("version", SystemConstant.VERSION);

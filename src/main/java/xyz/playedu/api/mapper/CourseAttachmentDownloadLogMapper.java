@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.service;
+package xyz.playedu.api.mapper;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-import org.springframework.stereotype.Service;
+import org.apache.ibatis.annotations.Mapper;
 
-import xyz.playedu.api.domain.AdminLog;
-import xyz.playedu.api.types.paginate.AdminLogPaginateFiler;
-import xyz.playedu.api.types.paginate.PaginationResult;
+import xyz.playedu.api.domain.CourseAttachmentDownloadLog;
+import xyz.playedu.api.types.paginate.CourseAttachmentDownloadLogPaginateFiler;
 
-/**
- * @author tengteng
- * @description 针对表【admin_logs】的数据库操作Service
- * @createDate 2023-02-17 15:40:31
- */
-@Service
-public interface AdminLogService extends IService<AdminLog> {
-    PaginationResult<AdminLog> paginate(int page, int size, AdminLogPaginateFiler filter);
+import java.util.List;
+
+@Mapper
+public interface CourseAttachmentDownloadLogMapper extends BaseMapper<CourseAttachmentDownloadLog> {
+
+    List<CourseAttachmentDownloadLog> paginate(CourseAttachmentDownloadLogPaginateFiler filer);
+
+    Long paginateCount(CourseAttachmentDownloadLogPaginateFiler filer);
 }

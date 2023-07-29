@@ -28,6 +28,8 @@ public interface ResourceService extends IService<Resource> {
 
     PaginationResult<Resource> paginate(int page, int size, ResourcePaginateFilter filter);
 
+    List<String> paginateType(ResourcePaginateFilter filter);
+
     Resource create(
             Integer adminId,
             String categoryIds,

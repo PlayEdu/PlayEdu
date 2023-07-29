@@ -24,7 +24,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.domain.UserCourseRecord;
 import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
@@ -66,6 +68,7 @@ public class CourseUserController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE_USER)
     @GetMapping("/index")
     @SneakyThrows
+    @Log(title = "线上课-学习记录-列表", businessType = BusinessType.GET)
     public JsonResponse index(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestParam HashMap<String, Object> params) {
@@ -140,6 +143,7 @@ public class CourseUserController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE_USER_DESTROY)
     @PostMapping("/destroy")
+    @Log(title = "线上课-学习记录-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseUserDestroyRequest req) {

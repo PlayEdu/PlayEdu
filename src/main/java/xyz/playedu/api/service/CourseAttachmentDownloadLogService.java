@@ -19,16 +19,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 import org.springframework.stereotype.Service;
 
-import xyz.playedu.api.domain.AdminLog;
-import xyz.playedu.api.types.paginate.AdminLogPaginateFiler;
+import xyz.playedu.api.domain.CourseAttachmentDownloadLog;
+import xyz.playedu.api.types.paginate.CourseAttachmentDownloadLogPaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
-/**
- * @author tengteng
- * @description 针对表【admin_logs】的数据库操作Service
- * @createDate 2023-02-17 15:40:31
- */
 @Service
-public interface AdminLogService extends IService<AdminLog> {
-    PaginationResult<AdminLog> paginate(int page, int size, AdminLogPaginateFiler filter);
+public interface CourseAttachmentDownloadLogService extends IService<CourseAttachmentDownloadLog> {
+    PaginationResult<CourseAttachmentDownloadLog> paginate(
+            int page, int size, CourseAttachmentDownloadLogPaginateFiler filter);
 }

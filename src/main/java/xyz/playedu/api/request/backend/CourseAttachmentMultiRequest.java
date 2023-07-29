@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.service;
+package xyz.playedu.api.request.backend;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.validation.constraints.NotNull;
 
-import org.springframework.stereotype.Service;
+import lombok.Data;
 
-import xyz.playedu.api.domain.AdminLog;
-import xyz.playedu.api.types.paginate.AdminLogPaginateFiler;
-import xyz.playedu.api.types.paginate.PaginationResult;
+import java.util.List;
 
-/**
- * @author tengteng
- * @description 针对表【admin_logs】的数据库操作Service
- * @createDate 2023-02-17 15:40:31
- */
-@Service
-public interface AdminLogService extends IService<AdminLog> {
-    PaginationResult<AdminLog> paginate(int page, int size, AdminLogPaginateFiler filter);
+@Data
+public class CourseAttachmentMultiRequest {
+    @Data
+    public static class AttachmentItem {
+        private String title;
+        private Integer sort;
+        private String type;
+        private Integer rid;
+    }
+
+    @NotNull(message = "attachments参数不存在")
+    private List<AttachmentItem> attachments;
 }

@@ -8,16 +8,94 @@
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="adminId" column="admin_id" jdbcType="INTEGER"/>
             <result property="module" column="module" jdbcType="VARCHAR"/>
-            <result property="opt" column="opt" jdbcType="VARCHAR"/>
-            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="opt" column="opt" jdbcType="INTEGER"/>
+            <result property="method" column="method" jdbcType="VARCHAR"/>
+            <result property="requestMethod" column="request_method" jdbcType="VARCHAR"/>
+            <result property="url" column="url" jdbcType="VARCHAR"/>
+            <result property="param" column="param" jdbcType="VARCHAR"/>
+            <result property="result" column="result" jdbcType="VARCHAR"/>
             <result property="ip" column="ip" jdbcType="VARCHAR"/>
             <result property="ipArea" column="ip_area" jdbcType="VARCHAR"/>
+            <result property="errorMsg" column="error_msg" jdbcType="VARCHAR"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,admin_id,module,
-        opt,remark,ip,
-        ip_area,created_at
+        id,admin_id,module,title,
+        opt,method,request_method,url,param,result,
+        ip,ip_area,error_msg,created_at
     </sql>
+
+    <select id="paginate" resultType="xyz.playedu.api.domain.AdminLog">
+        SELECT `admin_logs`.*
+        FROM `admin_logs`
+        <where>
+            <if test="adminId != null">
+                AND `admin_logs`.`admin_id` = #{adminId}
+            </if>
+            <if test="module != null and module != ''">
+                AND `admin_logs`.`module` LIKE concat('%',#{module},'%')
+            </if>
+            <if test="title != null and title != ''">
+                AND `admin_logs`.`title` LIKE concat('%',#{title},'%')
+            </if>
+            <if test="opt != null">
+                AND `admin_logs`.`opt` = #{opt}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                AND `admin_logs`.`created_at` &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND `admin_logs`.`created_at` &lt;= #{endTime}
+            </if>
+        </where>
+
+        <if test="sortAlgo == 'asc'">
+            <choose>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `admin_logs`.`created_at` ASC
+                </when>
+                <otherwise>
+                    ORDER BY `admin_logs`.`id` ASC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="sortAlgo != 'asc'">
+            <choose>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `admin_logs`.`created_at` DESC
+                </when>
+                <otherwise>
+                    ORDER BY `admin_logs`.`id` DESC
+                </otherwise>
+            </choose>
+        </if>
+        LIMIT #{pageStart}, #{pageSize};
+    </select>
+
+    <select id="paginateCount" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM `admin_logs`
+        <where>
+            <if test="adminId != null">
+                AND `admin_logs`.`admin_id` = #{adminId}
+            </if>
+            <if test="module != null and module != ''">
+                AND `admin_logs`.`module` LIKE concat('%',#{module},'%')
+            </if>
+            <if test="title != null and title != ''">
+                AND `admin_logs`.`title` LIKE concat('%',#{title},'%')
+            </if>
+            <if test="opt != null">
+                AND `admin_logs`.`opt` = #{opt}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                AND `admin_logs`.`created_at` &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND `admin_logs`.`created_at` &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
 </mapper>

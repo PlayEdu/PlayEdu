@@ -25,7 +25,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
@@ -53,11 +55,16 @@ public class CourseController {
 
     @Autowired private CourseHourService hourService;
 
+    @Autowired private CourseAttachmentService attachmentService;
+
+    @Autowired private ResourceService resourceService;
+
     @Autowired private DepartmentService departmentService;
 
     @Autowired private ApplicationContext ctx;
 
     @GetMapping("/index")
+    @Log(title = "线上课-列表", businessType = BusinessType.GET)
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
         Integer size = MapUtils.getInteger(params, "size", 10);
@@ -103,8 +110,9 @@ public class CourseController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create")
     @Transactional
+    @Log(title = "线上课-新建", businessType = BusinessType.INSERT)
     public JsonResponse store(@RequestBody @Validated CourseRequest req) throws ParseException {
-        if (req.getShortDesc() != null && req.getShortDesc().length() > 200) {
+        if (req.getShortDesc().length() > 200) {
             return JsonResponse.error("课程简短介绍不能超过200字");
         }
         Course course =
@@ -143,7 +151,7 @@ public class CourseController {
                 classHourCount = insertHours.size();
             }
         } else {
-            if (req.getChapters() == null || req.getChapters().size() == 0) {
+            if (req.getChapters().size() == 0) {
                 return JsonResponse.error("请配置课时");
             }
 
@@ -191,17 +199,53 @@ public class CourseController {
             courseService.updateClassHour(course.getId(), classHourCount);
         }
 
+        // 课程附件
+        if (null != req.getAttachments() && req.getAttachments().size() > 0) {
+            List<CourseAttachment> insertAttachments = new ArrayList<>();
+            final Integer[] sort = {0};
+            for (CourseRequest.AttachmentItem attachmentItem : req.getAttachments()) {
+                insertAttachments.add(
+                        new CourseAttachment() {
+                            {
+                                setCourseId(course.getId());
+                                setSort(sort[0]++);
+                                setTitle(attachmentItem.getName());
+                                setType(attachmentItem.getType());
+                                setRid(attachmentItem.getRid());
+                                setCreatedAt(now);
+                            }
+                        });
+            }
+            if (insertAttachments.size() > 0) {
+                attachmentService.saveBatch(insertAttachments);
+            }
+        }
+
         return JsonResponse.success();
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/{id}")
+    @Log(title = "线上课-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
         Course course = courseService.findOrFail(id);
         List<Integer> depIds = courseService.getDepIdsByCourseId(course.getId());
         List<Integer> categoryIds = courseService.getCategoryIdsByCourseId(course.getId());
         List<CourseChapter> chapters = chapterService.getChaptersByCourseId(course.getId());
         List<CourseHour> hours = hourService.getHoursByCourseId(course.getId());
+        List<CourseAttachment> attachments =
+                attachmentService.getAttachmentsByCourseId(course.getId());
+        if (null != attachments && attachments.size() > 0) {
+            Map<Integer, String> resourceMap =
+                    resourceService
+                            .chunks(attachments.stream().map(CourseAttachment::getRid).toList())
+                            .stream()
+                            .collect(Collectors.toMap(Resource::getId, Resource::getUrl));
+            attachments.forEach(
+                    courseAttachment -> {
+                        courseAttachment.setUrl(resourceMap.get(courseAttachment.getRid()));
+                    });
+        }
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
@@ -209,13 +253,14 @@ public class CourseController {
         data.put("category_ids", categoryIds); // 已关联的分类
         data.put("chapters", chapters);
         data.put("hours", hours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
-
+        data.put("attachments", attachments);
         return JsonResponse.data(data);
     }
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PutMapping("/{id}")
     @Transactional
+    @Log(title = "线上课-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(
             @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseRequest req)
             throws NotFoundException {
@@ -234,6 +279,7 @@ public class CourseController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @DeleteMapping("/{id}")
+    @Log(title = "线上课-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
         courseService.removeById(id);
         ctx.publishEvent(new CourseDestroyEvent(this, BCtx.getId(), id));

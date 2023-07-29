@@ -21,8 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.AdminPermission;
 import xyz.playedu.api.domain.AdminRole;
 import xyz.playedu.api.exception.NotFoundException;
@@ -48,6 +50,7 @@ public class AdminRoleController {
     @Autowired private AdminPermissionService permissionService;
 
     @GetMapping("/index")
+    @Log(title = "管理员角色-列表", businessType = BusinessType.GET)
     public JsonResponse index() {
         List<AdminRole> data = roleService.list();
         return JsonResponse.data(data);
@@ -55,6 +58,7 @@ public class AdminRoleController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @GetMapping("/create")
+    @Log(title = "管理员角色-新建", businessType = BusinessType.GET)
     public JsonResponse create() {
         List<AdminPermission> permissions = permissionService.listOrderBySortAsc();
 
@@ -68,6 +72,7 @@ public class AdminRoleController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @PostMapping("/create")
+    @Log(title = "管理员角色-新建", businessType = BusinessType.INSERT)
     public JsonResponse store(@RequestBody @Validated AdminRoleRequest request) {
         roleService.createWithPermissionIds(request.getName(), request.getPermissionIds());
         return JsonResponse.success();
@@ -75,6 +80,7 @@ public class AdminRoleController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @GetMapping("/{id}")
+    @Log(title = "管理员角色-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
         AdminRole role = roleService.findOrFail(id);
 
@@ -108,6 +114,7 @@ public class AdminRoleController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @PutMapping("/{id}")
+    @Log(title = "管理员角色-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(
             @PathVariable(name = "id") Integer id, @RequestBody @Validated AdminRoleRequest request)
             throws NotFoundException {
@@ -123,6 +130,7 @@ public class AdminRoleController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.ADMIN_ROLE)
     @DeleteMapping("/{id}")
+    @Log(title = "管理员角色-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) throws NotFoundException {
         AdminRole role = roleService.findOrFail(id);
 

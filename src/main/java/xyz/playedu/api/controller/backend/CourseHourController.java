@@ -24,8 +24,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.CourseChapter;
 import xyz.playedu.api.domain.CourseHour;
 import xyz.playedu.api.event.CourseHourCreatedEvent;
@@ -60,6 +62,7 @@ public class CourseHourController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/create")
+    @Log(title = "线上课-课时-新建", businessType = BusinessType.GET)
     public JsonResponse create(@PathVariable(name = "courseId") Integer courseId) {
         // 课时类型
         List<SelectOption<String>> typeItems = new ArrayList<>();
@@ -83,6 +86,7 @@ public class CourseHourController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create")
+    @Log(title = "线上课-课时-新建", businessType = BusinessType.INSERT)
     public JsonResponse store(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseHourRequest req)
@@ -127,6 +131,7 @@ public class CourseHourController {
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create-batch")
     @Transactional
+    @Log(title = "线上课-课时-批量导入", businessType = BusinessType.INSERT)
     public JsonResponse storeMulti(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseHourMultiRequest req) {
@@ -177,6 +182,7 @@ public class CourseHourController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/{id}")
+    @Log(title = "线上课-课时-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id)
@@ -187,6 +193,7 @@ public class CourseHourController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PutMapping("/{id}")
+    @Log(title = "线上课-课时-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id,
@@ -203,6 +210,7 @@ public class CourseHourController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @DeleteMapping("/{id}")
+    @Log(title = "线上课-课时-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id)
@@ -220,6 +228,7 @@ public class CourseHourController {
     }
 
     @PutMapping("/update/sort")
+    @Log(title = "线上课-课时-更新排序", businessType = BusinessType.UPDATE)
     public JsonResponse updateSort(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseHourSortRequest req) {

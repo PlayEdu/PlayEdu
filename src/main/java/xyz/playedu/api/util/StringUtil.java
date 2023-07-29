@@ -15,6 +15,8 @@
  */
 package xyz.playedu.api.util;
 
+import cn.hutool.json.JSONUtil;
+
 import org.springframework.util.AntPathMatcher;
 
 import java.util.*;
@@ -526,5 +528,21 @@ public class StringUtil extends org.apache.commons.lang3.StringUtils {
 
         sbuf.append(strPattern, handledPosition, strPattern.length());
         return sbuf.toString();
+    }
+
+    public static String arrayToString(Object[] array) {
+        StringBuilder result = new StringBuilder();
+        if (array != null && array.length > 0) {
+            for (Object o : array) {
+                if (StringUtil.isNotNull(o)) {
+                    try {
+                        Object jsonObj = JSONUtil.toJsonStr(o);
+                        result.append(jsonObj.toString());
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        }
+        return result.toString();
     }
 }

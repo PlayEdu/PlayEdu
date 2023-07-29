@@ -20,6 +20,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import xyz.playedu.api.domain.AdminLog;
+import xyz.playedu.api.types.paginate.AdminLogPaginateFiler;
+
+import java.util.List;
 
 /**
  * @author tengteng
@@ -27,4 +30,8 @@ import xyz.playedu.api.domain.AdminLog;
  * @createDate 2023-02-17 15:40:31 @Entity xyz.playedu.api.domain.AdminLog
  */
 @Mapper
-public interface AdminLogMapper extends BaseMapper<AdminLog> {}
+public interface AdminLogMapper extends BaseMapper<AdminLog> {
+    List<AdminLog> paginate(AdminLogPaginateFiler filer);
+
+    Long paginateCount(AdminLogPaginateFiler filer);
+}
