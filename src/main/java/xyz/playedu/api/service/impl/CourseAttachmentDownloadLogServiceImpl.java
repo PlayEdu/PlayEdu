@@ -16,7 +16,9 @@
 package xyz.playedu.api.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import org.springframework.stereotype.Service;
+
 import xyz.playedu.api.domain.CourseAttachmentDownloadLog;
 import xyz.playedu.api.mapper.CourseAttachmentDownloadLogMapper;
 import xyz.playedu.api.service.CourseAttachmentDownloadLogService;
@@ -24,10 +26,12 @@ import xyz.playedu.api.types.paginate.CourseAttachmentDownloadLogPaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
 @Service
-public class CourseAttachmentDownloadLogServiceImpl extends ServiceImpl<CourseAttachmentDownloadLogMapper, CourseAttachmentDownloadLog>
+public class CourseAttachmentDownloadLogServiceImpl
+        extends ServiceImpl<CourseAttachmentDownloadLogMapper, CourseAttachmentDownloadLog>
         implements CourseAttachmentDownloadLogService {
     @Override
-    public PaginationResult<CourseAttachmentDownloadLog> paginate(int page, int size, CourseAttachmentDownloadLogPaginateFiler filter) {
+    public PaginationResult<CourseAttachmentDownloadLog> paginate(
+            int page, int size, CourseAttachmentDownloadLogPaginateFiler filter) {
         filter.setPageStart((page - 1) * size);
         filter.setPageSize(size);
 

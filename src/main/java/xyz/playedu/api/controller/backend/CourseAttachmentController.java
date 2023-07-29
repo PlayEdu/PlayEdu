@@ -16,10 +16,12 @@
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.CourseAttachment;
@@ -62,11 +64,7 @@ public class CourseAttachmentController {
 
         CourseAttachment courseAttachment =
                 attachmentService.create(
-                        courseId,
-                        req.getSort(),
-                        req.getTitle(),
-                        type,
-                        req.getRid());
+                        courseId, req.getSort(), req.getTitle(), type, req.getRid());
         return JsonResponse.success();
     }
 

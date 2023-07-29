@@ -27,10 +27,11 @@ import xyz.playedu.api.service.*;
 import xyz.playedu.api.types.JsonResponse;
 import xyz.playedu.api.types.paginate.CoursePaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
+import xyz.playedu.api.util.IpUtil;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +57,8 @@ public class CourseController {
 
     @Autowired private UserCourseHourRecordService userCourseHourRecordService;
 
+    @Autowired private CourseAttachmentDownloadLogService courseAttachmentDownloadLogService;
+
     @GetMapping("/index")
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);
@@ -78,24 +81,48 @@ public class CourseController {
 
         List<CourseHour> courseHours = hourService.getHoursByCourseId(course.getId());
 
-        List<CourseAttachment> attachments = attachmentService.getAttachmentsByCourseId(course.getId());
-        if(null != attachments && attachments.size() > 0){
-            Map<Integer,String> resourceMap = resourceService.chunks(attachments.stream().map(CourseAttachment::getRid).toList())
-                    .stream().collect(Collectors.toMap(Resource::getId, Resource::getUrl));
-            attachments.forEach(courseAttachment -> {
-                courseAttachment.setUrl(resourceMap.get(courseAttachment.getRid()));
-            });
-        }
+        List<CourseAttachment> attachments =
+                attachmentService.getAttachmentsByCourseId(course.getId());
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
         data.put("chapters", chapterService.getChaptersByCourseId(course.getId()));
-        data.put("hours", courseHours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put(
+                "hours",
+                courseHours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
         data.put("learn_record", userCourseRecordService.find(FCtx.getId(), course.getId()));
-        data.put("learn_hour_records",
+        data.put(
+                "learn_hour_records",
                 userCourseHourRecordService.getRecords(FCtx.getId(), course.getId()).stream()
                         .collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e)));
         data.put("attachments", attachments);
+        return JsonResponse.data(data);
+    }
+
+    @GetMapping("/{courseId}/attach/{id}")
+    @SneakyThrows
+    public JsonResponse attachmentDownload(
+            @PathVariable(name = "courseId") Integer courseId,
+            @PathVariable(name = "id") Integer id) {
+        CourseAttachment attachment = attachmentService.findOrFail(id, courseId);
+        Resource resource = resourceService.findOrFail(attachment.getRid());
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("download_url", resource.getUrl());
+
+        courseAttachmentDownloadLogService.save(
+                new CourseAttachmentDownloadLog() {
+                    {
+                        setUserId(FCtx.getId());
+                        setCourseId(attachment.getCourseId());
+                        setCourserAttachmentId(attachment.getId());
+                        setRid(resource.getId());
+                        setTitle(attachment.getTitle());
+                        setIp(IpUtil.getIpAddress());
+                        setCreatedAt(new Date());
+                    }
+                });
+
         return JsonResponse.data(data);
     }
 }

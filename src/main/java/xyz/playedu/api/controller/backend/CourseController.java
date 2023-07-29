@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
-import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.event.CourseDestroyEvent;
@@ -234,13 +233,18 @@ public class CourseController {
         List<Integer> categoryIds = courseService.getCategoryIdsByCourseId(course.getId());
         List<CourseChapter> chapters = chapterService.getChaptersByCourseId(course.getId());
         List<CourseHour> hours = hourService.getHoursByCourseId(course.getId());
-        List<CourseAttachment> attachments = attachmentService.getAttachmentsByCourseId(course.getId());
-        if(null != attachments && attachments.size() > 0){
-            Map<Integer,String> resourceMap = resourceService.chunks(attachments.stream().map(CourseAttachment::getRid).toList())
-                    .stream().collect(Collectors.toMap(Resource::getId, Resource::getUrl));
-            attachments.forEach(courseAttachment -> {
-                courseAttachment.setUrl(resourceMap.get(courseAttachment.getRid()));
-            });
+        List<CourseAttachment> attachments =
+                attachmentService.getAttachmentsByCourseId(course.getId());
+        if (null != attachments && attachments.size() > 0) {
+            Map<Integer, String> resourceMap =
+                    resourceService
+                            .chunks(attachments.stream().map(CourseAttachment::getRid).toList())
+                            .stream()
+                            .collect(Collectors.toMap(Resource::getId, Resource::getUrl));
+            attachments.forEach(
+                    courseAttachment -> {
+                        courseAttachment.setUrl(resourceMap.get(courseAttachment.getRid()));
+                    });
         }
 
         HashMap<String, Object> data = new HashMap<>();

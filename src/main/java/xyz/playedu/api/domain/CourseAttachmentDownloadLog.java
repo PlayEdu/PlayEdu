@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 import java.io.Serializable;
@@ -106,7 +107,11 @@ public class CourseAttachmentDownloadLog implements Serializable {
         result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
         result = prime * result + ((getCourseId() == null) ? 0 : getCourseId().hashCode());
         result = prime * result + ((getTitle() == null) ? 0 : getTitle().hashCode());
-        result = prime * result + ((getCourserAttachmentId() == null) ? 0 : getCourserAttachmentId().hashCode());
+        result =
+                prime * result
+                        + ((getCourserAttachmentId() == null)
+                                ? 0
+                                : getCourserAttachmentId().hashCode());
         result = prime * result + ((getRid() == null) ? 0 : getRid().hashCode());
         result = prime * result + ((getIp() == null) ? 0 : getIp().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());

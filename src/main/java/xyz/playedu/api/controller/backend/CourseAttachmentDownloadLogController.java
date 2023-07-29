@@ -16,9 +16,11 @@
 package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.*;
@@ -50,7 +52,8 @@ public class CourseAttachmentDownloadLogController {
         Integer courserAttachmentId = MapUtils.getInteger(params, "courser_attachment_id");
         Integer rid = MapUtils.getInteger(params, "rid");
 
-        CourseAttachmentDownloadLogPaginateFiler filter = new CourseAttachmentDownloadLogPaginateFiler();
+        CourseAttachmentDownloadLogPaginateFiler filter =
+                new CourseAttachmentDownloadLogPaginateFiler();
         filter.setUserId(userId);
         filter.setCourseId(courseId);
         filter.setTitle(title);
@@ -59,7 +62,8 @@ public class CourseAttachmentDownloadLogController {
         filter.setSortField(sortField);
         filter.setSortAlgo(sortAlgo);
 
-        PaginationResult<CourseAttachmentDownloadLog> result = courseAttachmentDownloadLogService.paginate(page, size, filter);
+        PaginationResult<CourseAttachmentDownloadLog> result =
+                courseAttachmentDownloadLogService.paginate(page, size, filter);
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());
