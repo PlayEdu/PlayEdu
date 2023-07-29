@@ -69,4 +69,4 @@ playedu:
     testing: false
   limiter:
     duration: 60
-    limit: 240
+    limit: 360
