@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
 import xyz.playedu.api.constant.BPermissionConstant;
-import xyz.playedu.api.constant.BackendConstant;
 import xyz.playedu.api.domain.*;
 import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
@@ -53,6 +52,10 @@ public class CourseController {
     @Autowired private CourseChapterService chapterService;
 
     @Autowired private CourseHourService hourService;
+
+    @Autowired private CourseAttachmentService attachmentService;
+
+    @Autowired private ResourceService resourceService;
 
     @Autowired private DepartmentService departmentService;
 
@@ -192,6 +195,28 @@ public class CourseController {
             courseService.updateClassHour(course.getId(), classHourCount);
         }
 
+        // 课程附件
+        if (req.getAttachments().size() > 0) {
+            List<CourseAttachment> insertAttachments = new ArrayList<>();
+            final Integer[] sort = {0};
+            for (CourseRequest.AttachmentItem attachmentItem : req.getAttachments()) {
+                insertAttachments.add(
+                        new CourseAttachment() {
+                            {
+                                setCourseId(course.getId());
+                                setSort(sort[0]++);
+                                setTitle(attachmentItem.getName());
+                                setType(attachmentItem.getType());
+                                setRid(attachmentItem.getRid());
+                                setCreatedAt(now);
+                            }
+                        });
+            }
+            if (insertAttachments.size() > 0) {
+                attachmentService.saveBatch(insertAttachments);
+            }
+        }
+
         return JsonResponse.success();
     }
 
@@ -203,28 +228,20 @@ public class CourseController {
         List<Integer> categoryIds = courseService.getCategoryIdsByCourseId(course.getId());
         List<CourseChapter> chapters = chapterService.getChaptersByCourseId(course.getId());
         List<CourseHour> hours = hourService.getHoursByCourseId(course.getId());
+        List<CourseAttachment> attachments = attachmentService.getAttachmentsByCourseId(course.getId());
+        Map<Integer,String> resourceMap = resourceService.chunks(attachments.stream().map(CourseAttachment::getRid).toList())
+                .stream().collect(Collectors.toMap(Resource::getId, Resource::getUrl));
+        attachments.forEach(courseAttachment -> {
+            courseAttachment.setUrl(resourceMap.get(courseAttachment.getRid()));
+        });
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
         data.put("dep_ids", depIds); // 已关联的部门
         data.put("category_ids", categoryIds); // 已关联的分类
         data.put("chapters", chapters);
-        data.put(
-                "hours",
-                hours.stream()
-                        .filter(
-                                courseHour ->
-                                        BackendConstant.RESOURCE_TYPE_VIDEO.equals(
-                                                courseHour.getType()))
-                        .collect(Collectors.groupingBy(CourseHour::getChapterId)));
-        data.put(
-                "attachments",
-                hours.stream()
-                        .filter(
-                                courseHour ->
-                                        BackendConstant.RESOURCE_TYPE_ATTACHMENT.contains(
-                                                courseHour.getType()))
-                        .collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put("hours", hours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
+        data.put("attachments", attachments);
         return JsonResponse.data(data);
     }
 

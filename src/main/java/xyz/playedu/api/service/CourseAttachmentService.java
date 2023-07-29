@@ -27,7 +27,7 @@ public interface CourseAttachmentService extends IService<CourseAttachment> {
 
     void update(CourseAttachment courseAttachment, Integer sort, String title);
 
-    List<CourseAttachment> getAttachmentByCourseId(Integer courseId);
+    List<CourseAttachment> getAttachmentsByCourseId(Integer courseId);
 
     CourseAttachment create(
             Integer courseId,
@@ -42,7 +42,7 @@ public interface CourseAttachmentService extends IService<CourseAttachment> {
 
     void updateSort(List<Integer> ids, Integer cid);
 
-    List<Integer> getRidsByCourseId(Integer courseId, String type);
+    List<Integer> getRidsByCourseId(Integer courseId);
 
     List<CourseAttachment> chunk(List<Integer> attachmentIds);
 }

@@ -53,7 +53,7 @@ public class CourseAttachmentServiceImpl extends ServiceImpl<CourseAttachmentMap
     }
 
     @Override
-    public List<CourseAttachment> getAttachmentByCourseId(Integer courseId) {
+    public List<CourseAttachment> getAttachmentsByCourseId(Integer courseId) {
         return list(query().getWrapper().eq("course_id", courseId).orderByAsc("sort"));
     }
 
@@ -108,8 +108,8 @@ public class CourseAttachmentServiceImpl extends ServiceImpl<CourseAttachmentMap
     }
 
     @Override
-    public List<Integer> getRidsByCourseId(Integer courseId, String type) {
-        return list(query().getWrapper().eq("course_id", courseId).eq("type", type)).stream()
+    public List<Integer> getRidsByCourseId(Integer courseId) {
+        return list(query().getWrapper().eq("course_id", courseId)).stream()
                 .map(CourseAttachment::getRid)
                 .toList();
     }

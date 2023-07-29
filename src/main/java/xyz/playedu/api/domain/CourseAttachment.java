@@ -52,6 +52,9 @@ public class CourseAttachment implements Serializable {
     /** 资源id */
     private Integer rid;
 
+    /** 资源url */
+    private String url;
+
     /** */
     @JsonIgnore private Date createdAt;
 
@@ -86,6 +89,9 @@ public class CourseAttachment implements Serializable {
                 && (this.getRid() == null
                         ? other.getRid() == null
                         : this.getRid().equals(other.getRid()))
+                && (this.getUrl() == null
+                        ? other.getUrl() == null
+                        : this.getUrl().equals(other.getUrl()))
                 && (this.getCreatedAt() == null
                         ? other.getCreatedAt() == null
                         : this.getCreatedAt().equals(other.getCreatedAt()));
@@ -101,6 +107,7 @@ public class CourseAttachment implements Serializable {
         result = prime * result + ((getTitle() == null) ? 0 : getTitle().hashCode());
         result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
         result = prime * result + ((getRid() == null) ? 0 : getRid().hashCode());
+        result = prime * result + ((getUrl() == null) ? 0 : getUrl().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
         return result;
     }
@@ -117,6 +124,7 @@ public class CourseAttachment implements Serializable {
         sb.append(", title=").append(title);
         sb.append(", type=").append(type);
         sb.append(", rid=").append(rid);
+        sb.append(", url=").append(url);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
