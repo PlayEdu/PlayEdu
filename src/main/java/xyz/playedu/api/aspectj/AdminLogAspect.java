@@ -53,7 +53,7 @@ public class AdminLogAspect {
 
     /** 排除敏感属性字段 */
     public static final String[] EXCLUDE_PROPERTIES = {
-        "password", "oldPassword", "newPassword", "confirmPassword"
+        "password", "oldPassword", "newPassword", "confirmPassword", "token"
     };
 
     /** Controller层切点 注解拦截 */
@@ -118,20 +118,19 @@ public class AdminLogAspect {
                 }
             }
             if (StringUtil.isNotEmpty(params)) {
-                JSONObject paramObj = JSONUtil.parseObj(params);
-                for (String i : Arrays.asList(EXCLUDE_PROPERTIES)) {
-                    if (paramObj.containsKey(i)) {
-                        paramObj.put(i, "******");
-                    }
-                }
-                adminLog.setParam(StringUtils.substring(JSONUtil.toJsonStr(paramObj), 0, 2000));
+                JSONObject paramObj = excludeProperties(params);
+                adminLog.setParam(JSONUtil.toJsonStr(paramObj));
             }
-            adminLog.setResult(JSONUtil.toJsonStr(jsonResult));
+            if (null != jsonResult) {
+                jsonResult = excludeProperties(JSONUtil.toJsonStr(jsonResult));
+                adminLog.setResult(JSONUtil.toJsonStr(jsonResult));
+            }
+
             adminLog.setIp(IpUtil.getIpAddress());
             adminLog.setIpArea(IpUtil.getRealAddressByIP(IpUtil.getIpAddress()));
 
             if (null != e) {
-                adminLog.setErrorMsg(StringUtil.substring(e.getMessage(), 0, 2000));
+                adminLog.setErrorMsg(e.getMessage());
             }
             adminLog.setCreatedAt(new Date());
             // 保存数据库
@@ -151,5 +150,31 @@ public class AdminLogAspect {
             return method.getAnnotation(Log.class);
         }
         return null;
+    }
+
+    public JSONObject excludeProperties(String jsonData) {
+        JSONObject jsonObjectResult = new JSONObject();
+        // 把传入String类型转换成JSONObject对象
+        if(JSONUtil.isTypeJSON(jsonData)){
+            JSONObject jsonObject = JSONUtil.parseObj(jsonData);
+            for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if(StringUtil.isNotNull(value)){
+                    // 如果value依旧是json类型的话继续递归解析
+                    if (JSONUtil.isTypeJSON(value.toString())) {
+                        jsonObjectResult.put(key, excludeProperties(entry.getValue().toString()));
+                    } else {
+                        // 如果value是单纯的数据,执行脱敏操作
+                        for (String i : Arrays.asList(EXCLUDE_PROPERTIES)) {
+                            if(key.equals(i)){
+                                jsonObjectResult.put(key, "******");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return jsonObjectResult;
     }
 }
