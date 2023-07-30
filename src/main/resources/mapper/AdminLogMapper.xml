@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="xyz.playedu.api.domain.AdminLog">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="adminId" column="admin_id" jdbcType="INTEGER"/>
+            <result property="adminName" column="admin_name" jdbcType="VARCHAR"/>
             <result property="module" column="module" jdbcType="VARCHAR"/>
             <result property="title" column="title" jdbcType="VARCHAR"/>
             <result property="opt" column="opt" jdbcType="INTEGER"/>
@@ -22,7 +23,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,admin_id,module,title,
+        id,admin_id,admin_name,module,title,
         opt,method,request_method,url,param,result,
         ip,ip_area,error_msg,created_at
     </sql>
@@ -34,6 +35,9 @@
             <if test="adminId != null">
                 AND `admin_logs`.`admin_id` = #{adminId}
             </if>
+            <if test="adminName != null and adminName != ''">
+                AND `admin_logs`.`admin_name` LIKE concat('%',#{adminName},'%')
+            </if>
             <if test="module != null and module != ''">
                 AND `admin_logs`.`module` LIKE concat('%',#{module},'%')
             </if>
@@ -43,12 +47,12 @@
             <if test="opt != null">
                 AND `admin_logs`.`opt` = #{opt}
             </if>
-            <if test="startTime != null and startTime != ''">
-                AND `admin_logs`.`created_at` &gt;= #{startTime}
+            <if test="startTime != null and startTime != '' ">
+                <if test="endTime != null and endTime != ''">
+                    AND `admin_logs`.`created_at` BETWEEN #{startTime} AND #{endTime}
+                </if>
             </if>
-            <if test="endTime != null and endTime != ''">
-                AND `admin_logs`.`created_at` &lt;= #{endTime}
-            </if>
+
         </where>
 
         <if test="sortAlgo == 'asc'">
@@ -81,6 +85,9 @@
             <if test="adminId != null">
                 AND `admin_logs`.`admin_id` = #{adminId}
             </if>
+            <if test="adminName != null and adminName != ''">
+                AND `admin_logs`.`admin_name` LIKE concat('%',#{adminName},'%')
+            </if>
             <if test="module != null and module != ''">
                 AND `admin_logs`.`module` LIKE concat('%',#{module},'%')
             </if>
@@ -90,11 +97,10 @@
             <if test="opt != null">
                 AND `admin_logs`.`opt` = #{opt}
             </if>
-            <if test="startTime != null and startTime != ''">
-                AND `admin_logs`.`created_at` &gt;= #{startTime}
-            </if>
-            <if test="endTime != null and endTime != ''">
-                AND `admin_logs`.`created_at` &lt;= #{endTime}
+            <if test="startTime != null and startTime != '' ">
+                <if test="endTime != null and endTime != ''">
+                    AND `admin_logs`.`created_at` BETWEEN #{startTime} AND #{endTime}
+                </if>
             </if>
         </where>
     </select>

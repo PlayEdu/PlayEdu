@@ -4,6 +4,7 @@ CREATE TABLE `admin_logs`
 (
     `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     `admin_id`       int(11) NOT NULL DEFAULT '0' COMMENT '管理员ID',
+    `admin_name`     varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '管理员姓名',
     `module`         varchar(32) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '模块',
     `title`          varchar(32) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '请求方法标题',
     `opt`            int(2) NOT NULL DEFAULT '0' COMMENT '操作指令（0其它 1新增 2修改 3删除 4登录 5退出登录）',
