@@ -47,7 +47,7 @@ public class CourseAttachment implements Serializable {
     /** 附件名 */
     private String title;
 
-    /** 附件类型 */
+    /** 类型 */
     private String type;
 
     /** 资源id */
@@ -56,6 +56,10 @@ public class CourseAttachment implements Serializable {
     /** 资源url */
     @TableField(exist = false)
     private String url;
+
+    /** 资源类型 */
+    @TableField(exist = false)
+    private String ext;
 
     /** */
     @JsonIgnore private Date createdAt;
@@ -85,6 +89,9 @@ public class CourseAttachment implements Serializable {
                 && (this.getTitle() == null
                         ? other.getTitle() == null
                         : this.getTitle().equals(other.getTitle()))
+                && (this.getExt() == null
+                        ? other.getExt() == null
+                        : this.getExt().equals(other.getExt()))
                 && (this.getType() == null
                         ? other.getType() == null
                         : this.getType().equals(other.getType()))
@@ -107,6 +114,7 @@ public class CourseAttachment implements Serializable {
         result = prime * result + ((getCourseId() == null) ? 0 : getCourseId().hashCode());
         result = prime * result + ((getSort() == null) ? 0 : getSort().hashCode());
         result = prime * result + ((getTitle() == null) ? 0 : getTitle().hashCode());
+        result = prime * result + ((getExt() == null) ? 0 : getExt().hashCode());
         result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
         result = prime * result + ((getRid() == null) ? 0 : getRid().hashCode());
         result = prime * result + ((getUrl() == null) ? 0 : getUrl().hashCode());
@@ -124,6 +132,7 @@ public class CourseAttachment implements Serializable {
         sb.append(", courseId=").append(courseId);
         sb.append(", sort=").append(sort);
         sb.append(", title=").append(title);
+        sb.append(", ext=").append(ext);
         sb.append(", type=").append(type);
         sb.append(", rid=").append(rid);
         sb.append(", url=").append(url);

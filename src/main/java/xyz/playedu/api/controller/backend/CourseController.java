@@ -40,6 +40,7 @@ import xyz.playedu.api.types.paginate.PaginationResult;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
@@ -236,14 +237,18 @@ public class CourseController {
         List<CourseAttachment> attachments =
                 attachmentService.getAttachmentsByCourseId(course.getId());
         if (null != attachments && attachments.size() > 0) {
-            Map<Integer, String> resourceMap =
+            Map<Integer, Resource> resourceMap =
                     resourceService
                             .chunks(attachments.stream().map(CourseAttachment::getRid).toList())
                             .stream()
-                            .collect(Collectors.toMap(Resource::getId, Resource::getUrl));
+                            .collect(Collectors.toMap(Resource::getId, Function.identity()));
             attachments.forEach(
                     courseAttachment -> {
-                        courseAttachment.setUrl(resourceMap.get(courseAttachment.getRid()));
+                        Resource resource = resourceMap.get(courseAttachment.getRid());
+                        if(null != resource){
+                            courseAttachment.setUrl(resource.getUrl());
+                            courseAttachment.setExt(resource.getExtension());
+                        }
                     });
         }
 
