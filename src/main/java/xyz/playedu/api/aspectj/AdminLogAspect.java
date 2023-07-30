@@ -30,7 +30,9 @@ import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.domain.AdminLog;
+import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.service.AdminLogService;
+import xyz.playedu.api.service.AdminUserService;
 import xyz.playedu.api.service.BackendAuthService;
 import xyz.playedu.api.util.IpUtil;
 import xyz.playedu.api.util.RequestUtil;
@@ -46,6 +48,8 @@ import java.util.Map;
 public class AdminLogAspect {
 
     @Autowired private BackendAuthService authService;
+
+    @Autowired private AdminUserService adminUserService;
 
     @Autowired private AdminLogService adminLogService;
 
@@ -87,9 +91,15 @@ public class AdminLogAspect {
                 return;
             }
 
+            AdminUser adminUser = adminUserService.findById(authService.userId());
+            if (null == adminUser) {
+                return;
+            }
+
             // 日志
             AdminLog adminLog = new AdminLog();
-            adminLog.setAdminId(authService.userId());
+            adminLog.setAdminId(adminUser.getId());
+            adminLog.setAdminName(adminUser.getName());
             adminLog.setModule("BACKEND");
             adminLog.setTitle(controllerLog.title());
             adminLog.setOpt(controllerLog.businessType().ordinal());
@@ -167,6 +177,8 @@ public class AdminLogAspect {
                         for (String i : EXCLUDE_PROPERTIES) {
                             if (key.equals(i)) {
                                 jsonObjectResult.put(key, "******");
+                            }else {
+                                jsonObjectResult.put(key, value);
                             }
                         }
                     }

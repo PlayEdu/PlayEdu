@@ -63,6 +63,7 @@ public class AdminLogController {
         String sortAlgo = MapUtils.getString(params, "sort_algo");
 
         Integer adminId = MapUtils.getInteger(params, "admin_id");
+        String adminName = MapUtils.getString(params, "admin_name");
         String module = MapUtils.getString(params, "module");
         String title = MapUtils.getString(params, "title");
         Integer opt = MapUtils.getInteger(params, "opt");
@@ -75,6 +76,7 @@ public class AdminLogController {
         } else {
             filter.setAdminId(BCtx.getId());
         }
+        filter.setAdminName(adminName);
         filter.setModule(module);
         filter.setTitle(title);
         filter.setOpt(opt);
@@ -84,17 +86,6 @@ public class AdminLogController {
         filter.setSortAlgo(sortAlgo);
 
         PaginationResult<AdminLog> result = adminLogService.paginate(page, size, filter);
-        if(result.getTotal() > 0){
-            List<AdminUser> adminUsers =  adminUserService.chunks(result.getData().stream().map(AdminLog::getAdminId).toList());
-            if(null != adminUsers && adminUsers.size() > 0){
-                Map<Integer, String> adminUserMap = adminUsers.stream().collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
-                result.getData()
-                        .forEach(
-                                adminLog -> {
-                                    adminLog.setAdminName(adminUserMap.get(adminLog.getAdminId()));
-                                });
-            }
-        }
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());

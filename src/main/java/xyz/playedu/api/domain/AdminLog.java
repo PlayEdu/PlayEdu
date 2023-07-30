@@ -40,7 +40,7 @@ public class AdminLog implements Serializable {
     @JsonProperty("admin_id")
     private Integer adminId;
 
-    @TableField(exist = false)
+    /** 管理员姓名 */
     @JsonProperty("admin_name")
     private String adminName;
 
@@ -102,6 +102,9 @@ public class AdminLog implements Serializable {
                 && (this.getAdminId() == null
                         ? other.getAdminId() == null
                         : this.getAdminId().equals(other.getAdminId()))
+                && (this.getAdminName() == null
+                        ? other.getAdminName() == null
+                        : this.getAdminName().equals(other.getAdminName()))
                 && (this.getModule() == null
                         ? other.getModule() == null
                         : this.getModule().equals(other.getModule()))
@@ -146,6 +149,7 @@ public class AdminLog implements Serializable {
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getAdminId() == null) ? 0 : getAdminId().hashCode());
+        result = prime * result + ((getAdminName() == null) ? 0 : getAdminName().hashCode());
         result = prime * result + ((getModule() == null) ? 0 : getModule().hashCode());
         result = prime * result + ((getTitle() == null) ? 0 : getTitle().hashCode());
         result = prime * result + ((getOpt() == null) ? 0 : getOpt().hashCode());
@@ -170,6 +174,7 @@ public class AdminLog implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", adminId=").append(adminId);
+        sb.append(", adminName=").append(adminName);
         sb.append(", module=").append(module);
         sb.append(", title=").append(title);
         sb.append(", opt=").append(opt);

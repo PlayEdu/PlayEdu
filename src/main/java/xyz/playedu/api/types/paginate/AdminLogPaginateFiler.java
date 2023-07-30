@@ -22,6 +22,8 @@ public class AdminLogPaginateFiler {
 
     private Integer adminId;
 
+    private String adminName;
+
     private String module;
 
     private String title;

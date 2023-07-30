@@ -32,6 +32,8 @@ import xyz.playedu.api.util.IpUtil;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -83,6 +85,20 @@ public class CourseController {
 
         List<CourseAttachment> attachments =
                 attachmentService.getAttachmentsByCourseId(course.getId());
+        if (null != attachments && attachments.size() > 0) {
+            Map<Integer, Resource> resourceMap =
+                    resourceService
+                            .chunks(attachments.stream().map(CourseAttachment::getRid).toList())
+                            .stream()
+                            .collect(Collectors.toMap(Resource::getId, Function.identity()));
+            attachments.forEach(
+                    courseAttachment -> {
+                        Resource resource = resourceMap.get(courseAttachment.getRid());
+                        if(null != resource){
+                            courseAttachment.setExt(resource.getExtension());
+                        }
+                    });
+        }
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
