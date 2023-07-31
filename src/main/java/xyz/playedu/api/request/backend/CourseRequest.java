@@ -72,6 +72,13 @@ public class CourseRequest {
         private List<HourItem> hours;
     }
 
+    @Data
+    public static class AttachmentItem {
+        private String name;
+        private String type;
+        private Integer rid;
+    }
+
     // 格式
     // [
     // {
@@ -100,4 +107,14 @@ public class CourseRequest {
     // ]
     @NotNull(message = "hours参数不存在")
     private List<HourItem> hours;
+
+    // 格式
+    // [
+    // {
+    // 'name' => '附件名',
+    // 'type' => '附件类型',
+    // 'rid' => '资源id',
+    // }...
+    // ]
+    private List<AttachmentItem> attachments;
 }

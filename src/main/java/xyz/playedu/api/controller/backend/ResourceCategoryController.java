@@ -21,8 +21,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
 import xyz.playedu.api.constant.BackendConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.Resource;
 import xyz.playedu.api.domain.ResourceCategory;
 import xyz.playedu.api.event.ResourceCategoryDestroyEvent;
@@ -57,6 +59,7 @@ public class ResourceCategoryController {
     @Autowired private ApplicationContext ctx;
 
     @GetMapping("/index")
+    @Log(title = "资源-分类-列表", businessType = BusinessType.GET)
     public JsonResponse index() {
         HashMap<String, Object> data = new HashMap<>();
         data.put("categories", categoryService.groupByParent());
@@ -64,6 +67,7 @@ public class ResourceCategoryController {
     }
 
     @GetMapping("/categories")
+    @Log(title = "资源-分类-全部分类", businessType = BusinessType.GET)
     public JsonResponse index(
             @RequestParam(name = "parent_id", defaultValue = "0") Integer parentId) {
         List<ResourceCategory> categories = categoryService.listByParentId(parentId);
@@ -71,6 +75,7 @@ public class ResourceCategoryController {
     }
 
     @GetMapping("/create")
+    @Log(title = "资源-分类-新建", businessType = BusinessType.GET)
     public JsonResponse create() {
         HashMap<String, Object> data = new HashMap<>();
         data.put("categories", categoryService.groupByParent());
@@ -79,6 +84,7 @@ public class ResourceCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PostMapping("/create")
+    @Log(title = "资源-分类-新建", businessType = BusinessType.INSERT)
     public JsonResponse store(@RequestBody @Validated ResourceCategoryRequest req)
             throws NotFoundException {
         categoryService.create(req.getName(), req.getParentId(), req.getSort());
@@ -87,6 +93,7 @@ public class ResourceCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @GetMapping("/{id}")
+    @Log(title = "资源-分类-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(@PathVariable Integer id) throws NotFoundException {
         ResourceCategory category = categoryService.findOrFail(id);
         return JsonResponse.data(category);
@@ -94,6 +101,7 @@ public class ResourceCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PutMapping("/{id}")
+    @Log(title = "资源-分类-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(@PathVariable Integer id, @RequestBody ResourceCategoryRequest req)
             throws NotFoundException {
         ResourceCategory category = categoryService.findOrFail(id);
@@ -103,6 +111,7 @@ public class ResourceCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @GetMapping("/{id}/destroy")
+    @Log(title = "资源-分类-批量删除", businessType = BusinessType.DELETE)
     public JsonResponse preDestroy(@PathVariable Integer id) {
         List<Integer> courseIds = categoryService.getCourseIdsById(id);
         List<Integer> rids = categoryService.getRidsById(id);
@@ -151,6 +160,7 @@ public class ResourceCategoryController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @DeleteMapping("/{id}")
+    @Log(title = "资源-分类-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         ResourceCategory category = categoryService.findOrFail(id);
         categoryService.deleteById(category.getId());
@@ -159,12 +169,14 @@ public class ResourceCategoryController {
     }
 
     @PutMapping("/update/sort")
+    @Log(title = "资源-分类-更新排序", businessType = BusinessType.UPDATE)
     public JsonResponse resort(@RequestBody @Validated ResourceCategorySortRequest req) {
         categoryService.resetSort(req.getIds());
         return JsonResponse.success();
     }
 
     @PutMapping("/update/parent")
+    @Log(title = "资源-分类-更新父级", businessType = BusinessType.UPDATE)
     public JsonResponse updateParent(@RequestBody @Validated ResourceCategoryParentRequest req)
             throws NotFoundException {
         categoryService.changeParent(req.getId(), req.getParentId(), req.getIds());

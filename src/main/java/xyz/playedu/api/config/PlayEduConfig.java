@@ -27,6 +27,9 @@ public class PlayEduConfig {
     @Value("${spring.profiles.active}")
     private String env;
 
+    @Value("${playedu.core.testing}")
+    private Boolean testing;
+
     @Value("${playedu.limiter.duration}")
     private Long limiterDuration;
 

@@ -21,7 +21,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.CourseChapter;
 import xyz.playedu.api.event.CourseChapterDestroyEvent;
 import xyz.playedu.api.exception.NotFoundException;
@@ -32,11 +34,6 @@ import xyz.playedu.api.service.CourseChapterService;
 import xyz.playedu.api.service.CourseHourService;
 import xyz.playedu.api.types.JsonResponse;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/2/26 17:28
- */
 @RestController
 @RequestMapping("/backend/v1/course/{courseId}/chapter")
 public class CourseChapterController {
@@ -49,6 +46,7 @@ public class CourseChapterController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PostMapping("/create")
+    @Log(title = "线上课-章节-新建", businessType = BusinessType.GET)
     public JsonResponse store(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseChapterRequest req) {
@@ -58,6 +56,7 @@ public class CourseChapterController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @GetMapping("/{id}")
+    @Log(title = "线上课-章节-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id)
@@ -68,6 +67,7 @@ public class CourseChapterController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @PutMapping("/{id}")
+    @Log(title = "线上课-章节-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id,
@@ -80,6 +80,7 @@ public class CourseChapterController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.COURSE)
     @DeleteMapping("/{id}")
+    @Log(title = "线上课-章节-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id)
@@ -96,6 +97,7 @@ public class CourseChapterController {
     }
 
     @PutMapping("/update/sort")
+    @Log(title = "线上课-章节-更新排序", businessType = BusinessType.UPDATE)
     public JsonResponse updateSort(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseChapterSortRequest req) {

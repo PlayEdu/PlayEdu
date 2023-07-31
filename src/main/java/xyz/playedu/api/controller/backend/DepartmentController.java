@@ -24,7 +24,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.Course;
 import xyz.playedu.api.domain.Department;
 import xyz.playedu.api.domain.User;
@@ -60,6 +62,7 @@ public class DepartmentController {
     @Autowired private ApplicationContext ctx;
 
     @GetMapping("/index")
+    @Log(title = "部门-列表", businessType = BusinessType.GET)
     public JsonResponse index() {
         HashMap<String, Object> data = new HashMap<>();
         data.put("departments", departmentService.groupByParent());
@@ -69,6 +72,7 @@ public class DepartmentController {
     }
 
     @GetMapping("/departments")
+    @Log(title = "部门-全部部门", businessType = BusinessType.GET)
     public JsonResponse index(
             @RequestParam(name = "parent_id", defaultValue = "0") Integer parentId) {
         List<Department> departments = departmentService.listByParentId(parentId);
@@ -77,6 +81,7 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @GetMapping("/create")
+    @Log(title = "部门-新建", businessType = BusinessType.GET)
     public JsonResponse create() {
         HashMap<String, Object> data = new HashMap<>();
         data.put("departments", departmentService.groupByParent());
@@ -85,6 +90,7 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PostMapping("/create")
+    @Log(title = "部门-新建", businessType = BusinessType.INSERT)
     public JsonResponse store(@RequestBody @Validated DepartmentRequest req)
             throws NotFoundException {
         departmentService.create(req.getName(), req.getParentId(), req.getSort());
@@ -93,6 +99,7 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @GetMapping("/{id}")
+    @Log(title = "部门-编辑", businessType = BusinessType.GET)
     public JsonResponse edit(@PathVariable Integer id) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
         return JsonResponse.data(department);
@@ -100,6 +107,7 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PutMapping("/{id}")
+    @Log(title = "部门-编辑", businessType = BusinessType.UPDATE)
     public JsonResponse update(@PathVariable Integer id, @RequestBody DepartmentRequest req)
             throws NotFoundException {
         Department department = departmentService.findOrFail(id);
@@ -109,6 +117,7 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @GetMapping("/{id}/destroy")
+    @Log(title = "部门-批量删除", businessType = BusinessType.DELETE)
     public JsonResponse preDestroy(@PathVariable Integer id) {
         List<Integer> courseIds = departmentService.getCourseIdsByDepId(id);
         List<Integer> userIds = departmentService.getUserIdsByDepId(id);
@@ -149,6 +158,7 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @DeleteMapping("/{id}")
+    @Log(title = "部门-删除", businessType = BusinessType.DELETE)
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
         Department department = departmentService.findOrFail(id);
         departmentService.destroy(department.getId());
@@ -158,6 +168,7 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PutMapping("/update/sort")
+    @Log(title = "部门-更新排序", businessType = BusinessType.UPDATE)
     public JsonResponse resort(@RequestBody @Validated DepartmentSortRequest req) {
         departmentService.resetSort(req.getIds());
         return JsonResponse.success();
@@ -165,6 +176,7 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_CUD)
     @PutMapping("/update/parent")
+    @Log(title = "部门-更新父级", businessType = BusinessType.UPDATE)
     public JsonResponse updateParent(@RequestBody @Validated DepartmentParentRequest req)
             throws NotFoundException {
         departmentService.changeParent(req.getId(), req.getParentId(), req.getIds());
@@ -173,6 +185,7 @@ public class DepartmentController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.DEPARTMENT_USER_LEARN)
     @GetMapping("/{id}/users")
+    @Log(title = "部门-学员", businessType = BusinessType.GET)
     public JsonResponse users(
             @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);

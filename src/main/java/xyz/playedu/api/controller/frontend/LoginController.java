@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import xyz.playedu.api.FCtx;
+import xyz.playedu.api.config.PlayEduConfig;
 import xyz.playedu.api.domain.User;
 import xyz.playedu.api.event.UserLoginEvent;
 import xyz.playedu.api.event.UserLogoutEvent;
@@ -52,6 +53,8 @@ public class LoginController {
 
     @Autowired private RateLimiterService rateLimiterService;
 
+    @Autowired private PlayEduConfig playEduConfig;
+
     @PostMapping("/password")
     public JsonResponse password(@RequestBody @Validated LoginPasswordRequest req)
             throws LimitException {
@@ -64,7 +67,7 @@ public class LoginController {
 
         String limitKey = "login-limit:" + req.getEmail();
         Long reqCount = rateLimiterService.current(limitKey, 600L);
-        if (reqCount >= 10) {
+        if (reqCount >= 10 && !playEduConfig.getTesting()) {
             Long exp = RedisUtil.ttlWithoutPrefix(limitKey);
             return JsonResponse.error(
                     String.format("您的账号已被锁定，请%s后重试", exp > 60 ? exp / 60 + "分钟" : exp + "秒"));

@@ -35,4 +35,6 @@ public interface ResourceMapper extends BaseMapper<Resource> {
     List<Resource> paginate(ResourcePaginateFilter filter);
 
     Long paginateCount(ResourcePaginateFilter filter);
+
+    List<String> paginateType(ResourcePaginateFilter filter);
 }

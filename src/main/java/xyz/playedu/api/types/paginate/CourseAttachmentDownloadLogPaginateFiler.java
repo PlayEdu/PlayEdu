@@ -13,22 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.service;
+package xyz.playedu.api.types.paginate;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import lombok.Data;
 
-import org.springframework.stereotype.Service;
+@Data
+public class CourseAttachmentDownloadLogPaginateFiler {
 
-import xyz.playedu.api.domain.AdminLog;
-import xyz.playedu.api.types.paginate.AdminLogPaginateFiler;
-import xyz.playedu.api.types.paginate.PaginationResult;
+    private Integer userId;
 
-/**
- * @author tengteng
- * @description 针对表【admin_logs】的数据库操作Service
- * @createDate 2023-02-17 15:40:31
- */
-@Service
-public interface AdminLogService extends IService<AdminLog> {
-    PaginationResult<AdminLog> paginate(int page, int size, AdminLogPaginateFiler filter);
+    private Integer courseId;
+
+    private String title;
+
+    private Integer courserAttachmentId;
+
+    private Integer rid;
+
+    private String sortField;
+
+    private String sortAlgo;
+
+    private Integer pageStart;
+
+    private Integer pageSize;
 }

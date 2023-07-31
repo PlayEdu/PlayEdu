@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.api.service;
+package xyz.playedu.api.annotation;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import xyz.playedu.api.constant.BusinessType;
 
-import org.springframework.stereotype.Service;
+import java.lang.annotation.*;
 
-import xyz.playedu.api.domain.AdminLog;
-import xyz.playedu.api.types.paginate.AdminLogPaginateFiler;
-import xyz.playedu.api.types.paginate.PaginationResult;
+@Target({ElementType.PARAMETER, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Log {
+    /** 标题 */
+    public String title() default "";
 
-/**
- * @author tengteng
- * @description 针对表【admin_logs】的数据库操作Service
- * @createDate 2023-02-17 15:40:31
- */
-@Service
-public interface AdminLogService extends IService<AdminLog> {
-    PaginationResult<AdminLog> paginate(int page, int size, AdminLogPaginateFiler filter);
+    /** 功能 */
+    public BusinessType businessType() default BusinessType.OTHER;
 }

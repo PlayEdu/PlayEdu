@@ -35,6 +35,25 @@ public class BackendConstant {
     public static final String RESOURCE_TYPE_PDF = "PDF";
     public static final String RESOURCE_TYPE_WORD = "WORD";
     public static final String RESOURCE_TYPE_PPT = "PPT";
+    public static final String RESOURCE_TYPE_EXCEL = "EXCEL";
+    public static final String RESOURCE_TYPE_ZIP = "ZIP";
+    public static final String RESOURCE_TYPE_RAR = "RAR";
+    public static final String RESOURCE_TYPE_TXT = "TXT";
+
+    public static final String RESOURCE_TYPE_ATTACHMENT =
+            RESOURCE_TYPE_PDF
+                    + ","
+                    + RESOURCE_TYPE_TXT
+                    + ","
+                    + RESOURCE_TYPE_ZIP
+                    + ","
+                    + RESOURCE_TYPE_RAR
+                    + ","
+                    + RESOURCE_TYPE_WORD
+                    + ","
+                    + RESOURCE_TYPE_PPT
+                    + ","
+                    + RESOURCE_TYPE_EXCEL;
 
     public static final HashMap<String, String> RESOURCE_EXT_2_CONTENT_TYPE =
             new HashMap<>() {
@@ -53,6 +72,13 @@ public class BackendConstant {
                     put(
                             "pptx",
                             "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+                    put("xls", "application/vnd.ms-excel");
+                    put(
+                            "xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    put("txt", "text/plain");
+                    put("zip", "application/zip");
+                    put("rar", "application/x-rar");
                 }
             };
     public static final HashMap<String, String> RESOURCE_EXT_2_TYPE =
@@ -68,6 +94,11 @@ public class BackendConstant {
                     put("docx", RESOURCE_TYPE_WORD);
                     put("ppt", RESOURCE_TYPE_PPT);
                     put("pptx", RESOURCE_TYPE_PPT);
+                    put("xls", RESOURCE_TYPE_EXCEL);
+                    put("xlsx", RESOURCE_TYPE_EXCEL);
+                    put("txt", RESOURCE_TYPE_TXT);
+                    put("zip", RESOURCE_TYPE_ZIP);
+                    put("rar", RESOURCE_TYPE_RAR);
                 }
             };
     public static final HashMap<String, String> RESOURCE_TYPE_2_DIR =
@@ -78,6 +109,10 @@ public class BackendConstant {
                     put(RESOURCE_TYPE_PDF, UPLOAD_PDF_DIR);
                     put(RESOURCE_TYPE_WORD, UPLOAD_WORD_DIR);
                     put(RESOURCE_TYPE_PPT, UPLOAD_PPT_DIR);
+                    put(RESOURCE_TYPE_EXCEL, UPLOAD_EXCEL_DIR);
+                    put(RESOURCE_TYPE_TXT, UPLOAD_TXT_DIR);
+                    put(RESOURCE_TYPE_ZIP, UPLOAD_ZIP_DIR);
+                    put(RESOURCE_TYPE_RAR, UPLOAD_RAR_DIR);
                 }
             };
 
@@ -91,6 +126,10 @@ public class BackendConstant {
     public static final String UPLOAD_PDF_DIR = "pdf/";
     public static final String UPLOAD_WORD_DIR = "word/";
     public static final String UPLOAD_PPT_DIR = "word/";
+    public static final String UPLOAD_EXCEL_DIR = "excel/";
+    public static final String UPLOAD_TXT_DIR = "txt/";
+    public static final String UPLOAD_ZIP_DIR = "zip/";
+    public static final String UPLOAD_RAR_DIR = "rar/";
 
     public static final String PRIVACY_FIELD_TYPE_EMAIL = "email";
     public static final String PRIVACY_FIELD_TYPE_PHONE = "phone";

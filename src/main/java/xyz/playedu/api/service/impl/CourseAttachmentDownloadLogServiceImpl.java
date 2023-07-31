@@ -19,26 +19,23 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import org.springframework.stereotype.Service;
 
-import xyz.playedu.api.domain.AdminLog;
-import xyz.playedu.api.mapper.AdminLogMapper;
-import xyz.playedu.api.service.AdminLogService;
-import xyz.playedu.api.types.paginate.AdminLogPaginateFiler;
+import xyz.playedu.api.domain.CourseAttachmentDownloadLog;
+import xyz.playedu.api.mapper.CourseAttachmentDownloadLogMapper;
+import xyz.playedu.api.service.CourseAttachmentDownloadLogService;
+import xyz.playedu.api.types.paginate.CourseAttachmentDownloadLogPaginateFiler;
 import xyz.playedu.api.types.paginate.PaginationResult;
 
-/**
- * @author tengteng
- * @description 针对表【admin_logs】的数据库操作Service实现
- * @createDate 2023-02-17 15:40:31
- */
 @Service
-public class AdminLogServiceImpl extends ServiceImpl<AdminLogMapper, AdminLog>
-        implements AdminLogService {
+public class CourseAttachmentDownloadLogServiceImpl
+        extends ServiceImpl<CourseAttachmentDownloadLogMapper, CourseAttachmentDownloadLog>
+        implements CourseAttachmentDownloadLogService {
     @Override
-    public PaginationResult<AdminLog> paginate(int page, int size, AdminLogPaginateFiler filter) {
+    public PaginationResult<CourseAttachmentDownloadLog> paginate(
+            int page, int size, CourseAttachmentDownloadLogPaginateFiler filter) {
         filter.setPageStart((page - 1) * size);
         filter.setPageSize(size);
 
-        PaginationResult<AdminLog> pageResult = new PaginationResult<>();
+        PaginationResult<CourseAttachmentDownloadLog> pageResult = new PaginationResult<>();
         pageResult.setData(getBaseMapper().paginate(filter));
         pageResult.setTotal(getBaseMapper().paginateCount(filter));
 

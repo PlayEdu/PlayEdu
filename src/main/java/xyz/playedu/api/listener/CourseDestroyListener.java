@@ -20,6 +20,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.event.CourseDestroyEvent;
+import xyz.playedu.api.service.CourseAttachmentService;
 import xyz.playedu.api.service.CourseDepartmentService;
 import xyz.playedu.api.service.UserCourseHourRecordService;
 import xyz.playedu.api.service.UserCourseRecordService;
@@ -41,6 +42,8 @@ public class CourseDestroyListener {
 
     @Autowired private UserCourseHourRecordService userCourseHourRecordService;
 
+    @Autowired private CourseAttachmentService courseAttachmentService;
+
     @EventListener
     public void departmentRelateRemove(CourseDestroyEvent event) {
         courseDepartmentService.removeByCourseId(event.getCourseId());
@@ -49,6 +52,11 @@ public class CourseDestroyListener {
     @EventListener
     public void categoryRelateRemove(CourseDestroyEvent event) {
         courseCategoryService.removeByCourseId(event.getCourseId());
+    }
+
+    @EventListener
+    public void attachmentRelateRemove(CourseDestroyEvent event) {
+        courseAttachmentService.remove(event.getCourseId());
     }
 
     @EventListener

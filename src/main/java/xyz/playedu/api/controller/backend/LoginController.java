@@ -21,8 +21,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.api.BCtx;
+import xyz.playedu.api.annotation.Log;
 import xyz.playedu.api.bus.BackendBus;
+import xyz.playedu.api.config.PlayEduConfig;
 import xyz.playedu.api.constant.BPermissionConstant;
+import xyz.playedu.api.constant.BusinessType;
 import xyz.playedu.api.domain.AdminUser;
 import xyz.playedu.api.event.AdminUserLoginEvent;
 import xyz.playedu.api.middleware.BackendPermissionMiddleware;
@@ -53,7 +56,10 @@ public class LoginController {
 
     @Autowired private RateLimiterService rateLimiterService;
 
+    @Autowired private PlayEduConfig playEduConfig;
+
     @PostMapping("/login")
+    @Log(title = "管理员-登录", businessType = BusinessType.LOGIN)
     public JsonResponse login(@RequestBody @Validated LoginRequest loginRequest) {
         AdminUser adminUser = adminUserService.findByEmail(loginRequest.email);
         if (adminUser == null) {
@@ -62,7 +68,7 @@ public class LoginController {
 
         String limitKey = "admin-login-limit:" + loginRequest.getEmail();
         Long reqCount = rateLimiterService.current(limitKey, 3600L);
-        if (reqCount > 5) {
+        if (reqCount > 5 && !playEduConfig.getTesting()) {
             Long exp = RedisUtil.ttlWithoutPrefix(limitKey);
             return JsonResponse.error(
                     String.format("您的账号已被锁定，请%s后重试", exp > 60 ? exp / 60 + "分钟" : exp + "秒"));
@@ -97,12 +103,14 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
+    @Log(title = "管理员-登出", businessType = BusinessType.LOGOUT)
     public JsonResponse logout() {
         authService.logout();
         return JsonResponse.success("success");
     }
 
     @GetMapping("/detail")
+    @Log(title = "管理员-详情", businessType = BusinessType.GET)
     public JsonResponse detail() {
         AdminUser user = BCtx.getAdminUser();
         HashMap<String, Boolean> permissions = backendBus.adminUserPermissions(user.getId());
@@ -116,6 +124,7 @@ public class LoginController {
 
     @BackendPermissionMiddleware(slug = BPermissionConstant.PASSWORD_CHANGE)
     @PutMapping("/password")
+    @Log(title = "管理员-密码修改", businessType = BusinessType.UPDATE)
     public JsonResponse changePassword(@RequestBody @Validated PasswordChangeRequest req) {
         AdminUser user = BCtx.getAdminUser();
         String password = HelperUtil.MD5(req.getOldPassword() + user.getSalt());
