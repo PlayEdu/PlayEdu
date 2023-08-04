@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.playedu.common.mapper.AppConfigMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.playedu.common.domain.AppConfig">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="sort" column="sort" jdbcType="INTEGER"/>
+            <result property="fieldType" column="field_type" jdbcType="VARCHAR"/>
+            <result property="keyName" column="key_name" jdbcType="VARCHAR"/>
+            <result property="keyValue" column="key_value" jdbcType="VARCHAR"/>
+            <result property="optionValue" column="option_value" jdbcType="VARCHAR"/>
+            <result property="isPrivate" column="is_private" jdbcType="TINYINT"/>
+            <result property="help" column="help" jdbcType="VARCHAR"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="isHidden" column="is_hidden" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,group_name,name,
+        sort,field_type,key_name,
+        key_value,option_value,is_private,
+        help,created_at,is_hidden
+    </sql>
+</mapper>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.playedu.course.mapper.CourseAttachmentDownloadLogMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.playedu.course.domain.CourseAttachmentDownloadLog">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="courserAttachmentId" column="courser_attachment_id" jdbcType="INTEGER"/>
+            <result property="rid" column="rid" jdbcType="INTEGER"/>
+            <result property="ip" column="ip" jdbcType="VARCHAR"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,course_id,title,
+        courser_attachment_id,rid,
+        ip,created_at
+    </sql>
+
+    <select id="paginate" resultType="xyz.playedu.course.domain.CourseAttachmentDownloadLog">
+        SELECT `course_attachment_download_log`.*
+        FROM `course_attachment_download_log`
+        <where>
+            <if test="userId != null">
+                AND `course_attachment_download_log`.`user_id` = #{userId}
+            </if>
+            <if test="courseId != null">
+                AND `course_attachment_download_log`.`course_id` = #{courseId}
+            </if>
+            <if test="title != null and title != ''">
+                AND `course_attachment_download_log`.`title` LIKE concat('%',#{title},'%')
+            </if>
+            <if test="courserAttachmentId != null">
+                AND `course_attachment_download_log`.`courser_attachment_id` = #{courserAttachmentId}
+            </if>
+            <if test="rid != null">
+                AND `course_attachment_download_log`.`rid` = #{rid}
+            </if>
+        </where>
+
+        <if test="sortAlgo == 'asc'">
+            <choose>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `course_attachment_download_log`.`created_at` ASC
+                </when>
+                <otherwise>
+                    ORDER BY `course_attachment_download_log`.`id` ASC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="sortAlgo != 'asc'">
+            <choose>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `course_attachment_download_log`.`created_at` DESC
+                </when>
+                <otherwise>
+                    ORDER BY `course_attachment_download_log`.`id` DESC
+                </otherwise>
+            </choose>
+        </if>
+        LIMIT #{pageStart}, #{pageSize};
+    </select>
+
+    <select id="paginateCount" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM `course_attachment_download_log`
+        <where>
+            <if test="userId != null">
+                AND `course_attachment_download_log`.`user_id` = #{userId}
+            </if>
+            <if test="courseId != null">
+                AND `course_attachment_download_log`.`course_id` = #{courseId}
+            </if>
+            <if test="title != null and title != ''">
+                AND `course_attachment_download_log`.`title` LIKE concat('%',#{title},'%')
+            </if>
+            <if test="courserAttachmentId != null">
+                AND `course_attachment_download_log`.`courser_attachment_id` = #{courserAttachmentId}
+            </if>
+            <if test="rid != null">
+                AND `course_attachment_download_log`.`rid` = #{rid}
+            </if>
+        </where>
+    </select>
+</mapper>
