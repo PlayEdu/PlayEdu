@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.playedu.resource.mapper.ResourceCategoryMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.playedu.resource.domain.ResourceCategory">
+            <result property="cid" column="cid" jdbcType="INTEGER"/>
+            <result property="rid" column="rid" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        cid,rid
+    </sql>
+</mapper>

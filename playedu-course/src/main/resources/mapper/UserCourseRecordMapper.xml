@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.playedu.course.mapper.UserCourseRecordMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.playedu.course.domain.UserCourseRecord">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+            <result property="hourCount" column="hour_count" jdbcType="INTEGER"/>
+            <result property="finishedCount" column="finished_count" jdbcType="INTEGER"/>
+            <result property="progress" column="progress" jdbcType="INTEGER"/>
+            <result property="isFinished" column="is_finished" jdbcType="TINYINT"/>
+            <result property="finishedAt" column="finished_at" jdbcType="TIMESTAMP"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,course_id,
+        hour_count,finished_count,progress,
+        is_finished,finished_at,created_at,
+        updated_at
+    </sql>
+    <select id="paginateTotal" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM `user_course_records`
+        INNER JOIN `users` ON `users`.`id` = `user_course_records`.`user_id`
+        <where>
+            <if test="courseId != null">
+                AND `user_course_records`.`course_id` = #{courseId}
+            </if>
+            <if test="isFinished != null">
+                AND `user_course_records`.`is_finished` = #{isFinished}
+            </if>
+            <if test="userId != null">
+                AND `user_course_records`.`user_id` = #{userId}
+            </if>
+            <if test="name != null and name != ''">
+                AND `users`.`name` LIKE concat('%',#{name},'%')
+            </if>
+            <if test="email != null and email != ''">
+                AND `users`.`email` = #{email}
+            </if>
+            <if test="idCard != null and idCard != ''">
+                AND `users`.`id_card` = #{idCard}
+            </if>
+        </where>
+    </select>
+    <select id="paginate" resultType="xyz.playedu.course.domain.UserCourseRecord">
+        SELECT `user_course_records`.*
+        FROM `user_course_records`
+        INNER JOIN `users` ON `users`.`id` = `user_course_records`.`user_id`
+        <where>
+            <if test="courseId != null">
+                AND `user_course_records`.`course_id` = #{courseId}
+            </if>
+            <if test="isFinished != null">
+                AND `user_course_records`.`is_finished` = #{isFinished}
+            </if>
+            <if test="userId != null">
+                AND `user_course_records`.`user_id` = #{userId}
+            </if>
+            <if test="name != null and name != ''">
+                AND `users`.`name` LIKE concat('%',#{name},'%')
+            </if>
+            <if test="email != null and email != ''">
+                AND `users`.`email` = #{email}
+            </if>
+            <if test="idCard != null and idCard != ''">
+                AND `users`.`id_card` = #{idCard}
+            </if>
+        </where>
+        <if test="sortAlgo == 'asc'">
+            <choose>
+                <when test="sortField == 'finished_count'">
+                    ORDER BY `user_course_records`.`finished_count` ASC
+                </when>
+                <when test="sortField == 'progress'">
+                    ORDER BY `user_course_records`.`progress` ASC
+                </when>
+                <when test="sortField == 'finished_at'">
+                    ORDER BY `user_course_records`.`finished_at` ASC
+                </when>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `user_course_records`.`created_at` ASC
+                </when>
+                <otherwise>
+                    ORDER BY `user_course_records`.`id` ASC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="sortAlgo != 'asc'">
+            <choose>
+                <when test="sortField == 'finished_count'">
+                    ORDER BY `user_course_records`.`finished_count` DESC
+                </when>
+                <when test="sortField == 'progress'">
+                    ORDER BY `user_course_records`.`progress` DESC
+                </when>
+                <when test="sortField == 'finished_at'">
+                    ORDER BY `user_course_records`.`finished_at` DESC
+                </when>
+                <when test="sortField == 'created_at'">
+                    ORDER BY `user_course_records`.`created_at` DESC
+                </when>
+                <otherwise>
+                    ORDER BY `user_course_records`.`id` DESC
+                </otherwise>
+            </choose>
+        </if>
+        LIMIT #{pageStart}, #{pageSize};
+    </select>
+</mapper>
