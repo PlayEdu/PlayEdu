@@ -26,6 +26,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import xyz.playedu.common.bus.BackendBus;
 import xyz.playedu.common.config.PlayEduConfig;
+import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.AdminUser;
 import xyz.playedu.common.service.AdminUserService;
@@ -59,7 +60,11 @@ public class AdminInterceptor implements HandlerInterceptor {
     public boolean preHandle(
             HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        if ("OPTIONS".equals(request.getMethod())) {
+        // 当前api的请求路径
+        String path = request.getRequestURI();
+        // 白名单过滤
+        if (BackendConstant.API_LIMIT_WHITELIST.contains(path)
+                || "OPTIONS".equals(request.getMethod())) {
             return HandlerInterceptor.super.preHandle(request, response, handler);
         }
 

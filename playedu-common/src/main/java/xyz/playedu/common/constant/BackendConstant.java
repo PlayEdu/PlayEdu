@@ -30,6 +30,13 @@ public class BackendConstant {
                 }
             };
 
+    public static final List<String> API_LIMIT_WHITELIST =
+            new ArrayList<>() {
+                {
+                    add("/backend/v1/upload/minio/pre-sign-url");
+                }
+            };
+
     public static final String RESOURCE_TYPE_VIDEO = "VIDEO";
     public static final String RESOURCE_TYPE_IMAGE = "IMAGE";
     public static final String RESOURCE_TYPE_PDF = "PDF";
