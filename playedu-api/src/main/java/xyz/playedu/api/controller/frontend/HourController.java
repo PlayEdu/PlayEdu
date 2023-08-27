@@ -21,15 +21,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.api.event.UserCourseHourFinishedEvent;
 import xyz.playedu.api.event.UserLearnCourseUpdateEvent;
-import xyz.playedu.course.bus.UserBus;
-import xyz.playedu.course.caches.CourseCache;
-import xyz.playedu.course.caches.UserCanSeeCourseCache;
 import xyz.playedu.api.request.frontend.CourseHourRecordRequest;
 import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.RedisDistributedLock;
+import xyz.playedu.course.bus.UserBus;
+import xyz.playedu.course.caches.CourseCache;
+import xyz.playedu.course.caches.UserCanSeeCourseCache;
 import xyz.playedu.course.caches.UserLastLearnTimeCache;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.CourseHour;
@@ -39,7 +40,6 @@ import xyz.playedu.course.service.CourseService;
 import xyz.playedu.course.service.UserCourseHourRecordService;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceService;
-
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -136,10 +136,17 @@ public class HourController {
         }
 
         try {
-            boolean isFinished = userCourseHourRecordService.storeOrUpdate(
-                    FCtx.getId(), course.getId(), hour.getId(), duration, hour.getDuration());
+            boolean isFinished =
+                    userCourseHourRecordService.storeOrUpdate(
+                            FCtx.getId(),
+                            course.getId(),
+                            hour.getId(),
+                            duration,
+                            hour.getDuration());
             if (isFinished) {
-                ctx.publishEvent(new UserCourseHourFinishedEvent(this, FCtx.getId(), courseId, hour.getId()));
+                ctx.publishEvent(
+                        new UserCourseHourFinishedEvent(
+                                this, FCtx.getId(), courseId, hour.getId()));
             }
         } finally {
             // 此处未考虑上面代码执行失败释放锁

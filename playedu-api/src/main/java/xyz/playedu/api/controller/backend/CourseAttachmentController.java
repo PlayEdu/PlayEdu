@@ -22,18 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.request.backend.CourseAttachmentMultiRequest;
+import xyz.playedu.api.request.backend.CourseAttachmentRequest;
+import xyz.playedu.api.request.backend.CourseAttachmentSortRequest;
+import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
-import xyz.playedu.course.domain.CourseAttachment;
 import xyz.playedu.common.exception.NotFoundException;
-import xyz.playedu.common.annotation.BackendPermission;
-import xyz.playedu.api.request.backend.CourseAttachmentMultiRequest;
-import xyz.playedu.api.request.backend.CourseAttachmentRequest;
-import xyz.playedu.api.request.backend.CourseAttachmentSortRequest;
-import xyz.playedu.course.service.CourseAttachmentService;
 import xyz.playedu.common.types.JsonResponse;
+import xyz.playedu.course.domain.CourseAttachment;
+import xyz.playedu.course.service.CourseAttachmentService;
 
 import java.util.*;
 

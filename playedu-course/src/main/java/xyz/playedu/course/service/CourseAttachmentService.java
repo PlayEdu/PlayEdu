@@ -17,8 +17,8 @@ package xyz.playedu.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import xyz.playedu.course.domain.CourseAttachment;
 import xyz.playedu.common.exception.NotFoundException;
+import xyz.playedu.course.domain.CourseAttachment;
 
 import java.util.List;
 

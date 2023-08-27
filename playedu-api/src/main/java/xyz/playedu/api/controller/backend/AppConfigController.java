@@ -18,13 +18,13 @@ package xyz.playedu.api.controller.backend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.request.backend.AppConfigRequest;
+import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.constant.SystemConstant;
 import xyz.playedu.common.domain.AppConfig;
-import xyz.playedu.common.annotation.BackendPermission;
-import xyz.playedu.api.request.backend.AppConfigRequest;
 import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.types.JsonResponse;
 

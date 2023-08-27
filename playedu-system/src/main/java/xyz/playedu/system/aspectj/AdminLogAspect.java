@@ -17,8 +17,11 @@ package xyz.playedu.system.aspectj;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+
 import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -27,6 +30,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.SystemConstant;
 import xyz.playedu.common.domain.AdminLog;
 import xyz.playedu.common.domain.AdminUser;
@@ -36,7 +41,6 @@ import xyz.playedu.common.service.BackendAuthService;
 import xyz.playedu.common.util.IpUtil;
 import xyz.playedu.common.util.RequestUtil;
 import xyz.playedu.common.util.StringUtil;
-import xyz.playedu.common.annotation.Log;
 
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -54,7 +58,8 @@ public class AdminLogAspect {
     @Autowired private AdminLogService adminLogService;
 
     /** 排除敏感属性字段 */
-    public static final String EXCLUDE_PROPERTIES = "password,oldPassword,newPassword,confirmPassword,token";
+    public static final String EXCLUDE_PROPERTIES =
+            "password,oldPassword,newPassword,confirmPassword,token";
 
     /** Controller层切点 注解拦截 */
     @Pointcut("@annotation(xyz.playedu.common.annotation.Log)")
@@ -172,9 +177,9 @@ public class AdminLogAspect {
                         jsonObjectResult.put(key, excludeProperties(entry.getValue().toString()));
                     } else {
                         // 如果value是单纯的数据,执行脱敏操作
-                        if(EXCLUDE_PROPERTIES.contains(key)){
+                        if (EXCLUDE_PROPERTIES.contains(key)) {
                             jsonObjectResult.put(key, SystemConstant.CONFIG_MASK);
-                        }else {
+                        } else {
                             jsonObjectResult.put(key, value);
                         }
                     }

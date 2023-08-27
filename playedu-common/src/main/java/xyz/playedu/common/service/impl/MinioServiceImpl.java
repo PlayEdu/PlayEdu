@@ -24,11 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import xyz.playedu.common.config.PlayEduMinioClientConfig;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.service.MinioService;
 import xyz.playedu.common.types.config.MinioConfig;
-import xyz.playedu.common.config.PlayEduMinioClientConfig;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

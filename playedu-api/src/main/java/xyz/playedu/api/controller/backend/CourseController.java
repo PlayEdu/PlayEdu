@@ -24,14 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import xyz.playedu.common.context.BCtx;
+import xyz.playedu.api.event.CourseDestroyEvent;
+import xyz.playedu.api.request.backend.CourseRequest;
+import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
-import xyz.playedu.api.event.CourseDestroyEvent;
+import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.exception.NotFoundException;
-import xyz.playedu.common.annotation.BackendPermission;
-import xyz.playedu.api.request.backend.CourseRequest;
 import xyz.playedu.common.service.*;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.paginate.CoursePaginateFiler;
@@ -254,7 +254,7 @@ public class CourseController {
             attachments.forEach(
                     courseAttachment -> {
                         Resource resource = resourceMap.get(courseAttachment.getRid());
-                        if(null != resource){
+                        if (null != resource) {
                             courseAttachment.setUrl(resource.getUrl());
                             courseAttachment.setExt(resource.getExtension());
                         }

@@ -23,24 +23,24 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import xyz.playedu.common.context.BCtx;
+import xyz.playedu.api.event.CourseHourCreatedEvent;
+import xyz.playedu.api.event.CourseHourDestroyEvent;
+import xyz.playedu.api.request.backend.CourseHourMultiRequest;
+import xyz.playedu.api.request.backend.CourseHourRequest;
+import xyz.playedu.api.request.backend.CourseHourSortRequest;
+import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
-import xyz.playedu.course.domain.CourseChapter;
-import xyz.playedu.course.domain.CourseHour;
-import xyz.playedu.api.event.CourseHourCreatedEvent;
-import xyz.playedu.api.event.CourseHourDestroyEvent;
+import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.exception.NotFoundException;
-import xyz.playedu.common.annotation.BackendPermission;
-import xyz.playedu.api.request.backend.CourseHourMultiRequest;
-import xyz.playedu.api.request.backend.CourseHourRequest;
-import xyz.playedu.api.request.backend.CourseHourSortRequest;
-import xyz.playedu.course.service.CourseChapterService;
-import xyz.playedu.course.service.CourseHourService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.SelectOption;
+import xyz.playedu.course.domain.CourseChapter;
+import xyz.playedu.course.domain.CourseHour;
+import xyz.playedu.course.service.CourseChapterService;
+import xyz.playedu.course.service.CourseHourService;
 
 import java.util.*;
 

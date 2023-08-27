@@ -21,10 +21,10 @@ import org.springframework.stereotype.Component;
 
 import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.course.service.CourseAttachmentService;
+import xyz.playedu.course.service.CourseCategoryService;
 import xyz.playedu.course.service.CourseDepartmentService;
 import xyz.playedu.course.service.UserCourseHourRecordService;
 import xyz.playedu.course.service.UserCourseRecordService;
-import xyz.playedu.course.service.CourseCategoryService;
 
 /**
  * @Author 杭州白书科技有限公司

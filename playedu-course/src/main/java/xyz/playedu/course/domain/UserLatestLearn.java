@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
-
 /**
  * @Author 杭州白书科技有限公司
  *

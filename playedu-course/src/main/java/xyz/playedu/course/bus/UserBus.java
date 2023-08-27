@@ -18,6 +18,7 @@ package xyz.playedu.course.bus;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.service.UserService;
 import xyz.playedu.course.domain.Course;
@@ -51,7 +52,7 @@ public class UserBus {
     }
 
     // 注意，调用该方法需要考虑到并发写入问题
- /*   public void userLearnDurationRecord(User user, Course course, CourseHour hour) {
+    /*   public void userLearnDurationRecord(User user, Course course, CourseHour hour) {
         Long curTime = System.currentTimeMillis();
 
         // 最近一次学习时间

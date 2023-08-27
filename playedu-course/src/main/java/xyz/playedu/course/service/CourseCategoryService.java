@@ -37,6 +37,4 @@ public interface CourseCategoryService extends IService<CourseCategory> {
     List<Integer> getCategoryIdsByCourseId(Integer courseId);
 
     List<Integer> getCourseIdsByCategoryId(Integer id);
-
-
 }

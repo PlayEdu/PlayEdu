@@ -21,8 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import xyz.playedu.common.domain.AdminUser;
 import xyz.playedu.api.event.AdminUserLoginEvent;
+import xyz.playedu.common.domain.AdminUser;
 import xyz.playedu.common.service.AdminUserService;
 
 @Component

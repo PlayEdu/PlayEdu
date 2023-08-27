@@ -24,6 +24,7 @@ import xyz.playedu.common.domain.Category;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.mapper.CategoryMapper;
 import xyz.playedu.common.service.CategoryService;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,8 +37,7 @@ import java.util.stream.Collectors;
  * @createDate 2023-02-23 09:50:18
  */
 @Service
-public class CategoryServiceImpl
-        extends ServiceImpl<CategoryMapper, Category>
+public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         implements CategoryService {
 
     @Override
@@ -217,8 +217,7 @@ public class CategoryServiceImpl
 
     @Override
     public Map<Integer, String> id2name() {
-        return all().stream()
-                .collect(Collectors.toMap(Category::getId, Category::getName));
+        return all().stream().collect(Collectors.toMap(Category::getId, Category::getName));
     }
 
     @Override

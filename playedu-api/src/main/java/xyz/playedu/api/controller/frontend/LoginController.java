@@ -22,11 +22,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import xyz.playedu.api.event.UserLoginEvent;
 import xyz.playedu.api.event.UserLogoutEvent;
 import xyz.playedu.api.request.frontend.LoginPasswordRequest;
-import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.config.PlayEduConfig;
+import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.exception.LimitException;
 import xyz.playedu.common.service.FrontendAuthService;
@@ -37,7 +38,6 @@ import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.IpUtil;
 import xyz.playedu.common.util.RedisUtil;
 import xyz.playedu.common.util.RequestUtil;
-
 
 import java.util.HashMap;
 

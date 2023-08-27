@@ -23,17 +23,17 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import xyz.playedu.common.context.BCtx;
+import xyz.playedu.api.request.backend.UploadFileMergeRequest;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
-import xyz.playedu.resource.domain.Resource;
+import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.exception.ServiceException;
-import xyz.playedu.api.request.backend.UploadFileMergeRequest;
 import xyz.playedu.common.service.MinioService;
-import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.HelperUtil;
+import xyz.playedu.resource.domain.Resource;
+import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.UploadService;
 
 import java.util.HashMap;

@@ -24,16 +24,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.FrontendConstant;
-import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.common.domain.UserUploadImageLog;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.MinioService;
-import xyz.playedu.resource.service.ResourceService;
-import xyz.playedu.resource.service.UploadService;
 import xyz.playedu.common.service.UserUploadImageLogService;
 import xyz.playedu.common.types.UploadFileInfo;
 import xyz.playedu.common.util.Base64Util;
 import xyz.playedu.common.util.HelperUtil;
+import xyz.playedu.resource.domain.Resource;
+import xyz.playedu.resource.service.ResourceService;
+import xyz.playedu.resource.service.UploadService;
 
 import java.util.Date;
 

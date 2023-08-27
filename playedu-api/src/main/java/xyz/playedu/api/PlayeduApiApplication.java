@@ -20,11 +20,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
+
 import xyz.playedu.common.config.UniqueNameGeneratorConfig;
 
 @SpringBootApplication
 @EnableAsync
-@ComponentScan(basePackages = {"xyz.playedu"}, nameGenerator = UniqueNameGeneratorConfig.class)
+@ComponentScan(
+        basePackages = {"xyz.playedu"},
+        nameGenerator = UniqueNameGeneratorConfig.class)
 @MapperScan("xyz.playedu.**.mapper")
 public class PlayeduApiApplication {
 

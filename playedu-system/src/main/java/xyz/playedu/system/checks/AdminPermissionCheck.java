@@ -20,6 +20,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.domain.AdminPermission;
 import xyz.playedu.common.service.AdminPermissionService;

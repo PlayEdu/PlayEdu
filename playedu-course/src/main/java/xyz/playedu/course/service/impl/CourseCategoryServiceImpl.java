@@ -31,8 +31,7 @@ import java.util.List;
  * @createDate 2023-03-09 09:54:22
  */
 @Service
-public class CourseCategoryServiceImpl
-        extends ServiceImpl<CourseCategoryMapper, CourseCategory>
+public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper, CourseCategory>
         implements CourseCategoryService {
 
     @Override
@@ -61,8 +60,7 @@ public class CourseCategoryServiceImpl
 
     @Override
     public List<Integer> getCourseIdsByCategoryId(Integer id) {
-        return list(query().getWrapper().eq("category_id", id))
-                .stream()
+        return list(query().getWrapper().eq("category_id", id)).stream()
                 .map(CourseCategory::getCourseId)
                 .toList();
     }

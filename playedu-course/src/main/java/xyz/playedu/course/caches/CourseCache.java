@@ -17,11 +17,11 @@ package xyz.playedu.course.caches;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.util.RedisUtil;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.service.CourseService;
-
 
 /**
  * @Author 杭州白书科技有限公司

@@ -20,9 +20,10 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+
+import xyz.playedu.common.annotation.Lock;
 import xyz.playedu.common.exception.LimitException;
 import xyz.playedu.common.util.RedisDistributedLock;
-import xyz.playedu.common.annotation.Lock;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;

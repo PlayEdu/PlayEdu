@@ -17,9 +17,9 @@ package xyz.playedu.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.UserCourseRecordPaginateFilter;
+import xyz.playedu.course.domain.UserCourseRecord;
 
 import java.util.List;
 

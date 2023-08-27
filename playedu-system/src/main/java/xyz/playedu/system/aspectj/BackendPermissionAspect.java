@@ -16,6 +16,7 @@
 package xyz.playedu.system.aspectj;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -23,10 +24,11 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.playedu.common.context.BCtx;
-import xyz.playedu.common.bus.BackendBus;
-import xyz.playedu.common.types.JsonResponse;
+
 import xyz.playedu.common.annotation.BackendPermission;
+import xyz.playedu.common.bus.BackendBus;
+import xyz.playedu.common.context.BCtx;
+import xyz.playedu.common.types.JsonResponse;
 
 import java.util.HashMap;
 
@@ -43,8 +45,7 @@ public class BackendPermissionAspect {
     @Around("doPointcut()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        BackendPermission middleware =
-                signature.getMethod().getAnnotation(BackendPermission.class);
+        BackendPermission middleware = signature.getMethod().getAnnotation(BackendPermission.class);
         Integer adminUserId = BCtx.getId();
         HashMap<String, Boolean> permissions = backendBus.adminUserPermissions(adminUserId);
         if (permissions.get(middleware.slug()) == null) {

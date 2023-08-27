@@ -22,9 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
-import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.constant.FrontendConstant;
+import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.domain.UserUploadImageLog;
@@ -32,11 +33,11 @@ import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.types.JsonResponse;
+import xyz.playedu.common.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.common.util.PrivacyUtil;
 import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
 import xyz.playedu.resource.service.UploadService;
-import xyz.playedu.common.types.mapper.UserCourseHourRecordCourseCountMapper;
 
 import java.util.*;
 import java.util.stream.Collectors;

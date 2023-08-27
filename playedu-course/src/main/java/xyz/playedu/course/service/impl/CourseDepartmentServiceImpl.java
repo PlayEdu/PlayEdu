@@ -55,8 +55,7 @@ public class CourseDepartmentServiceImpl
 
     @Override
     public List<Integer> getCourseIdsByDepId(Integer depId) {
-        return list(query().getWrapper().eq("dep_id", depId))
-                .stream()
+        return list(query().getWrapper().eq("dep_id", depId)).stream()
                 .map(CourseDepartment::getCourseId)
                 .toList();
     }

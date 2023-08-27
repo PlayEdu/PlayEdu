@@ -17,12 +17,12 @@ package xyz.playedu.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import xyz.playedu.course.domain.UserCourseHourRecord;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordUserCountMapper;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.UserCourseHourRecordPaginateFilter;
+import xyz.playedu.course.domain.UserCourseHourRecord;
 
 import java.util.List;
 

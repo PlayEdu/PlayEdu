@@ -17,10 +17,10 @@ package xyz.playedu.resource.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.common.domain.UserUploadImageLog;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.types.UploadFileInfo;
+import xyz.playedu.resource.domain.Resource;
 
 /**
  * @Author 杭州白书科技有限公司

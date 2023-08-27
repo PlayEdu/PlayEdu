@@ -19,8 +19,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import xyz.playedu.course.domain.Course;
 import xyz.playedu.common.types.paginate.CoursePaginateFiler;
+import xyz.playedu.course.domain.Course;
 
 import java.util.List;
 

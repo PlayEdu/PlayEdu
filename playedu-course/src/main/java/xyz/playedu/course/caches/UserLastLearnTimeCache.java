@@ -16,8 +16,8 @@
 package xyz.playedu.course.caches;
 
 import org.springframework.stereotype.Component;
-import xyz.playedu.common.util.RedisUtil;
 
+import xyz.playedu.common.util.RedisUtil;
 
 /**
  * @Author 杭州白书科技有限公司

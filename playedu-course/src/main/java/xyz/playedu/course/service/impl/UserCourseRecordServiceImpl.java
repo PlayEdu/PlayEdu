@@ -19,11 +19,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import org.springframework.stereotype.Service;
 
+import xyz.playedu.common.types.paginate.PaginationResult;
+import xyz.playedu.common.types.paginate.UserCourseRecordPaginateFilter;
 import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.course.mapper.UserCourseRecordMapper;
 import xyz.playedu.course.service.UserCourseRecordService;
-import xyz.playedu.common.types.paginate.PaginationResult;
-import xyz.playedu.common.types.paginate.UserCourseRecordPaginateFilter;
 
 import java.util.ArrayList;
 import java.util.Date;

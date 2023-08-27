@@ -21,16 +21,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import xyz.playedu.course.domain.Course;
-import xyz.playedu.course.domain.CourseDepartment;
-import xyz.playedu.course.domain.CourseCategory;
 import xyz.playedu.common.exception.NotFoundException;
-import xyz.playedu.course.mapper.CourseMapper;
-import xyz.playedu.course.service.CourseDepartmentService;
-import xyz.playedu.course.service.CourseService;
-import xyz.playedu.course.service.CourseCategoryService;
 import xyz.playedu.common.types.paginate.CoursePaginateFiler;
 import xyz.playedu.common.types.paginate.PaginationResult;
+import xyz.playedu.course.domain.Course;
+import xyz.playedu.course.domain.CourseCategory;
+import xyz.playedu.course.domain.CourseDepartment;
+import xyz.playedu.course.mapper.CourseMapper;
+import xyz.playedu.course.service.CourseCategoryService;
+import xyz.playedu.course.service.CourseDepartmentService;
+import xyz.playedu.course.service.CourseService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -271,8 +271,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         data.forEach(
                 (courseId, records) -> {
                     result.put(
-                            courseId,
-                            records.stream().map(CourseCategory::getCategoryId).toList());
+                            courseId, records.stream().map(CourseCategory::getCategoryId).toList());
                 });
         return result;
     }

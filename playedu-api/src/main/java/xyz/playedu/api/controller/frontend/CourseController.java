@@ -20,6 +20,7 @@ import lombok.SneakyThrows;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.paginate.CoursePaginateFiler;
@@ -95,7 +96,7 @@ public class CourseController {
             attachments.forEach(
                     courseAttachment -> {
                         Resource resource = resourceMap.get(courseAttachment.getRid());
-                        if(null != resource){
+                        if (null != resource) {
                             courseAttachment.setExt(resource.getExtension());
                         }
                     });

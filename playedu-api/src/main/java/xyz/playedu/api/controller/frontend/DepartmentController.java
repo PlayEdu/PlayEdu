@@ -18,6 +18,7 @@ package xyz.playedu.api.controller.frontend;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.service.DepartmentService;
@@ -26,7 +27,6 @@ import xyz.playedu.common.types.paginate.CoursePaginateFiler;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.service.CourseService;
-
 
 import java.util.HashMap;
 import java.util.stream.Collectors;

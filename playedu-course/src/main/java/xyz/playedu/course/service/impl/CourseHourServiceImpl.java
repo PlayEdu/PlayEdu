@@ -19,8 +19,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import org.springframework.stereotype.Service;
 
-import xyz.playedu.course.domain.CourseHour;
 import xyz.playedu.common.exception.NotFoundException;
+import xyz.playedu.course.domain.CourseHour;
 import xyz.playedu.course.mapper.CourseHourMapper;
 import xyz.playedu.course.service.CourseHourService;
 

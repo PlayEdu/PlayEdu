@@ -19,11 +19,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import org.springframework.stereotype.Service;
 
+import xyz.playedu.common.types.paginate.CourseAttachmentDownloadLogPaginateFiler;
+import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.course.domain.CourseAttachmentDownloadLog;
 import xyz.playedu.course.mapper.CourseAttachmentDownloadLogMapper;
 import xyz.playedu.course.service.CourseAttachmentDownloadLogService;
-import xyz.playedu.common.types.paginate.CourseAttachmentDownloadLogPaginateFiler;
-import xyz.playedu.common.types.paginate.PaginationResult;
 
 @Service
 public class CourseAttachmentDownloadLogServiceImpl
