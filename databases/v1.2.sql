@@ -1,6 +1,6 @@
-drop table admin_logs;
+DROP TABLE IF EXISTS admin_logs;
 
-CREATE TABLE `admin_logs`
+CREATE TABLE IF NOT EXISTS `admin_logs`
 (
     `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     `admin_id`       int(11) NOT NULL DEFAULT '0' COMMENT '管理员ID',
@@ -19,7 +19,7 @@ CREATE TABLE `admin_logs`
     `created_at`     timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
     KEY              `a_m_o` (`admin_id`,`module`,`opt`)
-) ENGINE=InnoDB AUTO_INCREMENT=515 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `course_attachment`
 (
