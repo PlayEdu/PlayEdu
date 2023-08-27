@@ -132,7 +132,7 @@ public class BackendConstant {
     public static final String UPLOAD_VIDEO_DIR = "videos/";
     public static final String UPLOAD_PDF_DIR = "pdf/";
     public static final String UPLOAD_WORD_DIR = "word/";
-    public static final String UPLOAD_PPT_DIR = "word/";
+    public static final String UPLOAD_PPT_DIR = "ppt/";
     public static final String UPLOAD_EXCEL_DIR = "excel/";
     public static final String UPLOAD_TXT_DIR = "txt/";
     public static final String UPLOAD_ZIP_DIR = "zip/";
