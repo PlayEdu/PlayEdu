@@ -16,8 +16,7 @@
 package xyz.playedu.system.checks;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -29,14 +28,14 @@ import java.util.ArrayList;
 
 @Order(10000)
 @Component
-public class UpgradeCheck implements ApplicationRunner {
+public class UpgradeCheck implements CommandLineRunner {
 
     @Autowired private AppConfigService appConfigService;
 
     @Autowired private AdminPermissionService permissionService;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(String... args) throws Exception {
         upgrade_v1_beta7();
     }
 

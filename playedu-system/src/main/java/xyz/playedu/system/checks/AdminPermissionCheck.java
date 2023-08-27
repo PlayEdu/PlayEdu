@@ -16,8 +16,7 @@
 package xyz.playedu.system.checks;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +28,7 @@ import java.util.*;
 
 @Order(1020)
 @Component
-public class AdminPermissionCheck implements ApplicationRunner {
+public class AdminPermissionCheck implements CommandLineRunner {
 
     private final Map<String, Map<String, AdminPermission[]>> permissions =
             new HashMap<>() {
@@ -279,7 +278,7 @@ public class AdminPermissionCheck implements ApplicationRunner {
     @Autowired private AdminPermissionService permissionService;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(String... args) throws Exception {
         HashMap<String, Boolean> slugs = permissionService.allSlugs();
         List<AdminPermission> list = new ArrayList<>();
         Date now = new Date();
@@ -311,7 +310,7 @@ public class AdminPermissionCheck implements ApplicationRunner {
                             });
                 });
 
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             permissionService.saveBatch(list);
         }
     }

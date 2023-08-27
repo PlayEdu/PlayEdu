@@ -16,8 +16,7 @@
 package xyz.playedu.system.checks;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +28,8 @@ import xyz.playedu.common.service.AppConfigService;
 import java.util.*;
 
 @Component
-@Order(1000)
-public class AppConfigCheck implements ApplicationRunner {
+@Order(100)
+public class AppConfigCheck implements CommandLineRunner {
 
     private static final HashMap<String, AppConfig[]> configs =
             new HashMap<>() {
@@ -230,7 +229,7 @@ public class AppConfigCheck implements ApplicationRunner {
     @Autowired private AppConfigService configService;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(String... args) throws Exception {
         Map<String, Long> keys = configService.allKeys();
         List<AppConfig> list = new ArrayList<>();
         Date now = new Date();
@@ -250,7 +249,7 @@ public class AppConfigCheck implements ApplicationRunner {
                     }
                 });
 
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             configService.saveBatch(list);
         }
     }

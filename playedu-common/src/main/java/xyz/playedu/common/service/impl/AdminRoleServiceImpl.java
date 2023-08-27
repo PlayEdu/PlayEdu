@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.domain.AdminRole;
 import xyz.playedu.common.domain.AdminRolePermission;
 import xyz.playedu.common.exception.NotFoundException;
@@ -51,6 +52,20 @@ public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole
     @Override
     public AdminRole getBySlug(String slug) {
         return getOne(query().getWrapper().eq("slug", slug));
+    }
+
+    @Override
+    public Integer initSuperAdminRole() {
+        AdminRole role = new AdminRole();
+
+        role.setName("超级管理员");
+        role.setSlug(BackendConstant.SUPER_ADMIN_ROLE);
+        role.setCreatedAt(new Date());
+        role.setUpdatedAt(new Date());
+
+        save(role);
+
+        return role.getId();
     }
 
     @Override

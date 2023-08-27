@@ -15,40 +15,43 @@
  */
 package xyz.playedu.system.checks;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.domain.AdminRole;
 import xyz.playedu.common.service.AdminRoleService;
+import xyz.playedu.common.service.AdminUserService;
 
-import java.util.Date;
-
-@Order(1010)
 @Component
-public class AdminRoleCheck implements ApplicationRunner {
+@Slf4j
+@Order(12)
+public class SystemDataCheck implements CommandLineRunner {
 
     @Autowired private AdminRoleService adminRoleService;
 
-    private static final AdminRole superRole =
-            new AdminRole() {
-                {
-                    setName("超级管理员");
-                    setSlug(BackendConstant.SUPER_ADMIN_ROLE);
-                    setCreatedAt(new Date());
-                    setCreatedAt(new Date());
-                }
-            };
+    @Autowired private AdminUserService adminUserService;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-        AdminRole adminRole = adminRoleService.getBySlug(BackendConstant.SUPER_ADMIN_ROLE);
-        if (adminRole != null) { // 已存在超级管理权限
-            return;
+    public void run(String... args) throws Exception {
+        adminInit();
+    }
+
+    private void adminInit() {
+        try {
+            AdminRole superRole = adminRoleService.getBySlug(BackendConstant.SUPER_ADMIN_ROLE);
+            if (superRole != null) {
+                return;
+            }
+            Integer roleId = adminRoleService.initSuperAdminRole();
+            adminUserService.createWithRoleIds(
+                    "超级管理员", "admin@playedu.xyz", "playedu", 0, new Integer[] {roleId});
+        } catch (Exception e) {
+            log.error("超级管理员初始化失败,错误信息:{}", e.getMessage());
         }
-        adminRoleService.save(superRole);
     }
 }

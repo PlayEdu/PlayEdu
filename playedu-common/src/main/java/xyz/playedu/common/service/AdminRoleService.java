@@ -31,6 +31,8 @@ public interface AdminRoleService extends IService<AdminRole> {
 
     AdminRole getBySlug(String slug);
 
+    Integer initSuperAdminRole();
+
     void createWithPermissionIds(String name, Integer[] permissionIds);
 
     void relatePermissions(AdminRole role, Integer[] permissionIds);
