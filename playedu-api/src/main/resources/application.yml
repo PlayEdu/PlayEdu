@@ -9,8 +9,8 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-request-size: 5MB
-      max-file-size: 5MB
+      max-request-size: 15MB
+      max-file-size: 10MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: "jdbc:mysql://127.0.0.1:3306/dbname?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false"
@@ -18,8 +18,8 @@ spring:
     password: ""
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
-      minimum-idle: 5       # 最小连接数
-      maximum-pool-size: 20 # 最大连接数
+      minimum-idle: 1       # 最小连接数
+      maximum-pool-size: 10 # 最大连接数
       auto-commit: true     # 自动提交
   # Redis配置
   data:

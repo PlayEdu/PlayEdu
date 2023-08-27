@@ -33,4 +33,5 @@ build/
 .vscode/
 
 /src/main/resources/application-dev.yml
+/playedu-api/src/main/resources/application-dev.yml
 /logs
