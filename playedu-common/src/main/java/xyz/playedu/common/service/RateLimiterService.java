@@ -17,5 +17,5 @@ package xyz.playedu.common.service;
 
 public interface RateLimiterService {
 
-    public Long current(String key, Long seconds);
+    Long current(String key, Long seconds);
 }

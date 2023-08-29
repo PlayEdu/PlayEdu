@@ -37,8 +37,6 @@ public class RateLimiterServiceImpl implements RateLimiterService {
 
     @Override
     public Long current(String key, Long seconds) {
-        Long current = RedisUtil.handler().execute(redisScript, Arrays.asList(key, seconds + ""));
-        log.info("key={},count={}", key, current);
-        return current;
+        return RedisUtil.handler().execute(redisScript, Arrays.asList(key, seconds + ""));
     }
 }
