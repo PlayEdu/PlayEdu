@@ -21,27 +21,25 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import xyz.playedu.common.bus.BackendBus;
-import xyz.playedu.common.config.PlayEduConfig;
-import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.AdminUser;
 import xyz.playedu.common.service.AdminUserService;
 import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.service.BackendAuthService;
-import xyz.playedu.common.service.RateLimiterService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.HelperUtil;
-import xyz.playedu.common.util.IpUtil;
 
 import java.io.IOException;
 import java.util.Map;
 
 @Component
 @Slf4j
+@Order(20)
 public class AdminInterceptor implements HandlerInterceptor {
 
     @Autowired private BackendAuthService authService;
@@ -52,28 +50,10 @@ public class AdminInterceptor implements HandlerInterceptor {
 
     @Autowired private AppConfigService configService;
 
-    @Autowired private RateLimiterService rateLimiterService;
-
-    @Autowired private PlayEduConfig playEduConfig;
-
     @Override
     public boolean preHandle(
             HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        // 当前api的请求路径
-        String path = request.getRequestURI();
-        // 白名单过滤
-        if (BackendConstant.API_LIMIT_WHITELIST.contains(path)
-                || "OPTIONS".equals(request.getMethod())) {
-            return HandlerInterceptor.super.preHandle(request, response, handler);
-        }
-
-        String reqCountKey = "api-limiter:" + IpUtil.getIpAddress();
-        Long reqCount = rateLimiterService.current(reqCountKey, playEduConfig.getLimiterDuration());
-        if (reqCount > playEduConfig.getLimiterLimit()) {
-            return responseTransform(response, 429, "太多请求");
-        }
-
         // 读取全局配置
         Map<String, String> systemConfig = configService.keyValues();
         BCtx.setConfig(systemConfig);

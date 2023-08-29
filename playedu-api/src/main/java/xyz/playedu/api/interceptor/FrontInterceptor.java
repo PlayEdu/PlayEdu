@@ -21,48 +21,33 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import xyz.playedu.common.config.PlayEduConfig;
 import xyz.playedu.common.constant.FrontendConstant;
 import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.service.FrontendAuthService;
-import xyz.playedu.common.service.RateLimiterService;
 import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.HelperUtil;
-import xyz.playedu.common.util.IpUtil;
 
 import java.io.IOException;
 
 @Component
 @Slf4j
+@Order(20)
 public class FrontInterceptor implements HandlerInterceptor {
 
     @Autowired private FrontendAuthService authService;
 
     @Autowired private UserService userService;
 
-    @Autowired private RateLimiterService rateLimiterService;
-
-    @Autowired private PlayEduConfig playEduConfig;
-
     @Override
     public boolean preHandle(
             HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        if ("OPTIONS".equals(request.getMethod())) {
-            return HandlerInterceptor.super.preHandle(request, response, handler);
-        }
-
-        String reqCountKey = "api-limiter:" + IpUtil.getIpAddress();
-        Long reqCount = rateLimiterService.current(reqCountKey, playEduConfig.getLimiterDuration());
-        if (reqCount > playEduConfig.getLimiterLimit()) {
-            return responseTransform(response, 429, "太多请求");
-        }
-
         if (FrontendConstant.UN_AUTH_URI_WHITELIST.contains(request.getRequestURI())) {
             return HandlerInterceptor.super.preHandle(request, response, handler);
         }
