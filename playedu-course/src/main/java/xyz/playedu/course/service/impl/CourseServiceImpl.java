@@ -76,6 +76,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         course.setShortDesc(shortDesc);
         course.setIsShow(isShow);
         course.setIsRequired(isRequired);
+        course.setPublishedAt(new Date());
         course.setCreatedAt(new Date());
         course.setUpdatedAt(new Date());
         save(course);
@@ -146,6 +147,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             String shortDesc,
             Integer isRequired,
             Integer isShow,
+            Date publishedAt,
             Integer[] categoryIds,
             Integer[] depIds) {
         Course newCourse = new Course();
@@ -155,6 +157,10 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         newCourse.setIsShow(isShow);
         newCourse.setIsRequired(isRequired);
         newCourse.setShortDesc(shortDesc);
+
+        if (null != publishedAt) {
+            newCourse.setPublishedAt(publishedAt);
+        }
 
         updateById(newCourse);
 

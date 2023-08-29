@@ -17,14 +17,11 @@ package xyz.playedu.api.controller.frontend;
 
 import lombok.SneakyThrows;
 
-import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.types.JsonResponse;
-import xyz.playedu.common.types.paginate.CoursePaginateFiler;
-import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.util.IpUtil;
 import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
@@ -63,21 +60,6 @@ public class CourseController {
 
     @Autowired private CourseAttachmentDownloadLogService courseAttachmentDownloadLogService;
 
-    @GetMapping("/index")
-    public JsonResponse index(@RequestParam HashMap<String, Object> params) {
-        Integer page = MapUtils.getInteger(params, "page", 1);
-        Integer size = MapUtils.getInteger(params, "size", 10);
-        String categoryIds = MapUtils.getString(params, "category_ids");
-
-        CoursePaginateFiler filer = new CoursePaginateFiler();
-        filer.setIsShow(1);
-        filer.setCategoryIds(categoryIds);
-
-        PaginationResult<Course> result = courseService.paginate(page, size, filer);
-
-        return JsonResponse.data(result);
-    }
-
     @GetMapping("/{id}")
     @SneakyThrows
     public JsonResponse detail(@PathVariable(name = "id") Integer id) {
@@ -87,7 +69,7 @@ public class CourseController {
 
         List<CourseAttachment> attachments =
                 attachmentService.getAttachmentsByCourseId(course.getId());
-        if (null != attachments && attachments.size() > 0) {
+        if (null != attachments && !attachments.isEmpty()) {
             Map<Integer, Resource> resourceMap =
                     resourceService
                             .chunks(attachments.stream().map(CourseAttachment::getRid).toList())

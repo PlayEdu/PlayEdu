@@ -22,6 +22,7 @@ import xyz.playedu.common.types.paginate.CoursePaginateFiler;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.course.domain.Course;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,7 @@ public interface CourseService extends IService<Course> {
             String shortDesc,
             Integer isRequired,
             Integer isShow,
+            Date publishedAt,
             Integer[] categoryIds,
             Integer[] depIds);
 

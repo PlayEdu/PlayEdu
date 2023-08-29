@@ -138,7 +138,7 @@ public class CourseController {
         Date now = new Date();
         int classHourCount = 0;
 
-        if (req.getHours().size() > 0) { // 无章节课时配置
+        if (!req.getHours().isEmpty()) { // 无章节课时配置
             List<CourseHour> insertHours = new ArrayList<>();
             final Integer[] chapterSort = {0};
             for (CourseRequest.HourItem hourItem : req.getHours()) {
@@ -156,12 +156,12 @@ public class CourseController {
                             }
                         });
             }
-            if (insertHours.size() > 0) {
+            if (!insertHours.isEmpty()) {
                 hourService.saveBatch(insertHours);
                 classHourCount = insertHours.size();
             }
         } else {
-            if (req.getChapters().size() == 0) {
+            if (req.getChapters().isEmpty()) {
                 return JsonResponse.error("请配置课时");
             }
 
@@ -199,7 +199,7 @@ public class CourseController {
                             });
                 }
             }
-            if (insertHours.size() > 0) {
+            if (!insertHours.isEmpty()) {
                 hourService.saveBatch(insertHours);
                 classHourCount = insertHours.size();
             }
@@ -210,7 +210,7 @@ public class CourseController {
         }
 
         // 课程附件
-        if (null != req.getAttachments() && req.getAttachments().size() > 0) {
+        if (null != req.getAttachments() && !req.getAttachments().isEmpty()) {
             List<CourseAttachment> insertAttachments = new ArrayList<>();
             final Integer[] sort = {0};
             for (CourseRequest.AttachmentItem attachmentItem : req.getAttachments()) {
@@ -226,7 +226,7 @@ public class CourseController {
                             }
                         });
             }
-            if (insertAttachments.size() > 0) {
+            if (!insertAttachments.isEmpty()) {
                 attachmentService.saveBatch(insertAttachments);
             }
         }
@@ -245,7 +245,7 @@ public class CourseController {
         List<CourseHour> hours = hourService.getHoursByCourseId(course.getId());
         List<CourseAttachment> attachments =
                 attachmentService.getAttachmentsByCourseId(course.getId());
-        if (null != attachments && attachments.size() > 0) {
+        if (null != attachments && !attachments.isEmpty()) {
             Map<Integer, Resource> resourceMap =
                     resourceService
                             .chunks(attachments.stream().map(CourseAttachment::getRid).toList())
@@ -286,6 +286,7 @@ public class CourseController {
                 req.getShortDesc(),
                 req.getIsRequired(),
                 req.getIsShow(),
+                req.getPublishedAt(),
                 req.getCategoryIds(),
                 req.getDepIds());
         return JsonResponse.success();

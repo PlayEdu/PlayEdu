@@ -22,6 +22,7 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,6 +58,9 @@ public class CourseRequest {
     @NotNull(message = "category_ids参数不存在")
     @JsonProperty("category_ids")
     private Integer[] categoryIds;
+
+    @JsonProperty("published_at")
+    private Date publishedAt;
 
     @Data
     public static class HourItem {

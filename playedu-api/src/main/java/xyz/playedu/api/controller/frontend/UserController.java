@@ -68,7 +68,7 @@ public class UserController {
         User user = FCtx.getUser();
         List<Department> departments = new ArrayList<>();
         List<Integer> depIds = userService.getDepIdsByUserId(user.getId());
-        if (depIds != null && depIds.size() > 0) {
+        if (depIds != null && !depIds.isEmpty()) {
             departments = departmentService.listByIds(depIds);
         }
 
@@ -134,17 +134,21 @@ public class UserController {
         // 全部部门课
         List<Course> openCourses = courseService.getOpenCoursesAndShow(500, categoryId);
         // 汇总到一个list中
-        if (depCourses != null && depCourses.size() > 0) {
+        if (depCourses != null && !depCourses.isEmpty()) {
             courses.addAll(depCourses);
         }
-        if (openCourses != null && openCourses.size() > 0) {
+        if (openCourses != null && !openCourses.isEmpty()) {
             courses.addAll(openCourses);
         }
         // 对结果进行排序->按照课程id倒序
-        if (courses.size() > 0) {
+        if (!courses.isEmpty()) {
             courses =
                     courses.stream()
-                            .sorted(Comparator.comparing(Course::getId).reversed())
+                            .sorted(
+                                    Comparator.comparing(
+                                                    Course::getPublishedAt,
+                                                    Comparator.nullsFirst(Date::compareTo))
+                                            .reversed())
                             .toList();
         }
 
@@ -154,7 +158,7 @@ public class UserController {
 
         // -------- 读取学习进度 ----------
         Map<Integer, UserCourseRecord> learnCourseRecords = new HashMap<>();
-        if (courses.size() > 0) {
+        if (!courses.isEmpty()) {
             learnCourseRecords =
                     userCourseRecordService.chunk(FCtx.getId(), courseIds).stream()
                             .collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e));
@@ -174,7 +178,7 @@ public class UserController {
         Long learnDuration = userLearnDurationStatsService.userDuration(FCtx.getId()); // 学习总时长
 
         // -------- 学习数据统计 ----------
-        if (courses.size() > 0) {
+        if (!courses.isEmpty()) {
             for (Course courseItem : courses) {
                 if (courseItem.getIsRequired() == 1) {
                     requiredHourCount += courseItem.getClassHour();
@@ -233,7 +237,7 @@ public class UserController {
         // 读取当前学员最近100条学习的线上课
         List<UserCourseHourRecord> userCourseHourRecords =
                 userCourseHourRecordService.getLatestCourseIds(FCtx.getId(), 100);
-        if (userCourseHourRecords == null || userCourseHourRecords.size() == 0) {
+        if (userCourseHourRecords == null || userCourseHourRecords.isEmpty()) {
             return JsonResponse.data(new ArrayList<>());
         }
 
