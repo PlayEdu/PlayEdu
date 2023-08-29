@@ -664,6 +664,18 @@ public class MigrationCheck implements CommandLineRunner {
                                                     """);
                                 }
                             });
+                    add(
+                            new HashMap<>() {
+                                {
+                                    put("table", "");
+                                    put("name", "20230829_13_40_add_published_at_for_courses");
+                                    put(
+                                            "sql",
+                                            """
+                                                    ALTER TABLE `courses` add `published_at` TIMESTAMP NULL DEFAULT NULL COMMENT '上架时间' AFTER `is_required`;
+                                                    """);
+                                }
+                            });
                 }
             };
 
@@ -683,13 +695,13 @@ public class MigrationCheck implements CommandLineRunner {
             }
 
             for (Map<String, String> tableItem : TABLE_SQL) {
-                String tableName = tableItem.get("table");
                 String migrationName = tableItem.get("name");
                 if (migrations.contains(migrationName)) {
                     continue;
                 }
 
-                if (tables.contains(tableName)) {
+                String tableName = tableItem.get("table");
+                if (!tables.isEmpty() && tables.contains(tableName)) {
                     // 数据表已创建但是没有创建记录
                     // 需要保存创建记录
                     migrationService.store(migrationName);
