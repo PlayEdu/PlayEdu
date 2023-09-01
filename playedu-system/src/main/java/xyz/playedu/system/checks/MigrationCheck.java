@@ -88,7 +88,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `perm_id` int(10) unsigned NOT NULL DEFAULT '0',
                                                       KEY `role_id` (`role_id`),
                                                       KEY `perm_id` (`perm_id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -125,7 +125,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `role_id` int(10) unsigned NOT NULL DEFAULT '0',
                                                       KEY `admin_id` (`admin_id`),
                                                       KEY `role_id` (`role_id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -198,7 +198,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                                       `updated_at` timestamp NULL DEFAULT NULL,
                                                       PRIMARY KEY (`id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -215,7 +215,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `dep_id` int(11) NOT NULL DEFAULT '0',
                                                       KEY `course_id` (`course_id`),
                                                       KEY `dep_id` (`dep_id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -239,7 +239,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                                       PRIMARY KEY (`id`),
                                                       KEY `course_id` (`course_id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -264,7 +264,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `updated_at` timestamp NULL DEFAULT NULL,
                                                       `deleted_at` timestamp NULL DEFAULT NULL COMMENT '删除时间',
                                                       PRIMARY KEY (`id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -285,7 +285,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `created_at` timestamp NULL DEFAULT NULL,
                                                       `updated_at` timestamp NULL DEFAULT NULL,
                                                       PRIMARY KEY (`id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -306,7 +306,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                                       `updated_at` timestamp NULL DEFAULT NULL,
                                                       PRIMARY KEY (`id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -323,7 +323,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `rid` int(11) NOT NULL,
                                                       KEY `cid` (`cid`),
                                                       KEY `rid` (`rid`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -340,7 +340,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `category_id` int(11) NOT NULL DEFAULT '0',
                                                       KEY `course_id` (`course_id`),
                                                       KEY `category_id` (`category_id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -358,7 +358,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `duration` int(10) unsigned NOT NULL COMMENT '视频时长[s]',
                                                       `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                                       UNIQUE KEY `rid` (`rid`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -412,7 +412,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `updated_at` timestamp NULL DEFAULT NULL,
                                                       PRIMARY KEY (`id`),
                                                       KEY `u_h_c_id` (`user_id`,`hour_id`,`course_id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -436,7 +436,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `created_at` timestamp NULL DEFAULT NULL,
                                                       `updated_at` timestamp NULL DEFAULT NULL,
                                                       PRIMARY KEY (`id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -453,7 +453,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `dep_id` int(11) unsigned NOT NULL DEFAULT '0',
                                                       KEY `user_id` (`user_id`),
                                                       KEY `dep_id` (`dep_id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -478,7 +478,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `hour_id` int(11) NOT NULL DEFAULT '0',
                                                       PRIMARY KEY (`id`),
                                                       KEY `u_d` (`user_id`,`created_date`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -497,7 +497,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `created_date` date NOT NULL,
                                                       PRIMARY KEY (`id`),
                                                       KEY `u_d` (`user_id`,`created_date`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -524,7 +524,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       PRIMARY KEY (`id`),
                                                       UNIQUE KEY `jti` (`jti`),
                                                       KEY `user_id` (`user_id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -548,7 +548,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `name` varchar(255) NOT NULL DEFAULT '' COMMENT '文件名',
                                                       `created_at` timestamp NULL DEFAULT NULL,
                                                       PRIMARY KEY (`id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -581,7 +581,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                       `updated_at` timestamp NULL DEFAULT NULL,
                                                       PRIMARY KEY (`id`),
                                                       UNIQUE KEY `email` (`email`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -635,7 +635,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                         `created_at` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                                         PRIMARY KEY (`id`),
                                                         KEY          `course_id` (`course_id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -660,7 +660,7 @@ public class MigrationCheck implements CommandLineRunner {
                                                         `ip`                    varchar(45)  NOT NULL DEFAULT '' COMMENT '下载ip',
                                                         `created_at`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                                         PRIMARY KEY (`id`)
-                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                                    ) ENGINE=InnoDB DEFAULT  CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });
@@ -673,6 +673,31 @@ public class MigrationCheck implements CommandLineRunner {
                                             "sql",
                                             """
                                                     ALTER TABLE `courses` add `published_at` TIMESTAMP NULL DEFAULT NULL COMMENT '上架时间' AFTER `is_required`;
+                                                    """);
+                                }
+                            });
+                    add(
+                            new HashMap<>() {
+                                {
+                                    put("table", "ldap_user");
+                                    put("name", "20230831_11_51_17_ldap_user");
+                                    put(
+                                            "sql",
+                                            """
+                                                    CREATE TABLE `ldap_user` (
+                                                      `id` int unsigned NOT NULL AUTO_INCREMENT,
+                                                      `uuid` varchar(64) NOT NULL DEFAULT '' COMMENT '唯一特征值',
+                                                      `user_id` int(11) NOT NULL DEFAULT 0 COMMENT '用户ID',
+                                                      `cn` varchar(120) NOT NULL DEFAULT '' COMMENT 'cn',
+                                                      `dn` varchar(120) NOT NULL DEFAULT '' COMMENT 'dn',
+                                                      `ou` varchar(255) NOT NULL DEFAULT '' COMMENT 'ou',
+                                                      `uid` varchar(120) NOT NULL DEFAULT '' COMMENT 'uid',
+                                                      `email` varchar(120) NOT NULL DEFAULT '' COMMENT '邮箱',
+                                                      `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                      `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                      PRIMARY KEY (`id`),
+                                                      UNIQUE KEY `unique_uuid` (`uuid`) USING BTREE
+                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                                                     """);
                                 }
                             });

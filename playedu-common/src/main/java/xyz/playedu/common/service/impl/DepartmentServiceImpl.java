@@ -18,6 +18,7 @@ package xyz.playedu.common.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +109,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     private void updateParentChain(String newChildrenPC, String oldChildrenPC) {
         List<Department> children =
                 list(query().getWrapper().like("parent_chain", oldChildrenPC + "%"));
-        if (children.size() == 0) {
+        if (children.isEmpty()) {
             return;
         }
 
@@ -125,7 +126,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
                                 .getParentChain()
                                 .replaceFirst(
                                         oldChildrenPC + ",",
-                                        newChildrenPC.length() == 0
+                                        newChildrenPC.isEmpty()
                                                 ? newChildrenPC
                                                 : newChildrenPC + ',');
             }
@@ -133,7 +134,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
             // parentId计算
             int parentId = 0;
-            if (pc != null && pc.length() > 0) {
+            if (pc != null && !pc.isEmpty()) {
                 String[] parentIds = pc.split(",");
                 parentId = Integer.parseInt(parentIds[parentIds.length - 1]);
             }
@@ -153,7 +154,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
                 throw new NotFoundException("父级部门不存在");
             }
             String pc = parentDepartment.getParentChain();
-            parentChain = pc == null || pc.length() == 0 ? parentId + "" : pc + "," + parentId;
+            parentChain = pc == null || pc.isEmpty() ? parentId + "" : pc + "," + parentId;
         }
         return parentChain;
     }
@@ -161,14 +162,14 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     public String childrenParentChain(Department department) {
         String prefix = department.getId() + "";
-        if (department.getParentChain() != null && department.getParentChain().length() > 0) {
+        if (department.getParentChain() != null && !department.getParentChain().isEmpty()) {
             prefix = department.getParentChain() + "," + prefix;
         }
         return prefix;
     }
 
     @Override
-    public void create(String name, Integer parentId, Integer sort) throws NotFoundException {
+    public Integer create(String name, Integer parentId, Integer sort) throws NotFoundException {
         String parentChain = "";
         if (parentId != 0) {
             parentChain = compParentChain(parentId);
@@ -183,6 +184,8 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         department.setUpdatedAt(new Date());
 
         save(department);
+
+        return department.getId();
     }
 
     @Override
@@ -258,9 +261,31 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
     @Override
     public List<Department> chunk(List<Integer> ids) {
-        if (ids == null || ids.size() == 0) {
+        if (ids == null || ids.isEmpty()) {
             return new ArrayList<>();
         }
         return list(query().getWrapper().in("id", ids));
+    }
+
+    @Override
+    @SneakyThrows
+    public Integer createWithChainList(List<String> ou) {
+        if (ou == null || ou.isEmpty()) {
+            return 0;
+        }
+
+        Department department = null;
+        for (int i = 0; i < ou.size(); i++) {
+            String name = ou.get(i);
+            Integer parentId = department == null ? 0 : department.getId();
+            department = getOne(query().getWrapper().eq("name", name).eq("parent_id", parentId));
+            if (department == null) {
+                Integer depId = create(name, parentId, i);
+                // refresh
+                department = new Department();
+                department.setId(depId);
+            }
+        }
+        return department.getId();
     }
 }

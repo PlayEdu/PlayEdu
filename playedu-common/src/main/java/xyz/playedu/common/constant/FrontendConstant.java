@@ -31,6 +31,7 @@ public class FrontendConstant {
                     add("/api/v1/system/config");
                     add("/api/v1/system/image-captcha");
                     add("/api/v1/auth/login/password");
+                    add("/api/v1/auth/login/ldap");
                 }
             };
 

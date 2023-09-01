@@ -28,7 +28,6 @@ import xyz.playedu.api.request.frontend.CourseHourRecordRequest;
 import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.RedisDistributedLock;
-import xyz.playedu.course.bus.UserBus;
 import xyz.playedu.course.caches.CourseCache;
 import xyz.playedu.course.caches.UserCanSeeCourseCache;
 import xyz.playedu.course.caches.UserLastLearnTimeCache;
@@ -60,8 +59,6 @@ public class HourController {
     @Autowired private ResourceService resourceService;
 
     @Autowired private UserCourseHourRecordService userCourseHourRecordService;
-
-    @Autowired private UserBus userBus;
 
     // ------- CACHE ----------
     @Autowired private UserCanSeeCourseCache userCanSeeCourseCache;

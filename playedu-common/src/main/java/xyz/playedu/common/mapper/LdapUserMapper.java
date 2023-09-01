@@ -13,30 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.common.service;
+package xyz.playedu.common.mapper;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-import xyz.playedu.common.domain.AppConfig;
-import xyz.playedu.common.types.config.MinioConfig;
+import xyz.playedu.common.domain.LdapUser;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public interface AppConfigService extends IService<AppConfig> {
-
-    Map<String, Long> allKeys();
-
-    List<AppConfig> allShow();
-
-    void saveFromMap(HashMap<String, String> data);
-
-    Map<String, String> keyValues();
-
-    MinioConfig getMinioConfig();
-
-    boolean enabledLdapLogin();
-
-    String defaultAvatar();
-}
+/**
+ * @author tengyongzhi
+ * @description 针对表【ldap_user】的数据库操作Mapper
+ * @createDate 2023-08-31 14:33:19 @Entity xyz.playedu.common.domain.LdapUser
+ */
+public interface LdapUserMapper extends BaseMapper<LdapUser> {}

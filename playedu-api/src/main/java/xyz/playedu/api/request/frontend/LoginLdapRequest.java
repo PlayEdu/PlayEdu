@@ -13,30 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.common.service;
+package xyz.playedu.api.request.frontend;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.validation.constraints.NotBlank;
 
-import xyz.playedu.common.domain.AppConfig;
-import xyz.playedu.common.types.config.MinioConfig;
+import lombok.Data;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+@Data
+public class LoginLdapRequest {
 
-public interface AppConfigService extends IService<AppConfig> {
+    @NotBlank(message = "请输入账户名")
+    private String username;
 
-    Map<String, Long> allKeys();
-
-    List<AppConfig> allShow();
-
-    void saveFromMap(HashMap<String, String> data);
-
-    Map<String, String> keyValues();
-
-    MinioConfig getMinioConfig();
-
-    boolean enabledLdapLogin();
-
-    String defaultAvatar();
+    @NotBlank(message = "请输入密码")
+    private String password;
 }

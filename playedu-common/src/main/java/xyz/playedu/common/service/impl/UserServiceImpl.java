@@ -117,7 +117,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setCreatedAt(new Date());
         user.setUpdatedAt(new Date());
 
-        if (idCard != null && idCard.length() > 0) {
+        if (idCard != null && !idCard.isEmpty()) {
             user.setVerifyAt(new Date());
             user.setIsVerify(1);
         }
@@ -144,14 +144,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         newUser.setAvatar(avatar);
         newUser.setIdCard(idCard);
 
-        if (password != null && password.length() > 0) {
+        if (password != null && !password.isEmpty()) {
             newUser.setPassword(HelperUtil.MD5(password + user.getSalt()));
         }
 
         if (newUser.getName() != null
-                && newUser.getName().length() > 0
+                && !newUser.getName().isEmpty()
                 && newUser.getIdCard() != null
-                && newUser.getIdCard().length() > 0) {
+                && !newUser.getIdCard().isEmpty()) {
             if (user.getVerifyAt() == null) {
                 newUser.setIsVerify(1);
                 newUser.setVerifyAt(new Date());
@@ -204,7 +204,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<User> chunks(List<Integer> ids, List<String> fields) {
-        if (ids == null || ids.size() == 0) {
+        if (ids == null || ids.isEmpty()) {
             return new ArrayList<>();
         }
         return list(query().getWrapper().in("id", ids).select(fields));
@@ -212,7 +212,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<User> chunks(List<Integer> ids) {
-        if (ids == null || ids.size() == 0) {
+        if (ids == null || ids.isEmpty()) {
             return new ArrayList<>();
         }
         return list(query().getWrapper().in("id", ids));
@@ -250,7 +250,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> userIds) {
-        if (userIds == null || userIds.size() == 0) {
+        if (userIds == null || userIds.isEmpty()) {
             return null;
         }
         Map<Integer, List<UserDepartment>> data =
@@ -271,6 +271,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
         user.setId(userId);
         user.setAvatar(avatar);
+        updateById(user);
+    }
+
+    @Override
+    public void updateName(Integer id, String cn) {
+        User user = new User();
+        user.setId(id);
+        user.setName(cn);
+        updateById(user);
+    }
+
+    @Override
+    public void updateDepId(Integer id, Integer[] depIds) {
+        userDepartmentService.resetStoreDepIds(id, depIds);
+    }
+
+    @Override
+    public void updateEmail(Integer id, String email) {
+        User user = new User();
+        user.setId(id);
+        user.setEmail(email);
         updateById(user);
     }
 }

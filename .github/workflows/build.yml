@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+      - dev
+      - 'feat/**'
 
 env:
   IMAGE_FQDN: registry.cn-hangzhou.aliyuncs.com/playedu/api

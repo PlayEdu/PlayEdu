@@ -35,4 +35,11 @@ public class ConfigConstant {
     public static final String MINIO_BUCKET = "minio.bucket";
     public static final String MINIO_ENDPOINT = "minio.endpoint";
     public static final String MINIO_DOMAIN = "minio.domain";
+
+    public static final String LDAP_ENABLED = "ldap.enabled";
+    public static final String LDAP_URL = "ldap.url";
+    public static final String LDAP_ADMIN_USER = "ldap.admin_user";
+    public static final String LDAP_ADMIN_PASS = "ldap.admin_pass";
+    public static final String LDAP_BASE_DN = "ldap.base_dn";
+    public static final String LDAP_USER_DN_PREFIX = "ldap.user_dn_prefix";
 }

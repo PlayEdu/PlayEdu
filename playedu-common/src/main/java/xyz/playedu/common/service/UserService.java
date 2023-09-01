@@ -80,4 +80,10 @@ public interface UserService extends IService<User> {
     Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> userIds);
 
     void changeAvatar(Integer userId, String avatar);
+
+    void updateName(Integer id, String cn);
+
+    void updateDepId(Integer id, Integer[] depIds);
+
+    void updateEmail(Integer id, String email);
 }

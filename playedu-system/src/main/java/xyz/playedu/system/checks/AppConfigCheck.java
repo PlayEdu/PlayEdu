@@ -223,6 +223,70 @@ public class AppConfigCheck implements CommandLineRunner {
                                     }
                                 },
                             });
+                    put(
+                            "LDAP配置",
+                            new AppConfig[] {
+                                new AppConfig() {
+                                    {
+                                        setName("启用");
+                                        setSort(10);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_SWITCH);
+                                        setKeyName(ConfigConstant.LDAP_ENABLED);
+                                        setKeyValue("0");
+                                        setHelp("注意：目前仅支持OpenLDAP服务");
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("服务地址");
+                                        setSort(20);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(ConfigConstant.LDAP_URL);
+                                        setKeyValue("");
+                                        setHelp("LDAP的对外服务地址。例如：ldap.example.com");
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("用户名");
+                                        setSort(40);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(ConfigConstant.LDAP_ADMIN_USER);
+                                        setKeyValue("");
+                                        setHelp("用户登录到LDAP。例子：cn=admin,dc=playedu,dc=xyz");
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("密码");
+                                        setSort(50);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(ConfigConstant.LDAP_ADMIN_PASS);
+                                        setKeyValue("");
+                                        setIsPrivate(1);
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("基本DN");
+                                        setSort(60);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(ConfigConstant.LDAP_BASE_DN);
+                                        setKeyValue("");
+                                        setHelp("从LDAP根节点搜索用户");
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("附件用户DN");
+                                        setSort(70);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(ConfigConstant.LDAP_USER_DN_PREFIX);
+                                        setKeyValue("");
+                                        setHelp("搜索用户时，基于基础DN的搜索范围限制");
+                                    }
+                                },
+                            });
                 }
             };
 

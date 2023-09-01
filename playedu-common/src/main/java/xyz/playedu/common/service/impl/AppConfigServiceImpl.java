@@ -81,7 +81,7 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
                             });
                 });
 
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             updateBatchById(list);
         }
     }
@@ -102,5 +102,19 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
         minioConfig.setEndpoint(config.get(ConfigConstant.MINIO_ENDPOINT));
         minioConfig.setDomain(config.get(ConfigConstant.MINIO_DOMAIN));
         return minioConfig;
+    }
+
+    @Override
+    public boolean enabledLdapLogin() {
+        AppConfig appConfig =
+                getOne(query().getWrapper().eq("key_name", ConfigConstant.LDAP_ENABLED));
+        return "1".equals(appConfig.getKeyValue());
+    }
+
+    @Override
+    public String defaultAvatar() {
+        AppConfig appConfig =
+                getOne(query().getWrapper().eq("key_name", ConfigConstant.MEMBER_DEFAULT_AVATAR));
+        return appConfig.getKeyValue();
     }
 }

@@ -35,6 +35,7 @@ import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.exception.NotFoundException;
+import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.types.JsonResponse;
@@ -65,6 +66,8 @@ public class DepartmentController {
     @Autowired private UserCourseRecordService userCourseRecordService;
 
     @Autowired private ApplicationContext ctx;
+
+    @Autowired private AppConfigService appConfigService;
 
     @GetMapping("/index")
     @Log(title = "部门-列表", businessType = BusinessTypeConstant.GET)
@@ -98,6 +101,9 @@ public class DepartmentController {
     @Log(title = "部门-新建", businessType = BusinessTypeConstant.INSERT)
     public JsonResponse store(@RequestBody @Validated DepartmentRequest req)
             throws NotFoundException {
+        if (appConfigService.enabledLdapLogin()) {
+            return JsonResponse.error("已启用LDAP服务，禁止添加部门");
+        }
         departmentService.create(req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
     }
@@ -115,6 +121,9 @@ public class DepartmentController {
     @Log(title = "部门-编辑", businessType = BusinessTypeConstant.UPDATE)
     public JsonResponse update(@PathVariable Integer id, @RequestBody DepartmentRequest req)
             throws NotFoundException {
+        if (appConfigService.enabledLdapLogin()) {
+            return JsonResponse.error("已启用LDAP服务，禁止添加部门");
+        }
         Department department = departmentService.findOrFail(id);
         departmentService.update(department, req.getName(), req.getParentId(), req.getSort());
         return JsonResponse.success();
@@ -124,6 +133,9 @@ public class DepartmentController {
     @GetMapping("/{id}/destroy")
     @Log(title = "部门-批量删除", businessType = BusinessTypeConstant.DELETE)
     public JsonResponse preDestroy(@PathVariable Integer id) {
+        if (appConfigService.enabledLdapLogin()) {
+            return JsonResponse.error("已启用LDAP服务，禁止添加部门");
+        }
         List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepId(id);
         List<Integer> userIds = departmentService.getUserIdsByDepId(id);
 
@@ -165,6 +177,9 @@ public class DepartmentController {
     @DeleteMapping("/{id}")
     @Log(title = "部门-删除", businessType = BusinessTypeConstant.DELETE)
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
+        if (appConfigService.enabledLdapLogin()) {
+            return JsonResponse.error("已启用LDAP服务，禁止添加部门");
+        }
         Department department = departmentService.findOrFail(id);
         departmentService.destroy(department.getId());
         ctx.publishEvent(new DepartmentDestroyEvent(this, BCtx.getId(), department.getId()));
@@ -184,6 +199,9 @@ public class DepartmentController {
     @Log(title = "部门-更新父级", businessType = BusinessTypeConstant.UPDATE)
     public JsonResponse updateParent(@RequestBody @Validated DepartmentParentRequest req)
             throws NotFoundException {
+        if (appConfigService.enabledLdapLogin()) {
+            return JsonResponse.error("已启用LDAP服务，禁止添加部门");
+        }
         departmentService.changeParent(req.getId(), req.getParentId(), req.getIds());
         return JsonResponse.success();
     }

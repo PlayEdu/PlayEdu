@@ -13,30 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.common.service;
+package xyz.playedu.common.util.ldap;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import lombok.Data;
 
-import xyz.playedu.common.domain.AppConfig;
-import xyz.playedu.common.types.config.MinioConfig;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public interface AppConfigService extends IService<AppConfig> {
+@Data
+public class LdapTransformUser {
+    private String id;
 
-    Map<String, Long> allKeys();
+    private String dn;
 
-    List<AppConfig> allShow();
+    private String cn;
 
-    void saveFromMap(HashMap<String, String> data);
+    private List<String> ou;
 
-    Map<String, String> keyValues();
+    private String email;
 
-    MinioConfig getMinioConfig();
-
-    boolean enabledLdapLogin();
-
-    String defaultAvatar();
+    private String uid;
 }

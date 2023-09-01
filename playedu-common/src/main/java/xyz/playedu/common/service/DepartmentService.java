@@ -45,7 +45,7 @@ public interface DepartmentService extends IService<Department> {
 
     String childrenParentChain(Department department);
 
-    void create(String name, Integer parentId, Integer sort) throws NotFoundException;
+    Integer create(String name, Integer parentId, Integer sort) throws NotFoundException;
 
     void remoteRelateUsersByDepId(Integer depId);
 
@@ -64,4 +64,6 @@ public interface DepartmentService extends IService<Department> {
     Map<Integer, Integer> getDepartmentsUserCount();
 
     List<Department> chunk(List<Integer> ids);
+
+    Integer createWithChainList(List<String> ou);
 }

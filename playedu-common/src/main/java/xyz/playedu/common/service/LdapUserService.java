@@ -17,26 +17,26 @@ package xyz.playedu.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import xyz.playedu.common.domain.AppConfig;
-import xyz.playedu.common.types.config.MinioConfig;
+import xyz.playedu.common.domain.LdapUser;
+import xyz.playedu.common.util.ldap.LdapTransformUser;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+/**
+ * @author tengyongzhi
+ * @description 针对表【ldap_user】的数据库操作Service
+ * @createDate 2023-08-31 11:59:27
+ */
+public interface LdapUserService extends IService<LdapUser> {
+    LdapUser findByUUID(String id);
 
-public interface AppConfigService extends IService<AppConfig> {
+    LdapUser store(LdapTransformUser ldapTransformUser);
 
-    Map<String, Long> allKeys();
+    void updateUserId(Integer id, Integer userId);
 
-    List<AppConfig> allShow();
+    void updateCN(Integer id, String cn);
 
-    void saveFromMap(HashMap<String, String> data);
+    void updateOU(Integer id, String newOU);
 
-    Map<String, String> keyValues();
+    void updateEmail(Integer id, String email);
 
-    MinioConfig getMinioConfig();
-
-    boolean enabledLdapLogin();
-
-    String defaultAvatar();
+    void updateUid(Integer id, String uid);
 }

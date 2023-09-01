@@ -53,6 +53,8 @@ public class SystemController {
         data.put("player-bullet-secret-opacity", configs.get("player.bullet_secret_opacity"));
         data.put("player-disabled-drag", configs.get("player.disabled_drag"));
 
+        data.put("ldap-enabled", configs.get(ConfigConstant.LDAP_ENABLED));
+
         return JsonResponse.data(data);
     }
 }
