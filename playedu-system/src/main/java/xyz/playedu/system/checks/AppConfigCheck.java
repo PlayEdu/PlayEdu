@@ -233,7 +233,7 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_SWITCH);
                                         setKeyName(ConfigConstant.LDAP_ENABLED);
                                         setKeyValue("0");
-                                        setHelp("注意：目前仅支持OpenLDAP服务");
+                                        setHelp("注意：1.目前仅支持OpenLDAP服务 2.启用以后系统只能使用LDAP账号登录");
                                     }
                                 },
                                 new AppConfig() {
@@ -243,7 +243,7 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
                                         setKeyName(ConfigConstant.LDAP_URL);
                                         setKeyValue("");
-                                        setHelp("LDAP的对外服务地址。例如：ldap.example.com");
+                                        setHelp("LDAP的对外服务地址。例如：ldap://ldap.example.com:389");
                                     }
                                 },
                                 new AppConfig() {
@@ -253,7 +253,7 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
                                         setKeyName(ConfigConstant.LDAP_ADMIN_USER);
                                         setKeyValue("");
-                                        setHelp("用户登录到LDAP。例子：cn=admin,dc=playedu,dc=xyz");
+                                        setHelp("用户登录到LDAP。如：cn=admin,dc=example,dc=com");
                                     }
                                 },
                                 new AppConfig() {
