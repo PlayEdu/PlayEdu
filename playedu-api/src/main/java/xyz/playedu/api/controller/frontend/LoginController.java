@@ -59,10 +59,6 @@ public class LoginController {
 
     @Autowired private AppConfigService appConfigService;
 
-    @Autowired private LdapUserService ldapUserService;
-
-    @Autowired private DepartmentService departmentService;
-
     @Autowired private LoginBus loginBus;
 
     @Autowired private LoginLimitCache loginLimitCache;
