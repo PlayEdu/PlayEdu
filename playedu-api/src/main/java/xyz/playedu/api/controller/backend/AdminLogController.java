@@ -19,10 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
@@ -31,6 +28,7 @@ import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.AdminLog;
+import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.AdminLogService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.paginate.AdminLogPaginateFiler;
@@ -86,5 +84,20 @@ public class AdminLogController {
         data.put("total", result.getTotal());
 
         return JsonResponse.data(data);
+    }
+
+    @BackendPermission(slug = BPermissionConstant.ADMIN_LOG)
+    @GetMapping("/detail/{id}")
+    public JsonResponse detail(@PathVariable(name = "id") Integer id) {
+        Integer adminId = 0;
+        if (!backendBus.isSuperAdmin()) {
+            adminId = BCtx.getId();
+        }
+
+        AdminLog log = adminLogService.find(id, adminId);
+        if (log == null) {
+            throw new ServiceException("日志不存在");
+        }
+        return JsonResponse.data(log);
     }
 }

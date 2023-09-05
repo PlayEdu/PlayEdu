@@ -44,4 +44,12 @@ public class AdminLogServiceImpl extends ServiceImpl<AdminLogMapper, AdminLog>
 
         return pageResult;
     }
+
+    @Override
+    public AdminLog find(Integer id, Integer adminId) {
+        if (adminId == 0) {
+            return getOne(query().getWrapper().eq("id", id));
+        }
+        return getOne(query().getWrapper().eq("id", id).eq("admin_id", adminId));
+    }
 }

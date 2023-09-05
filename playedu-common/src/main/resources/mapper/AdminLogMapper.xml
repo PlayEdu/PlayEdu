@@ -29,7 +29,9 @@
     </sql>
 
     <select id="paginate" resultType="xyz.playedu.common.domain.AdminLog">
-        SELECT `admin_logs`.*
+        SELECT `admin_logs`.`id`,`admin_logs`.`admin_id`,`admin_logs`.`admin_name`,`admin_logs`.`module`,`admin_logs`.`title`,
+        `admin_logs`.`opt`,`admin_logs`.`method`,`admin_logs`.`request_method`,`admin_logs`.`url`,`admin_logs`.`ip`,`admin_logs`.`param`,
+        `admin_logs`.`ip_area`,`admin_logs`.`created_at`
         FROM `admin_logs`
         <where>
             <if test="adminId != null">

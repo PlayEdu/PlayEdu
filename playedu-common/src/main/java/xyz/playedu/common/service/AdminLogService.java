@@ -28,4 +28,6 @@ import xyz.playedu.common.types.paginate.PaginationResult;
  */
 public interface AdminLogService extends IService<AdminLog> {
     PaginationResult<AdminLog> paginate(int page, int size, AdminLogPaginateFiler filter);
+
+    AdminLog find(Integer id, Integer adminId);
 }
