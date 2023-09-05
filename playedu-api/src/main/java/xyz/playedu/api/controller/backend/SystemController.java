@@ -44,7 +44,7 @@ public class SystemController {
         Map<String, String> configData = BCtx.getConfig();
 
         String apiUrl = configData.get(ConfigConstant.SYSTEM_API_URL);
-        if (apiUrl == null || apiUrl.trim().length() == 0) {
+        if (apiUrl == null || apiUrl.trim().isEmpty()) {
             apiUrl = RequestUtil.uriWithProtocol();
         } else {
             if (apiUrl.endsWith("/")) {
@@ -62,7 +62,7 @@ public class SystemController {
 
         // 学员的默认头像
         String memberDefaultAvatar = configData.get(ConfigConstant.MEMBER_DEFAULT_AVATAR);
-        if (memberDefaultAvatar == null || memberDefaultAvatar.trim().length() == 0) {
+        if (memberDefaultAvatar == null || memberDefaultAvatar.trim().isEmpty()) {
             data.put(ConfigConstant.MEMBER_DEFAULT_AVATAR, apiUrl + "/images/default_avatar.png");
         } else {
             data.put(ConfigConstant.MEMBER_DEFAULT_AVATAR, memberDefaultAvatar);

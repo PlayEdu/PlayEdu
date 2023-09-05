@@ -27,6 +27,7 @@ import xyz.playedu.common.constant.SystemConstant;
 import xyz.playedu.common.domain.AppConfig;
 import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.types.JsonResponse;
+import xyz.playedu.common.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class AppConfigController {
         List<AppConfig> configs = configService.allShow();
         List<AppConfig> data = new ArrayList<>();
         for (AppConfig item : configs) {
-            if (item.getIsPrivate() == 1) {
+            if (item.getIsPrivate() == 1 && StringUtil.isNotEmpty(item.getKeyValue())) {
                 item.setKeyValue(SystemConstant.CONFIG_MASK);
             }
             data.add(item);
