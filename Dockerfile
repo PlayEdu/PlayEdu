@@ -22,4 +22,4 @@ RUN chmod +x /app/app.jar
 EXPOSE 9898
 
 # 指定docker容器启动时运行jar包
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
