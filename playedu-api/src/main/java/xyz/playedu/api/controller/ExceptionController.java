@@ -17,6 +17,7 @@ package xyz.playedu.api.controller;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -46,6 +47,11 @@ public class ExceptionController {
     @ExceptionHandler(ServiceException.class)
     public JsonResponse serviceExceptionHandler(ServiceException e) {
         return JsonResponse.error(e.getMessage(), 1);
+    }
+
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    public JsonResponse serviceExceptionHandler(RedisConnectionFailureException e) {
+        return JsonResponse.error("redis服务连接失败", 500);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
