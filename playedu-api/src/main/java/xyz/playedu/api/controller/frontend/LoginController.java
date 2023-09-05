@@ -67,8 +67,7 @@ public class LoginController {
 
     @PostMapping("/password")
     @SneakyThrows
-    public JsonResponse password(
-            @RequestBody @Validated LoginPasswordRequest req, LoginBus loginBus)
+    public JsonResponse password(@RequestBody @Validated LoginPasswordRequest req)
             throws LimitException {
         if (appConfigService.enabledLdapLogin()) {
             return JsonResponse.error("请使用LDAP登录");
