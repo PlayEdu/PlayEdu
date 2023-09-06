@@ -75,6 +75,9 @@ public class SystemController {
         defaultCourseThumbs.add(apiUrl + "/images/courses/thumb3.png");
         data.put("default.course_thumbs", defaultCourseThumbs);
 
+        // LDAP登录
+        data.put("ldap-enabled", "1".equals(configData.get(ConfigConstant.LDAP_ENABLED)));
+
         return JsonResponse.data(data);
     }
 }
