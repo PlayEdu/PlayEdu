@@ -134,14 +134,8 @@ public class LdapUtil {
             return null;
         }
 
-        List<String> ouScopes = new ArrayList<>();
-        String[] rdnList = baseDN.toLowerCase().split(",");
-        for (int i = 0; i < rdnList.length; i++) {
-            if (rdnList[i].startsWith("ou=")) {
-                ouScopes.add(rdnList[i]);
-            }
-        }
-        String ouScopesStr = String.join(",", ouScopes);
+        // baseDN中的ou作用域
+        String ouScopesStr = baseDNOuScope(baseDN);
 
         List<String> units = new ArrayList<>();
         while (result.hasMoreElements()) {
@@ -242,7 +236,12 @@ public class LdapUtil {
         }
 
         // ou计算
-        String[] rdnList = ldapUser.getDn().toLowerCase().split(",");
+        String baseDNOuScope = baseDNOuScope(baseDN);
+        String[] rdnList =
+                (baseDNOuScope.isEmpty()
+                                ? ldapUser.getDn().toLowerCase()
+                                : ldapUser.getDn().toLowerCase() + "," + baseDNOuScope)
+                        .split(",");
         List<String> ou = new ArrayList<>();
         for (String s : rdnList) {
             if (StringUtil.startsWith(s, "ou=")) {
@@ -269,6 +268,17 @@ public class LdapUtil {
         }
 
         return ldapUser;
+    }
+
+    private static String baseDNOuScope(String baseDN) {
+        List<String> ouScopes = new ArrayList<>();
+        String[] rdnList = baseDN.toLowerCase().split(",");
+        for (String s : rdnList) {
+            if (s.startsWith("ou=")) {
+                ouScopes.add(s);
+            }
+        }
+        return String.join(",", ouScopes);
     }
 
     public static void closeContext(LdapContext ldapCtx) {
