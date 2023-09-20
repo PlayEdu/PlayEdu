@@ -34,16 +34,32 @@ import javax.naming.ldap.LdapContext;
 @Slf4j
 public class LdapUtil {
 
+    // person,posixAccount,inetOrgPerson,organizationalPerson => OpenLDAP的属性
+    // user => Window AD 域的属性
     private static final String USER_OBJECT_CLASS =
-            "(|(objectClass=person)(objectClass=posixAccount)(objectClass=inetOrgPerson)(objectClass=organizationalPerson))";
+            "(|(objectClass=person)(objectClass=posixAccount)(objectClass=inetOrgPerson)(objectClass=organizationalPerson)(objectClass=user))";
 
     private static final String[] USER_RETURN_ATTRS =
             new String[] {
+                // OpenLDAP 的属性
                 "uid", // 用户的唯一识别符号，全局唯一，可以看做用户表的手机号，此字段可用于配合密码直接登录
                 "cn", // CommonName -> 可以认作为人的名字，比如：张三。在LDAP中此字段是可以重复的,但是同一ou下不可重复
-                "mail", // 邮箱，此值不一定存在，全局唯一，可配合密码直接登录
                 "email", // 邮箱，同上
                 "entryUUID",
+
+                // Window AD 域的属性
+                "memberOf",
+                "name",
+                "userPrincipalName",
+                "departmentNumber",
+                "telephoneNumber",
+                "mobile",
+                "department",
+                "sAMAccountName",
+                "uSNCreated", // AD域的唯一属性
+
+                // 公用属性
+                "mail",
             };
     private static final String[] OU_RETURN_ATTRS = new String[] {"ou"};
 
@@ -149,9 +165,10 @@ public class LdapUtil {
 
         String userFilter = "";
         if (StringUtil.isNotEmpty(mail)) {
-            userFilter = String.format("(|(mail=%s)(email=%s))", mail, mail);
+            userFilter =
+                    String.format("(|(mail=%s)(email=%s)(userPrincipalName=%s))", mail, mail, mail);
         } else if (StringUtil.isNotEmpty(uid)) {
-            userFilter = String.format("(uid=%s)", uid);
+            userFilter = String.format("(|(uid=%s)(sAMAccountName=%s))", uid, uid);
         }
 
         String filter = String.format("(&%s%s)", userFilter, USER_OBJECT_CLASS);
@@ -183,10 +200,31 @@ public class LdapUtil {
 
         LdapTransformUser ldapUser = new LdapTransformUser();
         ldapUser.setDn(item.getName());
-        ldapUser.setId((String) attributes.get("entryUUID").get());
-        ldapUser.setCn((String) attributes.get("cn").get());
-        ldapUser.setUid((String) attributes.get("uid").get());
         ldapUser.setEmail(email);
+        ldapUser.setCn((String) attributes.get("cn").get());
+
+        if (attributes.get("uSNCreated") != null) {
+            // Window AD域
+            ldapUser.setId((String) attributes.get("uSNCreated").get());
+            ldapUser.setUid((String) attributes.get("sAMAccountName").get());
+        } else {
+            // OpenLDAP
+            ldapUser.setId((String) attributes.get("entryUUID").get());
+            ldapUser.setUid((String) attributes.get("uid").get());
+        }
+
+        // ou计算
+        String[] rdnList = ldapUser.getDn().toLowerCase().split(",");
+        List<String> ou = new ArrayList<>();
+        for (String s : rdnList) {
+            if (StringUtil.startsWith(s, "ou=")) {
+                ou.add(s.replace("ou=", ""));
+            }
+        }
+        Collections.reverse(ou);
+        ldapUser.setOu(ou);
+
+        log.info("ldapUser={}", ldapUser);
 
         // 使用用户dn+提交的密码去登录ldap系统
         // 登录成功则意味着密码正确
@@ -201,17 +239,6 @@ public class LdapUtil {
         } finally {
             ldapContext.close();
         }
-
-        // ou计算
-        String[] rdnList = ldapUser.getDn().split(",");
-        List<String> ou = new ArrayList<>();
-        for (String s : rdnList) {
-            if (StringUtil.startsWith(s, "ou=")) {
-                ou.add(s.replace("ou=", ""));
-            }
-        }
-        Collections.reverse(ou);
-        ldapUser.setOu(ou);
 
         return ldapUser;
     }
