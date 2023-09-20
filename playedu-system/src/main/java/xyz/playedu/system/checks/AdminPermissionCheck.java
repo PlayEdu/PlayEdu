@@ -105,7 +105,7 @@ public class AdminPermissionCheck implements CommandLineRunner {
                                             });
                                     // 资源分类
                                     put(
-                                            "资源分类",
+                                            "分类管理",
                                             new AdminPermission[] {
                                                 new AdminPermission() {
                                                     {
@@ -114,6 +114,27 @@ public class AdminPermissionCheck implements CommandLineRunner {
                                                         setSlug(
                                                                 BPermissionConstant
                                                                         .RESOURCE_CATEGORY);
+                                                    }
+                                                },
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(10);
+                                                        setName("左侧菜单");
+                                                        setSlug(
+                                                                BPermissionConstant
+                                                                        .RESOURCE_CATEGORY_MENU);
+                                                    }
+                                                },
+                                            });
+                                    // 资源分类
+                                    put(
+                                            "资源管理",
+                                            new AdminPermission[] {
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(10);
+                                                        setName("左侧菜单");
+                                                        setSlug(BPermissionConstant.RESOURCE_MENU);
                                                     }
                                                 },
                                             });
