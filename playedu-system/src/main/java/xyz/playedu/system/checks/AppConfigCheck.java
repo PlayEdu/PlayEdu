@@ -233,7 +233,7 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_SWITCH);
                                         setKeyName(ConfigConstant.LDAP_ENABLED);
                                         setKeyValue("0");
-                                        setHelp("注意：1.目前仅支持OpenLDAP服务 2.启用以后系统只能使用LDAP账号登录");
+                                        setHelp("注意：1.支持Window AD域和OpenLDAP 2.启用以后系统只能使用LDAP账号登录");
                                     }
                                 },
                                 new AppConfig() {
