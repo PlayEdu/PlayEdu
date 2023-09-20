@@ -15,6 +15,7 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
@@ -39,8 +40,10 @@ import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.types.JsonResponse;
+import xyz.playedu.common.types.LdapConfig;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.UserPaginateFilter;
+import xyz.playedu.common.util.ldap.LdapUtil;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.course.service.CourseDepartmentService;
@@ -144,7 +147,7 @@ public class DepartmentController {
         data.put("users", new ArrayList<>());
         data.put("children", departmentService.listByParentId(id));
 
-        if (courseIds != null && courseIds.size() > 0) {
+        if (courseIds != null && !courseIds.isEmpty()) {
             data.put(
                     "courses",
                     courseService.chunks(
@@ -156,7 +159,7 @@ public class DepartmentController {
                                 }
                             }));
         }
-        if (userIds != null && userIds.size() > 0) {
+        if (userIds != null && !userIds.isEmpty()) {
             data.put(
                     "users",
                     userService.chunks(
@@ -244,7 +247,7 @@ public class DepartmentController {
         PaginationResult<User> users = userService.paginate(page, size, filter);
 
         List<Course> courses;
-        if (courseIdsStr != null && courseIdsStr.trim().length() > 0) {
+        if (courseIdsStr != null && !courseIdsStr.trim().isEmpty()) {
             // 指定了需要显示的线上课
             courses =
                     courseService.chunks(
@@ -305,5 +308,64 @@ public class DepartmentController {
         data.put("user_course_records", userCourseRecordsMap);
 
         return JsonResponse.data(data);
+    }
+
+    @BackendPermission(slug = BPermissionConstant.DEPARTMENT_CUD)
+    @PostMapping("/ldap-sync")
+    @Log(title = "部门-LDAP同步", businessType = BusinessTypeConstant.INSERT)
+    @SneakyThrows
+    public JsonResponse ldapSync() {
+        LdapConfig ldapConfig = appConfigService.ldapConfig();
+
+        List<String> ouList =
+                LdapUtil.departments(
+                        ldapConfig.getUrl(),
+                        ldapConfig.getAdminUser(),
+                        ldapConfig.getAdminPass(),
+                        ldapConfig.getBaseDN());
+
+        if (ouList == null || ouList.isEmpty()) {
+            return JsonResponse.error("部门为空");
+        }
+
+        HashMap<String, Integer> depIdKeyByName = new HashMap<>();
+        Integer sort = 0;
+
+        for (String department : ouList) {
+            String[] tmp = department.toLowerCase().split(",");
+            String prevName = "";
+            for (String s : tmp) {
+                // 控制部门排序
+                sort++;
+                // 当前的子部门名
+                String tmpName = s.replace("ou=", "");
+                // 父部门id
+                Integer parentId = 0;
+                // 部门的链名=>父部门1,父部门2,子部门
+                String fullName = tmpName;
+                if (!prevName.isEmpty()) {
+                    fullName = prevName + "," + tmpName;
+                    parentId = depIdKeyByName.get(prevName);
+                }
+
+                // 检查是否已经创建
+                Integer depId = depIdKeyByName.get(tmpName);
+                if (depId == null) {
+                    // 检查是否已经创建
+                    Department tmpDep = departmentService.findByName(tmpName, parentId);
+                    if (tmpDep == null) {
+                        // 创建部门
+                        Integer tmpDepId = departmentService.create(tmpName, parentId, sort);
+                        depIdKeyByName.put(fullName, tmpDepId);
+                    } else {
+                        depIdKeyByName.put(fullName, tmpDep.getId());
+                    }
+                }
+
+                prevName = fullName;
+            }
+        }
+
+        return JsonResponse.success();
     }
 }

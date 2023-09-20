@@ -66,4 +66,6 @@ public interface DepartmentService extends IService<Department> {
     List<Department> chunk(List<Integer> ids);
 
     Integer createWithChainList(List<String> ou);
+
+    Department findByName(String name, Integer parentId);
 }

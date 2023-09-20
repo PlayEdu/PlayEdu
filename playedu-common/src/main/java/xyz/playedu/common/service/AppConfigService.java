@@ -18,6 +18,7 @@ package xyz.playedu.common.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import xyz.playedu.common.domain.AppConfig;
+import xyz.playedu.common.types.LdapConfig;
 import xyz.playedu.common.types.config.MinioConfig;
 
 import java.util.HashMap;
@@ -39,4 +40,6 @@ public interface AppConfigService extends IService<AppConfig> {
     boolean enabledLdapLogin();
 
     String defaultAvatar();
+
+    LdapConfig ldapConfig();
 }

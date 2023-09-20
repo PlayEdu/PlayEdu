@@ -37,6 +37,21 @@ public class UpgradeCheck implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         upgrade_v1_beta7();
+        upgrade_v1_4();
+    }
+
+    private void upgrade_v1_4() {
+        appConfigService.remove(
+                appConfigService
+                        .query()
+                        .getWrapper()
+                        .in(
+                                "key_name",
+                                new ArrayList<>() {
+                                    {
+                                        add("ldap.user_dn_prefix");
+                                    }
+                                }));
     }
 
     private void upgrade_v1_beta7() {

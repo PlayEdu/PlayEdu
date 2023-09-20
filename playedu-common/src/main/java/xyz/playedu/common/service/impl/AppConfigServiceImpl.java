@@ -21,8 +21,10 @@ import org.springframework.stereotype.Service;
 
 import xyz.playedu.common.constant.ConfigConstant;
 import xyz.playedu.common.domain.AppConfig;
+import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.mapper.AppConfigMapper;
 import xyz.playedu.common.service.AppConfigService;
+import xyz.playedu.common.types.LdapConfig;
 import xyz.playedu.common.types.config.MinioConfig;
 
 import java.util.ArrayList;
@@ -116,5 +118,30 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
         AppConfig appConfig =
                 getOne(query().getWrapper().eq("key_name", ConfigConstant.MEMBER_DEFAULT_AVATAR));
         return appConfig.getKeyValue();
+    }
+
+    @Override
+    public LdapConfig ldapConfig() {
+        Map<String, String> config = keyValues();
+
+        LdapConfig ldapConfig = new LdapConfig();
+        ldapConfig.setEnabled(config.get(ConfigConstant.LDAP_ENABLED).equals("1"));
+        ldapConfig.setUrl(config.get(ConfigConstant.LDAP_URL));
+        ldapConfig.setAdminUser(config.get(ConfigConstant.LDAP_ADMIN_USER));
+        ldapConfig.setAdminPass(config.get(ConfigConstant.LDAP_ADMIN_PASS));
+        ldapConfig.setBaseDN(config.get(ConfigConstant.LDAP_BASE_DN));
+
+        if (!ldapConfig.getEnabled()) {
+            throw new ServiceException("LDAP服务未启用");
+        }
+
+        if (ldapConfig.getUrl().isEmpty()
+                || ldapConfig.getAdminUser().isEmpty()
+                || ldapConfig.getAdminPass().isEmpty()
+                || ldapConfig.getBaseDN().isEmpty()) {
+            throw new ServiceException("LDAP服务未配置");
+        }
+
+        return ldapConfig;
     }
 }

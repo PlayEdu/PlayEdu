@@ -110,8 +110,10 @@ public class LdapUtil {
         return users;
     }
 
-    public static List<String> departments(LdapContext ldapContext, String baseDN)
-            throws NamingException {
+    public static List<String> departments(
+            String url, String adminUser, String adminPass, String baseDN) throws NamingException {
+        LdapContext ldapContext = initContext(url, adminUser, adminPass);
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         controls.setReturningAttributes(OU_RETURN_ATTRS);
@@ -132,16 +134,42 @@ public class LdapUtil {
             return null;
         }
 
+        List<String> ouScopes = new ArrayList<>();
+        String[] rdnList = baseDN.toLowerCase().split(",");
+        for (int i = 0; i < rdnList.length; i++) {
+            if (rdnList[i].startsWith("ou=")) {
+                ouScopes.add(rdnList[i]);
+            }
+        }
+        String ouScopesStr = String.join(",", ouScopes);
+
         List<String> units = new ArrayList<>();
         while (result.hasMoreElements()) {
             SearchResult item = result.nextElement();
             if (item == null) {
                 continue;
             }
-            units.add(item.getName());
+            String name = item.getName();
+            if (name.isEmpty()) {
+                name = ouScopesStr;
+            } else {
+                name = name + (ouScopesStr.isEmpty() ? "" : "," + ouScopesStr);
+            }
+
+            units.add(name);
         }
 
-        return units;
+        List<String> reverseUnits = new ArrayList<>();
+        if (!units.isEmpty()) {
+            units.forEach(
+                    item -> {
+                        List<String> tmp = new ArrayList<>(List.of(item.split(",")));
+                        Collections.reverse(tmp);
+                        reverseUnits.add(String.join(",", tmp));
+                    });
+        }
+
+        return reverseUnits;
     }
 
     public static LdapTransformUser loginByMailOrUid(

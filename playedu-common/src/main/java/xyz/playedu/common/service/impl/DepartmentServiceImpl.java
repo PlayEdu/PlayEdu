@@ -288,4 +288,9 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         }
         return department.getId();
     }
+
+    @Override
+    public Department findByName(String name, Integer parentId) {
+        return getOne(query().getWrapper().eq("name", name).eq("parent_id", parentId));
+    }
 }

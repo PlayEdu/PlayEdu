@@ -276,16 +276,6 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setHelp("从LDAP根节点搜索用户");
                                     }
                                 },
-                                new AppConfig() {
-                                    {
-                                        setName("附件用户DN");
-                                        setSort(70);
-                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
-                                        setKeyName(ConfigConstant.LDAP_USER_DN_PREFIX);
-                                        setKeyValue("");
-                                        setHelp("搜索用户时，基于基础DN的搜索范围限制");
-                                    }
-                                },
                             });
                 }
             };
