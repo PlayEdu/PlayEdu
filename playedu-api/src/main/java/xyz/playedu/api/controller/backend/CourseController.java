@@ -73,6 +73,7 @@ public class CourseController {
 
     @Autowired private ApplicationContext ctx;
 
+    @BackendPermission(slug = BPermissionConstant.COURSE)
     @GetMapping("/index")
     @Log(title = "线上课-列表", businessType = BusinessTypeConstant.GET)
     public JsonResponse index(@RequestParam HashMap<String, Object> params) {
