@@ -71,7 +71,7 @@ public class ResourceController {
         String type = MapUtils.getString(params, "type");
         String categoryIds = MapUtils.getString(params, "category_ids");
 
-        if (type == null || type.trim().length() == 0) {
+        if (type == null || type.trim().isEmpty()) {
             return JsonResponse.error("请选择资源类型");
         }
 
@@ -103,7 +103,7 @@ public class ResourceController {
 
         // 操作人
         data.put("admin_users", new HashMap<>());
-        if (result.getData().size() > 0) {
+        if (!result.getData().isEmpty()) {
             Map<Integer, String> adminUsers =
                     adminUserService
                             .chunks(result.getData().stream().map(Resource::getAdminId).toList())
@@ -148,12 +148,12 @@ public class ResourceController {
     @SneakyThrows
     @Log(title = "资源-批量列表", businessType = BusinessTypeConstant.DELETE)
     public JsonResponse multiDestroy(@RequestBody ResourceDestroyMultiRequest req) {
-        if (req.getIds() == null || req.getIds().size() == 0) {
+        if (req.getIds() == null || req.getIds().isEmpty()) {
             return JsonResponse.error("请选择需要删除的资源");
         }
 
         List<Resource> resources = resourceService.chunks(req.getIds());
-        if (resources == null || resources.size() == 0) {
+        if (resources == null || resources.isEmpty()) {
             return JsonResponse.success();
         }
 

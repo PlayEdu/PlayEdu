@@ -174,6 +174,7 @@ public class ResourceCategoryController {
         return JsonResponse.success();
     }
 
+    @BackendPermission(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PutMapping("/update/sort")
     @Log(title = "资源-分类-更新排序", businessType = BusinessTypeConstant.UPDATE)
     public JsonResponse resort(@RequestBody @Validated ResourceCategorySortRequest req) {
@@ -181,6 +182,7 @@ public class ResourceCategoryController {
         return JsonResponse.success();
     }
 
+    @BackendPermission(slug = BPermissionConstant.RESOURCE_CATEGORY)
     @PutMapping("/update/parent")
     @Log(title = "资源-分类-更新父级", businessType = BusinessTypeConstant.UPDATE)
     public JsonResponse updateParent(@RequestBody @Validated ResourceCategoryParentRequest req)
