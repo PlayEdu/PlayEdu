@@ -47,6 +47,8 @@ public class BPermissionConstant {
 
     public static final String SYSTEM_CONFIG = "system-config";
 
+    public static final String UPLOAD = "upload";
+
     // ##### 友情分割线 ##################################################
 
     public static final String DATA_USER_NAME = "data-user-name";

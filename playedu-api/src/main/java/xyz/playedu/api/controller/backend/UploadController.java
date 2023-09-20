@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import xyz.playedu.api.request.backend.UploadFileMergeRequest;
+import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
+import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.context.BCtx;
@@ -48,6 +50,7 @@ public class UploadController {
 
     @Autowired private ResourceService resourceService;
 
+    @BackendPermission(slug = BPermissionConstant.UPLOAD)
     @PostMapping("/minio")
     @Log(title = "上传-MinIO", businessType = BusinessTypeConstant.UPLOAD)
     public JsonResponse uploadMinio(
@@ -58,11 +61,12 @@ public class UploadController {
         return JsonResponse.data(res);
     }
 
+    @BackendPermission(slug = BPermissionConstant.UPLOAD)
     @GetMapping("/minio/upload-id")
     @Log(title = "上传-MinIO-uploadId", businessType = BusinessTypeConstant.UPLOAD)
     public JsonResponse minioUploadId(@RequestParam HashMap<String, Object> params) {
         String extension = MapUtils.getString(params, "extension");
-        if (extension == null || extension.trim().length() == 0) {
+        if (extension == null || extension.trim().isEmpty()) {
             return JsonResponse.error("extension参数为空");
         }
         String type = BackendConstant.RESOURCE_EXT_2_TYPE.get(extension.toLowerCase());
@@ -82,6 +86,7 @@ public class UploadController {
         return JsonResponse.data(data);
     }
 
+    @BackendPermission(slug = BPermissionConstant.UPLOAD)
     @GetMapping("/minio/pre-sign-url")
     @Log(title = "上传-MinIO-签名URL", businessType = BusinessTypeConstant.UPLOAD)
     public JsonResponse minioPreSignUrl(@RequestParam HashMap<String, Object> params) {
@@ -97,6 +102,7 @@ public class UploadController {
         return JsonResponse.data(data);
     }
 
+    @BackendPermission(slug = BPermissionConstant.UPLOAD)
     @PostMapping("/minio/merge-file")
     @Log(title = "上传-MinIO-文件合并", businessType = BusinessTypeConstant.UPLOAD)
     public JsonResponse minioMergeFile(@RequestBody @Validated UploadFileMergeRequest req)
@@ -143,15 +149,16 @@ public class UploadController {
         return JsonResponse.data(data);
     }
 
+    @BackendPermission(slug = BPermissionConstant.UPLOAD)
     @GetMapping("/minio/merge")
     @Log(title = "上传-MinIO-文件合并", businessType = BusinessTypeConstant.UPLOAD)
     public JsonResponse minioMerge(@RequestParam HashMap<String, Object> params) {
         String filename = MapUtils.getString(params, "filename");
         String uploadId = MapUtils.getString(params, "upload_id");
-        if (filename == null || filename.trim().length() == 0) {
+        if (filename == null || filename.trim().isEmpty()) {
             return JsonResponse.error("filename必填");
         }
-        if (uploadId == null || uploadId.trim().length() == 0) {
+        if (uploadId == null || uploadId.trim().isEmpty()) {
             return JsonResponse.error("uploadId必填");
         }
 

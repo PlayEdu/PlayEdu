@@ -220,6 +220,18 @@ public class AdminPermissionCheck implements CommandLineRunner {
                                                     }
                                                 },
                                             });
+                                    // 其它
+                                    put(
+                                            "其它权限",
+                                            new AdminPermission[] {
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(0);
+                                                        setName("文件上传");
+                                                        setSlug(BPermissionConstant.UPLOAD);
+                                                    }
+                                                },
+                                            });
                                 }
                             });
                     put(
