@@ -164,7 +164,6 @@
     </dependencies>
 
     <build>
-        <finalName>playedu-api</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
