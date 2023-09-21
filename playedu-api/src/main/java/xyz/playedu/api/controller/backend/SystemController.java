@@ -17,6 +17,7 @@ package xyz.playedu.api.controller.backend;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +26,8 @@ import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.constant.ConfigConstant;
 import xyz.playedu.common.context.BCtx;
+import xyz.playedu.common.service.CategoryService;
+import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.RequestUtil;
 
@@ -37,6 +40,10 @@ import java.util.Map;
 @RequestMapping("/backend/v1/system")
 @Slf4j
 public class SystemController {
+
+    @Autowired private DepartmentService departmentService;
+
+    @Autowired private CategoryService categoryService;
 
     @GetMapping("/config")
     @Log(title = "其它-系统配置", businessType = BusinessTypeConstant.GET)
@@ -77,6 +84,12 @@ public class SystemController {
 
         // LDAP登录
         data.put("ldap-enabled", "1".equals(configData.get(ConfigConstant.LDAP_ENABLED)));
+
+        // 全部部门
+        data.put("departments", departmentService.groupByParent());
+
+        // 全部资源分类
+        data.put("resource_categories", categoryService.groupByParent());
 
         return JsonResponse.data(data);
     }
