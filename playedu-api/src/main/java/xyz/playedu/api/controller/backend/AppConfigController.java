@@ -23,6 +23,7 @@ import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
+import xyz.playedu.common.constant.ConfigConstant;
 import xyz.playedu.common.constant.SystemConstant;
 import xyz.playedu.common.domain.AppConfig;
 import xyz.playedu.common.service.AppConfigService;
@@ -62,10 +63,20 @@ public class AppConfigController {
         req.getData()
                 .forEach(
                         (key, value) -> {
+                            // 过滤掉未变动的private配置
                             if (SystemConstant.CONFIG_MASK.equals(value)) {
                                 return;
                             }
-                            data.put(key, value);
+                            String saveValue = value;
+
+                            // LDAP的url配置自动加ldap://处理
+                            if (ConfigConstant.LDAP_URL.equals(key)
+                                    && StringUtil.isNotEmpty(value)
+                                    && !StringUtil.startsWithIgnoreCase(value, "ldap://")) {
+                                saveValue = "ldap://" + saveValue;
+                            }
+
+                            data.put(key, saveValue);
                         });
         configService.saveFromMap(data);
         return JsonResponse.data(null);
