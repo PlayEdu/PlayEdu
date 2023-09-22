@@ -11,7 +11,7 @@ FROM eclipse-temurin:17
 WORKDIR /app
 
 # 使用东八区时间环境
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo "Asia/Shanghai" > /etc/timezone
 
 # 将指定目录下的jar包复制到docker容器的/目录下
 COPY --from=builder /app/playedu-api/target/playedu-api.jar /app/app.jar
