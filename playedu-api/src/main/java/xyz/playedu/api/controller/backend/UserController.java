@@ -106,7 +106,7 @@ public class UserController {
         String createdAt = MapUtils.getString(params, "created_at");
         String depIdsStr = MapUtils.getString(params, "dep_ids");
         List<Integer> depIds = null;
-        if (depIdsStr != null && depIdsStr.trim().length() > 0) {
+        if (depIdsStr != null && !depIdsStr.trim().isEmpty()) {
             if ("0".equals(depIdsStr)) {
                 depIds = new ArrayList<>();
             } else {
@@ -131,7 +131,7 @@ public class UserController {
                     }
                 };
 
-        if (createdAt != null && createdAt.trim().length() > 0) {
+        if (createdAt != null && !createdAt.trim().isEmpty()) {
             filter.setCreatedAt(createdAt.split(","));
         }
 
@@ -145,6 +145,7 @@ public class UserController {
                 userService.getDepIdsGroup(result.getData().stream().map(User::getId).toList()));
         data.put("departments", departmentService.id2name());
         data.put("pure_total", userService.total());
+        data.put("dep_user_count", departmentService.getDepartmentsUserCount());
 
         return JsonResponse.data(data);
     }
@@ -165,7 +166,7 @@ public class UserController {
             return JsonResponse.error("邮箱已存在");
         }
         String password = req.getPassword();
-        if (password.length() == 0) {
+        if (password.isEmpty()) {
             return JsonResponse.error("请输入密码");
         }
         userService.createWithDepIds(
@@ -233,7 +234,7 @@ public class UserController {
     @Log(title = "学员-批量导入", businessType = BusinessTypeConstant.INSERT)
     public JsonResponse batchStore(@RequestBody @Validated UserImportRequest req) {
         List<UserImportRequest.UserItem> users = req.getUsers();
-        if (users.size() == 0) {
+        if (users.isEmpty()) {
             return JsonResponse.error("数据为空");
         }
         if (users.size() > 1000) {
@@ -257,7 +258,7 @@ public class UserController {
         HashMap<String, Integer> depChainNameMap = new HashMap<>();
         for (Department tmpDepItem : departments) {
             // 一级部门
-            if (tmpDepItem.getParentChain() == null || tmpDepItem.getParentChain().length() == 0) {
+            if (tmpDepItem.getParentChain() == null || tmpDepItem.getParentChain().isEmpty()) {
                 depChainNameMap.put(tmpDepItem.getName(), tmpDepItem.getId());
                 continue;
             }
@@ -286,7 +287,7 @@ public class UserController {
         for (UserImportRequest.UserItem userItem : users) {
             i++; // 索引值
 
-            if (userItem.getEmail() == null || userItem.getEmail().trim().length() == 0) {
+            if (userItem.getEmail() == null || userItem.getEmail().trim().isEmpty()) {
                 errorLines.add(new String[] {"第" + (i + startLine) + "行", "未输入邮箱账号"});
             } else {
                 // 邮箱重复判断
@@ -303,7 +304,7 @@ public class UserController {
             }
 
             // 部门数据检测
-            if (userItem.getDeps() == null || userItem.getDeps().trim().length() == 0) {
+            if (userItem.getDeps() == null || userItem.getDeps().trim().isEmpty()) {
                 errorLines.add(new String[] {"第" + (i + startLine) + "行", "未选择部门"});
             } else {
                 String[] tmpDepList = userItem.getDeps().trim().split("\\|");
@@ -326,13 +327,13 @@ public class UserController {
 
             // 姓名为空检测
             String tmpName = userItem.getName();
-            if (tmpName == null || tmpName.trim().length() == 0) {
+            if (tmpName == null || tmpName.trim().isEmpty()) {
                 errorLines.add(new String[] {"第" + (i + startLine) + "行", "昵称为空"});
             }
 
             // 密码为空检测
             String tmpPassword = userItem.getPassword();
-            if (tmpPassword == null || tmpPassword.trim().length() == 0) {
+            if (tmpPassword == null || tmpPassword.trim().isEmpty()) {
                 errorLines.add(new String[] {"第" + (i + startLine) + "行", "密码为空"});
             }
 
@@ -359,7 +360,7 @@ public class UserController {
 
         // 邮箱是否注册检测
         List<String> existsEmails = userService.existsEmailsByEmails(emails);
-        if (existsEmails.size() > 0) {
+        if (!existsEmails.isEmpty()) {
             for (String tmpEmail : existsEmails) {
                 errorLines.add(new String[] {"第" + emailRepeat.get(tmpEmail) + "行", "邮箱已注册"});
             }
@@ -475,7 +476,7 @@ public class UserController {
         HashMap<Integer, List<Course>> depCourses = new HashMap<>();
         List<Integer> courseIds = new ArrayList<>();
 
-        if (depIds != null && depIds.size() > 0) {
+        if (depIds != null && !depIds.isEmpty()) {
             departments = departmentService.chunk(depIds);
             depIds.forEach(
                     (depId) -> {
@@ -488,7 +489,7 @@ public class UserController {
                                         });
                         depCourses.put(depId, tmpCourses);
 
-                        if (tmpCourses != null && tmpCourses.size() > 0) {
+                        if (tmpCourses != null && !tmpCourses.isEmpty()) {
                             courseIds.addAll(tmpCourses.stream().map(Course::getId).toList());
                         }
                     });
@@ -496,13 +497,13 @@ public class UserController {
 
         // 未关联部门课程
         List<Course> openCourses = courseService.getOpenCoursesAndShow(1000);
-        if (openCourses != null && openCourses.size() > 0) {
+        if (openCourses != null && !openCourses.isEmpty()) {
             courseIds.addAll(openCourses.stream().map(Course::getId).toList());
         }
 
         // 读取学员的线上课学习记录
         List<UserCourseRecord> userCourseRecords = new ArrayList<>();
-        if (courseIds.size() > 0) {
+        if (!courseIds.isEmpty()) {
             userCourseRecords = userCourseRecordService.chunk(id, courseIds);
         }
 
