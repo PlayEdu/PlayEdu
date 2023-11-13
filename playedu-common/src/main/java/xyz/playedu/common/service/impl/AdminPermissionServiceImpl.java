@@ -37,11 +37,11 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
         implements AdminPermissionService {
 
     @Override
-    public HashMap<String, Boolean> allSlugs() {
+    public HashMap<String, Integer> allSlugs() {
         List<AdminPermission> data = list();
-        HashMap<String, Boolean> map = new HashMap<>();
+        HashMap<String, Integer> map = new HashMap<>();
         for (AdminPermission permission : data) {
-            map.put(permission.getSlug(), true);
+            map.put(permission.getSlug(), permission.getId());
         }
         return map;
     }

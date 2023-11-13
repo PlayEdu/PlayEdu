@@ -63,6 +63,7 @@ sa-token:
   is-share: false
   jwt-secret-key: "playeduxyz"
   token-prefix: "Bearer"
+  is-log: false
 
 playedu:
   core:

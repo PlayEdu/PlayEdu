@@ -29,7 +29,7 @@ import java.util.List;
  */
 public interface AdminPermissionService extends IService<AdminPermission> {
 
-    HashMap<String, Boolean> allSlugs();
+    HashMap<String, Integer> allSlugs();
 
     List<AdminPermission> listOrderBySortAsc();
 
