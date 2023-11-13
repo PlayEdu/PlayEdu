@@ -701,6 +701,18 @@ public class MigrationCheck implements CommandLineRunner {
                                                     """);
                                 }
                             });
+                    add(
+                            new HashMap<>() {
+                                {
+                                    put("table", "");
+                                    put("name", "20231113_10_00_add_admin_id_for_courses");
+                                    put(
+                                            "sql",
+                                            """
+                                                    ALTER TABLE `courses` add `admin_id` int(10) NOT NULL DEFAULT 0 COMMENT '管理员id';
+                                                    """);
+                                }
+                            });
                 }
             };
 

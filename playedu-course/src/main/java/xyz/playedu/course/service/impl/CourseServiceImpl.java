@@ -68,7 +68,8 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             Integer isRequired,
             Integer isShow,
             Integer[] categoryIds,
-            Integer[] depIds) {
+            Integer[] depIds,
+            Integer adminId) {
         // 创建课程
         Course course = new Course();
         course.setTitle(title);
@@ -79,6 +80,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         course.setPublishedAt(new Date());
         course.setCreatedAt(new Date());
         course.setUpdatedAt(new Date());
+        course.setAdminId(adminId);
         save(course);
         // 关联分类
         relateCategories(course, categoryIds);

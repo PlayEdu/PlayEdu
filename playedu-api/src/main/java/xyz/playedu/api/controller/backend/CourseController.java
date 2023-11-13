@@ -15,6 +15,7 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
@@ -28,9 +29,11 @@ import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.api.request.backend.CourseRequest;
 import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
+import xyz.playedu.common.bus.BackendBus;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.context.BCtx;
+import xyz.playedu.common.domain.AdminUser;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.service.*;
 import xyz.playedu.common.types.JsonResponse;
@@ -71,7 +74,11 @@ public class CourseController {
 
     @Autowired private DepartmentService departmentService;
 
+    @Autowired private AdminUserService adminUserService;
+
     @Autowired private ApplicationContext ctx;
+
+    @Autowired private BackendBus backendBus;
 
     @BackendPermission(slug = BPermissionConstant.COURSE)
     @GetMapping("/index")
@@ -95,6 +102,10 @@ public class CourseController {
         filter.setDepIds(depIds);
         filter.setIsRequired(isRequired);
 
+        if (!backendBus.isSuperAdmin()) {
+            filter.setAdminId(BCtx.getId());
+        }
+
         PaginationResult<Course> result = courseService.paginate(page, size, filter);
 
         HashMap<String, Object> data = new HashMap<>();
@@ -106,6 +117,17 @@ public class CourseController {
         data.put("course_dep_ids", courseService.getDepIdsGroup(courseIds));
         data.put("categories", categoryService.id2name());
         data.put("departments", departmentService.id2name());
+
+        // 操作人
+        data.put("admin_users", new HashMap<>());
+        if (!result.getData().isEmpty()) {
+            Map<Integer, String> adminUsers =
+                    adminUserService
+                            .chunks(result.getData().stream().map(Course::getAdminId).toList())
+                            .stream()
+                            .collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
+            data.put("admin_users", adminUsers);
+        }
 
         return JsonResponse.data(data);
     }
@@ -134,7 +156,8 @@ public class CourseController {
                         req.getIsRequired(),
                         req.getIsShow(),
                         req.getCategoryIds(),
-                        req.getDepIds());
+                        req.getDepIds(),
+                        BCtx.getId());
 
         Date now = new Date();
         int classHourCount = 0;
@@ -240,6 +263,10 @@ public class CourseController {
     @Log(title = "线上课-编辑", businessType = BusinessTypeConstant.GET)
     public JsonResponse edit(@PathVariable(name = "id") Integer id) throws NotFoundException {
         Course course = courseService.findOrFail(id);
+        if (!backendBus.isSuperAdmin() && !course.getAdminId().equals(BCtx.getId())) {
+            return JsonResponse.error("无权限操作");
+        }
+
         List<Integer> depIds = courseService.getDepIdsByCourseId(course.getId());
         List<Integer> categoryIds = courseService.getCategoryIdsByCourseId(course.getId());
         List<CourseChapter> chapters = chapterService.getChaptersByCourseId(course.getId());
@@ -280,6 +307,10 @@ public class CourseController {
             @PathVariable(name = "id") Integer id, @RequestBody @Validated CourseRequest req)
             throws NotFoundException {
         Course course = courseService.findOrFail(id);
+        if (!backendBus.isSuperAdmin() && !course.getAdminId().equals(BCtx.getId())) {
+            return JsonResponse.error("无权限操作");
+        }
+
         courseService.updateWithCategoryIdsAndDepIds(
                 course,
                 req.getTitle(),
@@ -290,15 +321,24 @@ public class CourseController {
                 req.getPublishedAt(),
                 req.getCategoryIds(),
                 req.getDepIds());
+
         return JsonResponse.success();
     }
 
     @BackendPermission(slug = BPermissionConstant.COURSE)
     @DeleteMapping("/{id}")
     @Log(title = "线上课-删除", businessType = BusinessTypeConstant.DELETE)
+    @SneakyThrows
     public JsonResponse destroy(@PathVariable(name = "id") Integer id) {
+        Course course = courseService.findOrFail(id);
+        if (!backendBus.isSuperAdmin() && !course.getAdminId().equals(BCtx.getId())) {
+            return JsonResponse.error("无权限操作");
+        }
+
         courseService.removeById(id);
+
         ctx.publishEvent(new CourseDestroyEvent(this, BCtx.getId(), id));
+
         return JsonResponse.success();
     }
 }

@@ -75,6 +75,9 @@
             <if test="title != null and title != ''">
                 AND `courses`.`title` LIKE concat('%',#{title},'%')
             </if>
+            <if test="adminId != null">
+                AND `courses`.`admin_id` = #{adminId}
+            </if>
             <if test="isRequired != null">
                 AND `courses`.`is_required` = #{isRequired}
             </if>
@@ -163,6 +166,9 @@
 
             <if test="title != null and title != ''">
                 AND `courses`.`title` LIKE concat('%',#{title},'%')
+            </if>
+            <if test="adminId != null">
+                AND `courses`.`admin_id` = #{adminId}
             </if>
             <if test="isRequired != null">
                 AND `courses`.`is_required` = #{isRequired}

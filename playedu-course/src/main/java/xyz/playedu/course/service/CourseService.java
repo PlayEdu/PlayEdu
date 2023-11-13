@@ -42,7 +42,8 @@ public interface CourseService extends IService<Course> {
             Integer isRequired,
             Integer isShow,
             Integer[] categoryIds,
-            Integer[] depIds);
+            Integer[] depIds,
+            Integer adminId);
 
     void updateWithCategoryIdsAndDepIds(
             Course course,

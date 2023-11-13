@@ -69,6 +69,9 @@ public class Course implements Serializable {
     @JsonProperty("created_at")
     private Date createdAt;
 
+    @JsonProperty("admin_id")
+    private Integer adminId;
+
     @JsonIgnore private Date updatedAt;
 
     @JsonIgnore private Date deletedAt;

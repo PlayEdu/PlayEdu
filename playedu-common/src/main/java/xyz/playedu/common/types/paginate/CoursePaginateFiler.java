@@ -42,4 +42,6 @@ public class CoursePaginateFiler {
     private Integer pageStart;
 
     private Integer pageSize;
+
+    private Integer adminId;
 }
