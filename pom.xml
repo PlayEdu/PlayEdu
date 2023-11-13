@@ -5,9 +5,10 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.1</version>
+        <version>3.1.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>xyz.playedu</groupId>
     <artifactId>playedu</artifactId>
     <version>1.2</version>
@@ -96,25 +97,6 @@
             <version>4.4</version>
         </dependency>
 
-        <!--JWT -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-gson</artifactId>
-            <version>0.11.5</version>
-            <scope>compile</scope>
-        </dependency>
-
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
@@ -155,12 +137,6 @@
             <artifactId>sa-token-jwt</artifactId>
             <version>1.34.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.0.4</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -186,9 +162,8 @@
                             <style>AOSP</style>
                             <reflowLongStrings>true</reflowLongStrings>
                         </googleJavaFormat>
-
                         <licenseHeader>
-                            <file>license-header.txt</file>
+                            <file>header.txt</file>
                         </licenseHeader>
                     </java>
                 </configuration>
