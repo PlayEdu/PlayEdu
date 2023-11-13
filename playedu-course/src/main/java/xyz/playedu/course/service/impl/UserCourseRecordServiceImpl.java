@@ -144,7 +144,7 @@ public class UserCourseRecordServiceImpl
     }
 
     @Override
-    public void decrease(Integer userId, Integer courseId, int count) {
+    public void updateUserCourseLearnProgress(Integer userId, Integer courseId, int count) {
         UserCourseRecord record = find(userId, courseId);
         if (record == null) {
             return;
@@ -152,12 +152,17 @@ public class UserCourseRecordServiceImpl
 
         int finishedCount = record.getFinishedCount() - count;
 
+        if (0 == finishedCount) {
+            remove(query().getWrapper().eq("id", record.getId()));
+            return;
+        }
+
         UserCourseRecord newRecord = new UserCourseRecord();
         newRecord.setId(record.getId());
-        newRecord.setFinishedCount(finishedCount);
+        newRecord.setIsFinished(0);
         newRecord.setFinishedAt(null);
         newRecord.setProgress(finishedCount * 10000 / record.getHourCount());
-        newRecord.setIsFinished(0);
+        newRecord.setFinishedCount(finishedCount);
 
         updateById(newRecord);
     }

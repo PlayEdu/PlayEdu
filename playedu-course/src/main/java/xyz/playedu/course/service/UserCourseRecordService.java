@@ -51,5 +51,5 @@ public interface UserCourseRecordService extends IService<UserCourseRecord> {
 
     List<UserCourseRecord> chunks(List<Integer> ids, List<String> fields);
 
-    void decrease(Integer userId, Integer courseId, int count);
+    void updateUserCourseLearnProgress(Integer userId, Integer courseId, int count);
 }

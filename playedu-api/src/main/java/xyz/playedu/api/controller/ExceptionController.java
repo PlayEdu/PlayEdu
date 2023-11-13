@@ -42,7 +42,7 @@ public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
     public JsonResponse exceptionHandler(Exception e) {
-        log.error("{}-{}", e, e.getMessage());
+        log.error("出现异常", e);
         return JsonResponse.error("系统错误", 500);
     }
 
@@ -101,6 +101,6 @@ public class ExceptionController {
     @ExceptionHandler(AmazonS3Exception.class)
     public JsonResponse serviceExceptionHandler(AmazonS3Exception e) {
         log.error("s3错误={}", e.getMessage());
-        return JsonResponse.error(e.getMessage(), 500);
+        return JsonResponse.error("存储配置有问题或存储无法无法正常访问", 500);
     }
 }

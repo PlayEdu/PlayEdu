@@ -66,9 +66,16 @@ public class AdminPermissionCheck implements CommandLineRunner {
                                             new AdminPermission[] {
                                                 new AdminPermission() {
                                                     {
-                                                        setSort(30);
+                                                        setSort(0);
                                                         setName("列表");
                                                         setSlug(BPermissionConstant.RESOURCE_MENU);
+                                                    }
+                                                },
+                                                new AdminPermission() {
+                                                    {
+                                                        setSort(10);
+                                                        setName("资源上传");
+                                                        setSlug(BPermissionConstant.UPLOAD);
                                                     }
                                                 },
                                             });
@@ -225,13 +232,6 @@ public class AdminPermissionCheck implements CommandLineRunner {
                                                         setSlug(
                                                                 BPermissionConstant
                                                                         .PASSWORD_CHANGE);
-                                                    }
-                                                },
-                                                new AdminPermission() {
-                                                    {
-                                                        setSort(35);
-                                                        setName("文件上传");
-                                                        setSlug(BPermissionConstant.UPLOAD);
                                                     }
                                                 },
                                             });

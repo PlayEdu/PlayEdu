@@ -37,6 +37,6 @@ public class UserCourseHourRecordDestroyListener {
 
     @EventListener
     public void updateUserCourseRecord(UserCourseHourRecordDestroyEvent e) {
-        userCourseRecordService.decrease(e.getUserId(), e.getCourseId(), 1);
+        userCourseRecordService.updateUserCourseLearnProgress(e.getUserId(), e.getCourseId(), 1);
     }
 }
