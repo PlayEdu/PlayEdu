@@ -123,7 +123,7 @@ public class UserCourseHourRecordServiceImpl
     @Override
     public List<UserCourseHourRecordCourseCountMapper> getUserCourseHourCount(
             Integer userId, List<Integer> courseIds, Integer isFinished) {
-        if (courseIds == null || courseIds.size() == 0) {
+        if (courseIds == null || courseIds.isEmpty()) {
             return new ArrayList<>();
         }
         return getBaseMapper().getUserCourseHourCount(userId, courseIds, isFinished);
@@ -132,7 +132,7 @@ public class UserCourseHourRecordServiceImpl
     @Override
     public List<UserCourseHourRecordUserCountMapper> getUserCourseHourUserCount(
             Integer courseId, List<Integer> userIds, Integer isFinished) {
-        if (userIds == null || userIds.size() == 0) {
+        if (userIds == null || userIds.isEmpty()) {
             return new ArrayList<>();
         }
         return getBaseMapper().getUserCourseHourUserCount(courseId, userIds, isFinished);
@@ -174,9 +174,14 @@ public class UserCourseHourRecordServiceImpl
     @Override
     public List<UserCourseHourRecordUserFirstCreatedAtMapper> getUserCourseHourUserFirstCreatedAt(
             Integer courseId, List<Integer> userIds) {
-        if (userIds == null || userIds.size() == 0) {
+        if (userIds == null || userIds.isEmpty()) {
             return new ArrayList<>();
         }
         return getBaseMapper().getUserCourseHourUserFirstCreatedAt(courseId, userIds);
+    }
+
+    @Override
+    public List<UserCourseHourRecord> getUserPerCourseEarliestRecord(Integer userId) {
+        return getBaseMapper().getUserPerCourseEarliestRecord(userId);
     }
 }

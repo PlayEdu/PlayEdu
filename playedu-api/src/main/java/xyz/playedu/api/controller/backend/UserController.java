@@ -515,6 +515,10 @@ public class UserController {
                                         UserCourseHourRecordCourseCountMapper::getCourseId,
                                         UserCourseHourRecordCourseCountMapper::getTotal));
 
+        // 获取学员每个课程最早的学习课时记录
+        List<UserCourseHourRecord> perCourseEarliestRecords =
+                userCourseHourRecordService.getUserPerCourseEarliestRecord(id);
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("open_courses", openCourses);
         data.put("departments", departments);
@@ -524,6 +528,10 @@ public class UserController {
                 userCourseRecords.stream()
                         .collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e)));
         data.put("user_course_hour_count", userCourseHourCount);
+        data.put(
+                "per_course_earliest_records",
+                perCourseEarliestRecords.stream()
+                        .collect(Collectors.toMap(UserCourseHourRecord::getCourseId, e -> e)));
 
         return JsonResponse.data(data);
     }
