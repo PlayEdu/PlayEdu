@@ -15,6 +15,8 @@
  */
 package xyz.playedu.api.controller;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.redis.RedisConnectionFailureException;
@@ -40,7 +42,7 @@ public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
     public JsonResponse exceptionHandler(Exception e) {
-        log.error(e.getMessage());
+        log.error("{}-{}", e, e.getMessage());
         return JsonResponse.error("系统错误", 500);
     }
 
@@ -94,5 +96,11 @@ public class ExceptionController {
     @ExceptionHandler(LimitException.class)
     public JsonResponse serviceExceptionHandler(LimitException e) {
         return JsonResponse.error("请稍后再试", 429);
+    }
+
+    @ExceptionHandler(AmazonS3Exception.class)
+    public JsonResponse serviceExceptionHandler(AmazonS3Exception e) {
+        log.error("s3错误={}", e.getMessage());
+        return JsonResponse.error(e.getMessage(), 500);
     }
 }

@@ -31,9 +31,10 @@ import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.exception.ServiceException;
-import xyz.playedu.common.service.MinioService;
+import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.HelperUtil;
+import xyz.playedu.common.util.S3Util;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.UploadService;
@@ -44,9 +45,10 @@ import java.util.HashMap;
 @Slf4j
 @RequestMapping("/backend/v1/upload")
 public class UploadController {
-    @Autowired private MinioService minioService;
 
     @Autowired private UploadService uploadService;
+
+    @Autowired private AppConfigService appConfigService;
 
     @Autowired private ResourceService resourceService;
 
@@ -74,9 +76,11 @@ public class UploadController {
             return JsonResponse.error("该格式文件不支持上传");
         }
 
+        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+
         String filename = HelperUtil.randomString(32) + "." + extension; // 文件名
         String path = BackendConstant.RESOURCE_TYPE_2_DIR.get(type) + filename; // 存储路径
-        String uploadId = minioService.uploadId(path);
+        String uploadId = s3Util.uploadId(path);
 
         HashMap<String, String> data = new HashMap<>();
         data.put("resource_type", type);
@@ -94,7 +98,9 @@ public class UploadController {
         Integer partNumber = MapUtils.getInteger(params, "part_number");
         String filename = MapUtils.getString(params, "filename");
 
-        String url = minioService.chunkPreSignUrl(filename, partNumber + "", uploadId);
+        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+
+        String url = s3Util.generatePartUploadPreSignUrl(filename, partNumber + "", uploadId);
 
         HashMap<String, String> data = new HashMap<>();
         data.put("url", url);
@@ -115,7 +121,8 @@ public class UploadController {
         String originalFilename = req.getOriginalFilename().replaceAll("(?i)." + extension, "");
 
         // 合并资源文件
-        String url = minioService.merge(req.getFilename(), req.getUploadId());
+        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+        String url = s3Util.merge(req.getFilename(), req.getUploadId());
 
         // 资源素材保存
         Resource videoResource =
@@ -162,7 +169,9 @@ public class UploadController {
             return JsonResponse.error("uploadId必填");
         }
 
-        String url = minioService.merge(filename, uploadId);
+        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+
+        String url = s3Util.merge(filename, uploadId);
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("url", url);

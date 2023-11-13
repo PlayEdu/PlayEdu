@@ -26,29 +26,25 @@ import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.FrontendConstant;
 import xyz.playedu.common.domain.UserUploadImageLog;
 import xyz.playedu.common.exception.ServiceException;
-import xyz.playedu.common.service.MinioService;
+import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.service.UserUploadImageLogService;
 import xyz.playedu.common.types.UploadFileInfo;
 import xyz.playedu.common.util.Base64Util;
 import xyz.playedu.common.util.HelperUtil;
+import xyz.playedu.common.util.S3Util;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.UploadService;
 
 import java.util.Date;
 
-/**
- * @Author 杭州白书科技有限公司
- *
- * @create 2023/3/8 14:02
- */
 @Service
 @Slf4j
 public class UploadServiceImpl implements UploadService {
 
     @Autowired private ResourceService resourceService;
 
-    @Autowired private MinioService minioService;
+    @Autowired private AppConfigService appConfigService;
 
     @Autowired private UserUploadImageLogService userUploadImageLogService;
 
@@ -79,13 +75,14 @@ public class UploadServiceImpl implements UploadService {
         // 自定义新的存储文件名
         fileInfo.setSaveName(HelperUtil.randomString(32) + "." + fileInfo.getExtension());
         // 生成保存的相对路径
-        if (dir == null || dir.length() == 0) {
+        if (dir == null || dir.isEmpty()) {
             dir = BackendConstant.RESOURCE_TYPE_2_DIR.get(fileInfo.getResourceType());
         }
         fileInfo.setSavePath(dir + fileInfo.getSaveName());
         // 保存文件并生成访问url
+        S3Util s3Util = new S3Util(appConfigService.getS3Config());
         String url =
-                minioService.saveFile(
+                s3Util.saveFile(
                         file,
                         fileInfo.getSavePath(),
                         BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(fileInfo.getExtension()));
@@ -134,8 +131,9 @@ public class UploadServiceImpl implements UploadService {
         String savePath = BackendConstant.RESOURCE_TYPE_2_DIR.get(type) + filename;
 
         // 保存文件
+        S3Util s3Util = new S3Util(appConfigService.getS3Config());
         String url =
-                minioService.saveBytes(
+                s3Util.saveBytes(
                         binary, savePath, BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext));
         // 上传记录
         return resourceService.create(

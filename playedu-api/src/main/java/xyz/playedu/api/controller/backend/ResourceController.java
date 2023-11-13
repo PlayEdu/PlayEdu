@@ -34,10 +34,11 @@ import xyz.playedu.common.domain.AdminUser;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.AdminUserService;
-import xyz.playedu.common.service.MinioService;
+import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.ResourcePaginateFilter;
+import xyz.playedu.common.util.S3Util;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.domain.ResourceVideo;
 import xyz.playedu.resource.service.ResourceService;
@@ -56,7 +57,7 @@ public class ResourceController {
 
     @Autowired private ResourceVideoService resourceVideoService;
 
-    @Autowired private MinioService minioService;
+    @Autowired private AppConfigService appConfigService;
 
     @Autowired private BackendBus backendBus;
 
@@ -134,7 +135,8 @@ public class ResourceController {
         }
 
         // 删除文件
-        minioService.removeByPath(resource.getPath());
+        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+        s3Util.removeByPath(resource.getPath());
         // 如果是视频资源文件则删除对应的时长关联记录
         if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(resource.getType())) {
             resourceVideoService.removeByRid(resource.getId());
@@ -157,6 +159,8 @@ public class ResourceController {
             return JsonResponse.success();
         }
 
+        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+
         for (Resource resourceItem : resources) {
             // 权限校验
             if (!backendBus.isSuperAdmin()) {
@@ -166,7 +170,7 @@ public class ResourceController {
             }
 
             // 删除资源源文件
-            minioService.removeByPath(resourceItem.getPath());
+            s3Util.removeByPath(resourceItem.getPath());
             // 如果是视频资源的话还需要删除视频的关联资源，如: 封面截图
             if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(resourceItem.getType())) {
                 resourceVideoService.removeByRid(resourceItem.getId());

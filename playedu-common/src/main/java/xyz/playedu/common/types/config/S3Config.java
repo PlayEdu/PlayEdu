@@ -18,10 +18,12 @@ package xyz.playedu.common.types.config;
 import lombok.Data;
 
 @Data
-public class MinioConfig {
+public class S3Config {
     private String accessKey;
     private String secretKey;
     private String bucket;
     private String endpoint;
     private String domain;
+    private String region;
+    private String service;
 }

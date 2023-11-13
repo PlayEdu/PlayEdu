@@ -19,7 +19,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 import xyz.playedu.common.domain.AppConfig;
 import xyz.playedu.common.types.LdapConfig;
-import xyz.playedu.common.types.config.MinioConfig;
+import xyz.playedu.common.types.config.S3Config;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +35,7 @@ public interface AppConfigService extends IService<AppConfig> {
 
     Map<String, String> keyValues();
 
-    MinioConfig getMinioConfig();
+    S3Config getS3Config();
 
     boolean enabledLdapLogin();
 
