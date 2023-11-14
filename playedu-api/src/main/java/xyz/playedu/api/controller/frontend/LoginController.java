@@ -32,19 +32,18 @@ import xyz.playedu.api.cache.LoginLockCache;
 import xyz.playedu.api.event.UserLogoutEvent;
 import xyz.playedu.api.request.frontend.LoginLdapRequest;
 import xyz.playedu.api.request.frontend.LoginPasswordRequest;
-import xyz.playedu.common.constant.ConfigConstant;
 import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.exception.LimitException;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.*;
 import xyz.playedu.common.types.JsonResponse;
+import xyz.playedu.common.types.LdapConfig;
 import xyz.playedu.common.util.*;
 import xyz.playedu.common.util.ldap.LdapTransformUser;
 import xyz.playedu.common.util.ldap.LdapUtil;
 
 import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth/login")
@@ -100,15 +99,7 @@ public class LoginController {
     public JsonResponse ldap(@RequestBody @Validated LoginLdapRequest req) {
         String username = req.getUsername();
 
-        // 系统配置
-        Map<String, String> config = appConfigService.keyValues();
-        String url = config.get(ConfigConstant.LDAP_URL);
-        String adminUser = config.get(ConfigConstant.LDAP_ADMIN_USER);
-        String adminPass = config.get(ConfigConstant.LDAP_ADMIN_PASS);
-        String baseDN = config.get(ConfigConstant.LDAP_BASE_DN);
-        if (url.isEmpty() || adminUser.isEmpty() || adminPass.isEmpty() || baseDN.isEmpty()) {
-            return JsonResponse.error("LDAP服务未配置");
-        }
+        LdapConfig ldapConfig = appConfigService.ldapConfig();
 
         String mail = null;
         String uid = null;
@@ -129,7 +120,13 @@ public class LoginController {
         try {
             LdapTransformUser ldapTransformUser =
                     LdapUtil.loginByMailOrUid(
-                            url, adminUser, adminPass, baseDN, mail, uid, req.getPassword());
+                            ldapConfig.getUrl(),
+                            ldapConfig.getAdminUser(),
+                            ldapConfig.getAdminPass(),
+                            ldapConfig.getBaseDN(),
+                            mail,
+                            uid,
+                            req.getPassword());
             if (ldapTransformUser == null) {
                 return JsonResponse.error("登录失败.请检查账号和密码");
             }
