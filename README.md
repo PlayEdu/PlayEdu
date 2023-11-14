@@ -4,7 +4,7 @@
 
 ## 系统介绍
 
-**PlayEdu** 是由白书科技团队经营多年线上教育系统打造出的一款全新的企业培训解决方案，致力于为更多企业机构搭建私有化内部培训平台。**PlayEdu** 基于 Java + MySQL 开发；采用前后端分离模式；前台采用 React18 为核心框架，后台采用 SpringBoot3 为核心框架。提供部门管理、学员管理、在线视频学习、学员进度追踪、视频私有化存储等培训主要功能。**与此同时，我们在开源版本的基础上还提供了功能更加丰富的企业版本。企业版本在开源功能的基础上提供了包括视频云端存储、视频加密、音频学习、文档(PDF|WORD|PPT)在线学习、在线考试、学习计划培训等功能。企业版本更多信息请点击下方的企业版链接查看。**
+**PlayEdu** 是由白书科技团队经营多年线上教育系统打造出的一款全新的企业培训解决方案，致力于为更多企业机构搭建私有化内部培训平台。**PlayEdu** 基于 Java + MySQL 开发；采用前后端分离模式；前端采用 React18 为核心框架，后端采用 SpringBoot3 为核心框架。提供部门管理、学员管理、在线视频学习、学员进度追踪、视频私有化存储等培训主要功能。**与此同时，我们在开源版本的基础上还提供了功能更加丰富的企业版本。企业版本在开源功能的基础上提供了包括视频云端存储、视频加密、音频学习、文档(PDF|WORD|PPT)在线学习、在线考试、学习计划培训等功能。企业版本更多信息请点击下方的企业版链接查看。**
 
 ## 常用链接
 
@@ -14,7 +14,7 @@
 | **企业版** | [https://www.playedu.xyz/commercial](https://www.playedu.xyz/commercial)     |
 | 部署文档   | [https://www.playedu.xyz/book](https://www.playedu.xyz/book)                 |
 | 系统演示   | [https://www.playedu.xyz/demo](https://www.playedu.xyz/demo)                 |
-| 问答社区   | [https://www.playedu.xyz/qa?scene=new](https://www.playedu.xyz/qa?scene=new) |
+| 问答社区   | [https://www.playedu.xyz/qa](https://www.playedu.xyz/qa) |
 
 ## 依赖前端项目
 
