@@ -316,4 +316,13 @@ public class DepartmentController {
         ldapBus.departmentSync();
         return JsonResponse.success();
     }
+
+    @BackendPermission(slug = BPermissionConstant.DEPARTMENT_CUD)
+    @PostMapping("/ldap-user-sync")
+    @Log(title = "部门-LDAP学员同步", businessType = BusinessTypeConstant.INSERT)
+    @SneakyThrows
+    public JsonResponse ldapUserSync() {
+        ldapBus.userSync();
+        return JsonResponse.success();
+    }
 }

@@ -48,14 +48,11 @@ public class LdapUtil {
                 "entryUUID",
 
                 // Window AD 域的属性
-                "memberOf",
                 "name",
                 "userPrincipalName",
-                "departmentNumber",
-                "telephoneNumber",
-                "mobile",
-                "department",
+                "distinguishedName",
                 "sAMAccountName",
+                "displayName",
                 "uSNCreated", // AD域的唯一属性
 
                 // 公用属性
@@ -76,8 +73,10 @@ public class LdapUtil {
         return new InitialLdapContext(context, null);
     }
 
-    public static List<HashMap<String, String>> users(LdapContext ldapContext, String baseDN)
-            throws NamingException {
+    public static List<LdapTransformUser> users(
+            String url, String adminUser, String adminPass, String baseDN) throws NamingException {
+        LdapContext ldapContext = initContext(url, adminUser, adminPass);
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         controls.setReturningAttributes(USER_RETURN_ATTRS);
@@ -97,14 +96,14 @@ public class LdapUtil {
             return null;
         }
 
-        List<HashMap<String, String>> users = new ArrayList<>();
+        List<LdapTransformUser> users = new ArrayList<>();
         while (result.hasMoreElements()) {
             SearchResult item = result.nextElement();
             if (item == null) {
                 continue;
             }
-            Attributes attributes = item.getAttributes();
-            log.info("name={},attributes={}", item.getName(), attributes);
+            LdapTransformUser ldapTransformUser = parseTransformUser(item, baseDN);
+            users.add(ldapTransformUser);
         }
 
         return users;
@@ -222,19 +221,51 @@ public class LdapUtil {
         }
 
         // 根据mail或uid查询出来的用户
-        SearchResult item = result.nextElement();
-        Attributes attributes = item.getAttributes();
+        LdapTransformUser ldapUser = parseTransformUser(result.nextElement(), baseDN);
+        if (ldapUser == null) {
+            log.info("LDAP-用户不存在");
+            return null;
+        }
 
+        // 使用用户dn+提交的密码去登录ldap系统
+        // 登录成功则意味着密码正确
+        // 登录失败则意味着密码错误
+        try {
+            ldapContext = initContext(url, ldapUser.getDn() + "," + baseDN, password);
+            return ldapUser;
+        } catch (Exception e) {
+            // 无法登录->密码错误
+            log.error("LDAP-登录失败", e);
+            return null;
+        } finally {
+            ldapContext.close();
+        }
+    }
+
+    private static LdapTransformUser parseTransformUser(SearchResult item, String baseDN)
+            throws NamingException {
+        Attributes attributes = item.getAttributes();
+        if (attributes == null) {
+            return null;
+        }
+
+        LdapTransformUser ldapUser = new LdapTransformUser();
+        ldapUser.setDn(item.getName());
+
+        // name解析
+        String displayName = (String) attributes.get("displayName").get();
+        if (StringUtil.isEmpty(displayName)) {
+            displayName = (String) attributes.get("cn").get();
+        }
+        ldapUser.setCn(displayName);
+
+        // 邮箱解析
         String email =
                 attributes.get("mail") == null ? null : (String) attributes.get("mail").get();
         if (email == null) {
             email = attributes.get("email") == null ? null : (String) attributes.get("email").get();
         }
-
-        LdapTransformUser ldapUser = new LdapTransformUser();
-        ldapUser.setDn(item.getName());
         ldapUser.setEmail(email);
-        ldapUser.setCn((String) attributes.get("cn").get());
 
         if (attributes.get("uSNCreated") != null) {
             // Window AD域
@@ -262,19 +293,7 @@ public class LdapUtil {
         Collections.reverse(ou);
         ldapUser.setOu(ou);
 
-        // 使用用户dn+提交的密码去登录ldap系统
-        // 登录成功则意味着密码正确
-        // 登录失败则意味着密码错误
-        try {
-            ldapContext = initContext(url, ldapUser.getDn() + "," + baseDN, password);
-            return ldapUser;
-        } catch (Exception e) {
-            // 无法登录->密码错误
-            log.error("LDAP-登录失败", e);
-            return null;
-        } finally {
-            ldapContext.close();
-        }
+        return ldapUser;
     }
 
     private static String baseDNOuScope(String baseDN) {
@@ -288,7 +307,7 @@ public class LdapUtil {
         return String.join(",", ouScopes);
     }
 
-    public static void closeContext(LdapContext ldapCtx) {
+    private static void closeContext(LdapContext ldapCtx) {
         if (ldapCtx == null) {
             return;
         }

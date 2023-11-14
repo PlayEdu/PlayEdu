@@ -23,14 +23,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import xyz.playedu.api.event.UserLoginEvent;
-import xyz.playedu.common.domain.LdapUser;
+import xyz.playedu.common.bus.LDAPBus;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.*;
-import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.IpUtil;
 import xyz.playedu.common.util.RequestUtil;
-import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.common.util.ldap.LdapTransformUser;
 
 import java.util.HashMap;
@@ -41,13 +39,9 @@ public class LoginBus {
 
     @Autowired private FrontendAuthService authService;
 
-    @Autowired private DepartmentService departmentService;
-
-    @Autowired private LdapUserService ldapUserService;
-
-    @Autowired private UserService userService;
-
     @Autowired private AppConfigService appConfigService;
+
+    @Autowired private LDAPBus ldapBus;
 
     @Autowired private ApplicationContext ctx;
 
@@ -72,72 +66,7 @@ public class LoginBus {
     @Transactional
     public HashMap<String, Object> tokenByLdapTransformUser(LdapTransformUser ldapTransformUser)
             throws ServiceException {
-        // LDAP用户的名字
-        String ldapUserName = ldapTransformUser.getCn();
-
-        // 将LDAP用户所属的部门同步到本地
-        Integer depId = departmentService.createWithChainList(ldapTransformUser.getOu());
-        Integer[] depIds = depId == 0 ? null : new Integer[] {depId};
-
-        // LDAP用户在本地的缓存记录
-        LdapUser ldapUser = ldapUserService.findByUUID(ldapTransformUser.getId());
-        User user;
-
-        // 计算将LDAP用户关联到本地users表的email字段值
-        String localUserEmail = ldapTransformUser.getUid();
-        if (StringUtil.isNotEmpty(ldapTransformUser.getEmail())) {
-            localUserEmail = ldapTransformUser.getEmail();
-        }
-
-        if (ldapUser == null) {
-            // 检测localUserEmail是否存在
-            if (userService.find(localUserEmail) != null) {
-                throw new ServiceException(String.format("已有其它账号在使用：%s", localUserEmail));
-            }
-            // LDAP用户数据缓存到本地
-            ldapUser = ldapUserService.store(ldapTransformUser);
-            // 创建本地user
-            user =
-                    userService.createWithDepIds(
-                            localUserEmail,
-                            ldapUserName,
-                            appConfigService.defaultAvatar(),
-                            HelperUtil.randomString(20),
-                            "",
-                            depIds);
-            // 将LDAP缓存数据与本地user关联
-            ldapUserService.updateUserId(ldapUser.getId(), user.getId());
-        } else {
-            user = userService.find(ldapUser.getUserId());
-            // 账号修改[账号有可能是email也有可能是uid]
-            if (!localUserEmail.equals(user.getEmail())) {
-                // 检测localUserEmail是否存在
-                if (userService.find(localUserEmail) != null) {
-                    throw new ServiceException(String.format("已有其它账号在使用：%s", localUserEmail));
-                }
-                userService.updateEmail(user.getId(), localUserEmail);
-            }
-            // ldap-email的变化
-            if (!ldapUser.getEmail().equals(ldapTransformUser.getEmail())) {
-                ldapUserService.updateEmail(ldapUser.getId(), ldapTransformUser.getEmail());
-            }
-            // ldap-uid的变化
-            if (!ldapUser.getUid().equals(ldapTransformUser.getUid())) {
-                ldapUserService.updateUid(ldapUser.getId(), ldapTransformUser.getUid());
-            }
-            // 名字同步修改
-            if (!ldapUserName.equals(ldapUser.getCn())) {
-                userService.updateName(user.getId(), ldapUserName);
-                ldapUserService.updateCN(ldapUser.getId(), ldapUserName);
-            }
-            // 部门修改同步
-            String newOU = String.join(",", ldapTransformUser.getOu());
-            if (!newOU.equals(ldapUser.getOu())) {
-                userService.updateDepId(user.getId(), depIds);
-                ldapUserService.updateOU(ldapUser.getId(), newOU);
-            }
-        }
-
+        User user = ldapBus.singleUserSync(ldapTransformUser, appConfigService.defaultAvatar());
         return tokenByUser(user);
     }
 }
