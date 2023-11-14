@@ -30,20 +30,18 @@ import xyz.playedu.api.request.backend.DepartmentRequest;
 import xyz.playedu.api.request.backend.DepartmentSortRequest;
 import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
+import xyz.playedu.common.bus.LDAPBus;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.exception.NotFoundException;
-import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.types.JsonResponse;
-import xyz.playedu.common.types.LdapConfig;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.UserPaginateFilter;
-import xyz.playedu.common.util.ldap.LdapUtil;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.course.service.CourseDepartmentService;
@@ -70,7 +68,7 @@ public class DepartmentController {
 
     @Autowired private ApplicationContext ctx;
 
-    @Autowired private AppConfigService appConfigService;
+    @Autowired private LDAPBus ldapBus;
 
     @GetMapping("/index")
     @Log(title = "部门-列表", businessType = BusinessTypeConstant.GET)
@@ -104,7 +102,7 @@ public class DepartmentController {
     @Log(title = "部门-新建", businessType = BusinessTypeConstant.INSERT)
     public JsonResponse store(@RequestBody @Validated DepartmentRequest req)
             throws NotFoundException {
-        if (appConfigService.enabledLdapLogin()) {
+        if (ldapBus.enabledLDAP()) {
             return JsonResponse.error("已启用LDAP服务，禁止添加部门");
         }
         departmentService.create(req.getName(), req.getParentId(), req.getSort());
@@ -124,7 +122,7 @@ public class DepartmentController {
     @Log(title = "部门-编辑", businessType = BusinessTypeConstant.UPDATE)
     public JsonResponse update(@PathVariable Integer id, @RequestBody DepartmentRequest req)
             throws NotFoundException {
-        if (appConfigService.enabledLdapLogin()) {
+        if (ldapBus.enabledLDAP()) {
             return JsonResponse.error("已启用LDAP服务，禁止添加部门");
         }
         Department department = departmentService.findOrFail(id);
@@ -136,7 +134,7 @@ public class DepartmentController {
     @GetMapping("/{id}/destroy")
     @Log(title = "部门-批量删除", businessType = BusinessTypeConstant.DELETE)
     public JsonResponse preDestroy(@PathVariable Integer id) {
-        if (appConfigService.enabledLdapLogin()) {
+        if (ldapBus.enabledLDAP()) {
             return JsonResponse.error("已启用LDAP服务，禁止添加部门");
         }
         List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepId(id);
@@ -180,7 +178,7 @@ public class DepartmentController {
     @DeleteMapping("/{id}")
     @Log(title = "部门-删除", businessType = BusinessTypeConstant.DELETE)
     public JsonResponse destroy(@PathVariable Integer id) throws NotFoundException {
-        if (appConfigService.enabledLdapLogin()) {
+        if (ldapBus.enabledLDAP()) {
             return JsonResponse.error("已启用LDAP服务，禁止添加部门");
         }
         Department department = departmentService.findOrFail(id);
@@ -202,7 +200,7 @@ public class DepartmentController {
     @Log(title = "部门-更新父级", businessType = BusinessTypeConstant.UPDATE)
     public JsonResponse updateParent(@RequestBody @Validated DepartmentParentRequest req)
             throws NotFoundException {
-        if (appConfigService.enabledLdapLogin()) {
+        if (ldapBus.enabledLDAP()) {
             return JsonResponse.error("已启用LDAP服务，禁止添加部门");
         }
         departmentService.changeParent(req.getId(), req.getParentId(), req.getIds());
@@ -315,57 +313,7 @@ public class DepartmentController {
     @Log(title = "部门-LDAP同步", businessType = BusinessTypeConstant.INSERT)
     @SneakyThrows
     public JsonResponse ldapSync() {
-        LdapConfig ldapConfig = appConfigService.ldapConfig();
-
-        List<String> ouList =
-                LdapUtil.departments(
-                        ldapConfig.getUrl(),
-                        ldapConfig.getAdminUser(),
-                        ldapConfig.getAdminPass(),
-                        ldapConfig.getBaseDN());
-
-        if (ouList == null || ouList.isEmpty()) {
-            return JsonResponse.error("部门为空");
-        }
-
-        HashMap<String, Integer> depIdKeyByName = new HashMap<>();
-        Integer sort = 0;
-
-        for (String department : ouList) {
-            String[] tmp = department.toLowerCase().split(",");
-            String prevName = "";
-            for (String s : tmp) {
-                // 控制部门排序
-                sort++;
-                // 当前的子部门名
-                String tmpName = s.replace("ou=", "");
-                // 父部门id
-                Integer parentId = 0;
-                // 部门的链名=>父部门1,父部门2,子部门
-                String fullName = tmpName;
-                if (!prevName.isEmpty()) {
-                    fullName = prevName + "," + tmpName;
-                    parentId = depIdKeyByName.get(prevName);
-                }
-
-                // 检查是否已经创建
-                Integer depId = depIdKeyByName.get(tmpName);
-                if (depId == null) {
-                    // 检查是否已经创建
-                    Department tmpDep = departmentService.findByName(tmpName, parentId);
-                    if (tmpDep == null) {
-                        // 创建部门
-                        Integer tmpDepId = departmentService.create(tmpName, parentId, sort);
-                        depIdKeyByName.put(fullName, tmpDepId);
-                    } else {
-                        depIdKeyByName.put(fullName, tmpDep.getId());
-                    }
-                }
-
-                prevName = fullName;
-            }
-        }
-
+        ldapBus.departmentSync();
         return JsonResponse.success();
     }
 }

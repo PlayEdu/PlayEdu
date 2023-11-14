@@ -61,7 +61,7 @@ public class LdapUtil {
                 // 公用属性
                 "mail",
             };
-    private static final String[] OU_RETURN_ATTRS = new String[] {"ou"};
+    private static final String[] OU_RETURN_ATTRS = new String[] {"ou", "usncreated"};
 
     public static LdapContext initContext(String url, String adminUser, String adminPass)
             throws NamingException {
@@ -110,7 +110,7 @@ public class LdapUtil {
         return users;
     }
 
-    public static List<String> departments(
+    public static List<LdapTransformDepartment> departments(
             String url, String adminUser, String adminPass, String baseDN) throws NamingException {
         LdapContext ldapContext = initContext(url, adminUser, adminPass);
 
@@ -137,12 +137,24 @@ public class LdapUtil {
         // baseDN中的ou作用域
         String ouScopesStr = baseDNOuScope(baseDN);
 
-        List<String> units = new ArrayList<>();
+        List<LdapTransformDepartment> units = new ArrayList<>();
         while (result.hasMoreElements()) {
             SearchResult item = result.nextElement();
             if (item == null) {
                 continue;
             }
+            Attributes attributes = item.getAttributes();
+            if (attributes == null) {
+                continue;
+            }
+
+            // 唯一特征值
+            String uSNCreated = (String) attributes.get("uSNCreated").get();
+            if (StringUtil.isEmpty(uSNCreated)) {
+                continue;
+            }
+
+            // 组织DN
             String name = item.getName();
             if (name.isEmpty()) {
                 name = ouScopesStr;
@@ -150,20 +162,19 @@ public class LdapUtil {
                 name = name + (ouScopesStr.isEmpty() ? "" : "," + ouScopesStr);
             }
 
-            units.add(name);
+            // 将DN反转
+            List<String> tmp = new ArrayList<>(List.of(name.split(",")));
+            Collections.reverse(tmp);
+            name = String.join(",", tmp);
+
+            LdapTransformDepartment ldapDepartment = new LdapTransformDepartment();
+            ldapDepartment.setUuid(uSNCreated);
+            ldapDepartment.setDn(name.toLowerCase());
+
+            units.add(ldapDepartment);
         }
 
-        List<String> reverseUnits = new ArrayList<>();
-        if (!units.isEmpty()) {
-            units.forEach(
-                    item -> {
-                        List<String> tmp = new ArrayList<>(List.of(item.split(",")));
-                        Collections.reverse(tmp);
-                        reverseUnits.add(String.join(",", tmp));
-                    });
-        }
-
-        return reverseUnits;
+        return units;
     }
 
     public static LdapTransformUser loginByMailOrUid(
@@ -200,13 +211,13 @@ public class LdapUtil {
         try {
             result = ldapContext.search(baseDN, filter, controls);
         } catch (NamingException e) {
-            log.error("通过mail或uid登录失败", e);
+            log.error("LDAP-通过mail或uid登录失败", e);
         } finally {
             closeContext(ldapContext);
         }
 
         if (result == null || !result.hasMoreElements()) {
-            log.info("用户不存在");
+            log.info("LDAP-用户不存在");
             return null;
         }
 
@@ -251,23 +262,19 @@ public class LdapUtil {
         Collections.reverse(ou);
         ldapUser.setOu(ou);
 
-        log.info("ldapUser={}", ldapUser);
-
         // 使用用户dn+提交的密码去登录ldap系统
         // 登录成功则意味着密码正确
         // 登录失败则意味着密码错误
         try {
             ldapContext = initContext(url, ldapUser.getDn() + "," + baseDN, password);
-            log.info("LDAP登录成功");
+            return ldapUser;
         } catch (Exception e) {
             // 无法登录->密码错误
-            log.info("LDAP用户提交的密码错误");
+            log.error("LDAP-登录失败", e);
             return null;
         } finally {
             ldapContext.close();
         }
-
-        return ldapUser;
     }
 
     private static String baseDNOuScope(String baseDN) {
@@ -288,7 +295,7 @@ public class LdapUtil {
         try {
             ldapCtx.close();
         } catch (NamingException e) {
-            log.error("Failed to close ldap context", e);
+            log.error("LDAP-资源释放失败", e);
         }
     }
 }
