@@ -77,8 +77,11 @@ public class S3Util {
                 new AwsClientBuilder.EndpointConfiguration(
                         defaultConfig.getEndpoint(), defaultConfig.getRegion());
 
-        return AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+        AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
+        // 开启路径访问
+        builder.setPathStyleAccessEnabled(true);
+
+        return builder.withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withEndpointConfiguration(endpointConfiguration)
                 .build();
     }
