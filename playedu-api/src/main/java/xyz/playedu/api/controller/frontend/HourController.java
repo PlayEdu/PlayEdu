@@ -129,7 +129,7 @@ public class HourController {
         String lockKey = String.format("record:%d", FCtx.getId());
         boolean tryLock = redisDistributedLock.tryLock(lockKey, 5, TimeUnit.SECONDS);
         if (!tryLock) {
-            return JsonResponse.error("请稍后再试");
+            return JsonResponse.success();
         }
 
         try {
@@ -166,7 +166,7 @@ public class HourController {
         String lockKey = String.format("ping:%d", FCtx.getId());
         boolean tryLock = redisDistributedLock.tryLock(lockKey, 5, TimeUnit.SECONDS);
         if (!tryLock) {
-            return JsonResponse.error("请稍后再试");
+            return JsonResponse.success();
         }
 
         try {
