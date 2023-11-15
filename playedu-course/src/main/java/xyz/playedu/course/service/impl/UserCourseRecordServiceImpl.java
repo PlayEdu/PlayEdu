@@ -18,6 +18,7 @@ package xyz.playedu.course.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.UserCourseRecordPaginateFilter;
@@ -144,6 +145,7 @@ public class UserCourseRecordServiceImpl
     }
 
     @Override
+    @Transactional
     public void updateUserCourseLearnProgress(Integer userId, Integer courseId, int count) {
         UserCourseRecord record = find(userId, courseId);
         if (record == null) {
@@ -152,18 +154,23 @@ public class UserCourseRecordServiceImpl
 
         int finishedCount = record.getFinishedCount() - count;
 
+        UserCourseRecord newRecord = new UserCourseRecord();
+        newRecord.setUserId(record.getUserId());
+        newRecord.setCourseId(record.getCourseId());
+        newRecord.setHourCount(record.getHourCount());
+        newRecord.setFinishedCount(finishedCount);
+        newRecord.setProgress(finishedCount * 10000 / record.getHourCount());
+        newRecord.setIsFinished(0);
+        newRecord.setCreatedAt(record.getCreatedAt());
+        newRecord.setUpdatedAt(new Date());
+
+        // 删除老记录
+        remove(query().getWrapper().eq("id", record.getId()));
+
         if (0 == finishedCount) {
-            remove(query().getWrapper().eq("id", record.getId()));
             return;
         }
 
-        UserCourseRecord newRecord = new UserCourseRecord();
-        newRecord.setId(record.getId());
-        newRecord.setIsFinished(0);
-        newRecord.setFinishedAt(null);
-        newRecord.setProgress(finishedCount * 10000 / record.getHourCount());
-        newRecord.setFinishedCount(finishedCount);
-
-        updateById(newRecord);
+        save(newRecord);
     }
 }
