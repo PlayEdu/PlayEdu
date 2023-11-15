@@ -68,4 +68,6 @@ public interface UserCourseHourRecordService extends IService<UserCourseHourReco
             int page, int size, UserCourseHourRecordPaginateFilter filter);
 
     List<UserCourseHourRecord> getUserPerCourseEarliestRecord(Integer userId);
+
+    List<UserCourseHourRecord> getCoursePerUserEarliestRecord(Integer courseId);
 }

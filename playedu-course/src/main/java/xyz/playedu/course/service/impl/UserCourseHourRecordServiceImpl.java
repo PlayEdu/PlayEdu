@@ -184,4 +184,9 @@ public class UserCourseHourRecordServiceImpl
     public List<UserCourseHourRecord> getUserPerCourseEarliestRecord(Integer userId) {
         return getBaseMapper().getUserPerCourseEarliestRecord(userId);
     }
+
+    @Override
+    public List<UserCourseHourRecord> getCoursePerUserEarliestRecord(Integer courseId) {
+        return getBaseMapper().getCoursePerUserEarliestRecord(courseId);
+    }
 }

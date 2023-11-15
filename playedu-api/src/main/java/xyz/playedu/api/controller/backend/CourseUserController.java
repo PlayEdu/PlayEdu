@@ -36,6 +36,7 @@ import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.UserPaginateFilter;
+import xyz.playedu.course.domain.UserCourseHourRecord;
 import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.course.service.CourseService;
 import xyz.playedu.course.service.UserCourseHourRecordService;
@@ -140,6 +141,14 @@ public class CourseUserController {
                 "user_dep_ids",
                 userService.getDepIdsGroup(result.getData().stream().map(User::getId).toList()));
         data.put("departments", departmentService.id2name());
+
+        // 获取每个学员的最早学习时间
+        List<UserCourseHourRecord> perUserEarliestRecords =
+                userCourseHourRecordService.getCoursePerUserEarliestRecord(courseId);
+        data.put(
+                "per_user_earliest_records",
+                perUserEarliestRecords.stream()
+                        .collect(Collectors.toMap(UserCourseHourRecord::getUserId, e -> e)));
 
         return JsonResponse.data(data);
     }

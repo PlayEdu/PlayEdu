@@ -168,4 +168,25 @@
                 AND `b`.`course_id` = `a`.`course_id`
                 AND `b`.`user_id` = `a`.`user_id`;
     </select>
+
+    <select id="getCoursePerUserEarliestRecord" resultType="xyz.playedu.course.domain.UserCourseHourRecord">
+        SELECT
+            `a`.*
+        FROM
+            `user_course_hour_records` AS `a`
+                INNER JOIN (
+                SELECT
+                    min(`created_at`) AS `min_created_at`,
+                    `course_id`,
+                    `user_id`
+                FROM
+                    `user_course_hour_records`
+                WHERE
+                    `course_id` = #{courseId}
+                GROUP BY
+                    `course_id`,
+                    `user_id`) AS `b` ON `b`.`min_created_at` = `a`.`created_at`
+                AND `b`.`course_id` = `a`.`course_id`
+                AND `b`.`user_id` = `a`.`user_id`;
+    </select>
 </mapper>

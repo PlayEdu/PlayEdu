@@ -50,4 +50,6 @@ public interface UserCourseHourRecordMapper extends BaseMapper<UserCourseHourRec
     Long paginateCount(UserCourseHourRecordPaginateFilter filter);
 
     List<UserCourseHourRecord> getUserPerCourseEarliestRecord(Integer userId);
+
+    List<UserCourseHourRecord> getCoursePerUserEarliestRecord(Integer courseId);
 }
