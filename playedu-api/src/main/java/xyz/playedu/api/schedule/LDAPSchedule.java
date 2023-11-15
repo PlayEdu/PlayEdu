@@ -33,14 +33,14 @@ public class LDAPSchedule {
 
     @Scheduled(fixedRate = 3600000)
     public void sync() {
-        if (!ldapBus.enabledLDAP()) {
-            log.info("未配置LDAP服务");
-            return;
-        }
-
         // 系统刚启动不执行
         if (times == 0) {
             times++;
+            return;
+        }
+
+        if (!ldapBus.enabledLDAP()) {
+            log.info("未配置LDAP服务");
             return;
         }
 
