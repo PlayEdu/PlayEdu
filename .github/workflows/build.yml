@@ -38,7 +38,7 @@ jobs:
           tags: |
             ${{ env.IMAGE_FQDN }}:${{ env.IMAGE_TAG }}
         env:
-          IMAGE_TAG: ${{ startsWith(github.ref, 'refs/heads/main') && 'latest' || startsWith(github.ref, 'refs/heads/dev') && 'dev' || github.ref_slug }}
+          IMAGE_TAG: ${{ startsWith(github.ref, 'refs/heads/main') && 'latest' || startsWith(github.ref, 'refs/heads/dev') && 'dev' || github.ref_name }}
         if: startsWith(github.ref, 'refs/heads/')
       - name: Build with Tag
         uses: docker/build-push-action@v3
@@ -47,5 +47,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.IMAGE_FQDN }}:${{ github.ref }}
+            ${{ env.IMAGE_FQDN }}:${{ github.ref_name }}
         if: startsWith(github.ref, 'refs/tags/')
