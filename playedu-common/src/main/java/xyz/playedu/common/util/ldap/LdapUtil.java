@@ -25,6 +25,7 @@ import java.util.*;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -148,7 +149,7 @@ public class LdapUtil {
             }
 
             // 唯一特征值
-            String uSNCreated = (String) attributes.get("uSNCreated").get();
+            String uSNCreated = getAttribute(attributes, "uSNCreated");
             if (StringUtil.isEmpty(uSNCreated)) {
                 continue;
             }
@@ -253,17 +254,16 @@ public class LdapUtil {
         ldapUser.setDn(item.getName());
 
         // name解析
-        String displayName = (String) attributes.get("displayName").get();
+        String displayName = getAttribute(attributes, "displayName");
         if (StringUtil.isEmpty(displayName)) {
-            displayName = (String) attributes.get("cn").get();
+            displayName = getAttribute(attributes, "cn");
         }
         ldapUser.setCn(displayName);
 
         // 邮箱解析
-        String email =
-                attributes.get("mail") == null ? null : (String) attributes.get("mail").get();
-        if (email == null) {
-            email = attributes.get("email") == null ? null : (String) attributes.get("email").get();
+        String email = getAttribute(attributes, "mail");
+        if (StringUtil.isEmpty(email)) {
+            getAttribute(attributes, "email");
         }
         ldapUser.setEmail(email);
 
@@ -294,6 +294,15 @@ public class LdapUtil {
         ldapUser.setOu(ou);
 
         return ldapUser;
+    }
+
+    private static String getAttribute(Attributes attributes, String keyName)
+            throws NamingException {
+        Attribute attribute = attributes.get(keyName);
+        if (attribute == null) {
+            return null;
+        }
+        return (String) attribute.get();
     }
 
     private static String baseDNOuScope(String baseDN) {
