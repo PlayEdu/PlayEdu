@@ -136,6 +136,12 @@ public class LDAPBus {
                         }
                         // 写入本地缓存
                         depIdKeyByName.put(fullName, depId);
+                        // 写入本地缓存
+                        LdapDepartment storedLdapDepartment = new LdapDepartment();
+                        storedLdapDepartment.setUuid(uuid);
+                        storedLdapDepartment.setDn(dn);
+                        storedLdapDepartment.setDepartmentId(depId);
+                        ldapDepartments.put(uuid, storedLdapDepartment);
                     }
                 }
 
