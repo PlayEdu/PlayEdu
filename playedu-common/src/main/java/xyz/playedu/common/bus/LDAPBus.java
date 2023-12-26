@@ -33,6 +33,7 @@ import xyz.playedu.common.util.ldap.LdapTransformDepartment;
 import xyz.playedu.common.util.ldap.LdapTransformUser;
 import xyz.playedu.common.util.ldap.LdapUtil;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,7 +163,7 @@ public class LDAPBus {
         }
     }
 
-    public void userSync() throws NamingException {
+    public void userSync() throws NamingException, IOException {
         LdapConfig ldapConfig = appConfigService.ldapConfig();
 
         List<LdapTransformUser> userList =

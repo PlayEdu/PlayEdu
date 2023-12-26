@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.util.StringUtil;
 
+import java.io.IOException;
 import java.util.*;
 
 import javax.naming.Context;
@@ -29,8 +30,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.*;
 
 @Slf4j
 public class LdapUtil {
@@ -41,25 +41,25 @@ public class LdapUtil {
             "(|(objectClass=person)(objectClass=posixAccount)(objectClass=inetOrgPerson)(objectClass=organizationalPerson)(objectClass=user))";
 
     private static final String[] USER_RETURN_ATTRS =
-            new String[] {
-                // OpenLDAP 的属性
-                "uid", // 用户的唯一识别符号，全局唯一，可以看做用户表的手机号，此字段可用于配合密码直接登录
-                "cn", // CommonName -> 可以认作为人的名字，比如：张三。在LDAP中此字段是可以重复的,但是同一ou下不可重复
-                "email", // 邮箱，同上
-                "entryUUID",
+            new String[]{
+                    // OpenLDAP 的属性
+                    "uid", // 用户的唯一识别符号，全局唯一，可以看做用户表的手机号，此字段可用于配合密码直接登录
+                    "cn", // CommonName -> 可以认作为人的名字，比如：张三。在LDAP中此字段是可以重复的,但是同一ou下不可重复
+                    "email", // 邮箱，同上
+                    "entryUUID",
 
-                // Window AD 域的属性
-                "name",
-                "userPrincipalName",
-                "distinguishedName",
-                "sAMAccountName",
-                "displayName",
-                "uSNCreated", // AD域的唯一属性
+                    // Window AD 域的属性
+                    "name",
+                    "userPrincipalName",
+                    "distinguishedName",
+                    "sAMAccountName",
+                    "displayName",
+                    "uSNCreated", // AD域的唯一属性
 
-                // 公用属性
-                "mail",
+                    // 公用属性
+                    "mail",
             };
-    private static final String[] OU_RETURN_ATTRS = new String[] {"ou", "usncreated"};
+    private static final String[] OU_RETURN_ATTRS = new String[]{"ou", "usncreated"};
 
     public static LdapContext initContext(String url, String adminUser, String adminPass)
             throws NamingException {
@@ -75,39 +75,69 @@ public class LdapUtil {
     }
 
     public static List<LdapTransformUser> users(
-            String url, String adminUser, String adminPass, String baseDN) throws NamingException {
+            String url, String adminUser, String adminPass, String baseDN) throws NamingException, IOException {
         LdapContext ldapContext = initContext(url, adminUser, adminPass);
+
+        int pageSize = 1000;
+        List<LdapTransformUser> users = new ArrayList<>();
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         controls.setReturningAttributes(USER_RETURN_ATTRS);
         controls.setReturningObjFlag(true);
 
-        NamingEnumeration<SearchResult> result = null;
-        try {
-            result = ldapContext.search(baseDN, USER_OBJECT_CLASS, controls);
-        } catch (NamingException e) {
-            log.error("LDAP用户查询失败", e);
-        } finally {
-            closeContext(ldapContext);
+        byte[] cookie = null;
+
+        while (true) {
+            try {
+                if (cookie != null) {
+                    ldapContext.setRequestControls(new Control[]{
+                            new PagedResultsControl(pageSize, cookie, false),
+                    });
+                } else {
+                    ldapContext.setRequestControls(new Control[]{
+                            new PagedResultsControl(pageSize, false)
+                    });
+                }
+
+                NamingEnumeration<SearchResult> result = ldapContext.search(baseDN, USER_OBJECT_CLASS, controls);
+                while (result.hasMoreElements()) {
+                    SearchResult item = result.nextElement();
+                    if (item != null) {
+                        LdapTransformUser ldapTransformUser = parseTransformUser(item, baseDN);
+                        users.add(ldapTransformUser);
+                    }
+                }
+
+                cookie = parseCookie(ldapContext.getResponseControls());
+                if (cookie == null || cookie.length == 0) {
+                    break;
+                }
+            } catch (NamingException e) {
+                log.error("LDAP用户查询失败", e);
+                break;
+            }
         }
 
-        if (result == null || !result.hasMoreElements()) {
+        closeContext(ldapContext);
+
+        if (users.isEmpty()) {
             log.info("LDAP服务中没有用户");
             return null;
         }
 
-        List<LdapTransformUser> users = new ArrayList<>();
-        while (result.hasMoreElements()) {
-            SearchResult item = result.nextElement();
-            if (item == null) {
-                continue;
-            }
-            LdapTransformUser ldapTransformUser = parseTransformUser(item, baseDN);
-            users.add(ldapTransformUser);
-        }
-
         return users;
+    }
+
+    private static byte[] parseCookie(Control[] controls) throws NamingException {
+        if (controls != null) {
+            for (Control control : controls) {
+                if (control instanceof PagedResultsResponseControl) {
+                    return ((PagedResultsResponseControl) control).getCookie();
+                }
+            }
+        }
+        return null;
     }
 
     public static List<LdapTransformDepartment> departments(
@@ -281,8 +311,8 @@ public class LdapUtil {
         String baseDNOuScope = baseDNOuScope(baseDN);
         String[] rdnList =
                 (baseDNOuScope.isEmpty()
-                                ? ldapUser.getDn().toLowerCase()
-                                : ldapUser.getDn().toLowerCase() + "," + baseDNOuScope)
+                        ? ldapUser.getDn().toLowerCase()
+                        : ldapUser.getDn().toLowerCase() + "," + baseDNOuScope)
                         .split(",");
         List<String> ou = new ArrayList<>();
         for (String s : rdnList) {
