@@ -32,4 +32,6 @@ public class LdapTransformUser {
     private String email;
 
     private String uid;
+
+    private boolean ban;
 }

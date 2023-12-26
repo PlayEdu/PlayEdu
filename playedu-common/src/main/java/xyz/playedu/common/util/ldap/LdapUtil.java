@@ -41,25 +41,34 @@ public class LdapUtil {
             "(|(objectClass=person)(objectClass=posixAccount)(objectClass=inetOrgPerson)(objectClass=organizationalPerson)(objectClass=user))";
 
     private static final String[] USER_RETURN_ATTRS =
-            new String[]{
-                    // OpenLDAP 的属性
-                    "uid", // 用户的唯一识别符号，全局唯一，可以看做用户表的手机号，此字段可用于配合密码直接登录
-                    "cn", // CommonName -> 可以认作为人的名字，比如：张三。在LDAP中此字段是可以重复的,但是同一ou下不可重复
-                    "email", // 邮箱，同上
-                    "entryUUID",
+            new String[] {
+                // OpenLDAP 的属性
+                "uid", // 用户的唯一识别符号，全局唯一，可以看做用户表的手机号，此字段可用于配合密码直接登录
+                "cn", // CommonName -> 可以认作为人的名字，比如：张三。在LDAP中此字段是可以重复的,但是同一ou下不可重复
+                "email", // 邮箱，同上
+                "entryUUID",
 
-                    // Window AD 域的属性
-                    "name",
-                    "userPrincipalName",
-                    "distinguishedName",
-                    "sAMAccountName",
-                    "displayName",
-                    "uSNCreated", // AD域的唯一属性
+                // Window AD 域的属性
+                "name",
+                "userPrincipalName",
+                "distinguishedName",
+                "sAMAccountName",
+                "displayName",
+                "uSNCreated", // AD域的唯一属性
+                "userAccountControl",
 
-                    // 公用属性
-                    "mail",
+                // 公用属性
+                "mail",
             };
-    private static final String[] OU_RETURN_ATTRS = new String[]{"ou", "usncreated"};
+    private static final String[] OU_RETURN_ATTRS = new String[] {"ou", "usncreated"};
+
+    // 514 - 禁用账户
+    // 546 - 禁用账户 不需密码
+    // 66050 - 禁用账户 密码未过期
+    // 66080 - 禁用账户 密码未过期且不需密码
+    // 66082 - 禁用账户 密码未过期且不需密码
+    private static final String[] DISABLE_USER_ACCOUNT_CONTROL =
+            new String[] {"514", "546", "66050", "66080", "66082"};
 
     public static LdapContext initContext(String url, String adminUser, String adminPass)
             throws NamingException {
@@ -75,7 +84,8 @@ public class LdapUtil {
     }
 
     public static List<LdapTransformUser> users(
-            String url, String adminUser, String adminPass, String baseDN) throws NamingException, IOException {
+            String url, String adminUser, String adminPass, String baseDN)
+            throws NamingException, IOException {
         LdapContext ldapContext = initContext(url, adminUser, adminPass);
 
         int pageSize = 1000;
@@ -91,21 +101,24 @@ public class LdapUtil {
         while (true) {
             try {
                 if (cookie != null) {
-                    ldapContext.setRequestControls(new Control[]{
-                            new PagedResultsControl(pageSize, cookie, false),
-                    });
+                    ldapContext.setRequestControls(
+                            new Control[] {
+                                new PagedResultsControl(pageSize, cookie, false),
+                            });
                 } else {
-                    ldapContext.setRequestControls(new Control[]{
-                            new PagedResultsControl(pageSize, false)
-                    });
+                    ldapContext.setRequestControls(
+                            new Control[] {new PagedResultsControl(pageSize, false)});
                 }
 
-                NamingEnumeration<SearchResult> result = ldapContext.search(baseDN, USER_OBJECT_CLASS, controls);
+                NamingEnumeration<SearchResult> result =
+                        ldapContext.search(baseDN, USER_OBJECT_CLASS, controls);
                 while (result.hasMoreElements()) {
                     SearchResult item = result.nextElement();
                     if (item != null) {
                         LdapTransformUser ldapTransformUser = parseTransformUser(item, baseDN);
-                        users.add(ldapTransformUser);
+                        if (ldapTransformUser != null) {
+                            users.add(ldapTransformUser);
+                        }
                     }
                 }
 
@@ -283,6 +296,16 @@ public class LdapUtil {
         LdapTransformUser ldapUser = new LdapTransformUser();
         ldapUser.setDn(item.getName());
 
+        if (attributes.get("userAccountControl") != null) {
+            String userAccountControl = (String) attributes.get("userAccountControl").get();
+            for (String s : DISABLE_USER_ACCOUNT_CONTROL) {
+                if (s.equals(userAccountControl)) {
+                    ldapUser.setBan(true);
+                    break;
+                }
+            }
+        }
+
         // name解析
         String displayName = getAttribute(attributes, "displayName");
         if (StringUtil.isEmpty(displayName)) {
@@ -311,8 +334,8 @@ public class LdapUtil {
         String baseDNOuScope = baseDNOuScope(baseDN);
         String[] rdnList =
                 (baseDNOuScope.isEmpty()
-                        ? ldapUser.getDn().toLowerCase()
-                        : ldapUser.getDn().toLowerCase() + "," + baseDNOuScope)
+                                ? ldapUser.getDn().toLowerCase()
+                                : ldapUser.getDn().toLowerCase() + "," + baseDNOuScope)
                         .split(",");
         List<String> ou = new ArrayList<>();
         for (String s : rdnList) {

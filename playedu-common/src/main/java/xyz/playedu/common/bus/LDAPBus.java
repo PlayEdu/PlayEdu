@@ -180,6 +180,9 @@ public class LDAPBus {
         String defaultAvatar = appConfigService.defaultAvatar();
 
         for (LdapTransformUser ldapTransformUser : userList) {
+            if (ldapTransformUser.isBan()) {
+                continue;
+            }
             singleUserSync(ldapTransformUser, defaultAvatar);
         }
     }
