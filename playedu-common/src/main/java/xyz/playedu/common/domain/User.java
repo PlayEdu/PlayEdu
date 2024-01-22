@@ -121,14 +121,6 @@ public class User implements Serializable {
                 getEmail());
     }
 
-    @JsonGetter("id_card")
-    public String transformIdCard() {
-        return BackendBus.valueHidden(
-                BPermissionConstant.DATA_USER_ID_CARD,
-                BackendConstant.PRIVACY_FIELD_TYPE_ID_CARD,
-                getIdCard());
-    }
-
     @Override
     public boolean equals(Object that) {
         if (this == that) {

@@ -36,11 +36,12 @@ public class UpgradeCheck implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        upgrade_v1_beta7();
-        upgrade_v1_4();
+        upgrade_1_beta7();
+        upgrade_1_4();
+        upgrade_1_6();
     }
 
-    private void upgrade_v1_4() {
+    private void upgrade_1_4() {
         appConfigService.remove(
                 appConfigService
                         .query()
@@ -54,7 +55,7 @@ public class UpgradeCheck implements CommandLineRunner {
                                 }));
     }
 
-    private void upgrade_v1_beta7() {
+    private void upgrade_1_beta7() {
         appConfigService.update(
                 new AppConfig() {
                     {
@@ -72,6 +73,20 @@ public class UpgradeCheck implements CommandLineRunner {
                                 new ArrayList<>() {
                                     {
                                         add("resource-destroy");
+                                    }
+                                }));
+    }
+
+    private void upgrade_1_6() {
+        permissionService.remove(
+                permissionService
+                        .query()
+                        .getWrapper()
+                        .in(
+                                "slug",
+                                new ArrayList<>() {
+                                    {
+                                        add("data-user-id-card");
                                     }
                                 }));
     }

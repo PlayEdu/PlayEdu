@@ -275,15 +275,6 @@ public class AdminPermissionCheck implements CommandLineRunner {
                                                         setSlug(BPermissionConstant.DATA_USER_NAME);
                                                     }
                                                 },
-                                                new AdminPermission() {
-                                                    {
-                                                        setSort(20);
-                                                        setName("身份证号");
-                                                        setSlug(
-                                                                BPermissionConstant
-                                                                        .DATA_USER_ID_CARD);
-                                                    }
-                                                },
                                             });
                                 }
                             });
