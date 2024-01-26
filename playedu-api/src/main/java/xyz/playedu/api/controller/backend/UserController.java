@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import xyz.playedu.api.bus.UserBus;
 import xyz.playedu.api.event.UserCourseHourRecordDestroyEvent;
 import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
 import xyz.playedu.api.event.UserDestroyEvent;
@@ -37,7 +38,6 @@ import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
-import xyz.playedu.common.constant.ConfigConstant;
 import xyz.playedu.common.constant.SystemConstant;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.*;
@@ -232,7 +232,7 @@ public class UserController {
     @PostMapping("/store-batch")
     @Transactional
     @Log(title = "学员-批量导入", businessType = BusinessTypeConstant.INSERT)
-    public JsonResponse batchStore(@RequestBody @Validated UserImportRequest req) {
+    public JsonResponse batchStore(@RequestBody @Validated UserImportRequest req, UserBus userBus) {
         List<UserImportRequest.UserItem> users = req.getUsers();
         if (users.isEmpty()) {
             return JsonResponse.error("数据为空");
@@ -245,7 +245,7 @@ public class UserController {
         Integer startLine = req.getStartLine();
 
         // 默认的学员头像
-        String defaultAvatar = BCtx.getConfig().get(ConfigConstant.MEMBER_DEFAULT_AVATAR);
+        String defaultAvatar = userBus.getUserDefaultAvatar(BCtx.getConfig());
 
         List<String[]> errorLines = new ArrayList<>();
         errorLines.add(new String[] {"错误行", "错误信息"}); // 错误表-表头

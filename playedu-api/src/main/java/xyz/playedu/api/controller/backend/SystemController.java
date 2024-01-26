@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import xyz.playedu.api.bus.UserBus;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.constant.ConfigConstant;
@@ -44,6 +45,8 @@ public class SystemController {
     @Autowired private DepartmentService departmentService;
 
     @Autowired private CategoryService categoryService;
+
+    @Autowired private UserBus userBus;
 
     @GetMapping("/config")
     @Log(title = "其它-系统配置", businessType = BusinessTypeConstant.GET)
@@ -68,12 +71,7 @@ public class SystemController {
         data.put(ConfigConstant.SYSTEM_H5_URL, configData.get(ConfigConstant.SYSTEM_H5_URL));
 
         // 学员的默认头像
-        String memberDefaultAvatar = configData.get(ConfigConstant.MEMBER_DEFAULT_AVATAR);
-        if (memberDefaultAvatar == null || memberDefaultAvatar.trim().isEmpty()) {
-            data.put(ConfigConstant.MEMBER_DEFAULT_AVATAR, apiUrl + "/images/default_avatar.png");
-        } else {
-            data.put(ConfigConstant.MEMBER_DEFAULT_AVATAR, memberDefaultAvatar);
-        }
+        data.put(ConfigConstant.MEMBER_DEFAULT_AVATAR, userBus.getUserDefaultAvatar(configData));
 
         // 内置的三个线上课封面
         List<String> defaultCourseThumbs = new ArrayList<>();
