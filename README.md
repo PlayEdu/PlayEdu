@@ -10,11 +10,11 @@
 
 | 站点       | 链接                                                                         |
 | ---------- | ---------------------------------------------------------------------------- |
-| 官网       | [http://www.playedu.xyz](http://www.playedu.xyz)                             |
-| **企业版** | [https://www.playedu.xyz/commercial](https://www.playedu.xyz/commercial)     |
-| 部署文档   | [https://www.playedu.xyz/book](https://www.playedu.xyz/book)                 |
-| 系统演示   | [https://www.playedu.xyz/demo](https://www.playedu.xyz/demo)                 |
-| 问答社区   | [https://www.playedu.xyz/qa](https://www.playedu.xyz/qa) |
+| 官网       | [https://www.playeduos.com](https://www.playeduos.com)                             |
+| **企业版** | [https://www.playeduos.com/function.html](https://www.playeduos.com/function.html)     |
+| 部署文档   | [https://faq.playeduos.com/opensource-maintenance-handbook/article/t08o2iHfLR](https://faq.playeduos.com/opensource-maintenance-handbook/article/t08o2iHfLR)                 |
+| 系统演示   | [https://www.playeduos.com/demo.html](https://www.playeduos.com/demo.html)                 |
+| 问答社区   | [https://faq.playeduos.com/qa?scene=new](https://faq.playeduos.com/qa?scene=new) |
 
 ## 依赖前端项目
 
