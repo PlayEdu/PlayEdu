@@ -42,6 +42,7 @@ import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.UserPaginateFilter;
+import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.course.service.CourseDepartmentService;
@@ -207,6 +208,7 @@ public class DepartmentController {
         return JsonResponse.success();
     }
 
+    @SneakyThrows
     @BackendPermission(slug = BPermissionConstant.DEPARTMENT_USER_LEARN)
     @GetMapping("/{id}/users")
     @Log(title = "部门-学员", businessType = BusinessTypeConstant.GET)
@@ -220,12 +222,19 @@ public class DepartmentController {
         String name = MapUtils.getString(params, "name");
         String email = MapUtils.getString(params, "email");
         String idCard = MapUtils.getString(params, "id_card");
-        List<Integer> depIds =
-                new ArrayList<>() {
-                    {
-                        add(id);
-                    }
-                };
+
+        // 查询所有的父级部门ID
+        List<Integer> allDepIds = new ArrayList<>();
+        allDepIds.add(id);
+        Department department = departmentService.findOrFail(id);
+        String parentChain = department.getParentChain();
+        if (StringUtil.isNotEmpty(parentChain)) {
+            List<Integer> parentChainList =
+                    Arrays.stream(parentChain.split(",")).map(Integer::parseInt).toList();
+            if (StringUtil.isNotEmpty(parentChainList)) {
+                allDepIds.addAll(parentChainList);
+            }
+        }
 
         String courseIdsStr = MapUtils.getString(params, "course_ids");
         String showMode = MapUtils.getString(params, "show_mode");
@@ -236,7 +245,7 @@ public class DepartmentController {
                         setName(name);
                         setEmail(email);
                         setIdCard(idCard);
-                        setDepIds(depIds);
+                        setDepIds(allDepIds);
                         setSortAlgo(sortAlgo);
                         setSortField(sortField);
                     }
@@ -256,24 +265,11 @@ public class DepartmentController {
                 courses = courseService.getOpenCoursesAndShow(10000);
             } else if ("only_dep".equals(showMode)) {
                 // 部门关联线上课
-                courses =
-                        courseService.getDepCoursesAndShow(
-                                new ArrayList<>() {
-                                    {
-                                        add(id);
-                                    }
-                                });
+                courses = courseService.getDepCoursesAndShow(allDepIds);
             } else {
                 // 部门关联线上课
-                courses =
-                        courseService.getDepCoursesAndShow(
-                                new ArrayList<>() {
-                                    {
-                                        add(id);
-                                    }
-                                });
+                courses = courseService.getDepCoursesAndShow(allDepIds);
                 List<Course> openCourses = courseService.getOpenCoursesAndShow(10000);
-                ;
                 if (openCourses != null) {
                     courses.addAll(openCourses);
                 }

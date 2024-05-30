@@ -192,13 +192,15 @@
         SELECT `courses`.*
         FROM `courses`
         LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
-        <if test="categoryId != null and categoryId > 0">
+        <if test="categoryIds != null and !categoryIds.isEmpty()">
             INNER JOIN `resource_course_category` ON `resource_course_category`.`course_id` = `courses`.`id`
         </if>
         WHERE `course_department`.`course_id` IS NULL
         AND `courses`.`is_show` = 1
-        <if test="categoryId != null and categoryId > 0">
-            AND `resource_course_category`.`category_id` = #{categoryId}
+        <if test="categoryIds != null and !categoryIds.isEmpty()">
+            AND `resource_course_category`.`category_id` IN (<foreach collection="categoryIds" item="tmpId"
+                                                                      separator=",">
+            #{tmpId}</foreach>)
         </if>
         LIMIT #{limit}
     </select>

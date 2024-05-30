@@ -15,6 +15,7 @@
  */
 package xyz.playedu.api.controller.frontend;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
@@ -26,15 +27,18 @@ import org.springframework.web.multipart.MultipartFile;
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
 import xyz.playedu.common.constant.FrontendConstant;
 import xyz.playedu.common.context.FCtx;
+import xyz.playedu.common.domain.Category;
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.domain.UserUploadImageLog;
 import xyz.playedu.common.exception.ServiceException;
+import xyz.playedu.common.service.CategoryService;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.common.util.PrivacyUtil;
+import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
 import xyz.playedu.resource.service.UploadService;
@@ -62,6 +66,8 @@ public class UserController {
     @Autowired private UserLearnDurationStatsService userLearnDurationStatsService;
 
     @Autowired private UploadService uploadService;
+
+    @Autowired private CategoryService categoryService;
 
     @GetMapping("/detail")
     public JsonResponse detail() {
@@ -100,6 +106,7 @@ public class UserController {
         return JsonResponse.success();
     }
 
+    @SneakyThrows
     @GetMapping("/courses")
     public JsonResponse courses(@RequestParam HashMap<String, Object> params) {
         Integer depId = MapUtils.getInteger(params, "dep_id");
@@ -120,19 +127,38 @@ public class UserController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("learn_course_records", new HashMap<>());
 
+        // 查询所有的父级部门ID
+        List<Integer> allDepIds = new ArrayList<>();
+        allDepIds.add(depId);
+        Department department = departmentService.findOrFail(depId);
+        String parentChain = department.getParentChain();
+        if (StringUtil.isNotEmpty(parentChain)) {
+            List<Integer> parentChainList =
+                    Arrays.stream(parentChain.split(",")).map(Integer::parseInt).toList();
+            if (StringUtil.isNotEmpty(parentChainList)) {
+                allDepIds.addAll(parentChainList);
+            }
+        }
+
+        // 获取所有子分类ID
+        List<Integer> allCategoryIds = new ArrayList<>();
+        if (categoryId != null && categoryId > 0) {
+            allCategoryIds.add(categoryId);
+            // 查询所有的子分类
+            List<Category> categoryList = categoryService.getChildCategorysByParentId(categoryId);
+            if (StringUtil.isNotEmpty(categoryList)) {
+                for (Category category : categoryList) {
+                    allCategoryIds.add(category.getId());
+                }
+            }
+        }
+
         // -------- 读取当前学员可以参加的课程 ----------
         List<Course> courses = new ArrayList<>();
         // 读取部门课
-        List<Course> depCourses =
-                courseService.getDepCoursesAndShow(
-                        new ArrayList<>() {
-                            {
-                                add(depId);
-                            }
-                        },
-                        categoryId);
+        List<Course> depCourses = courseService.getDepCoursesAndShow(allDepIds, allCategoryIds);
         // 全部部门课
-        List<Course> openCourses = courseService.getOpenCoursesAndShow(500, categoryId);
+        List<Course> openCourses = courseService.getOpenCoursesAndShow(500, allCategoryIds);
         // 汇总到一个list中
         if (depCourses != null && !depCourses.isEmpty()) {
             courses.addAll(depCourses);

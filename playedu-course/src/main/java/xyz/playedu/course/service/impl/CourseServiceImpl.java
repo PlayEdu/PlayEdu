@@ -17,6 +17,8 @@ package xyz.playedu.course.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import lombok.SneakyThrows;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.types.paginate.CoursePaginateFiler;
 import xyz.playedu.common.types.paginate.PaginationResult;
+import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.CourseCategory;
 import xyz.playedu.course.domain.CourseDepartment;
@@ -217,36 +220,36 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public List<Course> getOpenCoursesAndShow(Integer limit) {
-        return getBaseMapper().openCoursesAndShow(limit, 0);
+        return getBaseMapper().openCoursesAndShow(limit, new ArrayList<>());
     }
 
     @Override
-    public List<Course> getOpenCoursesAndShow(Integer limit, Integer categoryId) {
-        return getBaseMapper().openCoursesAndShow(limit, categoryId);
+    public List<Course> getOpenCoursesAndShow(Integer limit, List<Integer> categoryIds) {
+        return getBaseMapper().openCoursesAndShow(limit, categoryIds);
     }
 
+    @SneakyThrows
     @Override
-    public List<Course> getDepCoursesAndShow(List<Integer> depIds, Integer categoryId) {
-        if (depIds == null || depIds.size() == 0) {
+    public List<Course> getDepCoursesAndShow(List<Integer> depIds, List<Integer> categoryIds) {
+        if (StringUtil.isEmpty(depIds)) {
             return new ArrayList<>();
         }
+        // 获取部门课程ID
         List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(depIds);
-        if (courseIds == null || courseIds.size() == 0) {
+        if (StringUtil.isEmpty(courseIds)) {
             return new ArrayList<>();
         }
-        if (categoryId != null && categoryId > 0) {
-            List<Integer> tmpCourseIds =
-                    courseCategoryService.getCourseIdsByCategoryIds(
-                            new ArrayList<>() {
-                                {
-                                    add(categoryId);
-                                }
-                            });
-            if (tmpCourseIds == null || tmpCourseIds.size() == 0) {
+
+        if (StringUtil.isNotEmpty(categoryIds)) {
+            // 获取分类课程ID
+            List<Integer> catCourseIds =
+                    courseCategoryService.getCourseIdsByCategoryIds(categoryIds);
+            if (StringUtil.isEmpty(catCourseIds)) {
                 return new ArrayList<>();
             }
-            courseIds = courseIds.stream().filter(tmpCourseIds::contains).toList();
-            if (courseIds.size() == 0) {
+            // 求课程ID交集
+            courseIds = courseIds.stream().filter(catCourseIds::contains).toList();
+            if (StringUtil.isEmpty(courseIds)) {
                 return new ArrayList<>();
             }
         }
@@ -255,11 +258,12 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public List<Course> getDepCoursesAndShow(List<Integer> depIds) {
-        if (depIds == null || depIds.size() == 0) {
+        if (StringUtil.isEmpty(depIds)) {
             return new ArrayList<>();
         }
+        // 获取部门课程ID
         List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(depIds);
-        if (courseIds == null || courseIds.size() == 0) {
+        if (StringUtil.isEmpty(courseIds)) {
             return new ArrayList<>();
         }
         return list(query().getWrapper().in("id", courseIds).eq("is_show", 1));

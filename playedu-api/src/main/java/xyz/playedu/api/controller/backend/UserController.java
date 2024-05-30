@@ -51,6 +51,7 @@ import xyz.playedu.common.types.paginate.UserCourseHourRecordPaginateFilter;
 import xyz.playedu.common.types.paginate.UserCourseRecordPaginateFilter;
 import xyz.playedu.common.types.paginate.UserPaginateFilter;
 import xyz.playedu.common.util.HelperUtil;
+import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
 
@@ -478,15 +479,29 @@ public class UserController {
 
         if (depIds != null && !depIds.isEmpty()) {
             departments = departmentService.chunk(depIds);
+            Map<Integer, Department> departmentMap = new HashMap<>();
+            if (StringUtil.isNotEmpty(departments)) {
+                departmentMap =
+                        departments.stream().collect(Collectors.toMap(Department::getId, e -> e));
+            }
+            Map<Integer, Department> finalDepartmentMap = departmentMap;
             depIds.forEach(
                     (depId) -> {
-                        List<Course> tmpCourses =
-                                courseService.getDepCoursesAndShow(
-                                        new ArrayList<>() {
-                                            {
-                                                add(depId);
-                                            }
-                                        });
+                        // 查询所有的父级部门ID
+                        List<Integer> allDepIds = new ArrayList<>();
+                        allDepIds.add(depId);
+                        Department department = finalDepartmentMap.get(depId);
+                        String parentChain = department.getParentChain();
+                        if (StringUtil.isNotEmpty(parentChain)) {
+                            List<Integer> parentChainList =
+                                    Arrays.stream(parentChain.split(","))
+                                            .map(Integer::parseInt)
+                                            .toList();
+                            if (StringUtil.isNotEmpty(parentChainList)) {
+                                allDepIds.addAll(parentChainList);
+                            }
+                        }
+                        List<Course> tmpCourses = courseService.getDepCoursesAndShow(allDepIds);
                         depCourses.put(depId, tmpCourses);
 
                         if (tmpCourses != null && !tmpCourses.isEmpty()) {

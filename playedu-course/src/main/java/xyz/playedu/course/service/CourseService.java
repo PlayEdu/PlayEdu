@@ -80,11 +80,11 @@ public interface CourseService extends IService<Course> {
 
     List<Course> getOpenCoursesAndShow(Integer limit);
 
-    List<Course> getOpenCoursesAndShow(Integer limit, Integer categoryId);
+    List<Course> getOpenCoursesAndShow(Integer limit, List<Integer> categoryIds);
 
     List<Course> getDepCoursesAndShow(List<Integer> depIds);
 
-    List<Course> getDepCoursesAndShow(List<Integer> depIds, Integer categoryId);
+    List<Course> getDepCoursesAndShow(List<Integer> depIds, List<Integer> categoryIds);
 
     Map<Integer, List<Integer>> getCategoryIdsGroup(List<Integer> courseIds);
 
