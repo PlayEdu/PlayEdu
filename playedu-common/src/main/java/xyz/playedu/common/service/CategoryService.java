@@ -56,4 +56,6 @@ public interface CategoryService extends IService<Category> {
     Map<Integer, String> id2name();
 
     Long total();
+
+    List<Category> getChildCategorysByParentId(Integer parentId);
 }

@@ -68,4 +68,6 @@ public interface DepartmentService extends IService<Department> {
     Integer createWithChainList(List<String> ou);
 
     Department findByName(String name, Integer parentId);
+
+    List<Department> getChildDepartmentsByParentId(Integer parentId);
 }

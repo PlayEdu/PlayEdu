@@ -34,11 +34,14 @@ import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.AdminUser;
+import xyz.playedu.common.domain.Category;
+import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.service.*;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.paginate.CoursePaginateFiler;
 import xyz.playedu.common.types.paginate.PaginationResult;
+import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.CourseAttachment;
 import xyz.playedu.course.domain.CourseChapter;
@@ -94,12 +97,66 @@ public class CourseController {
         String categoryIds = MapUtils.getString(params, "category_ids");
         Integer isRequired = MapUtils.getInteger(params, "is_required");
 
+        // 获取所有子部门
+        Set<Integer> alldepIdsSet = new HashSet<>();
+        if (StringUtil.isNotEmpty(depIds)) {
+            String[] depIdArr = depIds.split(",");
+            if (StringUtil.isNotEmpty(depIdArr)) {
+                for (String depIdStr : depIdArr) {
+                    Integer depId = Integer.parseInt(depIdStr);
+                    alldepIdsSet.add(depId);
+                    // 查询所有的子部门
+                    List<Department> departmentList =
+                            departmentService.getChildDepartmentsByParentId(depId);
+                    if (StringUtil.isNotEmpty(departmentList)) {
+                        for (Department department : departmentList) {
+                            alldepIdsSet.add(department.getId());
+                        }
+                    }
+                }
+            }
+        }
+        List<Integer> alldepIds = new ArrayList<>();
+        if ("0".equals(depIds)) {
+            alldepIds.add(0);
+        }
+        if (StringUtil.isNotEmpty(alldepIdsSet)) {
+            alldepIds.addAll(alldepIdsSet);
+        }
+
+        // 获取所有子类
+        Set<Integer> allCategoryIdsSet = new HashSet<>();
+        if (StringUtil.isNotEmpty(categoryIds)) {
+            String[] categoryIdArr = categoryIds.split(",");
+            if (StringUtil.isNotEmpty(categoryIdArr)) {
+                for (String categoryIdStr : categoryIdArr) {
+                    Integer categoryId = Integer.parseInt(categoryIdStr);
+                    allCategoryIdsSet.add(categoryId);
+                    // 查询所有的子分类
+                    List<Category> categoryList =
+                            categoryService.getChildCategorysByParentId(categoryId);
+                    if (StringUtil.isNotEmpty(categoryList)) {
+                        for (Category category : categoryList) {
+                            allCategoryIdsSet.add(category.getId());
+                        }
+                    }
+                }
+            }
+        }
+        List<Integer> allCategoryIds = new ArrayList<>();
+        if ("0".equals(categoryIds)) {
+            allCategoryIds.add(0);
+        }
+        if (StringUtil.isNotEmpty(allCategoryIdsSet)) {
+            allCategoryIds.addAll(allCategoryIdsSet);
+        }
+
         CoursePaginateFiler filter = new CoursePaginateFiler();
         filter.setTitle(title);
         filter.setSortField(sortField);
         filter.setSortAlgo(sortAlgo);
-        filter.setCategoryIds(categoryIds);
-        filter.setDepIds(depIds);
+        filter.setCategoryIds(allCategoryIds);
+        filter.setDepIds(alldepIds);
         filter.setIsRequired(isRequired);
 
         if (!backendBus.isSuperAdmin()) {

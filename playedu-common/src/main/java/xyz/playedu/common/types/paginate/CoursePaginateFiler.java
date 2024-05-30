@@ -17,6 +17,8 @@ package xyz.playedu.common.types.paginate;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author 杭州白书科技有限公司
  *
@@ -27,9 +29,9 @@ public class CoursePaginateFiler {
 
     private String title;
 
-    private String depIds;
+    private List<Integer> depIds;
 
-    private String categoryIds;
+    private List<Integer> categoryIds;
 
     private Integer isRequired;
 

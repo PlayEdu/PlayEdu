@@ -17,6 +17,8 @@ package xyz.playedu.common.types.paginate;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author 杭州白书科技有限公司
  *
@@ -35,7 +37,7 @@ public class ResourcePaginateFilter {
 
     private String sortAlgo;
 
-    private String categoryIds;
+    private List<Integer> categoryIds;
 
     private String type;
 

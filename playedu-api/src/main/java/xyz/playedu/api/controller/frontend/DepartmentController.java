@@ -15,20 +15,13 @@
  */
 package xyz.playedu.api.controller.frontend;
 
-import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import xyz.playedu.common.domain.Department;
-import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.types.JsonResponse;
-import xyz.playedu.common.types.paginate.CoursePaginateFiler;
-import xyz.playedu.common.types.paginate.PaginationResult;
-import xyz.playedu.course.domain.Course;
-import xyz.playedu.course.service.CourseService;
 
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -42,38 +35,10 @@ public class DepartmentController {
 
     @Autowired private DepartmentService departmentService;
 
-    @Autowired private CourseService courseService;
-
     @GetMapping("/index")
     public JsonResponse index() {
         return JsonResponse.data(
                 departmentService.all().stream()
                         .collect(Collectors.groupingBy(Department::getParentId)));
-    }
-
-    @GetMapping("/{id}/courses")
-    public JsonResponse courses(
-            @PathVariable(name = "id") Integer id, @RequestParam HashMap<String, Object> params)
-            throws NotFoundException {
-        Integer page = MapUtils.getInteger(params, "page", 1);
-        Integer size = MapUtils.getInteger(params, "size", 10);
-
-        CoursePaginateFiler filer = new CoursePaginateFiler();
-        filer.setIsShow(1);
-
-        if (id == 0) {
-            filer.setDepIds("0"); // 无部门所属的线上课
-        } else {
-            Department department = departmentService.findOrFail(id);
-            filer.setDepIds(department.getId() + "");
-        }
-
-        PaginationResult<Course> result = courseService.paginate(page, size, filer);
-
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("data", result.getData());
-        data.put("total", result.getTotal());
-
-        return JsonResponse.data(data);
     }
 }

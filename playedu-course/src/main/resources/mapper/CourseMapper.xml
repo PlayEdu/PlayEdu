@@ -27,11 +27,11 @@
     </sql>
 
     <select id="paginate" resultType="xyz.playedu.course.domain.Course">
-        SELECT `courses`.*
+        SELECT DISTINCT `courses`.*
         FROM `courses`
-        <if test="depIds != null and depIds != ''">
+        <if test="depIds != null and !depIds.isEmpty()">
             <choose>
-                <when test="depIds.indexOf('0')==0">
+                <when test="depIds.get(0) == 0">
                     LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
                 </when>
                 <otherwise>
@@ -39,9 +39,9 @@
                 </otherwise>
             </choose>
         </if>
-        <if test="categoryIds != null and categoryIds != ''">
+        <if test="categoryIds != null and !categoryIds.isEmpty()">
             <choose>
-                <when test="categoryIds.indexOf('0')==0">
+                <when test="categoryIds.get(0) == 0">
                     LEFT JOIN `resource_course_category` ON `resource_course_category`.`course_id` = `courses`.`id`
                 </when>
                 <otherwise>
@@ -51,23 +51,25 @@
         </if>
 
         <where>
-            <if test="depIds != null and depIds != ''">
+            <if test="depIds != null and !depIds.isEmpty()">
                 <choose>
-                    <when test="depIds.indexOf('0')==0">
+                    <when test="depIds.get(0) == 0">
                         AND `course_department`.`course_id` IS NULL
                     </when>
                     <otherwise>
-                        AND `course_department`.`dep_id` IN (#{depIds})
+                        AND `course_department`.`dep_id` IN (<foreach collection="depIds" item="tmpId" separator=",">
+                        #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
             </if>
-            <if test="categoryIds != null and categoryIds != ''">
+            <if test="categoryIds != null and !categoryIds.isEmpty()">
                 <choose>
-                    <when test="categoryIds.indexOf('0')==0">
+                    <when test="categoryIds.get(0) == 0">
                         AND `resource_course_category`.`course_id` IS NULL
                     </when>
                     <otherwise>
-                        AND `resource_course_category`.`category_id` IN (#{categoryIds})
+                        AND `resource_course_category`.`category_id` IN (<foreach collection="categoryIds" item="tmpId" separator=",">
+                        #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
             </if>
@@ -94,6 +96,9 @@
                 <when test="sortField == 'created_at'">
                     ORDER BY `courses`.`created_at` ASC
                 </when>
+                <when test="sortField == 'sort_at'">
+                    ORDER BY `courses`.`sort_at` ASC
+                </when>
                 <otherwise>
                     ORDER BY `courses`.`id` ASC
                 </otherwise>
@@ -110,6 +115,9 @@
                 <when test="sortField == 'created_at'">
                     ORDER BY `courses`.`created_at` DESC
                 </when>
+                <when test="sortField == 'sort_at'">
+                    ORDER BY `courses`.`sort_at` DESC
+                </when>
                 <otherwise>
                     ORDER BY `courses`.`id` DESC
                 </otherwise>
@@ -119,11 +127,12 @@
     </select>
 
     <select id="paginateCount" resultType="java.lang.Long">
-        SELECT count(1)
+        SELECT count(1) FROM (
+        SELECT DISTINCT `courses`.*
         FROM `courses`
-        <if test="depIds != null and depIds != ''">
+        <if test="depIds != null and !depIds.isEmpty()">
             <choose>
-                <when test="depIds.indexOf('0')==0">
+                <when test="depIds.get(0) == 0">
                     LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
                 </when>
                 <otherwise>
@@ -131,9 +140,9 @@
                 </otherwise>
             </choose>
         </if>
-        <if test="categoryIds != null and categoryIds != ''">
+        <if test="categoryIds != null and !categoryIds.isEmpty()">
             <choose>
-                <when test="categoryIds.indexOf('0')==0">
+                <when test="categoryIds.get(0) == 0">
                     LEFT JOIN `resource_course_category` ON `resource_course_category`.`course_id` = `courses`.`id`
                 </when>
                 <otherwise>
@@ -143,23 +152,26 @@
         </if>
 
         <where>
-            <if test="depIds != null and depIds != ''">
+            <if test="depIds != null and !depIds.isEmpty()">
                 <choose>
-                    <when test="depIds.indexOf('0')==0">
+                    <when test="depIds.get(0) == 0">
                         AND `course_department`.`course_id` IS NULL
                     </when>
                     <otherwise>
-                        AND `course_department`.`dep_id` IN (#{depIds})
+                        AND `course_department`.`dep_id` IN (<foreach collection="depIds" item="tmpId" separator=",">
+                        #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
             </if>
-            <if test="categoryIds != null and categoryIds != ''">
+            <if test="categoryIds != null and !categoryIds.isEmpty()">
                 <choose>
-                    <when test="categoryIds.indexOf('0')==0">
+                    <when test="categoryIds.get(0) == 0">
                         AND `resource_course_category`.`course_id` IS NULL
                     </when>
                     <otherwise>
-                        AND `resource_course_category`.`category_id` IN (#{categoryIds})
+                        AND `resource_course_category`.`category_id` IN (<foreach collection="categoryIds" item="tmpId"
+                                                                                  separator=",">
+                        #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
             </if>
@@ -174,6 +186,7 @@
                 AND `courses`.`is_required` = #{isRequired}
             </if>
         </where>
+        ) m
     </select>
     <select id="openCoursesAndShow" resultType="xyz.playedu.course.domain.Course">
         SELECT `courses`.*

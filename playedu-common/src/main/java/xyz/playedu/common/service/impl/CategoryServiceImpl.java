@@ -224,4 +224,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     public Long total() {
         return count();
     }
+
+    @Override
+    public List<Category> getChildCategorysByParentId(Integer parentId) {
+        return list(
+                query().getWrapper()
+                        .eq("parent_id", parentId)
+                        .or()
+                        .likeRight("parent_chain", parentId + ","));
+    }
 }

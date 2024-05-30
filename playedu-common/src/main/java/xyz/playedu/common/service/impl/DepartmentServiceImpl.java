@@ -293,4 +293,13 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     public Department findByName(String name, Integer parentId) {
         return getOne(query().getWrapper().eq("name", name).eq("parent_id", parentId));
     }
+
+    @Override
+    public List<Department> getChildDepartmentsByParentId(Integer parentId) {
+        return list(
+                query().getWrapper()
+                        .eq("parent_id", parentId)
+                        .or()
+                        .likeRight("parent_chain", parentId + ","));
+    }
 }
