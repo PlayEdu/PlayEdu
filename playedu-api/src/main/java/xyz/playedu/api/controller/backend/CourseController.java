@@ -346,6 +346,14 @@ public class CourseController {
                     });
         }
 
+        // 部门名称
+        Map<Integer, String> deps = new HashMap<>();
+        if (StringUtil.isNotEmpty(depIds)) {
+            deps =
+                    departmentService.chunk(depIds).stream()
+                            .collect(Collectors.toMap(Department::getId, Department::getName));
+        }
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("course", course);
         data.put("dep_ids", depIds); // 已关联的部门
@@ -353,6 +361,7 @@ public class CourseController {
         data.put("chapters", chapters);
         data.put("hours", hours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
         data.put("attachments", attachments);
+        data.put("deps", deps);
         return JsonResponse.data(data);
     }
 
