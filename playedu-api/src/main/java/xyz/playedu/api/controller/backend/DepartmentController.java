@@ -38,6 +38,7 @@ import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.service.DepartmentService;
+import xyz.playedu.common.service.UserDepartmentService;
 import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.paginate.PaginationResult;
@@ -71,12 +72,39 @@ public class DepartmentController {
 
     @Autowired private LDAPBus ldapBus;
 
+    @Autowired private UserDepartmentService userDepartmentService;
+
     @GetMapping("/index")
     @Log(title = "部门-列表", businessType = BusinessTypeConstant.GET)
     public JsonResponse index() {
         HashMap<String, Object> data = new HashMap<>();
         data.put("departments", departmentService.groupByParent());
-        data.put("dep_user_count", departmentService.getDepartmentsUserCount());
+
+        HashMap<Integer, Integer> depUserCount = new HashMap<>();
+        List<Department> allDepartmentList = departmentService.all();
+        if (StringUtil.isNotEmpty(allDepartmentList)) {
+            for (Department dep : allDepartmentList) {
+                List<Integer> depIds = new ArrayList<>();
+                depIds.add(dep.getId());
+                String parentChain = "";
+                if (StringUtil.isEmpty(dep.getParentChain())) {
+                    parentChain = dep.getId() + "";
+                } else {
+                    parentChain = dep.getParentChain() + "," + dep.getId();
+                }
+                // 获取所有子部门ID
+                List<Department> childDepartmentList =
+                        departmentService.getChildDepartmentsByParentChain(
+                                dep.getId(), parentChain);
+                if (StringUtil.isNotEmpty(childDepartmentList)) {
+                    depIds.addAll(childDepartmentList.stream().map(Department::getId).toList());
+                }
+                List<Integer> departmentUserIds = userDepartmentService.getUserIdsByDepIds(depIds);
+                depUserCount.put(
+                        dep.getId(), departmentUserIds.stream().distinct().toList().size());
+            }
+        }
+        data.put("dep_user_count", depUserCount);
         data.put("user_total", userService.total());
         return JsonResponse.data(data);
     }

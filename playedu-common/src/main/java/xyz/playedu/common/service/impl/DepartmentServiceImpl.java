@@ -32,6 +32,7 @@ import xyz.playedu.common.mapper.DepartmentMapper;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserDepartmentService;
 import xyz.playedu.common.types.mapper.DepartmentsUserCountMapRes;
+import xyz.playedu.common.util.StringUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -301,5 +302,17 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
                         .eq("parent_id", parentId)
                         .or()
                         .likeRight("parent_chain", parentId + ","));
+    }
+
+    @Override
+    public List<Department> getChildDepartmentsByParentChain(Integer parentId, String parentChain) {
+        if (StringUtil.isEmpty(parentChain)) {
+            return new ArrayList<>();
+        }
+        return list(
+                query().getWrapper()
+                        .eq("parent_id", parentId)
+                        .or()
+                        .likeRight("parent_chain", parentChain + ","));
     }
 }

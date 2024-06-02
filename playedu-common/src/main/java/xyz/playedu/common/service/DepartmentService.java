@@ -70,4 +70,6 @@ public interface DepartmentService extends IService<Department> {
     Department findByName(String name, Integer parentId);
 
     List<Department> getChildDepartmentsByParentId(Integer parentId);
+
+    List<Department> getChildDepartmentsByParentChain(Integer parentId, String parentChain);
 }

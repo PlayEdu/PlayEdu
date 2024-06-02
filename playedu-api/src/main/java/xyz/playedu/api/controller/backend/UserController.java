@@ -107,11 +107,31 @@ public class UserController {
         String createdAt = MapUtils.getString(params, "created_at");
         String depIdsStr = MapUtils.getString(params, "dep_ids");
         List<Integer> depIds = null;
-        if (depIdsStr != null && !depIdsStr.trim().isEmpty()) {
-            if ("0".equals(depIdsStr)) {
-                depIds = new ArrayList<>();
-            } else {
-                depIds = Arrays.stream(depIdsStr.split(",")).map(Integer::valueOf).toList();
+        if (StringUtil.isNotEmpty(depIdsStr)) {
+            depIds = new ArrayList<>();
+            if (!"0".equals(depIdsStr)) {
+                List<Department> departmentList =
+                        departmentService.chunk(
+                                Arrays.stream(depIdsStr.split(",")).map(Integer::valueOf).toList());
+                if (StringUtil.isNotEmpty(departmentList)) {
+                    for (Department dep : departmentList) {
+                        depIds.add(dep.getId());
+                        String parentChain = "";
+                        if (StringUtil.isEmpty(dep.getParentChain())) {
+                            parentChain = dep.getId() + "";
+                        } else {
+                            parentChain = dep.getParentChain() + "," + dep.getId();
+                        }
+                        // 获取所有子部门ID
+                        List<Department> childDepartmentList =
+                                departmentService.getChildDepartmentsByParentChain(
+                                        dep.getId(), parentChain);
+                        if (StringUtil.isNotEmpty(childDepartmentList)) {
+                            depIds.addAll(
+                                    childDepartmentList.stream().map(Department::getId).toList());
+                        }
+                    }
+                }
             }
         }
 
