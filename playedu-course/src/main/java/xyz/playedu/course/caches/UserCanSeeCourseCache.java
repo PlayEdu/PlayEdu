@@ -18,11 +18,13 @@ package xyz.playedu.course.caches;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import xyz.playedu.common.domain.User;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.util.RedisUtil;
+import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.bus.UserBus;
-import xyz.playedu.course.domain.Course;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -38,14 +40,15 @@ public class UserCanSeeCourseCache {
 
     private static final int expire = 3600; // s
 
-    public boolean check(User user, Course course, boolean isThrow) throws ServiceException {
+    public boolean check(Integer userId, Integer courseId, boolean isThrow)
+            throws ServiceException {
         boolean result;
-        if (RedisUtil.exists(key(user, course))) {
-            String cacheResult = (String) RedisUtil.get(key(user, course));
+        if (RedisUtil.exists(key(userId, courseId))) {
+            String cacheResult = (String) RedisUtil.get(key(userId, courseId));
             result = "1".equals(cacheResult);
         } else {
-            result = userBus.canSeeCourse(user, course);
-            put(user, course, result);
+            result = userBus.canSeeCourse(userId, courseId);
+            put(userId, courseId, result);
         }
         if (!result && isThrow) {
             throw new ServiceException("无权限观看");
@@ -53,11 +56,21 @@ public class UserCanSeeCourseCache {
         return result;
     }
 
-    public void put(User user, Course course, boolean result) {
-        RedisUtil.set(key(user, course), result ? "1" : "0", expire);
+    public void put(Integer userId, Integer courseId, boolean result) {
+        RedisUtil.set(key(userId, courseId), result ? "1" : "0", expire);
     }
 
-    private String key(User user, Course course) {
-        return String.format(keyTemplate, course.getId(), user.getId());
+    public void destroy(List<Integer> userIds, Integer courseId) {
+        if (StringUtil.isNotEmpty(userIds)) {
+            List<String> keyList = new ArrayList<>();
+            for (Integer userId : userIds) {
+                keyList.add(key(userId, courseId));
+            }
+            RedisUtil.del(keyList.toArray(new String[keyList.size()]));
+        }
+    }
+
+    private String key(Integer userId, Integer courseId) {
+        return String.format(keyTemplate, courseId, userId);
     }
 }

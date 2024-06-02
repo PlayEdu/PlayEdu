@@ -97,8 +97,7 @@ public class HourController {
     public JsonResponse play(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id) {
-        Course course = courseCache.findOrFail(courseId);
-        userCanSeeCourseCache.check(FCtx.getUser(), course, true);
+        userCanSeeCourseCache.check(FCtx.getId(), courseId, true);
         CourseHour hour = hourService.findOrFail(id, courseId);
         Resource resource = resourceService.findOrFail(hour.getRid());
 
@@ -121,9 +120,8 @@ public class HourController {
             return JsonResponse.error("duration参数错误");
         }
 
-        Course course = courseCache.findOrFail(courseId);
         CourseHour hour = hourService.findOrFail(id, courseId);
-        userCanSeeCourseCache.check(FCtx.getUser(), course, true);
+        userCanSeeCourseCache.check(FCtx.getId(), courseId, true);
 
         // 获取锁
         String lockKey = String.format("record:%d", FCtx.getId());
@@ -135,11 +133,7 @@ public class HourController {
         try {
             boolean isFinished =
                     userCourseHourRecordService.storeOrUpdate(
-                            FCtx.getId(),
-                            course.getId(),
-                            hour.getId(),
-                            duration,
-                            hour.getDuration());
+                            FCtx.getId(), courseId, hour.getId(), duration, hour.getDuration());
             if (isFinished) {
                 ctx.publishEvent(
                         new UserCourseHourFinishedEvent(
@@ -158,9 +152,7 @@ public class HourController {
     public JsonResponse ping(
             @PathVariable(name = "courseId") Integer courseId,
             @PathVariable(name = "id") Integer id) {
-        Course course = courseCache.findOrFail(courseId);
-        CourseHour hour = hourService.findOrFail(id, courseId);
-        userCanSeeCourseCache.check(FCtx.getUser(), course, true);
+        userCanSeeCourseCache.check(FCtx.getId(), courseId, true);
 
         // 获取锁
         String lockKey = String.format("ping:%d", FCtx.getId());
@@ -183,7 +175,7 @@ public class HourController {
 
             ctx.publishEvent(
                     new UserLearnCourseUpdateEvent(
-                            this, FCtx.getId(), course.getId(), hour.getId(), lastTime, curTime));
+                            this, FCtx.getId(), courseId, id, lastTime, curTime));
         } finally {
             // 此处未考虑上面代码执行失败释放锁
             redisDistributedLock.releaseLock(lockKey);

@@ -19,11 +19,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import xyz.playedu.common.domain.User;
+import xyz.playedu.common.domain.Department;
+import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserService;
-import xyz.playedu.course.domain.Course;
+import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.service.CourseService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,34 +41,36 @@ public class UserBus {
 
     @Autowired private UserService userService;
 
-    public boolean canSeeCourse(User user, Course course) {
-        List<Integer> courseDepIds = courseService.getDepIdsByCourseId(course.getId());
-        if (courseDepIds == null || courseDepIds.size() == 0) {
-            // 线上课无所属部门=>任何学员都可以学习
+    @Autowired private DepartmentService departmentService;
+
+    public boolean canSeeCourse(Integer userId, Integer courseId) {
+        List<Integer> courseDepIds = courseService.getDepIdsByCourseId(courseId);
+        if (StringUtil.isEmpty(courseDepIds)) {
+            // 线上课全部部门=>任何学员都可以学习
             return true;
         }
-        List<Integer> userDepIds = userService.getDepIdsByUserId(user.getId());
-        if (userDepIds == null || userDepIds.size() == 0) {
+
+        // 获取学员所属部门以及所有父级部门
+        List<Integer> allDepIds = new ArrayList<>();
+        List<Integer> userDepIds = userService.getDepIdsByUserId(userId);
+        if (StringUtil.isNotEmpty(userDepIds)) {
+            List<Department> departmentList = departmentService.chunk(userDepIds);
+            if (StringUtil.isNotEmpty(departmentList)) {
+                for (Department dep : departmentList) {
+                    allDepIds.add(dep.getId());
+                    if (StringUtil.isNotEmpty(dep.getParentChain())) {
+                        allDepIds.addAll(
+                                Arrays.stream(dep.getParentChain().split(","))
+                                        .map(Integer::valueOf)
+                                        .toList());
+                    }
+                }
+            }
+        }
+
+        if (StringUtil.isEmpty(allDepIds)) {
             return false;
         }
-        return CollectionUtils.intersection(courseDepIds, userDepIds).size() > 0;
+        return CollectionUtils.intersection(courseDepIds, allDepIds).size() > 0;
     }
-
-    // 注意，调用该方法需要考虑到并发写入问题
-    /*   public void userLearnDurationRecord(User user, Course course, CourseHour hour) {
-        Long curTime = System.currentTimeMillis();
-
-        // 最近一次学习时间
-        Long lastTime = userLastLearnTimeCache.get(FCtx.getId());
-        // 最大周期为10s+0.5s的网络延迟
-        if (lastTime == null || curTime - lastTime > 10500) {
-            lastTime = curTime - 10000;
-        }
-
-        userLastLearnTimeCache.put(user.getId(), curTime);
-
-        ctx.publishEvent(
-                new UserLearnCourseUpdateEvent(
-                        this, user.getId(), course.getId(), hour.getId(), lastTime, curTime));
-    }*/
 }
