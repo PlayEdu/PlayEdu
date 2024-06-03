@@ -146,9 +146,9 @@
         SELECT DISTINCT ( `resources`.`type` )
         FROM `resources`
         <choose>
-            <when test="categoryIds != null and categoryIds != ''">
+            <when test="categoryIds != null and !categoryIds.isEmpty()">
                 <choose>
-                    <when test="categoryIds.indexOf('0') == 0">
+                    <when test="categoryIds.get(0) == 0">
                         LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
                         WHERE `resources`.`is_hidden` = 0
                         AND `resource_category`.`cid` IS NULL
@@ -156,7 +156,8 @@
                     <otherwise>
                         INNER JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
                         WHERE `resources`.`is_hidden` = 0
-                        AND `resource_category`.`cid` IN (#{categoryIds})
+                        AND `resource_category`.`cid` IN (<foreach collection="categoryIds" item="tmpId" separator=",">
+                        #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
             </when>

@@ -96,9 +96,6 @@
                 <when test="sortField == 'created_at'">
                     ORDER BY `courses`.`created_at` ASC
                 </when>
-                <when test="sortField == 'sort_at'">
-                    ORDER BY `courses`.`sort_at` ASC
-                </when>
                 <otherwise>
                     ORDER BY `courses`.`id` ASC
                 </otherwise>
@@ -114,9 +111,6 @@
                 </when>
                 <when test="sortField == 'created_at'">
                     ORDER BY `courses`.`created_at` DESC
-                </when>
-                <when test="sortField == 'sort_at'">
-                    ORDER BY `courses`.`sort_at` DESC
                 </when>
                 <otherwise>
                     ORDER BY `courses`.`id` DESC
