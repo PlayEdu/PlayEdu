@@ -82,6 +82,16 @@ public class DashboardController {
         data.put(
                 "resource_image_total", resourceService.total(BackendConstant.RESOURCE_TYPE_IMAGE));
 
+        List<String> types = new ArrayList<>();
+        types.add(BackendConstant.RESOURCE_TYPE_PDF);
+        types.add(BackendConstant.RESOURCE_TYPE_WORD);
+        types.add(BackendConstant.RESOURCE_TYPE_PPT);
+        types.add(BackendConstant.RESOURCE_TYPE_EXCEL);
+        types.add(BackendConstant.RESOURCE_TYPE_ZIP);
+        types.add(BackendConstant.RESOURCE_TYPE_RAR);
+        types.add(BackendConstant.RESOURCE_TYPE_TXT);
+        data.put("resource_file_total", resourceService.total(types));
+
         data.put("user_learn_today", userLearnDurationStatsService.todayTotal());
         data.put("user_learn_yesterday", userLearnDurationStatsService.yesterdayTotal());
 

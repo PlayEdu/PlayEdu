@@ -186,4 +186,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                 .map(ResourceCategory::getCid)
                 .toList();
     }
+
+    @Override
+    public Integer total(List<String> types) {
+        return Math.toIntExact(count(query().getWrapper().in("type", types).eq("is_hidden", 0)));
+    }
 }
