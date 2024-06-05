@@ -1,0 +1,54 @@
+.user-content {
+  margin-left: 24px;
+  margin-bottom: 12px;
+  width: 200px;
+  height: 514px;
+  background: #fafafa;
+  border-radius: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 0px 16px;
+  .title {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    .tit {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.88);
+      line-height: 40px;
+    }
+    .link {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+  .user-item {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    .user-name {
+      width: 140px;
+      height: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
+      line-height: 40px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}

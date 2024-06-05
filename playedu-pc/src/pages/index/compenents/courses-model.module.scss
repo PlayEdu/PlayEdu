@@ -1,0 +1,98 @@
+.item {
+  width: 100%;
+  height: 186px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 2px solid #f6f6f6;
+  box-sizing: border-box;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover {
+    box-shadow: 0px 4px 16px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s;
+    transform: translateY(-5px);
+  }
+  .top-content {
+    width: 100%;
+    height: 90px;
+    display: flex;
+    justify-content: space-between;
+    .info {
+      width: 192px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .title {
+        width: 100%;
+        height: 48px;
+        font-size: 16px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.88);
+        line-height: 24px;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+      .type {
+        width: 52px;
+        height: 24px;
+        background: rgba(255, 77, 79, 0.1);
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 400;
+        color: #ff4d4f;
+        line-height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .active-type {
+        width: 52px;
+        height: 24px;
+        background: rgba(#ff9900, 0.1);
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 400;
+        color: #ff9900;
+        line-height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+  .status-content {
+    width: 100%;
+    height: 24px;
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    span {
+      height: 24px;
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.45);
+      line-height: 24px;
+    }
+    .success {
+      width: 100%;
+      height: 24px;
+      display: flex;
+      span {
+        height: 24px;
+        font-size: 14px;
+        font-weight: 400;
+        color: #ff4d4f;
+        line-height: 24px;
+      }
+    }
+  }
+}

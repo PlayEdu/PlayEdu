@@ -1,0 +1,110 @@
+.video-mask {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  max-height: 900px;
+  background-color: #0e0e1e;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  .top-cont {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 60px;
+    background: #262634;
+    z-index: 100;
+    .box {
+      width: 62.5%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      margin: 0 auto;
+      .close-btn {
+        width: 110px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 400;
+        color: #ffffff;
+        line-height: 24px;
+        cursor: pointer;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+  .video-body {
+    width: 62.5%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding-top: 30px;
+    margin-top: 60px;
+    overflow-y: auto;
+    .video-title {
+      width: 100%;
+      height: auto;
+      font-size: 20px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.88);
+      line-height: 36px;
+      margin-bottom: 30px;
+      text-align: left;
+    }
+
+    .video-box {
+      width: 100%;
+      padding-bottom: calc(9 / 16 * 100%);
+      margin: 0 auto;
+      border-radius: 8px;
+      position: relative;
+
+      .alert-message {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: white;
+        z-index: 100;
+        .des-video {
+          font-size: 15px;
+          font-weight: 400;
+          color: #ffffff;
+          line-height: 15px;
+        }
+        .alert-button {
+          width: 200px;
+          height: 54px;
+          background: #ff4d4f;
+          border-radius: 27px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          margin-bottom: 30px;
+          &:hover {
+            opacity: 0.8;
+          }
+          &:last-child {
+            margin-bottom: 0px;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,116 @@
+.content {
+  width: 1200px;
+  height: auto;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 50px 0;
+  .item {
+    width: 100%;
+    height: 138px;
+    background: #ffffff;
+    border: 2px solid #f6f6f6;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 24px;
+    transition: all 0.3s;
+    cursor: pointer;
+    &:hover {
+      border: 2px solid #f6f6f6;
+      box-shadow: 0px 4px 16px 8px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s;
+      transform: translateY(-5px);
+    }
+    .item-info {
+      flex: 1;
+      height: 90px;
+      margin-left: 16px;
+      .top {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        height: 24px;
+        .type {
+          width: 52px;
+          height: 24px;
+          background: rgba(255, 77, 79, 0.1);
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 400;
+          color: #ff4d4f;
+          line-height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .active-type {
+          width: 52px;
+          height: 24px;
+          background: rgba(#ff9900, 0.1);
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 400;
+          color: #ff9900;
+          line-height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .title {
+          width: 966px;
+          height: 24px;
+          font-size: 16px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.88);
+          line-height: 24px;
+          margin-left: 8px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          text-align: left;
+        }
+      }
+      .record {
+        width: 100%;
+        height: 24px;
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.45);
+        line-height: 24px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        text-align: left;
+        margin-top: 9px;
+      }
+      .progress {
+        width: 336px;
+        margin-top: 9px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        .tip {
+          margin-left: 8px;
+          height: 24px;
+          font-size: 14px;
+          font-weight: 400;
+          color: #ff4d4f;
+          line-height: 24px;
+        }
+      }
+    }
+  }
+}
+.extra {
+  width: 1200px;
+  margin: 0 auto;
+  margin-top: 80px;
+  text-align: center;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.2);
+  line-height: 40px;
+}

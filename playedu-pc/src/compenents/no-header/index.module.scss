@@ -1,0 +1,29 @@
+.app-header {
+  background-color: #f6f6f6;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  /* Firefox */
+  -webkit-box-sizing: border-box;
+  /* Safari */
+  padding: 0px 24px;
+}
+
+.main-header {
+  width: 1200px;
+  height: 60px;
+  line-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 auto;
+}
+
+.App-logo {
+  width: 124px;
+  height: 40px;
+}
+
+.top-main {
+  display: flex;
+  align-items: center;
+}

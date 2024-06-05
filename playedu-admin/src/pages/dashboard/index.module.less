@@ -1,0 +1,227 @@
+.label-item {
+  width: auto;
+  height: 94px;
+  display: flex;
+  flex-direction: column;
+
+  .label {
+    width: 84px;
+    height: 24px;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.88);
+    line-height: 24px;
+  }
+
+  .info {
+    min-width: 100px;
+    width: auto;
+    height: 46px;
+    display: flex;
+    flex-direction: row;
+    margin-top: 24px;
+    align-items: center;
+
+    .num {
+      width: auto;
+      height: 46px;
+      font-size: 30px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
+      line-height: 46px;
+    }
+
+    .compare {
+      width: auto;
+      height: 24px;
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.45);
+      line-height: 24px;
+      margin-left: 24px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      .down {
+        color: #00cc66;
+        font-size: 10px;
+      }
+
+      .up {
+        color: #ff4d4f;
+        font-size: 10px;
+      }
+    }
+  }
+}
+
+.large-title {
+  width: 100%;
+  height: 28px;
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+  line-height: 28px;
+}
+
+.mode-box {
+  width: 100%;
+  height: 76px;
+  display: grid;
+  column-gap: 24px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 24px;
+
+  .link-mode {
+    width: auto;
+    height: 76px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 8%;
+    cursor: pointer;
+
+    &:hover {
+      background: #fafafa;
+    }
+
+    i {
+      margin-right: 16px;
+    }
+
+    span {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.88);
+      line-height: 24px;
+    }
+  }
+}
+
+.usage-guide {
+  width: 100%;
+  height: 76px;
+  background: #fafafa;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  margin-top: 24px;
+
+  .banner {
+    width: 130px;
+    height: 130px;
+    position: absolute;
+    top: 22px;
+    left: 20%;
+    z-index: 10;
+  }
+
+  .link {
+    display: block;
+    position: absolute;
+    left: calc(20% + 180px);
+    width: auto;
+    height: 24px;
+    line-height: 24px;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    .icon {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.rank-list {
+  width: 100%;
+  height: auto;
+  display: grid;
+  column-gap: 100px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 24px;
+  margin-bottom: 12px;
+
+  .half-list {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+
+    .rank-item {
+      width: 100%;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      margin-bottom: 36px;
+      justify-content: space-between;
+
+      &:last-child {
+        margin-bottom: 0px;
+      }
+
+      .left-item {
+        width: auto;
+        display: flex;
+        align-items: center;
+
+        .item-num {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          font-size: 14px;
+          background-color: #fafafa;
+          color: rgba(0, 0, 0, 0.45);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 8px;
+        }
+
+        .item-icon {
+          width: 24px;
+          height: 24px;
+          margin-right: 8px;
+        }
+
+        .item-name {
+          width: 100px;
+          height: 24px;
+          font-size: 14px;
+          font-weight: 400;
+          color: rgba(0, 0, 0, 0.88);
+          line-height: 24px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .item-time {
+        height: 24px;
+        font-size: 12px;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.45);
+        line-height: 24px;
+      }
+    }
+  }
+}
+
+.charts {
+  width: 100%;
+  height: 300px;
+  box-sizing: border-box;
+  padding-top: 24px;
+}

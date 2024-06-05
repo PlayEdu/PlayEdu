@@ -1,0 +1,115 @@
+.login-content {
+  position: fixed;
+  width: 100%;
+  background-image: url("../../assets/images/login/bg.png"); // 此处为版权标识，严禁删改
+  background-repeat: no-repeat;
+  background-size: 100%;
+  .top-content {
+    width: 100%;
+    height: 150px;
+    box-sizing: border-box;
+    padding: 0px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .title {
+      font-size: 24px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
+      line-height: 24px;
+    }
+  }
+  .form-box {
+    width: 100%;
+    float: left;
+    height: auto;
+    box-sizing: border-box;
+    padding: 0px 20px;
+    margin-top: 30px;
+    .input-box {
+      width: 100%;
+      height: 109px;
+      background: #ffffff;
+      border-radius: 8px;
+      .input-item {
+        width: 100%;
+        height: 54px;
+        font-size: 16px;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.3);
+        line-height: 54px;
+        box-sizing: border-box;
+        padding: 0px 15px;
+      }
+      .line {
+        width: auto;
+        height: 1px;
+        background: rgba(0, 0, 0, 0.05);
+        margin: 0px 15px;
+      }
+    }
+    .captcha-box {
+      width: 100%;
+      height: 54px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      .input-item {
+        flex: 1;
+        height: 54px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-sizing: border-box;
+        padding: 0px 15px;
+        font-size: 16px;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.3);
+        line-height: 54px;
+      }
+      .captcha-button {
+        width: 125px;
+        height: 54px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-left: 10px;
+        .catpcha-loading-box {
+          width: 125px;
+          height: 54px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .captcha {
+          width: 125px;
+          height: 54px;
+          border-radius: 8px;
+        }
+      }
+    }
+
+    .button-box {
+      width: 100%;
+      height: 54px;
+      margin-top: 30px;
+      .primary-button {
+        width: 100%;
+        height: 54px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.support-box {
+  position: fixed;
+  top: 87%;
+  left: 0;
+  right: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.3);
+  line-height: 12px;
+}

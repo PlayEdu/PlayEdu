@@ -1,0 +1,79 @@
+.login-content {
+  width: 100%;
+  float: left;
+  height: 100vh;
+  background-color: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  .top-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    .title {
+      min-width: 125px;
+      height: auto;
+      font-size: 30px;
+      font-weight: 600;
+      color: #333333;
+      line-height: 30px;
+      border-bottom: 4px solid #ff4d4f;
+      box-sizing: border-box;
+      padding-bottom: 10px;
+      margin: 0 auto;
+      margin-top: 100px;
+    }
+    .login-box {
+      width: 1200px;
+      height: 366px;
+      background: #ffffff;
+      display: flex;
+      margin: 0 auto;
+      margin-top: 80px;
+      .left-box {
+        width: 595px;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 33px 60px;
+        .icon {
+          width: 475px;
+          height: 300px;
+        }
+      }
+      .right-box {
+        width: 520px;
+        height: 100%;
+        box-sizing: border-box;
+        border-left: 1px solid #d8d8d8;
+        padding: 50px 60px;
+        display: flex;
+        flex-direction: column;
+        .captcha-box {
+          width: 125px;
+          height: 54px;
+          margin-left: 15px;
+          border-radius: 8px;
+          background-color: rgba(#ff4d4f, 0.1);
+          display: flex;
+
+          .catpcha-loading-box {
+            width: 125px;
+            height: 54px;
+            line-height: 54px;
+            text-align: center;
+          }
+
+          .captcha {
+            width: 125px;
+            height: 54px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+          }
+        }
+      }
+    }
+  }
+}

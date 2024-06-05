@@ -1,0 +1,202 @@
+.top-content {
+  width: 100%;
+  float: left;
+  height: auto;
+  background-color: #ff4d4f;
+  box-sizing: border-box;
+  padding: 8px 20px 20px 20px;
+  .title {
+    width: 100%;
+    height: 48px;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 24px;
+    text-align: left;
+    text-overflow: -o-ellipsis-lastline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .info-content {
+    width: 100%;
+    height: 80px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 20px;
+    .info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      .record {
+        width: auto;
+        height: 20px;
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.88);
+        line-height: 20px;
+        margin-top: 10px;
+        strong {
+          font-size: 20px;
+        }
+      }
+      .type {
+        width: auto;
+        height: 12px;
+        font-size: 12px;
+        font-weight: 400;
+        color: #ffffff;
+        line-height: 12px;
+        margin-top: 20px;
+      }
+    }
+
+    .progress-box {
+      width: 80px;
+      height: 80px;
+      .num {
+        font-size: 16px;
+        font-weight: 600;
+        color: #ffffff;
+        line-height: 16px;
+      }
+    }
+  }
+}
+
+.other-content {
+  width: 100%;
+  float: left;
+  height: auto;
+  border-radius: 16px 16px 0px 0px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  padding: 20px;
+  margin-top: -20px;
+  z-index: 10;
+  .tabs {
+    width: 100%;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .desc {
+    width: 100%;
+    height: auto;
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.45);
+    line-height: 18px;
+    text-align: left;
+  }
+  .line {
+    width: 100%;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+  }
+  .chapters-hours-cont {
+    width: 100%;
+    height: auto;
+    .hours-list-box {
+      width: 100%;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      .chapter-it {
+        width: 100%;
+        height: auto;
+        margin-top: 20px;
+        .chapter-name {
+          width: 100%;
+          float: left;
+          height: 15px;
+          font-size: 15px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.88);
+          line-height: 15px;
+          text-align: left;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-bottom: 5px;
+        }
+      }
+      .hours-it {
+        width: 100%;
+        float: left;
+        height: auto;
+        margin-top: 10px;
+      }
+    }
+  }
+}
+
+.attachments-cont {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  .attachments-item {
+    width: 100%;
+    height: 69px;
+    background: #fafafa;
+    border-radius: 7px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 10px 15px 10px 10px;
+    text-align: left;
+    margin-bottom: 10px;
+    &:last-child {
+      margin-bottom: 0px;
+    }
+    .left-cont {
+      width: calc(100% - 34px);
+      display: flex;
+      flex-direction: column;
+      .label {
+        width: 100%;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        span {
+          height: 16px;
+          font-size: 12px;
+          font-weight: 400;
+          color: rgba(0, 0, 0, 0.45);
+          line-height: 16px;
+        }
+      }
+      .title {
+        width: 100%;
+        margin-top: 14px;
+        height: 16px;
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.88);
+        line-height: 16px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+    }
+    .download {
+      width: 34px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #ff4d4f;
+      line-height: 16px;
+      text-align: right;
+    }
+  }
+}

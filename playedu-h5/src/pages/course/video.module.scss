@@ -1,0 +1,92 @@
+.video-body {
+  width: 100%;
+  float: left;
+  height: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0);
+  .back-icon {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 12px;
+    left: 20px;
+    z-index: 999;
+  }
+
+  .video-box {
+    width: 100%;
+    float: left;
+    height: auto;
+    position: relative;
+    .alert-message {
+      width: 100%;
+      height: 211px;
+      background: rgba(0, 0, 0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: white;
+      z-index: 100;
+      .alert-button {
+        box-sizing: border-box;
+        padding: 0px 15px;
+        background: #ff4d4f;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin-bottom: 0px;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 36px;
+        color: #ffffff;
+      }
+    }
+  }
+}
+
+.chapters-hours-cont {
+  width: 100%;
+  float: left;
+  height: auto;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  padding: 10px 20px 20px 20px;
+  .hours-list-box {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    .chapter-it {
+      width: 100%;
+      height: auto;
+      margin-top: 20px;
+      .chapter-name {
+        width: 100%;
+        float: left;
+        height: 15px;
+        font-size: 15px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.88);
+        line-height: 15px;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 5px;
+      }
+    }
+    .hours-it {
+      width: 100%;
+      float: left;
+      height: auto;
+      margin-top: 10px;
+    }
+  }
+}

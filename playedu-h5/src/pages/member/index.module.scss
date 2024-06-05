@@ -1,0 +1,200 @@
+.main-body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  background-image: url("../../assets/images/login/bg.png"); // 此处为版权标识，严禁删改
+  background-repeat: no-repeat;
+  background-size: 100%;
+  .support-box {
+    position: fixed;
+    top: 87%;
+    left: 0;
+    right: 0;
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.3);
+    line-height: 12px;
+  }
+  .content-box {
+    width: 100%;
+    float: left;
+    height: auto;
+    box-sizing: border-box;
+    padding: 20px 20px 75px 20px;
+    .top-content {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      .user-info {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        .other-cont {
+          flex: 1;
+          text-align: left;
+          display: flex;
+          flex-direction: column;
+          .name {
+            width: 100%;
+            height: 20px;
+            font-size: 20px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.88);
+            line-height: 20px;
+            margin-top: 15px;
+          }
+          .departments {
+            width: 100%;
+            float: left;
+            height: auto;
+            margin-top: 20px;
+            .department-name {
+              display: inline-block;
+              width: auto;
+              height: auto;
+              background: rgba(255, 77, 79, 0.1);
+              border-radius: 4px;
+              font-size: 14px;
+              font-weight: 400;
+              color: #ff4d4f;
+              line-height: 24px;
+              box-sizing: border-box;
+              padding: 0px 5px;
+            }
+          }
+        }
+      }
+      .more-button {
+        width: 30px;
+        height: 30px;
+        background: #ffffff;
+        border-radius: 8px;
+        margin-top: 13px;
+      }
+    }
+
+    .stats-content {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      margin-top: 50px;
+      .stat-item {
+        width: auto;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        margin-right: 34px;
+        &:last-child {
+          margin-right: 0px;
+        }
+        .time {
+          height: 20px;
+          font-size: 15px;
+          font-weight: 600;
+          color: rgba(0, 0, 0, 0.88);
+          line-height: 20px;
+          strong {
+            font-size: 20px;
+          }
+        }
+        .tit {
+          height: 12px;
+          font-size: 12px;
+          font-weight: 400;
+          color: rgba(0, 0, 0, 0.45);
+          line-height: 12px;
+          margin-top: 20px;
+        }
+      }
+    }
+
+    .records-content {
+      width: 100%;
+      display: grid;
+      gap: 11px;
+      margin-top: 50px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      position: relative;
+      .record-item {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+        height: 92px;
+        background-color: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255);
+        border-radius: 8px;
+        box-sizing: border-box;
+        padding: 20px 15px;
+        .name {
+          width: 100%;
+          height: 12px;
+          font-size: 12px;
+          font-weight: 400;
+          color: rgba(0, 0, 0, 0.45);
+          line-height: 12px;
+        }
+        .value {
+          width: 100%;
+          height: 20px;
+          font-size: 15px;
+          font-weight: 400;
+          color: rgba(0, 0, 0, 0.88);
+          line-height: 20px;
+          margin-top: 20px;
+          strong {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ff4d4f;
+          }
+        }
+      }
+    }
+  }
+}
+
+.dialog-body {
+  position: fixed;
+  bottom: 0px;
+  left: 20px;
+  right: 20px;
+  min-height: 253px;
+  // box-sizing: border-box;
+  // padding-bottom: calc(
+  //   53px + constant(safe-area-inset-bottom)
+  // ); /* 兼容iOS 11.0 - 11.2 */
+  // padding-bottom: calc(53px + env(safe-area-inset-bottom)); /* 兼容iOS 11.2+ */
+  .dialog-box {
+    width: 100%;
+    height: 162px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 0px 20px;
+    .button-item {
+      width: 100%;
+      height: 54px;
+      font-size: 16px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.88);
+      line-height: 54px;
+      text-align: left;
+    }
+  }
+  .dialog-button {
+    width: 100%;
+    height: 54px;
+    background: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.45);
+    line-height: 54px;
+    margin-top: 10px;
+  }
+}

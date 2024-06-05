@@ -1,0 +1,77 @@
+.app-header {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #ffffff;
+  box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.04);
+  z-index: 100;
+  .main-header {
+    width: 1200px;
+    height: 60px;
+    line-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 auto;
+    .App-logo {
+      width: 124px;
+      height: 40px;
+      text-align: left;
+      img {
+        width: auto;
+        height: 40px;
+      }
+    }
+    .navs {
+      display: flex;
+      align-items: center;
+      .nav-item {
+        width: auto;
+        height: 40px;
+        font-size: 16px;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.88);
+        line-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 80px;
+        cursor: pointer;
+        &:hover {
+          opacity: 0.8;
+          color: #ff4d4f;
+        }
+      }
+
+      .nav-active-item {
+        width: auto;
+        height: 40px;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ff4d4f;
+        margin-left: 80px;
+        cursor: pointer;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+    .department-name {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.45);
+      line-height: 24px;
+      background: #f6f6f6;
+      border-radius: 8px 4px 8px 4px;
+      padding: 0 8px;
+      margin-right: 16px;
+    }
+  }
+}

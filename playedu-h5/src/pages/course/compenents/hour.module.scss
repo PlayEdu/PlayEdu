@@ -1,0 +1,57 @@
+.item {
+  width: 100%;
+  height: auto;
+  background: #fafafa;
+  border-radius: 7px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 10px;
+
+  .top-item {
+    width: 100%;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    i {
+      color: rgba(0, 0, 0, 0.3);
+    }
+
+    .label {
+      height: 16px;
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.45);
+      line-height: 16px;
+      margin-left: 5px;
+    }
+
+    .studying {
+      height: 16px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #ff4d4f;
+      line-height: 16px;
+    }
+
+    .complete {
+      height: 16px;
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.45);
+      line-height: 16px;
+    }
+  }
+
+  .title {
+    width: 100%;
+    height: auto;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.88);
+    line-height: 20px;
+    margin-top: 15px;
+    text-align: left;
+  }
+}

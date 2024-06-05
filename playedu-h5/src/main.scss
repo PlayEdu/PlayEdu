@@ -1,0 +1,174 @@
+body {
+  margin: 0;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+:root {
+  --adm-color-primary: #ff4d4f !important;
+  --adm-color-success: #00b578;
+  --adm-color-warning: #ff8f1f;
+  --adm-color-danger: #ff3141;
+
+  --adm-color-white: #ffffff;
+  --adm-color-text: #333333;
+  --adm-color-text-secondary: #666666;
+  --adm-color-weak: #999999;
+  --adm-color-light: #cccccc;
+  --adm-color-border: #eeeeee;
+  --adm-color-box: #f5f5f5;
+  --adm-color-background: #ffffff;
+}
+
+.adm-badge-wrapper {
+  height: 30px;
+}
+
+.main-body {
+  width: 100%;
+  float: left;
+  height: auto;
+}
+
+.float-left {
+  width: 100%;
+  height: auto;
+  float: left;
+}
+
+.main-header {
+  position: relative;
+  width: 100%;
+  float: left;
+  height: 54px;
+  box-sizing: border-box;
+  padding: 12px 20px;
+  .main-title {
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.88);
+    line-height: 30px;
+  }
+
+  .back-icon {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 12px;
+    left: 20px;
+  }
+}
+
+.adm-tab-bar-item-title {
+  font-size: 11px;
+  font-weight: 400;
+  margin-top: 0px !important;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.adm-tab-bar-item-active {
+  .adm-tab-bar-item-title {
+    color: #ff4d4f !important;
+  }
+}
+
+.adm-progress-bar-text {
+  color: #ff4d4f !important;
+}
+
+.adm-tabs-header {
+  border-bottom: none !important;
+}
+
+.adm-tabs-tab {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.adm-tabs-tab-active {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.adm-dropdown-item {
+  justify-content: left !important;
+  .adm-dropdown-item-title {
+    padding: 8px 0px !important;
+    .adm-dropdown-item-title-text {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.45);
+    }
+  }
+}
+
+.adm-popup-body {
+  border-radius: 0px 0px 16px 16px;
+}
+
+.adm-image-uploader {
+  --gap: none !important;
+}
+
+.adm-space-item {
+  width: 100%;
+  padding-bottom: 0 !important;
+  margin-right: 0 !important;
+  .adm-image-uploader-cell {
+    display: none;
+  }
+}
+
+.adm-radio-content {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.88);
+  line-height: 16px;
+  padding-left: 15px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#meedu-player-container {
+  width: 100%;
+  height: 100%;
+}
+
+.adm-tab-bar-item-icon {
+  height: 28px !important;
+}
+
+.sp-line {
+  width: 200%;
+  height: 1px;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.05);
+  transform: scale(0.5);
+  -ms-transform: scale(0.5);
+  -o-transform: scale(0.5);
+  -webkit-transform: scale(0.5);
+  -moz-transform: scale(0.5);
+  transform-origin: top left;
+  margin-top: 30px;
+}
+
+.dplayer-mobile-play {
+  opacity: 1 !important;
+}
+
+.course-tab-box {
+  width: 100%;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 20px;
+  .adm-tabs-tab-wrapper {
+    padding: 0 36px 0 0;
+  }
+}
