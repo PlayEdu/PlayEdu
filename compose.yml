@@ -1,0 +1,91 @@
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "10"
+
+networks:
+  playedu:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.10.10.0/24
+
+volumes:
+  mysql-data:
+  mysql-conf:
+  redis-data:
+  minio-data:
+
+services:
+  playedu:
+    build: .
+    restart: always
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=playedu
+      - DB_USER=root
+      - DB_PASS=playeduxyz
+      - REDIS_HOST=redis
+      - REDIS_PASS=playeduxyz
+      - REDIS_PORT=6379
+      - REDIS_DB=2
+      - SA_TOKEN_IS_CONCURRENT=false
+      - SA_TOKEN_JWT_SECRET_KEY=${PLAYEDU_JWT_KEY:-playeduxyz}
+    ports:
+      - "${PLAYEDU_API_PORT:-9700}:9700"
+      - "${PLAYEDU_PC_PORT:-9800}:9800"
+      - "${PLAYEDU_H5_PORT:-9801}:9801"
+      - "${PLAYEDU_ADMIN_PORT:-9900}:9900"
+    networks:
+      - playedu
+    depends_on:
+      - mysql
+      - redis
+      - minio
+    logging: *default-logging
+
+  redis:
+    build: ./docker/redis
+    restart: always
+    volumes:
+      - redis-data:/data
+    # ports:
+    #   - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - playedu
+    logging: *default-logging
+
+  mysql:
+    build: ./docker/mysql
+    restart: always
+    environment:
+      - MYSQL_DATABASE=playedu
+      - MYSQL_ROOT_PASSWORD=playeduxyz
+      - TZ=UTC
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - mysql-conf:/etc/mysql/conf.d
+    # ports:
+    #   - "${MYSQL_PORT:-3306}:3306"
+    networks:
+      - playedu
+    logging: *default-logging
+
+  minio:
+    image: bitnami/minio:latest
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USERNAME:-username}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-password}
+      - MINIO_DEFAULT_BUCKETS=playedu:public
+    volumes:
+      - minio-data:/bitnami/minio/data
+    ports:
+      - "${MINIO_PORT:-9002}:9000"
+      - "${MINIO_CONSOLE_PORT:-50002}:9001"
+    networks:
+      - playedu
+    logging: *default-logging
