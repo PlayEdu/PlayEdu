@@ -2,16 +2,12 @@ name: EstablishDockerImage
 
 on:
   push:
-    branches:
-      - main
-      - dev
-      - 'feat/**'
     tags:
-      - '*'
+      - "*"
 
 env:
-  IMAGE_FQDN: registry.cn-hangzhou.aliyuncs.com/playedu/api
-  IMAGE_TAG: ''
+  IMAGE_FQDN: registry.cn-hangzhou.aliyuncs.com/playedu/light
+  IMAGE_TAG: ""
 
 jobs:
   build-and-push:
