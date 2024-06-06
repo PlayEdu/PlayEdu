@@ -24,16 +24,10 @@ git clone --branch main https://gitee.com/playeduxyz/playedu.git playedu
 构建镜像：
 
 ```
-cd playedu && docker-compose build
+cd playedu && docker-compose up -d
 ```
 
-运行镜像：
-
-```
-docker-compose up -d
-```
-
-现在，打开您的浏览器，输入 `http://localhost:9900` 即可访问后台管理界面，默认管理员账号和密码 `admin@playedu.xyz / playedu` 。
+命令执行完成以后，打开您的浏览器，输入 `http://localhost:9900` 即可访问后台管理界面，默认管理员账号和密码 `admin@playedu.xyz / playedu` 。
 
 - PC 端口 `http://localhost:9800`
 - H5 端口 `http://localhost:9801`
