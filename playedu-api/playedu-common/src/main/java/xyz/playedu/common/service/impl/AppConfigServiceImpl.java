@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import lombok.extern.log4j.Log4j2;
 
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import xyz.playedu.common.constant.ConfigConstant;
@@ -40,6 +41,8 @@ import java.util.stream.Collectors;
 @Log4j2
 public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig>
         implements AppConfigService {
+
+    private Environment environment;
 
     @Override
     public Map<String, Long> allKeys() {
@@ -95,26 +98,45 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
 
     @Override
     public S3Config getS3Config() {
-        S3Config s3Config = new S3Config();
+        // 全部的系统配置
         Map<String, String> config = keyValues();
+
+        S3Config s3Config = new S3Config();
         s3Config.setAccessKey(config.get(ConfigConstant.MINIO_ACCESS_KEY));
         s3Config.setSecretKey(config.get(ConfigConstant.MINIO_SECRET_KEY));
         s3Config.setBucket(config.get(ConfigConstant.MINIO_BUCKET));
         s3Config.setEndpoint(config.get(ConfigConstant.MINIO_ENDPOINT));
+        s3Config.setDomain(config.get(ConfigConstant.MINIO_DOMAIN));
         s3Config.setRegion(null);
         s3Config.setService("minio");
 
-        String domain = config.get(ConfigConstant.MINIO_DOMAIN);
-        if (s3Config.getService().equals("minio") && StringUtil.isNotEmpty(domain)) {
+        if (StringUtil.isEmpty(s3Config.getAccessKey())) {
+            s3Config.setAccessKey(environment.getProperty("MINIO_USERNAME"));
+        }
+        if (StringUtil.isEmpty(s3Config.getSecretKey())) {
+            s3Config.setSecretKey(environment.getProperty("MINIO_PASSWORD"));
+        }
+        if (StringUtil.isEmpty(s3Config.getBucket())) {
+            s3Config.setBucket(environment.getProperty("MINIO_BUCKET"));
+        }
+        if (StringUtil.isEmpty(s3Config.getEndpoint())) {
+            s3Config.setEndpoint(environment.getProperty("MINIO_ENDPOINT"));
+        }
+        if (StringUtil.isEmpty(s3Config.getDomain())) {
+            s3Config.setDomain(environment.getProperty("MINIO_DOMAIN"));
+        }
+
+        if (s3Config.getService().equals("minio") && StringUtil.isNotEmpty(s3Config.getDomain())) {
+            String _domain = s3Config.getDomain();
             // 移除 / 后缀
-            if (StringUtil.endsWith(domain, "/")) {
-                domain = domain.substring(0, domain.length() - 1);
+            if (StringUtil.endsWith(_domain, "/")) {
+                _domain = _domain.substring(0, _domain.length() - 1);
             }
             // 判断是否携带了bucket
-            if (!StringUtil.endsWith(domain, s3Config.getBucket())) {
-                domain += "/" + s3Config.getBucket();
+            if (!StringUtil.endsWith(_domain, s3Config.getBucket())) {
+                _domain += "/" + s3Config.getBucket();
             }
-            s3Config.setDomain(domain);
+            s3Config.setDomain(_domain);
         }
 
         return s3Config;
