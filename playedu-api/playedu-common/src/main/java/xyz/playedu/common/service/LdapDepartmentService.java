@@ -30,4 +30,6 @@ public interface LdapDepartmentService extends IService<LdapDepartment> {
     void destroy(Integer id);
 
     void create(Integer depId, String uuid, String dn);
+
+    void updateDnById(Integer id, String dn);
 }

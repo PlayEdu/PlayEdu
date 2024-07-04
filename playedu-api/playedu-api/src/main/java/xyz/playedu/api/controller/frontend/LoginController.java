@@ -119,14 +119,7 @@ public class LoginController {
 
         try {
             LdapTransformUser ldapTransformUser =
-                    LdapUtil.loginByMailOrUid(
-                            ldapConfig.getUrl(),
-                            ldapConfig.getAdminUser(),
-                            ldapConfig.getAdminPass(),
-                            ldapConfig.getBaseDN(),
-                            mail,
-                            uid,
-                            req.getPassword());
+                    LdapUtil.loginByMailOrUid(ldapConfig, mail, uid, req.getPassword());
             if (ldapTransformUser == null) {
                 return JsonResponse.error("登录失败.请检查账号和密码");
             }

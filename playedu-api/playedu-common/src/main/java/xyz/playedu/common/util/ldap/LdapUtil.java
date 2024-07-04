@@ -18,6 +18,7 @@ package xyz.playedu.common.util.ldap;
 import lombok.extern.slf4j.Slf4j;
 
 import xyz.playedu.common.exception.ServiceException;
+import xyz.playedu.common.types.LdapConfig;
 import xyz.playedu.common.util.StringUtil;
 
 import java.io.IOException;
@@ -83,10 +84,11 @@ public class LdapUtil {
         return new InitialLdapContext(context, null);
     }
 
-    public static List<LdapTransformUser> users(
-            String url, String adminUser, String adminPass, String baseDN)
+    public static List<LdapTransformUser> users(LdapConfig ldapConfig, String filterScope)
             throws NamingException, IOException {
-        LdapContext ldapContext = initContext(url, adminUser, adminPass);
+        LdapContext ldapContext =
+                initContext(
+                        ldapConfig.getUrl(), ldapConfig.getAdminUser(), ldapConfig.getAdminPass());
 
         int pageSize = 1000;
         List<LdapTransformUser> users = new ArrayList<>();
@@ -111,11 +113,11 @@ public class LdapUtil {
                 }
 
                 NamingEnumeration<SearchResult> result =
-                        ldapContext.search(baseDN, USER_OBJECT_CLASS, controls);
+                        ldapContext.search(filterScope, USER_OBJECT_CLASS, controls);
                 while (result.hasMoreElements()) {
                     SearchResult item = result.nextElement();
                     if (item != null) {
-                        LdapTransformUser ldapTransformUser = parseTransformUser(item, baseDN);
+                        LdapTransformUser ldapTransformUser = parseTransformUser(item, filterScope);
                         if (ldapTransformUser != null) {
                             users.add(ldapTransformUser);
                         }
@@ -153,9 +155,11 @@ public class LdapUtil {
         return null;
     }
 
-    public static List<LdapTransformDepartment> departments(
-            String url, String adminUser, String adminPass, String baseDN) throws NamingException {
-        LdapContext ldapContext = initContext(url, adminUser, adminPass);
+    public static List<LdapTransformDepartment> departments(LdapConfig ldapConfig, String baseDN)
+            throws NamingException {
+        LdapContext ldapContext =
+                initContext(
+                        ldapConfig.getUrl(), ldapConfig.getAdminUser(), ldapConfig.getAdminPass());
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -165,15 +169,16 @@ public class LdapUtil {
         String filter = "(objectClass=organizationalUnit)";
         NamingEnumeration<SearchResult> result = null;
         try {
+            log.info("LDAP-部门查询|条件[baseDN={},filter={}]", baseDN, filter);
             result = ldapContext.search(baseDN, filter, controls);
         } catch (NamingException e) {
-            log.error("LDAP部门查询失败", e);
+            log.error("LDAP-部门查询-失败|errMsg={}", e.getMessage());
         } finally {
             closeContext(ldapContext);
         }
 
         if (result == null || !result.hasMoreElements()) {
-            log.info("LDAP部门为空");
+            log.info("LDAP-部门查询-结果为空|条件[baseDN={},filter={}]", baseDN, filter);
             return null;
         }
 
@@ -186,6 +191,7 @@ public class LdapUtil {
             if (item == null) {
                 continue;
             }
+
             Attributes attributes = item.getAttributes();
             if (attributes == null) {
                 continue;
@@ -221,13 +227,7 @@ public class LdapUtil {
     }
 
     public static LdapTransformUser loginByMailOrUid(
-            String url,
-            String adminUser,
-            String adminPass,
-            String baseDN,
-            String mail,
-            String uid,
-            String password)
+            LdapConfig ldapConfig, String mail, String uid, String password)
             throws ServiceException, NamingException {
         if (StringUtil.isEmpty(mail) && StringUtil.isEmpty(uid)) {
             throw new ServiceException("mail和Uid不能同时为空");
@@ -249,10 +249,12 @@ public class LdapUtil {
 
         String filter = String.format("(&%s%s)", userFilter, USER_OBJECT_CLASS);
 
-        LdapContext ldapContext = initContext(url, adminUser, adminPass);
+        LdapContext ldapContext =
+                initContext(
+                        ldapConfig.getUrl(), ldapConfig.getAdminUser(), ldapConfig.getAdminPass());
         NamingEnumeration<SearchResult> result = null;
         try {
-            result = ldapContext.search(baseDN, filter, controls);
+            result = ldapContext.search(ldapConfig.getBaseDN(), filter, controls);
         } catch (NamingException e) {
             log.error("LDAP-通过mail或uid登录失败", e);
         } finally {
@@ -265,7 +267,8 @@ public class LdapUtil {
         }
 
         // 根据mail或uid查询出来的用户
-        LdapTransformUser ldapUser = parseTransformUser(result.nextElement(), baseDN);
+        LdapTransformUser ldapUser =
+                parseTransformUser(result.nextElement(), ldapConfig.getBaseDN());
         if (ldapUser == null) {
             log.info("LDAP-用户不存在");
             return null;
@@ -275,7 +278,11 @@ public class LdapUtil {
         // 登录成功则意味着密码正确
         // 登录失败则意味着密码错误
         try {
-            ldapContext = initContext(url, ldapUser.getDn() + "," + baseDN, password);
+            ldapContext =
+                    initContext(
+                            ldapConfig.getUrl(),
+                            ldapUser.getDn() + "," + ldapConfig.getBaseDN(),
+                            password);
             return ldapUser;
         } catch (Exception e) {
             // 无法登录->密码错误

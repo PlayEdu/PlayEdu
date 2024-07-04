@@ -67,6 +67,9 @@ public class LoginBus {
     public HashMap<String, Object> tokenByLdapTransformUser(LdapTransformUser ldapTransformUser)
             throws ServiceException {
         User user = ldapBus.singleUserSync(ldapTransformUser, appConfigService.defaultAvatar());
+        if (user == null) {
+            throw new ServiceException("用户状态异常，无法登录！");
+        }
         return tokenByUser(user);
     }
 }

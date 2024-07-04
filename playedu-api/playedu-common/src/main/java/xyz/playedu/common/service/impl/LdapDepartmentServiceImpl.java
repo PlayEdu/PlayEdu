@@ -56,4 +56,12 @@ public class LdapDepartmentServiceImpl extends ServiceImpl<LdapDepartmentMapper,
 
         save(ldapDepartment);
     }
+
+    @Override
+    public void updateDnById(Integer id, String dn) {
+        LdapDepartment ldapDepartment = new LdapDepartment();
+        ldapDepartment.setId(id);
+        ldapDepartment.setDn(dn);
+        updateById(ldapDepartment);
+    }
 }
