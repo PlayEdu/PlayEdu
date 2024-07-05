@@ -138,8 +138,10 @@ public class LDAPBus {
                     Department tmpDepartment =
                             departmentService.findOrFail(tmpLdapDepartment.getDepartmentId());
                     if (!tmpDepartment.getName().equals(tmpName)
-                            || tmpLdapDepartment.getDn().split(",").length
-                                    != dn.split(",").length) {
+                            || !tmpLdapDepartment
+                                    .getDn()
+                                    .replace("ou=" + tmpName, "")
+                                    .equals(dn.replaceAll("ou=" + tmpName, ""))) {
                         departmentService.update(tmpDepartment, tmpName, parentId, sort);
                     }
 
