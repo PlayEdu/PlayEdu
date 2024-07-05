@@ -14,12 +14,12 @@ networks:
 
 volumes:
   mysql-data:
-  mysql-conf:
   redis-data:
   minio-data:
 
 services:
   playedu:
+    # build: .
     image: registry.cn-hangzhou.aliyuncs.com/playedu/light:1.7
     restart: always
     environment:
@@ -39,6 +39,8 @@ services:
       - "${PLAYEDU_PC_PORT:-9800}:9800"
       - "${PLAYEDU_H5_PORT:-9801}:9801"
       - "${PLAYEDU_ADMIN_PORT:-9900}:9900"
+    volumes:
+      - "./docker/data/:/playedu-data/"
     networks:
       - playedu
     depends_on:
@@ -67,7 +69,6 @@ services:
       - TZ=UTC
     volumes:
       - mysql-data:/var/lib/mysql
-      - mysql-conf:/etc/mysql/conf.d
     # ports:
     #   - "${MYSQL_PORT:-3306}:3306"
     networks:
@@ -75,7 +76,7 @@ services:
     logging: *default-logging
 
   minio:
-    image: bitnami/minio:latest
+    image: registry.cn-hangzhou.aliyuncs.com/hzbs/bitnami-minio:2024.6.6
     restart: always
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USERNAME:-username}

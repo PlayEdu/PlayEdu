@@ -1,14 +1,8 @@
-FROM node:20-alpine as NodeBuilder
-
-RUN yarn config set registry https://registry.npmmirror.com &&\
-    yarn global add pnpm &&\
-    pnpm config set registry https://registry.npmmirror.com
+FROM registry.cn-hangzhou.aliyuncs.com/hzbs/node:20-alpine AS node-builder
 
 COPY playedu-admin /app/admin
 COPY playedu-pc /app/pc
 COPY playedu-h5 /app/h5
-
-WORKDIR /app
 
 WORKDIR /app/admin
 RUN pnpm i && VITE_APP_URL=/api/ pnpm build
@@ -19,7 +13,7 @@ RUN pnpm i && VITE_APP_URL=/api/ pnpm build
 WORKDIR /app/h5
 RUN pnpm i && VITE_APP_URL=/api/ pnpm build
 
-FROM eclipse-temurin:17 as javaBuilder
+FROM registry.cn-hangzhou.aliyuncs.com/hzbs/eclipse-temurin:17 AS java-builder
 
 COPY playedu-api /app
 
@@ -27,19 +21,13 @@ WORKDIR /app
 
 RUN /app/mvnw -Dmaven.test.skip=true clean package
 
-FROM eclipse-temurin:17
+FROM registry.cn-hangzhou.aliyuncs.com/hzbs/eclipse-temurin:17 AS base
 
-LABEL maintainer="滕勇志 <tengyongzhi@meedu.vip>"
+COPY --from=java-builder /app/playedu-api/target/playedu-api.jar /app/api/app.jar
 
-RUN echo "Asia/Shanghai" > /etc/timezone
-
-RUN apt update && apt install -y nginx
-
-COPY --from=javaBuilder /app/playedu-api/target/playedu-api.jar /app/api/app.jar
-
-COPY --from=NodeBuilder /app/admin/dist /app/admin
-COPY --from=NodeBuilder /app/pc/dist /app/pc
-COPY --from=NodeBuilder /app/h5/dist /app/h5
+COPY --from=node-builder /app/admin/dist /app/admin
+COPY --from=node-builder /app/pc/dist /app/pc
+COPY --from=node-builder /app/h5/dist /app/h5
 
 COPY docker/nginx/conf/nginx.conf /etc/nginx/sites-enabled/default
 
