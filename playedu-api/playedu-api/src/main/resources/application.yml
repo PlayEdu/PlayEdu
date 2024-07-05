@@ -53,8 +53,6 @@ mybatis:
 mybatis-plus:
   global-config:
     banner: false
-#  configuration:
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 sa-token:
   token-name: "Authorization"
@@ -63,7 +61,9 @@ sa-token:
   is-share: false
   jwt-secret-key: "playeduxyz"
   token-prefix: "Bearer"
-  is-log: false
+  is-print: false
+  is-log: true
+  log-level: "warn"
 
 playedu:
   core:

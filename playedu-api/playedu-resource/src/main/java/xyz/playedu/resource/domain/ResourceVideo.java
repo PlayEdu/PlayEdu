@@ -15,7 +15,9 @@
  */
 package xyz.playedu.resource.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -31,6 +33,7 @@ import java.util.Date;
 @Data
 public class ResourceVideo implements Serializable {
     /** */
+    @TableId(type = IdType.NONE)
     private Integer rid;
 
     /** 封面 */

@@ -15,7 +15,9 @@
  */
 package xyz.playedu.common.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -29,6 +31,7 @@ import java.io.Serializable;
 @TableName(value = "user_department")
 @Data
 public class UserDepartment implements Serializable {
+    @TableId(type = IdType.NONE)
     @JsonProperty("user_id")
     private Integer userId;
 
