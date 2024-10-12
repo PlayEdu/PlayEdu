@@ -6,21 +6,22 @@
     <parent>
         <groupId>xyz.playedu</groupId>
         <artifactId>playedu</artifactId>
-        <version>1.2</version>
+        <version>1.0</version>
     </parent>
 
     <artifactId>playedu-course</artifactId>
+    <version>1.0</version>
 
     <dependencies>
         <dependency>
             <groupId>xyz.playedu</groupId>
             <artifactId>playedu-common</artifactId>
-            <version>1.2</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>xyz.playedu</groupId>
             <artifactId>playedu-resource</artifactId>
-            <version>1.2</version>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 </project>

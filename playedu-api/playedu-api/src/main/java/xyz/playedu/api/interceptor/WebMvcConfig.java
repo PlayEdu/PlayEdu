@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 @Configuration
 @Slf4j
@@ -37,5 +38,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(apiInterceptor).addPathPatterns("/**");
         registry.addInterceptor(adminInterceptor).addPathPatterns("/backend/**");
         registry.addInterceptor(frontInterceptor).addPathPatterns("/api/v1/**");
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .maxAge(1_296_000);
     }
 }

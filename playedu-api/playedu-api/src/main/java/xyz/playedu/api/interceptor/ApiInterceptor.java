@@ -45,20 +45,13 @@ public class ApiInterceptor implements HandlerInterceptor {
     public boolean preHandle(
             HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Headers", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Max-Age", "86400");
-
         if ("OPTIONS".equals(request.getMethod())) {
-            response.setStatus(204);
-            // 返回false意味着整个请求执行到这里结束，不会继续乡下执行了
             return false;
         }
 
         // 当前api的请求路径
         String path = request.getRequestURI();
-        // 白名单过滤 || OPTIONS请求
+        // 白名单过滤
         if (BackendConstant.API_LIMIT_WHITELIST.contains(path)) {
             return HandlerInterceptor.super.preHandle(request, response, handler);
         }
