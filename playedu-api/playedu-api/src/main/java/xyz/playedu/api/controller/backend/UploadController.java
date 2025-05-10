@@ -15,14 +15,13 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import xyz.playedu.api.request.backend.UploadFileMergeRequest;
 import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
@@ -33,13 +32,12 @@ import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.types.JsonResponse;
+import xyz.playedu.common.types.config.S3Config;
 import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.S3Util;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.UploadService;
-
-import java.util.HashMap;
 
 @RestController
 @Slf4j
@@ -59,7 +57,12 @@ public class UploadController {
             @RequestParam HashMap<String, Object> params, MultipartFile file)
             throws ServiceException {
         String categoryIds = MapUtils.getString(params, "category_ids");
-        Resource res = uploadService.storeMinio(BCtx.getId(), file, categoryIds);
+        Resource res =
+                uploadService.storeMinio(
+                        appConfigService.getS3Config().getService(),
+                        BCtx.getId(),
+                        file,
+                        categoryIds);
         return JsonResponse.data(res);
     }
 
@@ -121,7 +124,8 @@ public class UploadController {
         String originalFilename = req.getOriginalFilename().replaceAll("(?i)." + extension, "");
 
         // 合并资源文件
-        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+        S3Config s3Config = appConfigService.getS3Config();
+        S3Util s3Util = new S3Util(s3Config);
         String url = s3Util.merge(req.getFilename(), req.getUploadId());
 
         // 资源素材保存
@@ -133,7 +137,7 @@ public class UploadController {
                         originalFilename,
                         extension,
                         req.getSize(),
-                        BackendConstant.STORAGE_DRIVER_MINIO,
+                        s3Config.getService(),
                         "",
                         req.getFilename(),
                         url);
@@ -142,7 +146,8 @@ public class UploadController {
         if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(type)) {
             // 视频封面素材保存
             Resource posterResource =
-                    uploadService.storeBase64Image(BCtx.getId(), req.getPoster(), null);
+                    uploadService.storeBase64Image(
+                            s3Config.getService(), BCtx.getId(), req.getPoster(), null);
             // 视频的封面素材改为[隐藏 && 属于视频的子素材]
             resourceService.changeParentId(posterResource.getId(), videoResource.getId());
             // 视频信息

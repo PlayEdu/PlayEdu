@@ -16,12 +16,14 @@
 package xyz.playedu.common.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
-
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.constant.ConfigConstant;
 import xyz.playedu.common.domain.AppConfig;
 import xyz.playedu.common.exception.ServiceException;
@@ -30,12 +32,6 @@ import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.types.LdapConfig;
 import xyz.playedu.common.types.config.S3Config;
 import xyz.playedu.common.util.StringUtil;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -102,40 +98,32 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
         Map<String, String> config = keyValues();
 
         S3Config s3Config = new S3Config();
-        s3Config.setAccessKey(config.get(ConfigConstant.MINIO_ACCESS_KEY));
-        s3Config.setSecretKey(config.get(ConfigConstant.MINIO_SECRET_KEY));
-        s3Config.setBucket(config.get(ConfigConstant.MINIO_BUCKET));
-        s3Config.setEndpoint(config.get(ConfigConstant.MINIO_ENDPOINT));
-        s3Config.setDomain(config.get(ConfigConstant.MINIO_DOMAIN));
-        s3Config.setRegion(null);
-        s3Config.setService("minio");
+        s3Config.setAccessKey(config.get(ConfigConstant.S3_ACCESS_KEY));
+        s3Config.setSecretKey(config.get(ConfigConstant.S3_SECRET_KEY));
+        s3Config.setBucket(config.get(ConfigConstant.S3_BUCKET));
+        s3Config.setEndpoint(config.get(ConfigConstant.S3_ENDPOINT));
+        s3Config.setDomain(config.get(ConfigConstant.S3_DOMAIN));
+        s3Config.setService(ConfigConstant.S3_SERVICE);
 
-        if (StringUtil.isEmpty(s3Config.getAccessKey())) {
-            s3Config.setAccessKey(environment.getProperty("MINIO_USERNAME"));
-        }
-        if (StringUtil.isEmpty(s3Config.getSecretKey())) {
-            s3Config.setSecretKey(environment.getProperty("MINIO_PASSWORD"));
-        }
-        if (StringUtil.isEmpty(s3Config.getBucket())) {
-            s3Config.setBucket(environment.getProperty("MINIO_BUCKET"));
-        }
-        if (StringUtil.isEmpty(s3Config.getEndpoint())) {
-            s3Config.setEndpoint(environment.getProperty("MINIO_ENDPOINT"));
-        }
-        if (StringUtil.isEmpty(s3Config.getDomain())) {
-            s3Config.setDomain(environment.getProperty("MINIO_DOMAIN"));
-        }
+        // region解析
+        String region = config.get(ConfigConstant.S3_REGION);
+        s3Config.setRegion(StringUtil.isEmpty(region) ? null : region);
 
-        if (s3Config.getService().equals("minio") && StringUtil.isNotEmpty(s3Config.getDomain())) {
+        if (StringUtil.isNotEmpty(s3Config.getService())
+                && StringUtil.isNotEmpty(s3Config.getDomain())) {
             String _domain = s3Config.getDomain();
+            // 拼接https://前缀
+            if (_domain.length() < 7
+                    || (!"http://".equalsIgnoreCase(_domain.substring(0, 7))
+                            && !"https://".equalsIgnoreCase(_domain.substring(0, 8)))) {
+                _domain = "https://" + _domain;
+            }
+
             // 移除 / 后缀
             if (StringUtil.endsWith(_domain, "/")) {
                 _domain = _domain.substring(0, _domain.length() - 1);
             }
-            // 判断是否携带了bucket
-            if (!StringUtil.endsWith(_domain, s3Config.getBucket())) {
-                _domain += "/" + s3Config.getBucket();
-            }
+
             s3Config.setDomain(_domain);
         }
 

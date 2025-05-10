@@ -11,6 +11,7 @@ import {
   Checkbox,
   Slider,
   Space,
+  Select,
 } from "antd";
 import { appConfig, system } from "../../../api/index";
 import { UploadImageButton } from "../../../compenents";
@@ -31,6 +32,7 @@ const SystemConfigPage = () => {
   const [thumb, setThumb] = useState("");
   const [avatar, setAvatar] = useState("");
   const [tabKey, setTabKey] = useState(1);
+  const [s3Service, setS3Service] = useState("");
   const [nameChecked, setNameChecked] = useState(false);
   const [emailChecked, setEmailChecked] = useState(false);
   const [idCardchecked, setIdCardChecked] = useState(false);
@@ -136,25 +138,34 @@ const SystemConfigPage = () => {
           form.setFieldsValue({
             "member.default_avatar": configData[i].key_value,
           });
-        } else if (configData[i].key_name === "minio.access_key") {
+        } else if (configData[i].key_name === "s3.service") {
           form.setFieldsValue({
-            "minio.access_key": configData[i].key_value,
+            "s3.service": configData[i].key_value,
           });
-        } else if (configData[i].key_name === "minio.secret_key") {
+          setS3Service(configData[i].key_value);
+        } else if (configData[i].key_name === "s3.access_key") {
           form.setFieldsValue({
-            "minio.secret_key": configData[i].key_value,
+            "s3.access_key": configData[i].key_value,
           });
-        } else if (configData[i].key_name === "minio.bucket") {
+        } else if (configData[i].key_name === "s3.secret_key") {
           form.setFieldsValue({
-            "minio.bucket": configData[i].key_value,
+            "s3.secret_key": configData[i].key_value,
           });
-        } else if (configData[i].key_name === "minio.endpoint") {
+        } else if (configData[i].key_name === "s3.bucket") {
           form.setFieldsValue({
-            "minio.endpoint": configData[i].key_value,
+            "s3.bucket": configData[i].key_value,
           });
-        } else if (configData[i].key_name === "minio.domain") {
+        } else if (configData[i].key_name === "s3.region") {
           form.setFieldsValue({
-            "minio.domain": configData[i].key_value,
+            "s3.region": configData[i].key_value,
+          });
+        } else if (configData[i].key_name === "s3.endpoint") {
+          form.setFieldsValue({
+            "s3.endpoint": configData[i].key_value,
+          });
+        } else if (configData[i].key_name === "s3.domain") {
+          form.setFieldsValue({
+            "s3.domain": configData[i].key_value,
           });
         } else if (configData[i].key_name === "ldap.enabled") {
           let value = 0;
@@ -620,7 +631,7 @@ const SystemConfigPage = () => {
     },
     {
       key: "4",
-      label: `MinIO存储`,
+      label: `S3存储`,
       children: (
         <Form
           form={form}
@@ -634,8 +645,26 @@ const SystemConfigPage = () => {
         >
           <Form.Item
             style={{ marginBottom: 30 }}
+            label="服务商"
+            name="s3.service"
+          >
+            <Select
+              defaultValue={null}
+              style={{ width: 200 }}
+              placeholder="请选择服务商"
+              options={[
+                { value: "oss", label: "阿里云OSS" },
+                { value: "cos", label: "腾讯云COS" },
+              ]}
+              onChange={(e: any) => {
+                setS3Service(e);
+              }}
+            />
+          </Form.Item>
+          <Form.Item
+            style={{ marginBottom: 30 }}
             label="AccessKey"
-            name="minio.access_key"
+            name="s3.access_key"
           >
             <Input
               style={{ width: 274 }}
@@ -646,7 +675,7 @@ const SystemConfigPage = () => {
           <Form.Item
             style={{ marginBottom: 30 }}
             label="SecretKey"
-            name="minio.secret_key"
+            name="s3.secret_key"
           >
             <Input
               style={{ width: 274 }}
@@ -657,7 +686,7 @@ const SystemConfigPage = () => {
           <Form.Item
             style={{ marginBottom: 30 }}
             label="Bucket"
-            name="minio.bucket"
+            name="s3.bucket"
           >
             <Input
               style={{ width: 274 }}
@@ -667,8 +696,19 @@ const SystemConfigPage = () => {
           </Form.Item>
           <Form.Item
             style={{ marginBottom: 30 }}
+            label="Region"
+            name="s3.region"
+          >
+            <Input
+              style={{ width: 274 }}
+              allowClear
+              placeholder="请填写Region"
+            />
+          </Form.Item>
+          <Form.Item
+            style={{ marginBottom: 30 }}
             label="Endpoint"
-            name="minio.endpoint"
+            name="s3.endpoint"
           >
             <Input
               style={{ width: 274 }}
@@ -679,7 +719,7 @@ const SystemConfigPage = () => {
           <Form.Item
             style={{ marginBottom: 30 }}
             label="Domain"
-            name="minio.domain"
+            name="s3.domain"
           >
             <Input
               style={{ width: 274 }}

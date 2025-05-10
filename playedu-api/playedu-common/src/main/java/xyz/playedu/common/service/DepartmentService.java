@@ -16,12 +16,10 @@
 package xyz.playedu.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import xyz.playedu.common.domain.Department;
-import xyz.playedu.common.exception.NotFoundException;
-
 import java.util.List;
 import java.util.Map;
+import xyz.playedu.common.domain.Department;
+import xyz.playedu.common.exception.NotFoundException;
 
 /**
  * @author tengteng

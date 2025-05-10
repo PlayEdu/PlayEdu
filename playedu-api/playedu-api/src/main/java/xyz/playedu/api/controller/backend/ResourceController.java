@@ -15,14 +15,14 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.request.backend.ResourceDestroyMultiRequest;
 import xyz.playedu.api.request.backend.ResourceUpdateRequest;
 import xyz.playedu.common.annotation.Log;
@@ -46,9 +46,6 @@ import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.domain.ResourceVideo;
 import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.ResourceVideoService;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/backend/v1/resource")

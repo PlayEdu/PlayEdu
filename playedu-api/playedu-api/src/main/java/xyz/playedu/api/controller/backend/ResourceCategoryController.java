@@ -15,11 +15,12 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.event.ResourceCategoryDestroyEvent;
 import xyz.playedu.api.request.backend.ResourceCategoryParentRequest;
 import xyz.playedu.api.request.backend.ResourceCategoryRequest;
@@ -39,9 +40,6 @@ import xyz.playedu.course.service.CourseService;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceCategoryService;
 import xyz.playedu.resource.service.ResourceService;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -128,7 +126,7 @@ public class ResourceCategoryController {
         data.put("videos", new ArrayList<>());
         data.put("images", new ArrayList<>());
 
-        if (courseIds != null && courseIds.size() > 0) {
+        if (courseIds != null && !courseIds.isEmpty()) {
             data.put(
                     "courses",
                     courseService.chunks(
@@ -141,7 +139,7 @@ public class ResourceCategoryController {
                             }));
         }
 
-        if (rids != null && rids.size() > 0) {
+        if (rids != null && !rids.isEmpty()) {
             Map<String, List<Resource>> resources =
                     resourceService
                             .chunks(

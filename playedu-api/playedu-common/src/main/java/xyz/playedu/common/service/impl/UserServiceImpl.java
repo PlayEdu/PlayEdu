@@ -16,13 +16,13 @@
 package xyz.playedu.common.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import xyz.playedu.common.constant.SystemConstant;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.domain.UserDepartment;
@@ -34,10 +34,6 @@ import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.UserPaginateFilter;
 import xyz.playedu.common.util.HelperUtil;
-
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author tengteng

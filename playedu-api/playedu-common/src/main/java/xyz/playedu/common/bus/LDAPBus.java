@@ -15,11 +15,15 @@
  */
 package xyz.playedu.common.bus;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.naming.NamingException;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.domain.LdapDepartment;
 import xyz.playedu.common.domain.LdapUser;
@@ -31,14 +35,6 @@ import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.ldap.LdapTransformDepartment;
 import xyz.playedu.common.util.ldap.LdapTransformUser;
 import xyz.playedu.common.util.ldap.LdapUtil;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.naming.NamingException;
 
 @Component
 @Slf4j

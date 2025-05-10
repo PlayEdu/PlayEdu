@@ -15,9 +15,11 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.request.backend.AppConfigRequest;
 import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
@@ -29,10 +31,6 @@ import xyz.playedu.common.domain.AppConfig;
 import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.StringUtil;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 @RestController
 @RequestMapping("/backend/v1/app-config")

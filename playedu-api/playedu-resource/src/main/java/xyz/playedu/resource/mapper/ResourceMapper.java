@@ -16,13 +16,10 @@
 package xyz.playedu.resource.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-
 import xyz.playedu.common.types.paginate.ResourcePaginateFilter;
 import xyz.playedu.resource.domain.Resource;
-
-import java.util.List;
 
 /**
  * @author tengteng

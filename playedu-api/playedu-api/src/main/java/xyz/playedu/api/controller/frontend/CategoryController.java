@@ -15,18 +15,16 @@
  */
 package xyz.playedu.api.controller.frontend;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import xyz.playedu.common.domain.Category;
 import xyz.playedu.common.service.CategoryService;
 import xyz.playedu.common.types.JsonResponse;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/category")

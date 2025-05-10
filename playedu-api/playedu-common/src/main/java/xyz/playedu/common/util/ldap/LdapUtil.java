@@ -15,15 +15,8 @@
  */
 package xyz.playedu.common.util.ldap;
 
-import lombok.extern.slf4j.Slf4j;
-
-import xyz.playedu.common.exception.ServiceException;
-import xyz.playedu.common.types.LdapConfig;
-import xyz.playedu.common.util.StringUtil;
-
 import java.io.IOException;
 import java.util.*;
-
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -32,6 +25,10 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.*;
+import lombok.extern.slf4j.Slf4j;
+import xyz.playedu.common.exception.ServiceException;
+import xyz.playedu.common.types.LdapConfig;
+import xyz.playedu.common.util.StringUtil;
 
 @Slf4j
 public class LdapUtil {

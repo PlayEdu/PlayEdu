@@ -15,14 +15,12 @@
  */
 package xyz.playedu.common.service.impl;
 
+import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.constant.SystemConstant;
 import xyz.playedu.common.service.AuthService;
 import xyz.playedu.common.service.FrontendAuthService;
-
-import java.util.HashMap;
 
 @Service
 public class FrontendAuthServiceImpl implements FrontendAuthService {

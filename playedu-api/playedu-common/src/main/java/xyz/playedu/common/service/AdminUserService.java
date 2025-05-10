@@ -16,15 +16,13 @@
 package xyz.playedu.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
+import java.util.List;
+import java.util.Map;
 import xyz.playedu.common.domain.AdminUser;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.types.paginate.AdminUserPaginateFilter;
 import xyz.playedu.common.types.paginate.PaginationResult;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author tengteng

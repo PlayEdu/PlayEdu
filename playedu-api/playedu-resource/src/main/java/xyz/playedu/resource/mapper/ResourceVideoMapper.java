@@ -16,9 +16,7 @@
 package xyz.playedu.resource.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-
 import org.apache.ibatis.annotations.Mapper;
-
 import xyz.playedu.resource.domain.ResourceVideo;
 
 /**

@@ -16,20 +16,15 @@
 package xyz.playedu.course.service.impl;
 
 import cn.hutool.core.date.DateTime;
-
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
-import lombok.SneakyThrows;
-
-import org.springframework.stereotype.Service;
-
-import xyz.playedu.course.domain.UserLearnDurationStats;
-import xyz.playedu.course.mapper.UserLearnDurationStatsMapper;
-import xyz.playedu.course.service.UserLearnDurationStatsService;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import lombok.SneakyThrows;
+import org.springframework.stereotype.Service;
+import xyz.playedu.course.domain.UserLearnDurationStats;
+import xyz.playedu.course.mapper.UserLearnDurationStatsMapper;
+import xyz.playedu.course.service.UserLearnDurationStatsService;
 
 /**
  * @author tengteng

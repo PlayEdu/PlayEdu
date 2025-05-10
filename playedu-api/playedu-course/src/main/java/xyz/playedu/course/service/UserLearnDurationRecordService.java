@@ -16,7 +16,6 @@
 package xyz.playedu.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
 import xyz.playedu.course.domain.UserLearnDurationRecord;
 
 /**

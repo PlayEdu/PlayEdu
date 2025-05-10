@@ -16,10 +16,8 @@
 package xyz.playedu.resource.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import xyz.playedu.resource.domain.ResourceVideo;
-
 import java.util.List;
+import xyz.playedu.resource.domain.ResourceVideo;
 
 /**
  * @author tengteng

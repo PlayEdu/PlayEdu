@@ -18,7 +18,6 @@ package xyz.playedu.api.listener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.api.event.CourseHourDestroyEvent;
 import xyz.playedu.course.service.CourseHourService;
 import xyz.playedu.course.service.CourseService;

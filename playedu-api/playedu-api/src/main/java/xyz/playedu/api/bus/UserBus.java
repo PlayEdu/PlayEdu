@@ -15,11 +15,9 @@
  */
 package xyz.playedu.api.bus;
 
-import org.springframework.stereotype.Component;
-
-import xyz.playedu.common.constant.ConfigConstant;
-
 import java.util.Map;
+import org.springframework.stereotype.Component;
+import xyz.playedu.common.constant.ConfigConstant;
 
 @Component
 public class UserBus {

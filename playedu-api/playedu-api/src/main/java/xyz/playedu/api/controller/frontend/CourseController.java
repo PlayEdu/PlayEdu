@@ -15,11 +15,15 @@
  */
 package xyz.playedu.api.controller.frontend;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.IpUtil;
@@ -27,13 +31,6 @@ import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceService;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司

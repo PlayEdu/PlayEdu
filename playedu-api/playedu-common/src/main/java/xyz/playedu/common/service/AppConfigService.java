@@ -16,14 +16,12 @@
 package xyz.playedu.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import xyz.playedu.common.domain.AppConfig;
-import xyz.playedu.common.types.LdapConfig;
-import xyz.playedu.common.types.config.S3Config;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import xyz.playedu.common.domain.AppConfig;
+import xyz.playedu.common.types.LdapConfig;
+import xyz.playedu.common.types.config.S3Config;
 
 public interface AppConfigService extends IService<AppConfig> {
 

@@ -17,14 +17,13 @@ package xyz.playedu.api.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-
 import xyz.playedu.common.bus.BackendBus;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.AdminUser;
@@ -33,9 +32,6 @@ import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.service.BackendAuthService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.HelperUtil;
-
-import java.io.IOException;
-import java.util.Map;
 
 @Component
 @Slf4j

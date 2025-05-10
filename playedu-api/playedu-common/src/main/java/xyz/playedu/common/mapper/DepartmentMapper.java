@@ -16,13 +16,10 @@
 package xyz.playedu.common.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.types.mapper.DepartmentsUserCountMapRes;
-
-import java.util.List;
 
 /**
  * @author tengteng

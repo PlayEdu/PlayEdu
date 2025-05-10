@@ -21,36 +21,28 @@ public class BPermissionConstant {
     public static final String TYPE_DATA = "data";
 
     public static final String PASSWORD_CHANGE = "password-change";
-
     public static final String ADMIN_USER_INDEX = "admin-user-index";
     public static final String ADMIN_USER_CUD = "admin-user-cud";
-
     public static final String ADMIN_ROLE = "admin-role";
-
     public static final String ADMIN_LOG = "admin-log";
-
     public static final String DEPARTMENT_CUD = "department-cud";
     public static final String DEPARTMENT_USER_LEARN = "department-user-learn";
-
     public static final String USER_INDEX = "user-index";
     public static final String USER_STORE = "user-store";
     public static final String USER_UPDATE = "user-update";
     public static final String USER_DESTROY = "user-destroy";
     public static final String USER_LEARN = "user-learn";
     public static final String USER_LEARN_DESTROY = "user-learn-destroy";
-
     public static final String COURSE = "course";
     public static final String COURSE_CUD = "course-cud";
     public static final String COURSE_USER = "course-user";
     public static final String COURSE_USER_DESTROY = "course-user-destroy";
-
     public static final String RESOURCE_CATEGORY = "resource-category";
     public static final String RESOURCE_CATEGORY_MENU = "resource-category-menu";
     public static final String RESOURCE_MENU = "resource-menu";
-
     public static final String SYSTEM_CONFIG = "system-config";
-
     public static final String UPLOAD = "upload";
+    public static final String CACHE_MANAGE = "cache-manage";
 
     // ##### 友情分割线 ##################################################
 

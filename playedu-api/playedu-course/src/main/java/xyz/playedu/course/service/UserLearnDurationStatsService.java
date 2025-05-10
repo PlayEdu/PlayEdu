@@ -16,10 +16,8 @@
 package xyz.playedu.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import xyz.playedu.course.domain.UserLearnDurationStats;
-
 import java.util.List;
+import xyz.playedu.course.domain.UserLearnDurationStats;
 
 /**
  * @author tengteng

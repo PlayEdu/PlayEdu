@@ -16,13 +16,10 @@
 package xyz.playedu.api.event;
 
 import cn.hutool.http.useragent.UserAgent;
-
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
-
 import org.springframework.context.ApplicationEvent;
-
-import java.util.Date;
 
 /**
  * @Author 杭州白书科技有限公司

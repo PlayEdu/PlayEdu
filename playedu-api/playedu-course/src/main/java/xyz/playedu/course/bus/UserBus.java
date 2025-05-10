@@ -15,19 +15,17 @@
  */
 package xyz.playedu.course.bus;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserService;
 import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.service.CourseService;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @Author 杭州白书科技有限公司

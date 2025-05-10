@@ -16,19 +16,16 @@
 package xyz.playedu.course.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.UserCourseRecordPaginateFilter;
 import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.course.mapper.UserCourseRecordMapper;
 import xyz.playedu.course.service.UserCourseRecordService;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author tengteng

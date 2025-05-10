@@ -15,9 +15,8 @@
  */
 package xyz.playedu.common.annotation;
 
-import xyz.playedu.common.constant.BusinessTypeConstant;
-
 import java.lang.annotation.*;
+import xyz.playedu.common.constant.BusinessTypeConstant;
 
 @Target({ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

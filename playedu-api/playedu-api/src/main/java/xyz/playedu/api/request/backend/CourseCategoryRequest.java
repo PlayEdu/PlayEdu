@@ -16,16 +16,12 @@
 package xyz.playedu.api.request.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import lombok.Data;
-
-import org.hibernate.validator.constraints.Length;
-
 import java.io.Serial;
 import java.io.Serializable;
+import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * @Author 杭州白书科技有限公司

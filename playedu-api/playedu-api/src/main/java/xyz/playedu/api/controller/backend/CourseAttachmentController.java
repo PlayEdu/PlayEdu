@@ -15,13 +15,12 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.request.backend.CourseAttachmentMultiRequest;
 import xyz.playedu.api.request.backend.CourseAttachmentRequest;
 import xyz.playedu.api.request.backend.CourseAttachmentSortRequest;
@@ -34,8 +33,6 @@ import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.course.domain.CourseAttachment;
 import xyz.playedu.course.service.CourseAttachmentService;
-
-import java.util.*;
 
 @RestController
 @Slf4j
@@ -65,9 +62,8 @@ public class CourseAttachmentController {
             }
         }
 
-        CourseAttachment courseAttachment =
-                attachmentService.create(
-                        courseId, req.getSort(), req.getTitle(), type, req.getRid());
+        attachmentService.create(courseId, req.getSort(), req.getTitle(), type, req.getRid());
+
         return JsonResponse.success();
     }
 
@@ -78,7 +74,7 @@ public class CourseAttachmentController {
     public JsonResponse storeMulti(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseAttachmentMultiRequest req) {
-        if (req.getAttachments().size() == 0) {
+        if (req.getAttachments().isEmpty()) {
             return JsonResponse.error("参数为空");
         }
 

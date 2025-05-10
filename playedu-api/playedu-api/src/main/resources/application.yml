@@ -21,20 +21,6 @@ spring:
       minimum-idle: 1       # 最小连接数
       maximum-pool-size: 10 # 最大连接数
       auto-commit: true     # 自动提交
-  # Redis配置
-  data:
-    redis:
-      host: "127.0.0.1"
-      port: 6379
-      password:
-      database: 0
-      timeout: 5000
-      lettuce:
-        pool:
-          max-wait: 30000 # 连接池最大阻塞等待时间(使用负数表示没有限制,默认-1)
-          max-active: 100 # 连接池最大连接数(使用负数表示没有限制,默认8)
-          max-idle: 20    # 连接池中的最大空闲连接(默认8)
-          min-idle: 1     # 连接池中的最小空闲连接(默认0)
   # 线程池配置
   task:
     execution:

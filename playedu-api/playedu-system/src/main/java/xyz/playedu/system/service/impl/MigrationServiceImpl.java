@@ -16,14 +16,11 @@
 package xyz.playedu.system.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.List;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.system.domain.Migration;
 import xyz.playedu.system.mapper.MigrationMapper;
 import xyz.playedu.system.service.MigrationService;
-
-import java.util.List;
 
 /**
  * @author tengyongzhi

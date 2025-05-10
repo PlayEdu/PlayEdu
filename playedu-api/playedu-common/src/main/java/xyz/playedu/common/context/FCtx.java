@@ -15,9 +15,8 @@
  */
 package xyz.playedu.common.context;
 
-import xyz.playedu.common.domain.User;
-
 import java.util.LinkedHashMap;
+import xyz.playedu.common.domain.User;
 
 public class FCtx {
     private static final ThreadLocal<LinkedHashMap<String, Object>> THREAD_LOCAL =

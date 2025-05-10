@@ -17,14 +17,12 @@ package xyz.playedu.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.springframework.util.DigestUtils;
-
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import org.springframework.util.DigestUtils;
 
 public class HelperUtil {
 

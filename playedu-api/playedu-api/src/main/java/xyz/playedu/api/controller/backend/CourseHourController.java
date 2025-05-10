@@ -15,14 +15,13 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.event.CourseHourCreatedEvent;
 import xyz.playedu.api.event.CourseHourDestroyEvent;
 import xyz.playedu.api.request.backend.CourseHourMultiRequest;
@@ -41,8 +40,6 @@ import xyz.playedu.course.domain.CourseChapter;
 import xyz.playedu.course.domain.CourseHour;
 import xyz.playedu.course.service.CourseChapterService;
 import xyz.playedu.course.service.CourseHourService;
-
-import java.util.*;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -135,7 +132,7 @@ public class CourseHourController {
     public JsonResponse storeMulti(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseHourMultiRequest req) {
-        if (req.getHours().size() == 0) {
+        if (req.getHours().isEmpty()) {
             return JsonResponse.error("参数为空");
         }
 

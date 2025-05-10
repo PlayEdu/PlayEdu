@@ -15,13 +15,12 @@
  */
 package xyz.playedu.resource.service.impl;
 
+import java.util.Date;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.FrontendConstant;
 import xyz.playedu.common.domain.UserUploadImageLog;
@@ -35,8 +34,6 @@ import xyz.playedu.common.util.S3Util;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.UploadService;
-
-import java.util.Date;
 
 @Service
 @Slf4j
@@ -93,7 +90,8 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     @SneakyThrows
-    public Resource storeMinio(Integer adminId, MultipartFile file, String categoryIds) {
+    public Resource storeMinio(
+            String disk, Integer adminId, MultipartFile file, String categoryIds) {
         UploadFileInfo info = upload(file, null);
 
         return resourceService.create(
@@ -103,7 +101,7 @@ public class UploadServiceImpl implements UploadService {
                 info.getOriginalName(),
                 info.getExtension(),
                 file.getSize(),
-                BackendConstant.STORAGE_DRIVER_MINIO,
+                disk,
                 "",
                 info.getSavePath(),
                 info.getUrl());
@@ -111,7 +109,8 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     @SneakyThrows
-    public Resource storeBase64Image(Integer adminId, String content, String categoryIds) {
+    public Resource storeBase64Image(
+            String disk, Integer adminId, String content, String categoryIds) {
         // data:image/jpeg;base64,
         String[] base64Rows = content.split(",");
         // 解析出content-type
@@ -143,7 +142,7 @@ public class UploadServiceImpl implements UploadService {
                 filename,
                 ext,
                 (long) binary.length,
-                BackendConstant.STORAGE_DRIVER_MINIO,
+                disk,
                 "",
                 savePath,
                 url);
@@ -152,14 +151,14 @@ public class UploadServiceImpl implements UploadService {
     @Override
     @SneakyThrows
     public UserUploadImageLog userAvatar(
-            Integer userId, MultipartFile file, String typed, String scene) {
+            String disk, Integer userId, MultipartFile file, String typed, String scene) {
         UploadFileInfo info = upload(file, FrontendConstant.DIR_AVATAR);
         UserUploadImageLog log = new UserUploadImageLog();
         log.setUserId(userId);
         log.setTyped(typed);
         log.setScene(scene);
         log.setSize(info.getSize());
-        log.setDriver(BackendConstant.STORAGE_DRIVER_MINIO);
+        log.setDriver(disk);
         log.setPath(info.getSavePath());
         log.setUrl(info.getUrl());
         log.setName(info.getOriginalName());

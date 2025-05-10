@@ -23,21 +23,17 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
-
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.web.multipart.MultipartFile;
-
-import xyz.playedu.common.exception.ServiceException;
-import xyz.playedu.common.types.config.S3Config;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
+import xyz.playedu.common.exception.ServiceException;
+import xyz.playedu.common.types.config.S3Config;
 
 @Slf4j
 public class S3Util {
@@ -57,14 +53,6 @@ public class S3Util {
         return this;
     }
 
-    public boolean configIsEmpty() {
-        return defaultConfig == null
-                || StringUtil.isEmpty(defaultConfig.getDomain())
-                || StringUtil.isEmpty(defaultConfig.getEndpoint())
-                || StringUtil.isEmpty(defaultConfig.getAccessKey())
-                || StringUtil.isEmpty(defaultConfig.getSecretKey());
-    }
-
     @SneakyThrows
     private AmazonS3 getClient() {
         if (defaultConfig == null) {
@@ -78,8 +66,6 @@ public class S3Util {
                         defaultConfig.getEndpoint(), defaultConfig.getRegion());
 
         AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
-        // 开启路径访问
-        builder.setPathStyleAccessEnabled(true);
 
         return builder.withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withEndpointConfiguration(endpointConfiguration)
@@ -170,9 +156,6 @@ public class S3Util {
     }
 
     public String generateEndpointPreSignUrl(String path) {
-        if (defaultConfig.getService().equals("minio")) {
-            return defaultConfig.getDomain() + "/" + path;
-        }
-        return "";
+        return defaultConfig.getDomain() + "/" + path;
     }
 }

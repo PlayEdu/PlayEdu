@@ -16,8 +16,7 @@
 package xyz.playedu.course.caches;
 
 import org.springframework.stereotype.Component;
-
-import xyz.playedu.common.util.RedisUtil;
+import xyz.playedu.common.util.MemoryCacheUtil;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -32,10 +31,10 @@ public class UserLastLearnTimeCache {
     private static final int expire = 9500; // 9.5s
 
     public Long get(Integer userId) {
-        return (Long) RedisUtil.hGet(groupName, userId + "");
+        return (Long) MemoryCacheUtil.hGet(groupName, userId + "");
     }
 
     public void put(Integer userId, Long timestamp) {
-        RedisUtil.hSet(groupName, userId + "", timestamp);
+        MemoryCacheUtil.hSet(groupName, userId + "", timestamp);
     }
 }

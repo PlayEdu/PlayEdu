@@ -15,19 +15,16 @@
  */
 package xyz.playedu.api.listener;
 
+import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.api.event.UserLoginEvent;
 import xyz.playedu.common.service.FrontendAuthService;
 import xyz.playedu.common.service.UserLoginRecordService;
 import xyz.playedu.common.util.IpUtil;
-
-import java.util.HashMap;
 
 @Component
 @Slf4j

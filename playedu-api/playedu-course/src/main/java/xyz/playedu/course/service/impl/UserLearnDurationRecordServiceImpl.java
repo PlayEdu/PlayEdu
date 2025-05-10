@@ -16,17 +16,13 @@
 package xyz.playedu.course.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import lombok.SneakyThrows;
-
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.course.domain.UserLearnDurationRecord;
 import xyz.playedu.course.mapper.UserLearnDurationRecordMapper;
 import xyz.playedu.course.service.UserLearnDurationRecordService;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * @author tengteng

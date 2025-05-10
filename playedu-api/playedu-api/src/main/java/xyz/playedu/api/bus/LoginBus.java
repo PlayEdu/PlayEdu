@@ -15,13 +15,12 @@
  */
 package xyz.playedu.api.bus;
 
+import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import xyz.playedu.api.event.UserLoginEvent;
 import xyz.playedu.common.bus.LDAPBus;
 import xyz.playedu.common.domain.User;
@@ -30,8 +29,6 @@ import xyz.playedu.common.service.*;
 import xyz.playedu.common.util.IpUtil;
 import xyz.playedu.common.util.RequestUtil;
 import xyz.playedu.common.util.ldap.LdapTransformUser;
-
-import java.util.HashMap;
 
 @Component
 @Slf4j

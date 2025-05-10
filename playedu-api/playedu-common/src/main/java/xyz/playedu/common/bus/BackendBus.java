@@ -15,9 +15,10 @@
  */
 package xyz.playedu.common.bus;
 
+import java.util.HashMap;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.AdminRole;
@@ -25,9 +26,6 @@ import xyz.playedu.common.service.AdminPermissionService;
 import xyz.playedu.common.service.AdminRoleService;
 import xyz.playedu.common.service.AdminUserService;
 import xyz.playedu.common.util.PrivacyUtil;
-
-import java.util.HashMap;
-import java.util.List;
 
 @Component
 public class BackendBus {

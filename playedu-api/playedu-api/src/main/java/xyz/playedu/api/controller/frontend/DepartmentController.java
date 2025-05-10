@@ -15,14 +15,12 @@
  */
 package xyz.playedu.api.controller.frontend;
 
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.types.JsonResponse;
-
-import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司

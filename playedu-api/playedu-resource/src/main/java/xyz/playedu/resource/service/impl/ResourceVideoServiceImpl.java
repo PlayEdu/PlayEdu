@@ -16,16 +16,13 @@
 package xyz.playedu.resource.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
-import org.springframework.stereotype.Service;
-
-import xyz.playedu.resource.domain.ResourceVideo;
-import xyz.playedu.resource.mapper.ResourceVideoMapper;
-import xyz.playedu.resource.service.ResourceVideoService;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import xyz.playedu.resource.domain.ResourceVideo;
+import xyz.playedu.resource.mapper.ResourceVideoMapper;
+import xyz.playedu.resource.service.ResourceVideoService;
 
 /**
  * @author tengteng

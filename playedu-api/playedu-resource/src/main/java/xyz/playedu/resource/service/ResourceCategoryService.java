@@ -16,10 +16,8 @@
 package xyz.playedu.resource.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import xyz.playedu.resource.domain.ResourceCategory;
-
 import java.util.List;
+import xyz.playedu.resource.domain.ResourceCategory;
 
 public interface ResourceCategoryService extends IService<ResourceCategory> {
     void rebuild(Integer resourceId, List<Integer> categoryIds);

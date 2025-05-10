@@ -16,7 +16,6 @@
 package xyz.playedu.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-
 import xyz.playedu.system.domain.Migration;
 
 /**

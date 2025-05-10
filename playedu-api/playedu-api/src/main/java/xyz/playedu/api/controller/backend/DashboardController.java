@@ -15,11 +15,15 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
@@ -31,12 +35,6 @@ import xyz.playedu.course.domain.UserLearnDurationStats;
 import xyz.playedu.course.service.CourseService;
 import xyz.playedu.course.service.UserLearnDurationStatsService;
 import xyz.playedu.resource.service.ResourceService;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司

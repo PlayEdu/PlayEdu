@@ -15,15 +15,17 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
 import xyz.playedu.api.request.backend.CourseUserDestroyRequest;
 import xyz.playedu.common.annotation.BackendPermission;
@@ -41,11 +43,6 @@ import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.course.service.CourseService;
 import xyz.playedu.course.service.UserCourseHourRecordService;
 import xyz.playedu.course.service.UserCourseRecordService;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -102,7 +99,7 @@ public class CourseUserController {
                     });
         } else { // 默认读取课程关联的全部部门
             List<Integer> depIds = courseService.getDepIdsByCourseId(courseId);
-            if (depIds != null && depIds.size() > 0) {
+            if (depIds != null && !depIds.isEmpty()) {
                 filter.setDepIds(depIds);
             }
         }
@@ -159,7 +156,7 @@ public class CourseUserController {
     public JsonResponse destroy(
             @PathVariable(name = "courseId") Integer courseId,
             @RequestBody @Validated CourseUserDestroyRequest req) {
-        if (req.getIds().size() == 0) {
+        if (req.getIds().isEmpty()) {
             return JsonResponse.error("请选择需要删除的数据");
         }
         List<UserCourseRecord> records =

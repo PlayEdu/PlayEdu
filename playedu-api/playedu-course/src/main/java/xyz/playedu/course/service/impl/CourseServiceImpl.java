@@ -16,13 +16,12 @@
 package xyz.playedu.course.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.types.paginate.CoursePaginateFiler;
 import xyz.playedu.common.types.paginate.PaginationResult;
@@ -34,9 +33,6 @@ import xyz.playedu.course.mapper.CourseMapper;
 import xyz.playedu.course.service.CourseCategoryService;
 import xyz.playedu.course.service.CourseDepartmentService;
 import xyz.playedu.course.service.CourseService;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author tengteng

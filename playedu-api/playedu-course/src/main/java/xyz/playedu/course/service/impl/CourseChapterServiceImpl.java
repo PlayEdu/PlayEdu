@@ -16,17 +16,14 @@
 package xyz.playedu.course.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.course.domain.CourseChapter;
 import xyz.playedu.course.mapper.CourseChapterMapper;
 import xyz.playedu.course.service.CourseChapterService;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author tengteng

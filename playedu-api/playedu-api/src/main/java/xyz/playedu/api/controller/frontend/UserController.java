@@ -15,15 +15,15 @@
  */
 package xyz.playedu.api.controller.frontend;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
 import xyz.playedu.common.constant.FrontendConstant;
 import xyz.playedu.common.context.FCtx;
@@ -32,6 +32,7 @@ import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.domain.UserUploadImageLog;
 import xyz.playedu.common.exception.ServiceException;
+import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.service.CategoryService;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserService;
@@ -42,9 +43,6 @@ import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
 import xyz.playedu.resource.service.UploadService;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -69,6 +67,8 @@ public class UserController {
 
     @Autowired private CategoryService categoryService;
 
+    @Autowired private AppConfigService appConfigService;
+
     @GetMapping("/detail")
     public JsonResponse detail() {
         User user = FCtx.getUser();
@@ -91,6 +91,7 @@ public class UserController {
     public JsonResponse changeAvatar(MultipartFile file) {
         UserUploadImageLog log =
                 uploadService.userAvatar(
+                        appConfigService.getS3Config().getService(),
                         FCtx.getId(),
                         file,
                         FrontendConstant.USER_UPLOAD_IMAGE_TYPE_AVATAR,

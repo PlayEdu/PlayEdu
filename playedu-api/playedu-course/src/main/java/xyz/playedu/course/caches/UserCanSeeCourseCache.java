@@ -15,16 +15,14 @@
  */
 package xyz.playedu.course.caches;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import xyz.playedu.common.exception.ServiceException;
-import xyz.playedu.common.util.RedisUtil;
-import xyz.playedu.common.util.StringUtil;
-import xyz.playedu.course.bus.UserBus;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import xyz.playedu.common.exception.ServiceException;
+import xyz.playedu.common.util.MemoryCacheUtil;
+import xyz.playedu.common.util.StringUtil;
+import xyz.playedu.course.bus.UserBus;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -43,8 +41,8 @@ public class UserCanSeeCourseCache {
     public boolean check(Integer userId, Integer courseId, boolean isThrow)
             throws ServiceException {
         boolean result;
-        if (RedisUtil.exists(key(userId, courseId))) {
-            String cacheResult = (String) RedisUtil.get(key(userId, courseId));
+        if (MemoryCacheUtil.exists(key(userId, courseId))) {
+            String cacheResult = (String) MemoryCacheUtil.get(key(userId, courseId));
             result = "1".equals(cacheResult);
         } else {
             result = userBus.canSeeCourse(userId, courseId);
@@ -57,7 +55,7 @@ public class UserCanSeeCourseCache {
     }
 
     public void put(Integer userId, Integer courseId, boolean result) {
-        RedisUtil.set(key(userId, courseId), result ? "1" : "0", expire);
+        MemoryCacheUtil.set(key(userId, courseId), result ? "1" : "0", expire);
     }
 
     public void destroy(List<Integer> userIds, Integer courseId) {
@@ -66,7 +64,7 @@ public class UserCanSeeCourseCache {
             for (Integer userId : userIds) {
                 keyList.add(key(userId, courseId));
             }
-            RedisUtil.del(keyList.toArray(new String[keyList.size()]));
+            MemoryCacheUtil.del(keyList.toArray(new String[keyList.size()]));
         }
     }
 

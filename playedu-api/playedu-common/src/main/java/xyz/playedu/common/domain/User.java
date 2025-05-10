@@ -22,15 +22,12 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.io.Serializable;
+import java.util.Date;
 import lombok.Data;
-
 import xyz.playedu.common.bus.BackendBus;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BackendConstant;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @TableName users

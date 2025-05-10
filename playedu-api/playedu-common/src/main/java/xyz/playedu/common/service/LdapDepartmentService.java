@@ -16,10 +16,8 @@
 package xyz.playedu.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import xyz.playedu.common.domain.LdapDepartment;
-
 import java.util.List;
+import xyz.playedu.common.domain.LdapDepartment;
 
 public interface LdapDepartmentService extends IService<LdapDepartment> {
 

@@ -16,10 +16,8 @@
 package xyz.playedu.common.types.mapper;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.Data;
-
 import java.util.Date;
+import lombok.Data;
 
 /**
  * @Author 杭州白书科技有限公司

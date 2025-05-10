@@ -15,9 +15,8 @@
  */
 package xyz.playedu.api.request.backend;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class ResourceDestroyMultiRequest {

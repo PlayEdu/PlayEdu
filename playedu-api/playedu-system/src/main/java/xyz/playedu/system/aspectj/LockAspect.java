@@ -15,44 +15,43 @@
  */
 package xyz.playedu.system.aspectj;
 
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.common.annotation.Lock;
 import xyz.playedu.common.exception.LimitException;
-import xyz.playedu.common.util.RedisDistributedLock;
-
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
+import xyz.playedu.common.util.MemoryDistributedLock;
 
 @Aspect
 @Component
 public class LockAspect {
-    private final RedisDistributedLock redisDistributedLock;
+    @Autowired private MemoryDistributedLock distributedLock;
 
-    public LockAspect(RedisDistributedLock redisDistributedLock) {
-        this.redisDistributedLock = redisDistributedLock;
+    public LockAspect(MemoryDistributedLock distributedLock) {
+        this.distributedLock = distributedLock;
     }
 
     @Around("@annotation(xyz.playedu.common.annotation.Lock)")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
-        Lock distributedLock = method.getAnnotation(Lock.class);
-        String key = distributedLock.key();
-        long expire = distributedLock.expire();
-        TimeUnit timeUnit = distributedLock.timeUnit();
-        boolean success = redisDistributedLock.tryLock(key, expire, timeUnit);
+        Lock lock = method.getAnnotation(Lock.class);
+        String key = lock.key();
+        long expire = lock.expire();
+        TimeUnit timeUnit = lock.timeUnit();
+        boolean success = distributedLock.tryLock(key, expire, timeUnit);
         if (!success) {
             throw new LimitException("请稍后再试");
         }
         try {
             return joinPoint.proceed();
         } finally {
-            redisDistributedLock.releaseLock(key);
+            distributedLock.releaseLock(key);
         }
     }
 }

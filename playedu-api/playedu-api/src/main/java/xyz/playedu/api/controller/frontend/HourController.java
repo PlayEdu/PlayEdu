@@ -15,20 +15,19 @@
  */
 package xyz.playedu.api.controller.frontend;
 
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.event.UserCourseHourFinishedEvent;
 import xyz.playedu.api.event.UserLearnCourseUpdateEvent;
 import xyz.playedu.api.request.frontend.CourseHourRecordRequest;
 import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.types.JsonResponse;
-import xyz.playedu.common.util.RedisDistributedLock;
-import xyz.playedu.course.caches.CourseCache;
+import xyz.playedu.common.util.MemoryDistributedLock;
 import xyz.playedu.course.caches.UserCanSeeCourseCache;
 import xyz.playedu.course.caches.UserLastLearnTimeCache;
 import xyz.playedu.course.domain.Course;
@@ -39,9 +38,6 @@ import xyz.playedu.course.service.CourseService;
 import xyz.playedu.course.service.UserCourseHourRecordService;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceService;
-
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -62,9 +58,8 @@ public class HourController {
 
     // ------- CACHE ----------
     @Autowired private UserCanSeeCourseCache userCanSeeCourseCache;
-    @Autowired private CourseCache courseCache;
 
-    @Autowired private RedisDistributedLock redisDistributedLock;
+    @Autowired private MemoryDistributedLock distributedLock;
 
     @Autowired private UserLastLearnTimeCache userLastLearnTimeCache;
 
@@ -125,7 +120,7 @@ public class HourController {
 
         // 获取锁
         String lockKey = String.format("record:%d", FCtx.getId());
-        boolean tryLock = redisDistributedLock.tryLock(lockKey, 5, TimeUnit.SECONDS);
+        boolean tryLock = distributedLock.tryLock(lockKey, 5, TimeUnit.SECONDS);
         if (!tryLock) {
             return JsonResponse.success();
         }
@@ -141,7 +136,7 @@ public class HourController {
             }
         } finally {
             // 此处未考虑上面代码执行失败释放锁
-            redisDistributedLock.releaseLock(lockKey);
+            distributedLock.releaseLock(lockKey);
         }
 
         return JsonResponse.success();
@@ -156,7 +151,7 @@ public class HourController {
 
         // 获取锁
         String lockKey = String.format("ping:%d", FCtx.getId());
-        boolean tryLock = redisDistributedLock.tryLock(lockKey, 5, TimeUnit.SECONDS);
+        boolean tryLock = distributedLock.tryLock(lockKey, 5, TimeUnit.SECONDS);
         if (!tryLock) {
             return JsonResponse.success();
         }
@@ -178,7 +173,7 @@ public class HourController {
                             this, FCtx.getId(), courseId, id, lastTime, curTime));
         } finally {
             // 此处未考虑上面代码执行失败释放锁
-            redisDistributedLock.releaseLock(lockKey);
+            distributedLock.releaseLock(lockKey);
         }
 
         return JsonResponse.success();

@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.event.CourseChapterDestroyEvent;
 import xyz.playedu.api.request.backend.CourseChapterRequest;
 import xyz.playedu.api.request.backend.CourseChapterSortRequest;

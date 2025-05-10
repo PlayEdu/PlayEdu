@@ -15,9 +15,9 @@
  */
 package xyz.playedu.api.controller.frontend;
 
+import java.util.HashMap;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import xyz.playedu.api.bus.LoginBus;
 import xyz.playedu.api.cache.LoginLimitCache;
 import xyz.playedu.api.cache.LoginLockCache;
@@ -42,8 +41,6 @@ import xyz.playedu.common.types.LdapConfig;
 import xyz.playedu.common.util.*;
 import xyz.playedu.common.util.ldap.LdapTransformUser;
 import xyz.playedu.common.util.ldap.LdapUtil;
-
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/v1/auth/login")

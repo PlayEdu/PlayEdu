@@ -15,13 +15,15 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.request.backend.AdminUserRequest;
 import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
@@ -36,11 +38,6 @@ import xyz.playedu.common.service.AdminUserService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.paginate.AdminUserPaginateFilter;
 import xyz.playedu.common.types.paginate.PaginationResult;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -67,7 +64,7 @@ public class AdminUserController {
         PaginationResult<AdminUser> result = adminUserService.paginate(page, size, filter);
 
         Map<Integer, List<Integer>> userRoleIds = new HashMap<>();
-        if (result.getData() != null && result.getData().size() > 0) {
+        if (result.getData() != null && !result.getData().isEmpty()) {
             userRoleIds =
                     adminUserService.getAdminUserRoleIds(
                             result.getData().stream().map(AdminUser::getId).toList());
@@ -101,7 +98,7 @@ public class AdminUserController {
     @Log(title = "管理员-新建", businessType = BusinessTypeConstant.INSERT)
     public JsonResponse store(@RequestBody @Validated AdminUserRequest req)
             throws ServiceException {
-        if (req.getPassword().length() == 0) {
+        if (req.getPassword().isEmpty()) {
             return JsonResponse.error("请输入密码");
         }
 

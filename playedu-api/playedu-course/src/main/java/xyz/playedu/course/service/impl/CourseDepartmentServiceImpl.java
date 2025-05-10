@@ -16,14 +16,11 @@
 package xyz.playedu.course.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.List;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.course.domain.CourseDepartment;
 import xyz.playedu.course.mapper.CourseDepartmentMapper;
 import xyz.playedu.course.service.CourseDepartmentService;
-
-import java.util.List;
 
 /**
  * @author tengteng

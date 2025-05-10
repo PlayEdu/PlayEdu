@@ -16,11 +16,9 @@
 package xyz.playedu.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
+import java.util.List;
 import xyz.playedu.common.domain.AdminRole;
 import xyz.playedu.common.exception.NotFoundException;
-
-import java.util.List;
 
 /**
  * @author tengteng

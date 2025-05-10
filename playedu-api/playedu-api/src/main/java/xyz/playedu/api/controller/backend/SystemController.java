@@ -15,13 +15,15 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import xyz.playedu.api.bus.UserBus;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BusinessTypeConstant;
@@ -31,11 +33,6 @@ import xyz.playedu.common.service.CategoryService;
 import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.RequestUtil;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/backend/v1/system")

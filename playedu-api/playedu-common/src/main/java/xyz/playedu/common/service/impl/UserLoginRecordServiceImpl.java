@@ -16,9 +16,7 @@
 package xyz.playedu.common.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.domain.UserLoginRecord;
 import xyz.playedu.common.mapper.UserLoginRecordMapper;
 import xyz.playedu.common.service.UserLoginRecordService;

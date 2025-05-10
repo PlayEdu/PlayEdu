@@ -16,11 +16,9 @@
 package xyz.playedu.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import xyz.playedu.common.domain.AdminPermission;
-
 import java.util.HashMap;
 import java.util.List;
+import xyz.playedu.common.domain.AdminPermission;
 
 /**
  * @author tengteng

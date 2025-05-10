@@ -16,18 +16,17 @@
 package xyz.playedu.api.controller.backend;
 
 import cn.hutool.core.date.DateTime;
-
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.bus.UserBus;
 import xyz.playedu.api.event.UserCourseHourRecordDestroyEvent;
 import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
@@ -54,9 +53,6 @@ import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Author 杭州白书科技有限公司

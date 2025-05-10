@@ -16,12 +16,10 @@
 package xyz.playedu.system.checks;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.domain.AdminRole;
 import xyz.playedu.common.service.AdminRoleService;

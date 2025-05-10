@@ -15,11 +15,11 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.event.AdminUserLoginEvent;
 import xyz.playedu.api.request.backend.LoginRequest;
 import xyz.playedu.api.request.backend.PasswordChangeRequest;
@@ -37,10 +37,8 @@ import xyz.playedu.common.service.RateLimiterService;
 import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.IpUtil;
-import xyz.playedu.common.util.RedisUtil;
+import xyz.playedu.common.util.MemoryCacheUtil;
 import xyz.playedu.common.util.RequestUtil;
-
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/backend/v1/auth")
@@ -68,8 +66,8 @@ public class LoginController {
 
         String limitKey = "admin-login-limit:" + loginRequest.getEmail();
         Long reqCount = rateLimiterService.current(limitKey, 3600L);
-        if (reqCount > 5 && !playEduConfig.getTesting()) {
-            Long exp = RedisUtil.ttlWithoutPrefix(limitKey);
+        if (reqCount > 10 && !playEduConfig.getTesting()) {
+            Long exp = MemoryCacheUtil.ttlWithoutPrefix(limitKey);
             return JsonResponse.error(
                     String.format("您的账号已被锁定，请%s后重试", exp > 60 ? exp / 60 + "分钟" : exp + "秒"));
         }
@@ -80,7 +78,7 @@ public class LoginController {
             return JsonResponse.error("邮箱或密码错误");
         }
 
-        RedisUtil.del(limitKey);
+        MemoryCacheUtil.del(limitKey);
 
         if (adminUser.getIsBanLogin().equals(1)) {
             return JsonResponse.error("当前管理员已禁止登录");

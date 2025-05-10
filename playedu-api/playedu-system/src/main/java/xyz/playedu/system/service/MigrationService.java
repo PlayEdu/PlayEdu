@@ -16,10 +16,8 @@
 package xyz.playedu.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import xyz.playedu.system.domain.Migration;
-
 import java.util.List;
+import xyz.playedu.system.domain.Migration;
 
 /**
  * @author tengyongzhi

@@ -15,15 +15,15 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.event.DepartmentDestroyEvent;
 import xyz.playedu.api.request.backend.DepartmentParentRequest;
 import xyz.playedu.api.request.backend.DepartmentRequest;
@@ -49,9 +49,6 @@ import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.course.service.CourseDepartmentService;
 import xyz.playedu.course.service.CourseService;
 import xyz.playedu.course.service.UserCourseRecordService;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j

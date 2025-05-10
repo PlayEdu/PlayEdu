@@ -15,16 +15,18 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.text.ParseException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.api.request.backend.CourseRequest;
 import xyz.playedu.common.annotation.BackendPermission;
@@ -52,11 +54,6 @@ import xyz.playedu.course.service.CourseHourService;
 import xyz.playedu.course.service.CourseService;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceService;
-
-import java.text.ParseException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j

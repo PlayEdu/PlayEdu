@@ -15,16 +15,14 @@
  */
 package xyz.playedu.system.checks;
 
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.domain.AdminPermission;
 import xyz.playedu.common.service.AdminPermissionService;
-
-import java.util.*;
 
 @Order(1020)
 @Component

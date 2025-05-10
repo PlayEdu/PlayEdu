@@ -1,0 +1,43 @@
+/*
+ * Copyright (C) 2023 杭州白书科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package xyz.playedu.common.service.impl;
+
+import java.util.concurrent.locks.ReentrantLock;
+import org.springframework.stereotype.Service;
+import xyz.playedu.common.service.RateLimiterService;
+import xyz.playedu.common.util.MemoryCacheUtil;
+
+@Service
+public class MemoryRateLimiterServiceImpl implements RateLimiterService {
+    private static final ReentrantLock lock = new ReentrantLock();
+
+    @Override
+    public Long current(String key, Long duration) {
+        lock.lock();
+        try {
+            Long count = (Long) MemoryCacheUtil.get(key);
+            if (count == null) {
+                // 第一次访问，设置初始值和过期时间
+                MemoryCacheUtil.set(key, 1L, duration);
+                return 1L;
+            }
+            // 已存在计数器，直接自增
+            return MemoryCacheUtil.increment(key, 1L);
+        } finally {
+            lock.unlock();
+        }
+    }
+}

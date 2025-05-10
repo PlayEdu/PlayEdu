@@ -15,17 +15,15 @@
  */
 package xyz.playedu.system.checks;
 
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.ConfigConstant;
 import xyz.playedu.common.domain.AppConfig;
 import xyz.playedu.common.service.AppConfigService;
-
-import java.util.*;
 
 @Component
 @Order(100)
@@ -174,14 +172,25 @@ public class AppConfigCheck implements CommandLineRunner {
                                 },
                             });
                     put(
-                            "MinIO",
+                            "S3存储",
                             new AppConfig[] {
+                                new AppConfig() {
+                                    {
+                                        setName("服务商");
+                                        setSort(1);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_SELECT);
+                                        setKeyName(ConfigConstant.S3_SERVICE);
+                                        setKeyValue("");
+                                        setOptionValue(
+                                                "[{\"name\":\"阿里云OSS\",\"value\":\"oss\"},{\"name\":\"腾讯云COS\",\"value\":\"cos\"}]");
+                                    }
+                                },
                                 new AppConfig() {
                                     {
                                         setName("AccessKey");
                                         setSort(10);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
-                                        setKeyName(ConfigConstant.MINIO_ACCESS_KEY);
+                                        setKeyName(ConfigConstant.S3_ACCESS_KEY);
                                         setKeyValue("");
                                     }
                                 },
@@ -190,7 +199,7 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setName("SecretKey");
                                         setSort(20);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
-                                        setKeyName(ConfigConstant.MINIO_SECRET_KEY);
+                                        setKeyName(ConfigConstant.S3_SECRET_KEY);
                                         setKeyValue("");
                                         setIsPrivate(1);
                                     }
@@ -200,7 +209,16 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setName("Bucket");
                                         setSort(30);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
-                                        setKeyName(ConfigConstant.MINIO_BUCKET);
+                                        setKeyName(ConfigConstant.S3_BUCKET);
+                                        setKeyValue("");
+                                    }
+                                },
+                                new AppConfig() {
+                                    {
+                                        setName("Region");
+                                        setSort(35);
+                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
+                                        setKeyName(ConfigConstant.S3_REGION);
                                         setKeyValue("");
                                     }
                                 },
@@ -209,7 +227,7 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setName("Endpoint");
                                         setSort(40);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
-                                        setKeyName(ConfigConstant.MINIO_ENDPOINT);
+                                        setKeyName(ConfigConstant.S3_ENDPOINT);
                                         setKeyValue("");
                                     }
                                 },
@@ -218,7 +236,7 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setName("Domain");
                                         setSort(50);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
-                                        setKeyName(ConfigConstant.MINIO_DOMAIN);
+                                        setKeyName(ConfigConstant.S3_DOMAIN);
                                         setKeyValue("");
                                     }
                                 },

@@ -21,7 +21,7 @@ public class SystemConstant {
 
     public static final String ENV_PROD = "prod";
 
-    public static final String REDIS_PREFIX = "playedu:";
+    public static final String CACHE_NAME_PREFIX = "playedu:";
 
     public static final String JWT_PRV_ADMIN_USER =
             "dc14511e97e7eb725fb2976bc939b375"; // AdminUser的md5加密

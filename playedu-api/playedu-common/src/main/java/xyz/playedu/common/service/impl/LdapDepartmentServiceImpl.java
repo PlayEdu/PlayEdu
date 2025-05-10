@@ -16,15 +16,12 @@
 package xyz.playedu.common.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.Date;
+import java.util.List;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.domain.LdapDepartment;
 import xyz.playedu.common.mapper.LdapDepartmentMapper;
 import xyz.playedu.common.service.LdapDepartmentService;
-
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class LdapDepartmentServiceImpl extends ServiceImpl<LdapDepartmentMapper, LdapDepartment>

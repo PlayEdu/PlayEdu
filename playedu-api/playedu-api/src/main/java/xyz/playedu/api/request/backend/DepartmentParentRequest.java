@@ -16,12 +16,9 @@
 package xyz.playedu.api.request.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.validation.constraints.NotNull;
-
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * @Author 杭州白书科技有限公司

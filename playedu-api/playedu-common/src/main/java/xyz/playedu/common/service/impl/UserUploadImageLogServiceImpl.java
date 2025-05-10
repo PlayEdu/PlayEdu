@@ -16,9 +16,7 @@
 package xyz.playedu.common.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.domain.UserUploadImageLog;
 import xyz.playedu.common.mapper.UserUploadImageLogMapper;
 import xyz.playedu.common.service.UserUploadImageLogService;

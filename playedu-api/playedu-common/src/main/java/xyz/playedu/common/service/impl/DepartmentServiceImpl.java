@@ -17,14 +17,13 @@ package xyz.playedu.common.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.domain.UserDepartment;
 import xyz.playedu.common.exception.NotFoundException;
@@ -33,9 +32,6 @@ import xyz.playedu.common.service.DepartmentService;
 import xyz.playedu.common.service.UserDepartmentService;
 import xyz.playedu.common.types.mapper.DepartmentsUserCountMapRes;
 import xyz.playedu.common.util.StringUtil;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author tengteng

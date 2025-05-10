@@ -16,13 +16,11 @@
 package xyz.playedu.resource.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
+import java.util.List;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.ResourcePaginateFilter;
 import xyz.playedu.resource.domain.Resource;
-
-import java.util.List;
 
 public interface ResourceService extends IService<Resource> {
 

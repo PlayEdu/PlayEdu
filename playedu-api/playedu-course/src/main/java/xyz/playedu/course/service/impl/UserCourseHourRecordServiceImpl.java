@@ -16,9 +16,10 @@
 package xyz.playedu.course.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordUserCountMapper;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
@@ -27,10 +28,6 @@ import xyz.playedu.common.types.paginate.UserCourseHourRecordPaginateFilter;
 import xyz.playedu.course.domain.UserCourseHourRecord;
 import xyz.playedu.course.mapper.UserCourseHourRecordMapper;
 import xyz.playedu.course.service.UserCourseHourRecordService;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author tengteng

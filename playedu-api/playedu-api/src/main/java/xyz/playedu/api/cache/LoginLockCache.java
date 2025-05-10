@@ -15,25 +15,23 @@
  */
 package xyz.playedu.api.cache;
 
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import xyz.playedu.common.util.RedisDistributedLock;
-
-import java.util.concurrent.TimeUnit;
+import xyz.playedu.common.util.MemoryDistributedLock;
 
 @Component
 public class LoginLockCache {
 
-    @Autowired private RedisDistributedLock redisDistributedLock;
+    @Autowired private MemoryDistributedLock distributedLock;
 
     public boolean apply(String username) {
         String key = cacheKey(username);
-        return redisDistributedLock.tryLock(key, 10L, TimeUnit.SECONDS);
+        return distributedLock.tryLock(key, 10L, TimeUnit.SECONDS);
     }
 
     public void release(String username) {
-        redisDistributedLock.releaseLock(cacheKey(username));
+        distributedLock.releaseLock(cacheKey(username));
     }
 
     private String cacheKey(String username) {

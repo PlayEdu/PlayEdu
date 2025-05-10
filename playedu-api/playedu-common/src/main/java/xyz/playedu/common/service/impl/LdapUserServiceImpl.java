@@ -16,16 +16,13 @@
 package xyz.playedu.common.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.Date;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.domain.LdapUser;
 import xyz.playedu.common.mapper.LdapUserMapper;
 import xyz.playedu.common.service.LdapUserService;
 import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.common.util.ldap.LdapTransformUser;
-
-import java.util.Date;
 
 /**
  * @author tengyongzhi

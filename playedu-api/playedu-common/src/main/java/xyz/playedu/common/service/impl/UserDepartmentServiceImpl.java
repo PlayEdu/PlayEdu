@@ -16,15 +16,12 @@
 package xyz.playedu.common.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.domain.UserDepartment;
 import xyz.playedu.common.mapper.UserDepartmentMapper;
 import xyz.playedu.common.service.UserDepartmentService;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author tengteng

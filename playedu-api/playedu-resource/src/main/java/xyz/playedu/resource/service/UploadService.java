@@ -16,7 +16,6 @@
 package xyz.playedu.resource.service;
 
 import org.springframework.web.multipart.MultipartFile;
-
 import xyz.playedu.common.domain.UserUploadImageLog;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.types.UploadFileInfo;
@@ -31,11 +30,12 @@ public interface UploadService {
 
     UploadFileInfo upload(MultipartFile file, String dir) throws ServiceException;
 
-    Resource storeMinio(Integer adminId, MultipartFile file, String categoryIds)
+    Resource storeMinio(String disk, Integer adminId, MultipartFile file, String categoryIds)
             throws ServiceException;
 
-    Resource storeBase64Image(Integer adminId, String content, String categoryIds)
+    Resource storeBase64Image(String disk, Integer adminId, String content, String categoryIds)
             throws ServiceException;
 
-    UserUploadImageLog userAvatar(Integer userId, MultipartFile file, String typed, String scene);
+    UserUploadImageLog userAvatar(
+            String disk, Integer userId, MultipartFile file, String typed, String scene);
 }

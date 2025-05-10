@@ -16,7 +16,6 @@
 package xyz.playedu.common.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-
 import xyz.playedu.common.domain.LdapDepartment;
 
 /**

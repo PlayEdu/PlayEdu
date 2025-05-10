@@ -6,21 +6,14 @@ x-logging: &default-logging
 
 networks:
   playedu:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.10.10.0/24
+    driver: host
 
 volumes:
   mysql-data:
-  redis-data:
-  minio-data:
 
 services:
   playedu:
-    # build: .
-    image: registry.cn-hangzhou.aliyuncs.com/playedu/light:1.8
+    image: registry.cn-hangzhou.aliyuncs.com/playedu/light:1.9
     restart: always
     environment:
       - DB_HOST=mysql
@@ -28,10 +21,6 @@ services:
       - DB_NAME=playedu
       - DB_USER=root
       - DB_PASS=playeduxyz
-      - REDIS_HOST=redis
-      - REDIS_PASS=playeduxyz
-      - REDIS_PORT=6379
-      - REDIS_DB=2
       - SA_TOKEN_IS_CONCURRENT=false
       - SA_TOKEN_JWT_SECRET_KEY=${PLAYEDU_JWT_KEY:-playeduxyz}
     ports:
@@ -45,19 +34,6 @@ services:
       - playedu
     depends_on:
       - mysql
-      - redis
-      - minio
-    logging: *default-logging
-
-  redis:
-    build: ./docker/redis
-    restart: always
-    volumes:
-      - redis-data:/data
-    # ports:
-    #   - "${REDIS_PORT:-6379}:6379"
-    networks:
-      - playedu
     logging: *default-logging
 
   mysql:
@@ -71,22 +47,6 @@ services:
       - mysql-data:/var/lib/mysql
     # ports:
     #   - "${MYSQL_PORT:-3306}:3306"
-    networks:
-      - playedu
-    logging: *default-logging
-
-  minio:
-    image: registry.cn-hangzhou.aliyuncs.com/hzbs/bitnami-minio:2024.6.6
-    restart: always
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USERNAME:-username}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-password}
-      - MINIO_DEFAULT_BUCKETS=playedu:public
-    volumes:
-      - minio-data:/bitnami/minio/data
-    ports:
-      - "${MINIO_PORT:-9002}:9000"
-      - "${MINIO_CONSOLE_PORT:-50002}:9001"
     networks:
       - playedu
     logging: *default-logging

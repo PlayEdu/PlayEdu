@@ -16,11 +16,9 @@
 package xyz.playedu.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-
+import java.util.List;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.course.domain.CourseHour;
-
-import java.util.List;
 
 /**
  * @author tengteng

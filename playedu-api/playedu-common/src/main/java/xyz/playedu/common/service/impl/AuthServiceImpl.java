@@ -17,16 +17,12 @@ package xyz.playedu.common.service.impl;
 
 import cn.dev33.satoken.stp.SaLoginConfig;
 import cn.dev33.satoken.stp.StpUtil;
-
+import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import xyz.playedu.common.config.AuthConfig;
 import xyz.playedu.common.service.AuthService;
-
-import java.util.HashMap;
 
 @Service
 @Slf4j

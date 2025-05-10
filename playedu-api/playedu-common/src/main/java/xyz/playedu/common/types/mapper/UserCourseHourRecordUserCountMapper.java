@@ -16,7 +16,6 @@
 package xyz.playedu.common.types.mapper;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
 
 /**

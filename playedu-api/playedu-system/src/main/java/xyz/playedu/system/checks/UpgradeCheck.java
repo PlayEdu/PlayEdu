@@ -15,16 +15,14 @@
  */
 package xyz.playedu.system.checks;
 
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.common.domain.AppConfig;
 import xyz.playedu.common.service.AdminPermissionService;
 import xyz.playedu.common.service.AppConfigService;
-
-import java.util.ArrayList;
 
 @Order(10000)
 @Component

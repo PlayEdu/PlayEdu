@@ -15,12 +15,15 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import xyz.playedu.api.request.backend.AdminRoleRequest;
 import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
@@ -33,12 +36,6 @@ import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.service.AdminPermissionService;
 import xyz.playedu.common.service.AdminRoleService;
 import xyz.playedu.common.types.JsonResponse;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/backend/v1/admin-role")
@@ -88,7 +85,7 @@ public class AdminRoleController {
         List<Integer> permissionIds = roleService.getPermissionIdsByRoleId(role.getId());
         List<Integer> permAction = new ArrayList<>();
         List<Integer> permData = new ArrayList<>();
-        if (permissionIds != null && permissionIds.size() > 0) {
+        if (permissionIds != null && !permissionIds.isEmpty()) {
             List<AdminPermission> permissions = permissionService.chunks(permissionIds);
             Map<String, List<AdminPermission>> permissionsGroup =
                     permissions.stream().collect(Collectors.groupingBy(AdminPermission::getType));

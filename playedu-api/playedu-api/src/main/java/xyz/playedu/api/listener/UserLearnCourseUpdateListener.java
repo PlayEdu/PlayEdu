@@ -16,11 +16,9 @@
 package xyz.playedu.api.listener;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
 import xyz.playedu.api.event.UserLearnCourseUpdateEvent;
 import xyz.playedu.course.service.UserLearnDurationRecordService;
 import xyz.playedu.course.service.UserLearnDurationStatsService;

@@ -19,11 +19,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import xyz.playedu.common.domain.AdminUser;
 import xyz.playedu.common.domain.AdminUserRole;
 import xyz.playedu.common.exception.NotFoundException;
@@ -34,9 +34,6 @@ import xyz.playedu.common.service.AdminUserService;
 import xyz.playedu.common.types.paginate.AdminUserPaginateFilter;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.util.HelperUtil;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class AdminUserServiceImpl extends ServiceImpl<AdminUserMapper, AdminUser>

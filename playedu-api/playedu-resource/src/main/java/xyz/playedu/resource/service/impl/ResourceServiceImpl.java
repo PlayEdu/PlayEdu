@@ -16,11 +16,10 @@
 package xyz.playedu.resource.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.ResourcePaginateFilter;
@@ -31,8 +30,6 @@ import xyz.playedu.resource.mapper.ResourceMapper;
 import xyz.playedu.resource.service.ResourceCategoryService;
 import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.ResourceVideoService;
-
-import java.util.*;
 
 /**
  * @author tengteng
