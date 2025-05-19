@@ -334,8 +334,26 @@ public class DepartmentController {
     @Log(title = "部门-LDAP同步", businessType = BusinessTypeConstant.INSERT)
     @SneakyThrows
     public JsonResponse ldapSync() {
-        ldapBus.departmentSync();
-        ldapBus.userSync();
-        return JsonResponse.success();
+        try {
+            // 检查是否启用LDAP
+            if (!ldapBus.enabledLDAP()) {
+                return JsonResponse.error("未配置LDAP服务");
+            }
+
+            // 检查是否有进行中的同步任务
+            if (ldapBus.hasSyncInProgress()) {
+                return JsonResponse.error("有正在进行的LDAP同步任务，请稍后再试");
+            }
+
+            // 使用当前管理员ID执行同步
+            Integer recordId = ldapBus.syncAndRecord(BCtx.getId());
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("record_id", recordId);
+
+            return JsonResponse.data(data);
+        } catch (Exception e) {
+            return JsonResponse.error("LDAP同步失败: " + e.getMessage());
+        }
     }
 }

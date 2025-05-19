@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.playedu.common.mapper.LdapSyncUserDetailMapper">
+
+    <!-- 通用映射结果集 -->
+    <resultMap id="BaseResultMap" type="xyz.playedu.common.domain.LdapSyncUserDetail">
+        <id column="id" property="id"/>
+        <result column="record_id" property="recordId"/>
+        <result column="user_id" property="userId"/>
+        <result column="uuid" property="uuid"/>
+        <result column="dn" property="dn"/>
+        <result column="cn" property="cn"/>
+        <result column="uid" property="uid"/>
+        <result column="email" property="email"/>
+        <result column="ou" property="ou"/>
+        <result column="action" property="action"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, record_id, user_id, uuid, dn, cn, uid, email, ou, action, created_at
+    </sql>
+
+</mapper> 

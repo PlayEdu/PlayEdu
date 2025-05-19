@@ -1,0 +1,32 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PlayEdu Configuration Guide
+
+The PlayEdu application uses standard Spring Boot configuration with YAML files.
+
+## Application Configuration
+- [application.yml](mdc:playedu-api/playedu-api/src/main/resources/application.yml) - Main application configuration
+- [application-dev.yml](mdc:playedu-api/playedu-api/src/main/resources/application-dev.yml) - Development environment overrides
+
+## Key Configuration Properties
+- Database connection settings
+- Redis cache configuration
+- File storage configuration
+- Security settings
+- Cors configuration
+
+## Build Configuration
+- [pom.xml](mdc:playedu-api/pom.xml) - Main project Maven POM file 
+- [playedu-api/pom.xml](mdc:playedu-api/playedu-api/pom.xml) - API module POM file
+- [playedu-common/pom.xml](mdc:playedu-api/playedu-common/pom.xml) - Common module POM file
+- [playedu-course/pom.xml](mdc:playedu-api/playedu-course/pom.xml) - Course module POM file
+- [playedu-resource/pom.xml](mdc:playedu-api/playedu-resource/pom.xml) - Resource module POM file
+- [playedu-system/pom.xml](mdc:playedu-api/playedu-system/pom.xml) - System module POM file
+
+## Docker Configuration
+- [Dockerfile](mdc:playedu-api/Dockerfile) - Docker image definition
+- [Dockerfile.local](mdc:playedu-api/Dockerfile.local) - Local development Docker configuration
+- [compose.yml](mdc:compose.yml) - Docker Compose service definitions

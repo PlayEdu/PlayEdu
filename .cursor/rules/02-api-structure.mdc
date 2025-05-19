@@ -1,0 +1,32 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PlayEdu API Structure
+
+The API module follows a standard Spring Boot structure with controllers, services, and supporting components.
+
+## Controller Layout
+The API endpoints are divided into backend (admin) and frontend (student) controllers:
+
+### Backend Controllers
+- [Backend Controllers](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/backend) - Admin management interfaces
+  - [AdminUserController](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/backend/AdminUserController.java) - Administrator management
+  - [CourseController](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/backend/CourseController.java) - Course management
+  - [DepartmentController](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/backend/DepartmentController.java) - Department management
+  - [ResourceController](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/backend/ResourceController.java) - Resource management
+  - [UserController](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/backend/UserController.java) - User management
+
+### Frontend Controllers
+- [Frontend Controllers](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/frontend) - Student-facing endpoints
+  - [LoginController](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/frontend/LoginController.java) - Student login
+  - [CourseController](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/frontend/CourseController.java) - Course access
+
+## API Application Components
+- [PlayeduApiApplication](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/PlayeduApiApplication.java) - Main application entry point
+- [Request DTOs](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/request) - Data transfer objects for API requests
+- [Response Format](mdc:playedu-api/playedu-common/src/main/java/xyz/playedu/common/util/JsonResponse.java) - Standard JSON response format
+- [Event Handlers](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/event) - Event-driven components
+- [Scheduled Tasks](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/schedule) - Scheduled/recurring tasks
+- [Interceptors](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/interceptor) - HTTP request interceptors

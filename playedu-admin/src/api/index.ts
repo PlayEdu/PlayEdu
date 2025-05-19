@@ -15,3 +15,4 @@ export * as user from "./user";
 export * as appConfig from "./app-config";
 export * as dashboard from "./dashboard";
 export * as adminLog from "./admin-log";
+export * as ldap from "./ldap";

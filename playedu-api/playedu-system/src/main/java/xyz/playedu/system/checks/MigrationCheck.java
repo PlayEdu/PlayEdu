@@ -731,6 +731,87 @@ public class MigrationCheck implements CommandLineRunner {
                                                     """);
                                 }
                             });
+                    add(
+                            new HashMap<>() {
+                                {
+                                    put("table", "ldap_sync_record");
+                                    put("name", "20250517_13_23_ldap_sync_record");
+                                    put(
+                                            "sql",
+                                            """
+                                                    CREATE TABLE `ldap_sync_record` (
+                                                      `id` int NOT NULL AUTO_INCREMENT,
+                                                      `admin_id` int NOT NULL DEFAULT '0' COMMENT '执行同步的管理员ID，0表示系统自动执行',
+                                                      `status` tinyint NOT NULL DEFAULT '0' COMMENT '状态：0-进行中，1-成功，2-失败',
+                                                      `s3_file_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'S3存储中的文件路径',
+                                                      `total_department_count` int NOT NULL DEFAULT '0' COMMENT '总部门数量',
+                                                      `created_department_count` int NOT NULL DEFAULT '0' COMMENT '新增部门数量',
+                                                      `updated_department_count` int NOT NULL DEFAULT '0' COMMENT '更新部门数量',
+                                                      `deleted_department_count` int NOT NULL DEFAULT '0' COMMENT '删除部门数量',
+                                                      `total_user_count` int NOT NULL DEFAULT '0' COMMENT '总用户数量',
+                                                      `created_user_count` int NOT NULL DEFAULT '0' COMMENT '新增用户数量',
+                                                      `updated_user_count` int NOT NULL DEFAULT '0' COMMENT '更新用户数量',
+                                                      `deleted_user_count` int NOT NULL DEFAULT '0' COMMENT '删除用户数量',
+                                                      `banned_user_count` int NOT NULL DEFAULT '0' COMMENT '被禁止的用户数量',
+                                                      `error_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '错误信息',
+                                                      `created_at` datetime NOT NULL,
+                                                      `updated_at` datetime NOT NULL,
+                                                      PRIMARY KEY (`id`)
+                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='LDAP同步记录表';
+                                                    """);
+                                }
+                            });
+                    add(
+                            new HashMap<>() {
+                                {
+                                    put("table", "ldap_sync_department_detail");
+                                    put("name", "20250519_10_25_01_ldap_sync_department_detail");
+                                    put(
+                                            "sql",
+                                            """
+                                                    CREATE TABLE `ldap_sync_department_detail` (
+                                                      `id` int NOT NULL AUTO_INCREMENT,
+                                                      `record_id` int NOT NULL COMMENT '关联的同步记录ID',
+                                                      `department_id` int NOT NULL DEFAULT '0' COMMENT '关联的部门ID',
+                                                      `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'LDAP部门UUID',
+                                                      `dn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'LDAP部门DN',
+                                                      `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '部门名称',
+                                                      `action` tinyint NOT NULL COMMENT '操作：1-新增，2-更新，3-删除，4-无变化',
+                                                      `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                                                      PRIMARY KEY (`id`),
+                                                      KEY `record_id` (`record_id`),
+                                                      KEY `department_id` (`department_id`)
+                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='LDAP部门同步详情表';
+                                                    """);
+                                }
+                            });
+                    add(
+                            new HashMap<>() {
+                                {
+                                    put("table", "ldap_sync_user_detail");
+                                    put("name", "20250519_10_25_02_ldap_sync_user_detail");
+                                    put(
+                                            "sql",
+                                            """
+                                                    CREATE TABLE `ldap_sync_user_detail` (
+                                                      `id` bigint NOT NULL AUTO_INCREMENT,
+                                                      `record_id` int NOT NULL COMMENT '关联的同步记录ID',
+                                                      `user_id` bigint NOT NULL DEFAULT '0' COMMENT '关联的用户ID',
+                                                      `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'LDAP用户UUID',
+                                                      `dn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'LDAP用户DN',
+                                                      `cn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名称',
+                                                      `uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户ID/登录名',
+                                                      `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户邮箱',
+                                                      `ou` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户部门路径',
+                                                      `action` tinyint NOT NULL COMMENT '操作：1-新增，2-更新，3-删除，4-无变化，5-禁止',
+                                                      `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                                                      PRIMARY KEY (`id`),
+                                                      KEY `record_id` (`record_id`),
+                                                      KEY `user_id` (`user_id`)
+                                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='LDAP用户同步详情表';
+                                                    """);
+                                }
+                            });
                 }
             };
 

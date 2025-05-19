@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Spin, Button, Tree, Modal, message, Tooltip } from "antd";
 // import styles from "./index.module.less";
 import { PlusOutlined, ExclamationCircleFilled } from "@ant-design/icons";
-import { department } from "../../api/index";
+import { department, ldap } from "../../api/index";
 import { PerButton } from "../../compenents";
 import type { DataNode, TreeProps } from "antd/es/tree";
 import { DepartmentCreate } from "./compenents/create";
@@ -10,6 +10,7 @@ import { DepartmentUpdate } from "./compenents/update";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { saveDepartmentsAction } from "../../store/system/systemConfigSlice";
+import { LdapSyncModal } from "./components";
 
 const { confirm } = Modal;
 
@@ -34,6 +35,7 @@ const DepartmentPage = () => {
   const [updateVisible, setUpdateVisible] = useState(false);
   const [did, setDid] = useState<number>(0);
   const [modal, contextHolder] = Modal.useModal();
+  const [syncModalVisible, setSyncModalVisible] = useState(false);
 
   // 是否启用LDAP
   const ldapEnabled = useSelector(
@@ -395,16 +397,7 @@ const DepartmentPage = () => {
   };
 
   const ldapSync = () => {
-    if (loading) {
-      message.warning("正在同步，请稍后...");
-      return;
-    }
-    setLoading(true);
-    department.ldapSync().then(() => {
-      message.success("操作成功");
-      setLoading(false);
-      resetData();
-    });
+    setSyncModalVisible(true);
   };
 
   return (
@@ -473,6 +466,10 @@ const DepartmentPage = () => {
             setUpdateVisible(false);
             setRefresh(!refresh);
           }}
+        />
+        <LdapSyncModal
+          open={syncModalVisible}
+          onCancel={() => setSyncModalVisible(false)}
         />
       </div>
     </>

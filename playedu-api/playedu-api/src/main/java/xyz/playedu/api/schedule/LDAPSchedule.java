@@ -43,17 +43,11 @@ public class LDAPSchedule {
         }
 
         try {
-            ldapBus.departmentSync();
+            // 使用新的同步记录功能
+            ldapBus.syncAndRecord(0); // 0表示系统自动执行
+            log.info("LDAP同步成功");
         } catch (Exception e) {
-            log.error("LDAP-部门同步失败", e);
+            log.error("LDAP同步失败", e);
         }
-
-        try {
-            ldapBus.userSync();
-        } catch (Exception e) {
-            log.error("LDAP-学员同步失败", e);
-        }
-
-        log.info("LDAP同步成功");
     }
 }

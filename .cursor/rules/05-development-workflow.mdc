@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PlayEdu Development Workflow
+
+This guide outlines the workflow for developing and running the PlayEdu API.
+
+## Local Development Setup
+1. Clone the repository
+2. Use Docker Compose to run the application: `docker-compose up -d`
+3. Access points:
+   - API: `http://localhost:9700`
+   - Admin backend: `http://localhost:9900` (default credentials: `admin@playedu.xyz / playedu`)
+   - PC web interface: `http://localhost:9800`
+   - H5 mobile interface: `http://localhost:9801`
+
+## Main Entry Points
+- [PlayeduApiApplication.java](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/PlayeduApiApplication.java) - Main application class
+- [application.yml](mdc:playedu-api/playedu-api/src/main/resources/application.yml) - Configuration
+
+## Tech Stack
+- Java with Spring Boot 3
+- MySQL database
+- Redis for caching
+- MyBatis for data access
+- Docker for containerization
+
+## Development Best Practices
+- Follow existing code structure when adding new features
+- Add unit tests for new functionality
+- Maintain module separation of concerns
+- Use existing utility classes from `playedu-common`
+
+## Build Process
+To build the application:
+1. Use Maven: `mvn clean package`
+2. Build Docker image: `docker build -t playedu-api .`
+3. Run in development mode: `docker-compose up -d`
+
+## Version Control
+- Follow standard Git workflow with feature branches
+- Create pull requests for significant changes
+- Update CHANGELOG.md for version releases

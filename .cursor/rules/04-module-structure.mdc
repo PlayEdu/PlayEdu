@@ -1,0 +1,46 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PlayEdu Module Structure
+
+PlayEdu follows a modular architecture with separate modules for different concerns:
+
+## Module Organization
+Each module follows a similar structure with domain models, services, and mappers:
+
+- **playedu-api**: Main API controllers and application entry point
+  - [Controllers](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller) - API endpoints
+  - [Request DTOs](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/request) - Request data objects
+  - [Configuration](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/config) - Module-specific configuration
+
+- **playedu-common**: Shared utilities, base classes, and common functionality
+  - [Constants](mdc:playedu-api/playedu-common/src/main/java/xyz/playedu/common/constant) - System constants
+  - [Exceptions](mdc:playedu-api/playedu-common/src/main/java/xyz/playedu/common/exception) - Custom exceptions
+  - [Utilities](mdc:playedu-api/playedu-common/src/main/java/xyz/playedu/common/util) - Common utility classes
+  - [Base Models](mdc:playedu-api/playedu-common/src/main/java/xyz/playedu/common/bus) - Base model classes
+
+- **playedu-resource**: Resource management (files, media, etc.)
+  - [Domain Models](mdc:playedu-api/playedu-resource/src/main/java/xyz/playedu/resource/domain) - Entity classes
+  - [Services](mdc:playedu-api/playedu-resource/src/main/java/xyz/playedu/resource/service) - Business logic
+  - [Mappers](mdc:playedu-api/playedu-resource/src/main/java/xyz/playedu/resource/mapper) - Database access layer
+
+- **playedu-course**: Course management functionality
+  - [Domain Models](mdc:playedu-api/playedu-course/src/main/java/xyz/playedu/course/domain) - Course entities
+  - [Services](mdc:playedu-api/playedu-course/src/main/java/xyz/playedu/course/service) - Course business logic
+  - [Mappers](mdc:playedu-api/playedu-course/src/main/java/xyz/playedu/course/mapper) - Course data access
+
+- **playedu-system**: System administration functionality
+  - [Domain Models](mdc:playedu-api/playedu-system/src/main/java/xyz/playedu/system/domain) - System entities
+  - [Services](mdc:playedu-api/playedu-system/src/main/java/xyz/playedu/system/service) - System business logic
+  - [Mappers](mdc:playedu-api/playedu-system/src/main/java/xyz/playedu/system/mapper) - System data access
+
+## Domain-Driven Design
+The codebase follows a layered architecture with:
+- Controllers: Handle API requests and responses
+- Services: Implement business logic
+- Mappers: Data access layer (using MyBatis)
+- Domain models: Entity classes representing business objects
+
+This modular approach allows for separation of concerns and easier maintainability.

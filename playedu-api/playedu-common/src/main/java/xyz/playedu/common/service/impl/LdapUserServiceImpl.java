@@ -98,4 +98,12 @@ public class LdapUserServiceImpl extends ServiceImpl<LdapUserMapper, LdapUser>
         user.setUid(uid);
         updateById(user);
     }
+
+    @Override
+    public void updateDN(Integer id, String dn) {
+        LdapUser user = new LdapUser();
+        user.setId(id);
+        user.setDn(dn);
+        updateById(user);
+    }
 }

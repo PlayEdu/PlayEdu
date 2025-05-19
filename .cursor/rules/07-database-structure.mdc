@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PlayEdu Database Structure
+
+This guide outlines the database structure of the PlayEdu application.
+
+## Database Technology
+- MySQL database for persistent storage
+- Redis for caching and session management
+- MyBatis as the ORM framework
+
+## Core Tables
+- **admin_users** - Administrator user accounts
+- **admin_roles** - Administrator roles for RBAC
+- **departments** - Organizational departments
+- **users** - Student/learner accounts
+- **courses** - Course information
+- **resources** - Media and document resources
+- **course_chapters** - Course chapter organization
+- **course_hour_records** - Learning progress tracking
+
+## Entity Relationships
+- Departments have many Users (many-to-many)
+- Courses have many Chapters (one-to-many)
+- Courses have many Resources (many-to-many)
+- Users have progress records for Courses (many-to-many)
+
+## Database Access
+- Data access through MyBatis Mappers
+- [Example Mapper](mdc:playedu-api/playedu-course/src/main/java/xyz/playedu/course/mapper/CourseMapper.java)
+- XML query definitions in resource XML files
+- [Example XML](mdc:playedu-api/playedu-course/src/main/resources/mapper/CourseMapper.xml)
+
+## Data Migration
+- Managed through SQL scripts
+- Version controlled database changes
+- Backup procedures for data safety

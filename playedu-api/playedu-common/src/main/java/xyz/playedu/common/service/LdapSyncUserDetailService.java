@@ -16,28 +16,25 @@
 package xyz.playedu.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import xyz.playedu.common.domain.LdapUser;
-import xyz.playedu.common.util.ldap.LdapTransformUser;
+import java.util.List;
+import xyz.playedu.common.domain.LdapSyncUserDetail;
 
-/**
- * @author tengyongzhi
- * @description 针对表【ldap_user】的数据库操作Service
- * @createDate 2023-08-31 11:59:27
- */
-public interface LdapUserService extends IService<LdapUser> {
-    LdapUser findByUUID(String id);
+/** LDAP用户同步详情服务接口 */
+public interface LdapSyncUserDetailService extends IService<LdapSyncUserDetail> {
 
-    LdapUser store(LdapTransformUser ldapTransformUser);
+    /**
+     * 批量创建用户同步详情记录
+     *
+     * @param details 用户同步详情记录列表
+     */
+    void batchCreate(List<LdapSyncUserDetail> details);
 
-    void updateUserId(Integer id, Integer userId);
-
-    void updateCN(Integer id, String cn);
-
-    void updateOU(Integer id, String newOU);
-
-    void updateEmail(Integer id, String email);
-
-    void updateUid(Integer id, String uid);
-
-    void updateDN(Integer id, String dn);
+    /**
+     * 根据同步记录ID和操作类型获取用户同步详情
+     *
+     * @param recordId 同步记录ID
+     * @param action 操作类型，1-新增，2-更新，3-删除，4-无变化
+     * @return 用户同步详情列表
+     */
+    List<LdapSyncUserDetail> getByRecordIdAndAction(Integer recordId, Integer action);
 }

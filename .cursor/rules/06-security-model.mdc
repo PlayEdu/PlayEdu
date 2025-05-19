@@ -1,0 +1,33 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PlayEdu Security Model
+
+This guide outlines the security model of the PlayEdu application.
+
+## Authentication
+- [BackendAuthInterceptor](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/interceptor/BackendAuthInterceptor.java) - Backend authentication interceptor
+- [FrontendAuthInterceptor](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/interceptor/FrontendAuthInterceptor.java) - Frontend authentication interceptor
+- JWT-based authentication for both frontend and backend users
+
+## Authorization
+- Role-based access control for backend users
+- Department-based content access for frontend users
+- Course permission enforcement
+
+## Security Configuration
+- CORS configuration to prevent cross-site request forgery
+- Password encryption using BCrypt
+- Input validation and sanitization
+
+## Resource Security
+- Private video storage and delivery
+- URL-based token authentication for media access
+- Anti-leech protection for media files
+
+## Sensitive Data Protection
+- PII (Personally Identifiable Information) protection
+- Logging sanitization for sensitive data
+- Database encryption for critical fields

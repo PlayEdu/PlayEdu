@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.playedu.common.mapper.LdapSyncRecordMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.playedu.common.domain.LdapSyncRecord">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="adminId" column="admin_id" jdbcType="INTEGER"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="s3FilePath" column="s3_file_path" jdbcType="VARCHAR"/>
+            <result property="totalDepartmentCount" column="total_department_count" jdbcType="INTEGER"/>
+            <result property="createdDepartmentCount" column="created_department_count" jdbcType="INTEGER"/>
+            <result property="updatedDepartmentCount" column="updated_department_count" jdbcType="INTEGER"/>
+            <result property="deletedDepartmentCount" column="deleted_department_count" jdbcType="INTEGER"/>
+            <result property="totalUserCount" column="total_user_count" jdbcType="INTEGER"/>
+            <result property="createdUserCount" column="created_user_count" jdbcType="INTEGER"/>
+            <result property="updatedUserCount" column="updated_user_count" jdbcType="INTEGER"/>
+            <result property="deletedUserCount" column="deleted_user_count" jdbcType="INTEGER"/>
+            <result property="bannedUserCount" column="banned_user_count" jdbcType="INTEGER"/>
+            <result property="errorMessage" column="error_message" jdbcType="VARCHAR"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,admin_id,status,s3_file_path,
+        total_department_count,created_department_count,updated_department_count,deleted_department_count,
+        total_user_count,created_user_count,updated_user_count,deleted_user_count,banned_user_count,
+        error_message,created_at,updated_at
+    </sql>
+</mapper> 

@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PlayEdu API Project Overview
+
+PlayEdu is an online training solution developed by Baishu Technology. The API is built with Java + Spring Boot 3, using a modular approach.
+
+## Project Structure
+- [playedu-api](mdc:playedu-api) - Java backend API project
+- [playedu-admin](mdc:playedu-admin) - Admin frontend
+- [playedu-pc](mdc:playedu-pc) - PC web interface
+- [playedu-h5](mdc:playedu-h5) - Mobile web interface
+
+## API Key Modules
+- [playedu-api/PlayeduApiApplication.java](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/PlayeduApiApplication.java) - Main application entry point
+- [playedu-api](mdc:playedu-api/playedu-api) - API module containing controllers and API-specific logic
+- [playedu-common](mdc:playedu-api/playedu-common) - Common utilities and shared code
+- [playedu-resource](mdc:playedu-api/playedu-resource) - Resource management module
+- [playedu-course](mdc:playedu-api/playedu-course) - Course-related functionality
+- [playedu-system](mdc:playedu-api/playedu-system) - System management functionality
+
+## Backend vs Frontend Controllers
+- [Backend Controllers](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/backend) - Admin-facing API endpoints
+- [Frontend Controllers](mdc:playedu-api/playedu-api/src/main/java/xyz/playedu/api/controller/frontend) - Student-facing API endpoints
+
+## Development and Deployment
+- [pom.xml](mdc:playedu-api/pom.xml) - Main Maven configuration file
+- [Dockerfile](mdc:playedu-api/Dockerfile) - Docker build configuration
+- [compose.yml](mdc:compose.yml) - Docker Compose configuration
