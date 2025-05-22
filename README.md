@@ -3,11 +3,10 @@
 </p>
 
 <h4 align="center">
-  <a href="http://www.playeduos.com">官网</a> |
-  <a href="https://www.playeduos.com/function.html">商业版</a> |
-  <a href="https://faq.playeduos.com/">部署文档</a> |
-  <a href="https://www.playeduos.com/demo.html">演示站</a> |
-  <a href="https://faq.playeduos.com/qa">开源社区</a>
+  <a href="http://www.playeduos.com">PlayEdu官网</a> |
+  <a href="https://www.playeduos.com/function.html">PlayEdu商业版</a> |
+  <a href="https://faq.playeduos.com/opensource-maintenance-handbook/article/t08o2iHfLR">部署文档</a> |
+  <a href="https://www.playeduos.com/demo.html">开源版演示站</a>
 </h4>
 
 PlayEdu 是由白书科技团队经营多年线上教培领域打造出的一款业内领先的线上培训解决方案。PlayEdu 基于 Java + MySQL 开发，采用前后端分离模式，前端核心框架为 React18，后端核心框架为 SpringBoot3。开源版本提供部门管理、学员管理、在线视频学习、学员进度追踪、视频私有化存储等基础培训功能。  
