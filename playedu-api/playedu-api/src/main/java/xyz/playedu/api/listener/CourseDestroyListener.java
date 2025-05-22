@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import xyz.playedu.api.event.CourseDestroyEvent;
 import xyz.playedu.course.service.CourseAttachmentService;
 import xyz.playedu.course.service.CourseCategoryService;
-import xyz.playedu.course.service.CourseDepartmentService;
+import xyz.playedu.course.service.CourseDepartmentUserService;
 import xyz.playedu.course.service.UserCourseHourRecordService;
 import xyz.playedu.course.service.UserCourseRecordService;
 
@@ -33,7 +33,7 @@ import xyz.playedu.course.service.UserCourseRecordService;
 @Component
 public class CourseDestroyListener {
 
-    @Autowired private CourseDepartmentService courseDepartmentService;
+    @Autowired private CourseDepartmentUserService courseDepartmentUserService;
 
     @Autowired private CourseCategoryService courseCategoryService;
 
@@ -45,7 +45,7 @@ public class CourseDestroyListener {
 
     @EventListener
     public void departmentRelateRemove(CourseDestroyEvent event) {
-        courseDepartmentService.removeByCourseId(event.getCourseId());
+        courseDepartmentUserService.removeByCourseId(event.getCourseId());
     }
 
     @EventListener

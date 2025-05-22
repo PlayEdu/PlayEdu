@@ -15,7 +15,7 @@ import {
 } from "antd";
 import { appConfig, system } from "../../../api/index";
 import { UploadImageButton } from "../../../compenents";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import type { TabsProps } from "antd";
 import type { CheckboxChangeEvent } from "antd/es/checkbox";
 import {
@@ -23,6 +23,7 @@ import {
   saveConfigAction,
 } from "../../../store/system/systemConfigSlice";
 import logoIcon from "../../../assets/logo.png";
+import memberDefaultAvatar from "../../../assets/thumb/avatar.png";
 
 const SystemConfigPage = () => {
   const dispatch = useDispatch();
@@ -32,13 +33,10 @@ const SystemConfigPage = () => {
   const [thumb, setThumb] = useState("");
   const [avatar, setAvatar] = useState("");
   const [tabKey, setTabKey] = useState(1);
-  const [s3Service, setS3Service] = useState("");
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [nameChecked, setNameChecked] = useState(false);
   const [emailChecked, setEmailChecked] = useState(false);
   const [idCardchecked, setIdCardChecked] = useState(false);
-  const memberDefaultAvatar = useSelector(
-    (state: any) => state.systemConfig.value.memberDefaultAvatar
-  );
 
   useEffect(() => {
     getDetail();
@@ -46,7 +44,8 @@ const SystemConfigPage = () => {
 
   const getDetail = () => {
     appConfig.appConfig().then((res: any) => {
-      let configData = res.data;
+      setResourceUrl(res.data.resource_url);
+      let configData = res.data.app_config;
       for (let i = 0; i < configData.length; i++) {
         if (configData[i].key_name === "system.name") {
           form.setFieldsValue({
@@ -56,19 +55,12 @@ const SystemConfigPage = () => {
           form.setFieldsValue({
             "system.logo": configData[i].key_value,
           });
+          console.log(configData[i].key_value);
           if (configData[i].key_value !== "") {
-            setLogo(configData[i].key_value);
+            setLogo(res.data.resource_url[Number(configData[i].key_value)]);
           } else {
             setLogo(logoIcon);
           }
-        } else if (configData[i].key_name === "system.api_url") {
-          form.setFieldsValue({
-            "system.api_url": configData[i].key_value,
-          });
-        } else if (configData[i].key_name === "system.api_url") {
-          form.setFieldsValue({
-            "system.api_url": configData[i].key_value,
-          });
         } else if (configData[i].key_name === "system.pc_url") {
           form.setFieldsValue({
             "system.pc_url": configData[i].key_value,
@@ -78,7 +70,9 @@ const SystemConfigPage = () => {
             "system.h5_url": configData[i].key_value,
           });
         } else if (configData[i].key_name === "player.poster") {
-          setThumb(configData[i].key_value);
+          if (configData[i].key_value !== "") {
+            setThumb(res.data.resource_url[Number(configData[i].key_value)]);
+          }
           form.setFieldsValue({
             "player.poster": configData[i].key_value,
           });
@@ -131,18 +125,13 @@ const SystemConfigPage = () => {
           });
         } else if (configData[i].key_name === "member.default_avatar") {
           if (configData[i].key_value !== "") {
-            setAvatar(configData[i].key_value);
+            setAvatar(res.data.resource_url[Number(configData[i].key_value)]);
           } else {
             setAvatar(memberDefaultAvatar);
           }
           form.setFieldsValue({
             "member.default_avatar": configData[i].key_value,
           });
-        } else if (configData[i].key_name === "s3.service") {
-          form.setFieldsValue({
-            "s3.service": configData[i].key_value,
-          });
-          setS3Service(configData[i].key_value);
         } else if (configData[i].key_name === "s3.access_key") {
           form.setFieldsValue({
             "s3.access_key": configData[i].key_value,
@@ -162,10 +151,6 @@ const SystemConfigPage = () => {
         } else if (configData[i].key_name === "s3.endpoint") {
           form.setFieldsValue({
             "s3.endpoint": configData[i].key_value,
-          });
-        } else if (configData[i].key_name === "s3.domain") {
-          form.setFieldsValue({
-            "s3.domain": configData[i].key_value,
           });
         } else if (configData[i].key_name === "ldap.enabled") {
           let value = 0;
@@ -271,7 +256,6 @@ const SystemConfigPage = () => {
         "ldap-enabled": res.data["ldap-enabled"],
         systemName: res.data["system.name"],
         systemLogo: res.data["system.logo"],
-        systemApiUrl: res.data["system.api_url"],
         systemPcUrl: res.data["system.pc_url"],
         systemH5Url: res.data["system.h5_url"],
         memberDefaultAvatar: res.data["member.default_avatar"],
@@ -322,9 +306,9 @@ const SystemConfigPage = () => {
                 <div className="d-flex ml-24">
                   <UploadImageButton
                     text="更换Logo"
-                    onSelected={(url) => {
+                    onSelected={(url, id) => {
                       setLogo(url);
-                      form.setFieldsValue({ "system.logo": url });
+                      form.setFieldsValue({ "system.logo": id });
                     }}
                   ></UploadImageButton>
                 </div>
@@ -344,9 +328,9 @@ const SystemConfigPage = () => {
                 <div className="d-flex ml-24">
                   <UploadImageButton
                     text="更换Logo"
-                    onSelected={(url) => {
+                    onSelected={(url, id) => {
                       setLogo(url);
-                      form.setFieldsValue({ "system.logo": url });
+                      form.setFieldsValue({ "system.logo": id });
                     }}
                   ></UploadImageButton>
                 </div>
@@ -356,13 +340,6 @@ const SystemConfigPage = () => {
               </div>
             </Form.Item>
           )}
-          <Form.Item
-            style={{ marginBottom: 30 }}
-            label="API访问地址"
-            name="system.api_url"
-          >
-            <Input style={{ width: 274 }} placeholder="请填写API访问地址" />
-          </Form.Item>
           <Form.Item
             style={{ marginBottom: 30 }}
             label="PC学员端地址"
@@ -511,9 +488,9 @@ const SystemConfigPage = () => {
                 <div className="d-flex ml-24">
                   <UploadImageButton
                     text="更换封面"
-                    onSelected={(url) => {
+                    onSelected={(url, id) => {
                       setThumb(url);
-                      form.setFieldsValue({ "player.poster": url });
+                      form.setFieldsValue({ "player.poster": id });
                     }}
                   ></UploadImageButton>
                   <div className="helper-text ml-8">
@@ -533,9 +510,9 @@ const SystemConfigPage = () => {
                 <div className="d-flex">
                   <UploadImageButton
                     text="更换封面"
-                    onSelected={(url) => {
+                    onSelected={(url, id) => {
                       setThumb(url);
-                      form.setFieldsValue({ "player.poster": url });
+                      form.setFieldsValue({ "player.poster": id });
                     }}
                   ></UploadImageButton>
                   <div className="helper-text ml-8">
@@ -588,9 +565,9 @@ const SystemConfigPage = () => {
                 <div className="d-flex ml-24">
                   <UploadImageButton
                     text="更换头像"
-                    onSelected={(url) => {
+                    onSelected={(url, id) => {
                       setAvatar(url);
-                      form.setFieldsValue({ "member.default_avatar": url });
+                      form.setFieldsValue({ "member.default_avatar": id });
                     }}
                   ></UploadImageButton>
                   <div className="helper-text ml-8">（新学员的默认头像）</div>
@@ -608,9 +585,9 @@ const SystemConfigPage = () => {
                 <div className="d-flex">
                   <UploadImageButton
                     text="更换头像"
-                    onSelected={(url) => {
+                    onSelected={(url, id) => {
                       setAvatar(url);
-                      form.setFieldsValue({ "member.default_avatar": url });
+                      form.setFieldsValue({ "member.default_avatar": id });
                     }}
                   ></UploadImageButton>
                   <div className="helper-text ml-8">（新学员的默认头像）</div>
@@ -643,24 +620,6 @@ const SystemConfigPage = () => {
           onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
-          <Form.Item
-            style={{ marginBottom: 30 }}
-            label="服务商"
-            name="s3.service"
-          >
-            <Select
-              defaultValue={null}
-              style={{ width: 200 }}
-              placeholder="请选择服务商"
-              options={[
-                { value: "oss", label: "阿里云OSS" },
-                { value: "cos", label: "腾讯云COS" },
-              ]}
-              onChange={(e: any) => {
-                setS3Service(e);
-              }}
-            />
-          </Form.Item>
           <Form.Item
             style={{ marginBottom: 30 }}
             label="AccessKey"
@@ -714,17 +673,6 @@ const SystemConfigPage = () => {
               style={{ width: 274 }}
               allowClear
               placeholder="请填写Endpoint"
-            />
-          </Form.Item>
-          <Form.Item
-            style={{ marginBottom: 30 }}
-            label="Domain"
-            name="s3.domain"
-          >
-            <Input
-              style={{ width: 274 }}
-              allowClear
-              placeholder="请填写Domain"
             />
           </Form.Item>
           <Form.Item

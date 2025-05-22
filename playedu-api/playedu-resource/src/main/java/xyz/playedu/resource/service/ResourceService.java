@@ -17,6 +17,7 @@ package xyz.playedu.resource.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
+import java.util.Map;
 import xyz.playedu.common.exception.NotFoundException;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.types.paginate.ResourcePaginateFilter;
@@ -36,15 +37,24 @@ public interface ResourceService extends IService<Resource> {
             String ext,
             Long size,
             String disk,
-            String fileId,
             String path,
-            String url);
+            Integer parentId,
+            Integer isHidden);
+
+    void update(
+            Resource resource,
+            Integer adminId,
+            String categoryIds,
+            String type,
+            String filename,
+            String ext,
+            Long size,
+            String disk,
+            String path,
+            Integer parentId,
+            Integer isHidden);
 
     Resource findOrFail(Integer id) throws NotFoundException;
-
-    void changeParentId(Integer id, Integer parentId);
-
-    void storeResourceVideo(Integer rid, Integer duration, String poster);
 
     List<Resource> chunks(List<Integer> ids);
 
@@ -59,4 +69,8 @@ public interface ResourceService extends IService<Resource> {
     List<Integer> categoryIds(Integer resourceId);
 
     Integer total(List<String> types);
+
+    Map<Integer, String> chunksPreSignUrlByIds(List<Integer> ids);
+
+    Map<Integer, String> downloadResById(Integer id);
 }

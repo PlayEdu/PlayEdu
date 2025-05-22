@@ -106,28 +106,29 @@ const CoursePage = () => {
     navigate(`/course/${cid}/hour/${id}`);
   };
 
-  const downLoadFile = (cid: number, id: number) => {
+  const downLoadFile = (cid: number, id: number, rid: number) => {
     vod.downloadAttachment(cid, id).then((res: any) => {
+      let url = res.data.resource_url[rid];
       if (isWechat()) {
         if (isIOS()) {
           Toast.show("请点击右上角···浏览器打开下载");
         }
         var input = document.createElement("input");
-        input.value = res.data.download_url;
+        input.value = url;
         document.body.appendChild(input);
         input.select();
         document.execCommand("Copy");
         document.body.removeChild(input);
-        window.open(res.data.download_url);
+        window.open(url);
       } else {
         if (isIOS()) {
-          setDownLoadTemplateURL(res.data.download_url);
+          setDownLoadTemplateURL(url);
           setTimeout(() => {
             let $do: any = document.querySelector("#downLoadExcel");
             $do.click();
           }, 500);
         } else {
-          window.open(res.data.download_url);
+          window.open(url);
         }
       }
     });
@@ -287,7 +288,9 @@ const CoursePage = () => {
                 </div>
                 <div
                   className={styles["download"]}
-                  onClick={() => downLoadFile(item.course_id, item.id)}
+                  onClick={() =>
+                    downLoadFile(item.course_id, item.id, item.rid)
+                  }
                 >
                   下载
                 </div>

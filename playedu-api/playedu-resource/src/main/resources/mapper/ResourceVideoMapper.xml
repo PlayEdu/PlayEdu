@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="xyz.playedu.resource.mapper.ResourceVideoMapper">
+<mapper namespace="xyz.playedu.resource.mapper.ResourceExtraMapper">
 
-    <resultMap id="BaseResultMap" type="xyz.playedu.resource.domain.ResourceVideo">
+    <resultMap id="BaseResultMap" type="xyz.playedu.resource.domain.ResourceExtra">
             <result property="rid" column="rid" jdbcType="INTEGER"/>
             <result property="poster" column="poster" jdbcType="VARCHAR"/>
             <result property="duration" column="duration" jdbcType="INTEGER"/>

@@ -16,7 +16,6 @@
 package xyz.playedu.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import xyz.playedu.common.exception.NotFoundException;
@@ -35,7 +34,7 @@ public interface CourseService extends IService<Course> {
 
     Course createWithCategoryIdsAndDepIds(
             String title,
-            String thumb,
+            Integer thumb,
             String shortDesc,
             Integer isRequired,
             Integer isShow,
@@ -46,11 +45,11 @@ public interface CourseService extends IService<Course> {
     void updateWithCategoryIdsAndDepIds(
             Course course,
             String title,
-            String thumb,
+            Integer thumb,
             String shortDesc,
             Integer isRequired,
             Integer isShow,
-            Date publishedAt,
+            String sortAt,
             Integer[] categoryIds,
             Integer[] depIds);
 

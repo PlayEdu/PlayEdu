@@ -9,6 +9,9 @@ import { Empty } from "../../compenents";
 import myLesoon from "../../assets/images/commen/icon-mylesoon.png";
 import studyTime from "../../assets/images/commen/icon-studytime.png";
 import iconRoute from "../../assets/images/commen/icon-route.png";
+import defaultThumb1 from "../../assets/thumb/thumb1.png";
+import defaultThumb2 from "../../assets/thumb/thumb2.png";
+import defaultThumb3 from "../../assets/thumb/thumb3.png";
 import { studyTimeFormat } from "../../utils/index";
 
 type StatsModel = {
@@ -54,6 +57,7 @@ const IndexPage = () => {
     useState<LearnCourseRecordsModel>({});
   const [learnCourseHourCount, setLearnCourseHourCount] = useState<any>({});
   const [stats, setStats] = useState<StatsModel | null>(null);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const currentDepId = useSelector(
     (state: any) => state.loginUser.value.currentDepId
   );
@@ -90,6 +94,7 @@ const IndexPage = () => {
       setStats(res.data.stats);
       setLearnCourseRecords(records);
       setLearnCourseHourCount(res.data.user_course_hour_count);
+      setResourceUrl(res.data.resource_url);
       if (tabKey === 0) {
         setCoursesList(res.data.courses);
       } else if (tabKey === 1) {
@@ -408,7 +413,15 @@ const IndexPage = () => {
                   <CoursesModel
                     id={item.id}
                     title={item.title}
-                    thumb={item.thumb}
+                    thumb={
+                      item.thumb === -1
+                        ? defaultThumb1
+                        : item.thumb === -2
+                        ? defaultThumb2
+                        : item.thumb === -3
+                        ? defaultThumb3
+                        : resourceUrl[item.thumb]
+                    }
                     isRequired={item.is_required}
                     progress={Math.floor(
                       learnCourseRecords[item.id].progress / 100
@@ -422,7 +435,15 @@ const IndexPage = () => {
                     <CoursesModel
                       id={item.id}
                       title={item.title}
-                      thumb={item.thumb}
+                      thumb={
+                        item.thumb === -1
+                          ? defaultThumb1
+                          : item.thumb === -2
+                          ? defaultThumb2
+                          : item.thumb === -3
+                          ? defaultThumb3
+                          : resourceUrl[item.thumb]
+                      }
                       isRequired={item.is_required}
                       progress={1}
                     ></CoursesModel>
@@ -432,7 +453,15 @@ const IndexPage = () => {
                     <CoursesModel
                       id={item.id}
                       title={item.title}
-                      thumb={item.thumb}
+                      thumb={
+                        item.thumb === -1
+                          ? defaultThumb1
+                          : item.thumb === -2
+                          ? defaultThumb2
+                          : item.thumb === -3
+                          ? defaultThumb3
+                          : resourceUrl[item.thumb]
+                      }
                       isRequired={item.is_required}
                       progress={0}
                     ></CoursesModel>

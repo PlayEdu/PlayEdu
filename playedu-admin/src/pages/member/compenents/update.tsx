@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Form, TreeSelect, Input, message, Spin } from "antd";
 import styles from "./update.module.less";
-import { useSelector } from "react-redux";
 import { user, department } from "../../../api/index";
 import { UploadImageButton } from "../../../compenents";
 import { ValidataCredentials } from "../../../utils/index";
+import memberDefaultAvatar from "../../../assets/thumb/avatar.png";
 
 interface PropInterface {
   id: number;
@@ -27,9 +27,7 @@ export const MemberUpdate: React.FC<PropInterface> = ({
   const [init, setInit] = useState(true);
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<any>([]);
-  const memberDefaultAvatar = useSelector(
-    (state: any) => state.systemConfig.value.memberDefaultAvatar
-  );
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [avatar, setAvatar] = useState<string>(memberDefaultAvatar);
 
   useEffect(() => {
@@ -62,7 +60,7 @@ export const MemberUpdate: React.FC<PropInterface> = ({
   const getDetail = () => {
     user.user(id).then((res: any) => {
       let user = res.data.user;
-      setAvatar(user.avatar);
+      setResourceUrl(res.data.resource_url);
       form.setFieldsValue({
         email: user.email,
         name: user.name,
@@ -70,6 +68,11 @@ export const MemberUpdate: React.FC<PropInterface> = ({
         idCard: user.id_card,
         dep_ids: res.data.dep_ids,
       });
+      if (user.avatar === -1) {
+        setAvatar(memberDefaultAvatar);
+      } else {
+        setAvatar(res.data.resource_url[user.avatar]);
+      }
       setInit(false);
     });
   };
@@ -185,9 +188,9 @@ export const MemberUpdate: React.FC<PropInterface> = ({
                   <div className="d-flex">
                     <UploadImageButton
                       text="更换头像"
-                      onSelected={(url) => {
+                      onSelected={(url, id) => {
                         setAvatar(url);
-                        form.setFieldsValue({ avatar: url });
+                        form.setFieldsValue({ avatar: id });
                       }}
                     ></UploadImageButton>
                   </div>

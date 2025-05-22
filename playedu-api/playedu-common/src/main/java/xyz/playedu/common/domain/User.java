@@ -46,7 +46,7 @@ public class User implements Serializable {
     private String name;
 
     /** 头像 */
-    private String avatar;
+    private Integer avatar;
 
     /** 密码 */
     @JsonIgnore private String password;

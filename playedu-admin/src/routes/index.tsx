@@ -46,6 +46,8 @@ const DepartmentPage = lazy(() => import("../pages/department"));
 const TestPage = lazy(() => import("../pages/test"));
 //错误页面
 const ErrorPage = lazy(() => import("../pages/error"));
+//使用许可页面
+const LicensingPage = lazy(() => import("../pages/licensing/index"));
 
 import PrivateRoute from "../compenents/private-route";
 
@@ -160,6 +162,10 @@ const routes: RouteObject[] = [
           {
             path: "/department",
             element: <PrivateRoute Component={<DepartmentPage />} />,
+          },
+          {
+            path: "/licensing",
+            element: <PrivateRoute Component={<LicensingPage />} />,
           },
         ],
       },

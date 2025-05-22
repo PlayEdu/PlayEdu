@@ -37,15 +37,15 @@ public class UserLearnDurationRecordServiceImpl
     @Override
     @SneakyThrows
     public void store(
-            Integer userId, Integer courseId, Integer hourId, Long startTime, Long endTime) {
+            Integer userId, String fromId, String fromScene, Long startTime, Long endTime) {
         // 处理日期
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String date = simpleDateFormat.format(new Date(endTime));
 
         UserLearnDurationRecord record = new UserLearnDurationRecord();
         record.setUserId(userId);
-        record.setCourseId(courseId);
-        record.setHourId(hourId);
+        record.setFromId(fromId);
+        record.setFromScene(fromScene);
         record.setStartAt(new Date(startTime));
         record.setEndAt(new Date(endTime));
         record.setDuration((int) (endTime - startTime));

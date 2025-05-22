@@ -87,11 +87,11 @@ const LoginPage = () => {
       let config: SystemConfigStoreInterface = {
         //系统配置
         "ldap-enabled": configRes.data["ldap-enabled"],
-        systemApiUrl: configRes.data["system-api-url"],
         systemH5Url: configRes.data["system-h5-url"],
         systemLogo: configRes.data["system-logo"],
         systemName: configRes.data["system-name"],
         systemPcUrl: configRes.data["system-pc-url"],
+        resourceUrl: configRes.data["resource_url"],
         pcIndexFooterMsg: configRes.data["system-pc-index-footer-msg"],
         //播放器配置
         playerPoster: configRes.data["player-poster"],

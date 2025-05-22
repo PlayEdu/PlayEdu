@@ -14,7 +14,6 @@ import {
   Tag,
 } from "antd";
 import styles from "./create.module.less";
-import { useSelector } from "react-redux";
 import { course, department } from "../../../api/index";
 import {
   UploadImageButton,
@@ -25,6 +24,9 @@ import {
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { TreeHours } from "./hours";
 import { TreeAttachments } from "./attachments";
+import defaultThumb1 from "../../../assets/thumb/thumb1.png";
+import defaultThumb2 from "../../../assets/thumb/thumb2.png";
+import defaultThumb3 from "../../../assets/thumb/thumb3.png";
 
 const { confirm } = Modal;
 
@@ -46,12 +48,6 @@ export const CourseCreate: React.FC<PropInterface> = ({
   onCancel,
 }) => {
   const [form] = Form.useForm();
-  const courseDefaultThumbs = useSelector(
-    (state: any) => state.systemConfig.value.courseDefaultThumbs
-  );
-  const defaultThumb1 = courseDefaultThumbs[0];
-  const defaultThumb2 = courseDefaultThumbs[1];
-  const defaultThumb3 = courseDefaultThumbs[2];
   const [loading, setLoading] = useState(false);
   const [init, setInit] = useState(true);
   const [departments, setDepartments] = useState<Option[]>([]);
@@ -85,7 +81,7 @@ export const CourseCreate: React.FC<PropInterface> = ({
   useEffect(() => {
     form.setFieldsValue({
       title: "",
-      thumb: defaultThumb1,
+      thumb: -1,
       isRequired: 1,
       short_desc: "",
       hasChapter: 0,
@@ -688,7 +684,7 @@ export const CourseCreate: React.FC<PropInterface> = ({
                         onClick={() => {
                           setThumb(defaultThumb1);
                           form.setFieldsValue({
-                            thumb: defaultThumb1,
+                            thumb: -1,
                           });
                         }}
                       >
@@ -709,7 +705,7 @@ export const CourseCreate: React.FC<PropInterface> = ({
                         onClick={() => {
                           setThumb(defaultThumb2);
                           form.setFieldsValue({
-                            thumb: defaultThumb2,
+                            thumb: -2,
                           });
                         }}
                       >
@@ -730,7 +726,7 @@ export const CourseCreate: React.FC<PropInterface> = ({
                         onClick={() => {
                           setThumb(defaultThumb3);
                           form.setFieldsValue({
-                            thumb: defaultThumb3,
+                            thumb: -3,
                           });
                         }}
                       >
@@ -746,9 +742,9 @@ export const CourseCreate: React.FC<PropInterface> = ({
                     <div className="d-flex">
                       <UploadImageButton
                         text="更换封面"
-                        onSelected={(url) => {
+                        onSelected={(url, id) => {
                           setThumb(url);
-                          form.setFieldsValue({ thumb: url });
+                          form.setFieldsValue({ thumb: id });
                         }}
                       ></UploadImageButton>
                       <span className="helper-text ml-8">

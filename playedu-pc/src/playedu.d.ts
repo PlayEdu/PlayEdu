@@ -7,7 +7,7 @@ declare global {
     is_required: number;
     is_show: number;
     short_desc: string;
-    thumb: string;
+    thumb: number;
     title: string;
   }
 
@@ -47,6 +47,10 @@ declare global {
     progress: number;
     updated_at: string;
     user_id: number;
+  }
+
+  interface ResourceUrlModel {
+    [key: number]: string;
   }
 }
 

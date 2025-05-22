@@ -17,6 +17,7 @@ import { BackBartment } from "../../compenents";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { PerButton } from "../../compenents";
 import { dateFormat } from "../../utils/index";
+import memberDefaultAvatar from "../../assets/thumb/avatar.png";
 
 const { confirm } = Modal;
 
@@ -95,6 +96,7 @@ const CourseUserPage = () => {
   const [email, setEmail] = useState("");
   const [idCard, setIdCard] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<any>([]);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [title, setTitle] = useState<string>(String(result.get("title")));
 
   const columns: ColumnsType<DataType> = [
@@ -107,7 +109,11 @@ const CourseUserPage = () => {
             preview={false}
             width={40}
             height={40}
-            src={record.avatar}
+            src={
+              record.avatar == -1
+                ? memberDefaultAvatar
+                : resourceUrl[record.avatar]
+            }
           ></Image>
           <span className="ml-8">{record.name}</span>
         </div>
@@ -231,6 +237,7 @@ const CourseUserPage = () => {
         setHourCount(res.data.user_course_hour_user_first_at);
         setRecords(res.data.user_course_records);
         setPerRecords(res.data.per_user_earliest_records);
+        setResourceUrl(res.data.resource_url);
         setCourse(res.data.course);
         setDepartments(res.data.departments);
         setUserDepIds(res.data.user_dep_ids);

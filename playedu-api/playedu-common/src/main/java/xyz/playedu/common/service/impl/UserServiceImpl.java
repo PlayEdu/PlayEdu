@@ -90,7 +90,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public User createWithDepIds(
             String email,
             String name,
-            String avatar,
+            Integer avatar,
             String password,
             String idCard,
             Integer[] depIds) {
@@ -129,7 +129,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             User user,
             String email,
             String name,
-            String avatar,
+            Integer avatar,
             String password,
             String idCard,
             Integer[] depIds) {
@@ -263,7 +263,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public void changeAvatar(Integer userId, String avatar) {
+    public void changeAvatar(Integer userId, Integer avatar) {
         User user = new User();
         user.setId(userId);
         user.setAvatar(avatar);

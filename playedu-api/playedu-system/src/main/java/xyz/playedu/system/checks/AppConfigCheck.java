@@ -57,16 +57,6 @@ public class AppConfigCheck implements CommandLineRunner {
                                 },
                                 new AppConfig() {
                                     {
-                                        setName("API访问地址");
-                                        setSort(30);
-                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
-                                        setKeyName(ConfigConstant.SYSTEM_API_URL);
-                                        setKeyValue("");
-                                        setHelp("请输入API访问地址");
-                                    }
-                                },
-                                new AppConfig() {
-                                    {
                                         setName("PC端口访问地址");
                                         setSort(40);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_INPUT);
@@ -176,17 +166,6 @@ public class AppConfigCheck implements CommandLineRunner {
                             new AppConfig[] {
                                 new AppConfig() {
                                     {
-                                        setName("服务商");
-                                        setSort(1);
-                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_SELECT);
-                                        setKeyName(ConfigConstant.S3_SERVICE);
-                                        setKeyValue("");
-                                        setOptionValue(
-                                                "[{\"name\":\"阿里云OSS\",\"value\":\"oss\"},{\"name\":\"腾讯云COS\",\"value\":\"cos\"}]");
-                                    }
-                                },
-                                new AppConfig() {
-                                    {
                                         setName("AccessKey");
                                         setSort(10);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
@@ -228,15 +207,6 @@ public class AppConfigCheck implements CommandLineRunner {
                                         setSort(40);
                                         setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
                                         setKeyName(ConfigConstant.S3_ENDPOINT);
-                                        setKeyValue("");
-                                    }
-                                },
-                                new AppConfig() {
-                                    {
-                                        setName("Domain");
-                                        setSort(50);
-                                        setFieldType(BackendConstant.APP_CONFIG_FIELD_TYPE_TEXT);
-                                        setKeyName(ConfigConstant.S3_DOMAIN);
                                         setKeyValue("");
                                     }
                                 },

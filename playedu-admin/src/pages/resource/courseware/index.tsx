@@ -43,6 +43,7 @@ const ResourceCoursewarePage = () => {
   const [list, setList] = useState<DataType[]>([]);
   const [adminUsers, setAdminUsers] = useState<AdminUsersModel>({});
   const [existingTypes, setExistingTypes] = useState<string[]>([]);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [refresh, setRefresh] = useState(false);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
@@ -94,6 +95,7 @@ const ResourceCoursewarePage = () => {
         setList(res.data.result.data);
         setExistingTypes(res.data.existing_types);
         setAdminUsers(res.data.admin_users);
+        setResourceUrl(res.data.resource_url);
         setLoading(false);
       })
       .catch((err: any) => {
@@ -153,7 +155,11 @@ const ResourceCoursewarePage = () => {
               size="small"
               className="b-n-link c-red"
               onClick={() => {
-                downLoadFile(record.url);
+                downLoadFile(
+                  resourceUrl[record.id],
+                  record.name,
+                  record.extension
+                );
               }}
             >
               下载
@@ -262,9 +268,17 @@ const ResourceCoursewarePage = () => {
     });
   };
 
-  const downLoadFile = (url: string) => {
-    console.log(url);
+  const downLoadFile = (url: string, name: string, extension: string) => {
     window.open(url);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = `${name}.${extension}`; // 设置下载的文件名
+    document.body.appendChild(a);
+    a.click(); // 触发点击事件
+    // 释放 URL 对象
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   };
 
   return (

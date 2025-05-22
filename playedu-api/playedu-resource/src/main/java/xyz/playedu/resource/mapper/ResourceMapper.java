@@ -23,7 +23,7 @@ import xyz.playedu.resource.domain.Resource;
 
 /**
  * @author tengteng
- * @description 针对表【resources】的数据库操作Mapper
+ * @description 针对表【resource】的数据库操作Mapper
  * @createDate 2023-03-13 10:25:30
  */
 @Mapper

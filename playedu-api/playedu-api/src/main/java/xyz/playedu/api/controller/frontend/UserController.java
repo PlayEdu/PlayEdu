@@ -25,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
+import xyz.playedu.common.constant.CommonConstant;
 import xyz.playedu.common.constant.FrontendConstant;
 import xyz.playedu.common.context.FCtx;
 import xyz.playedu.common.domain.Category;
@@ -32,16 +33,16 @@ import xyz.playedu.common.domain.Department;
 import xyz.playedu.common.domain.User;
 import xyz.playedu.common.domain.UserUploadImageLog;
 import xyz.playedu.common.exception.ServiceException;
-import xyz.playedu.common.service.AppConfigService;
-import xyz.playedu.common.service.CategoryService;
-import xyz.playedu.common.service.DepartmentService;
-import xyz.playedu.common.service.UserService;
+import xyz.playedu.common.service.*;
 import xyz.playedu.common.types.JsonResponse;
+import xyz.playedu.common.types.UploadFileInfo;
+import xyz.playedu.common.types.config.S3Config;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordCourseCountMapper;
-import xyz.playedu.common.util.PrivacyUtil;
 import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
+import xyz.playedu.resource.domain.Resource;
+import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.UploadService;
 
 @RestController
@@ -69,6 +70,10 @@ public class UserController {
 
     @Autowired private AppConfigService appConfigService;
 
+    @Autowired private ResourceService resourceService;
+
+    @Autowired private UserUploadImageLogService userUploadImageLogService;
+
     @GetMapping("/detail")
     public JsonResponse detail() {
         User user = FCtx.getUser();
@@ -78,25 +83,65 @@ public class UserController {
             departments = departmentService.listByIds(depIds);
         }
 
-        user.setIdCard(PrivacyUtil.hideIDCard(user.getIdCard()));
-
         HashMap<String, Object> data = new HashMap<>();
         data.put("user", user);
         data.put("departments", departments);
+
+        // 获取资源签名url
+        data.put(
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(
+                        new ArrayList<>() {
+                            {
+                                add(user.getAvatar());
+                            }
+                        }));
 
         return JsonResponse.data(data);
     }
 
     @PutMapping("/avatar")
     public JsonResponse changeAvatar(MultipartFile file) {
-        UserUploadImageLog log =
-                uploadService.userAvatar(
-                        appConfigService.getS3Config().getService(),
-                        FCtx.getId(),
-                        file,
-                        FrontendConstant.USER_UPLOAD_IMAGE_TYPE_AVATAR,
-                        FrontendConstant.USER_UPLOAD_IMAGE_SCENE_AVATAR);
-        userService.changeAvatar(FCtx.getId(), log.getUrl());
+        // 校验存储配置是否完整
+        S3Config s3Config = appConfigService.getS3Config();
+        if (StringUtil.isEmpty(s3Config.getAccessKey())
+                || StringUtil.isEmpty(s3Config.getSecretKey())
+                || StringUtil.isEmpty(s3Config.getBucket())
+                || StringUtil.isEmpty(s3Config.getEndpoint())
+                || StringUtil.isEmpty(s3Config.getRegion())) {
+            throw new ServiceException("存储服务未配置");
+        }
+
+        UploadFileInfo info = uploadService.upload(s3Config, file, null);
+
+        Resource resource =
+                resourceService.create(
+                        CommonConstant.ZERO,
+                        null,
+                        info.getResourceType(),
+                        info.getOriginalName(),
+                        info.getExtension(),
+                        info.getSize(),
+                        info.getDisk(),
+                        info.getSavePath(),
+                        CommonConstant.ZERO,
+                        CommonConstant.ONE);
+
+        // 学员头像
+        userService.changeAvatar(FCtx.getId(), resource.getId());
+
+        // 学员上传图片记录
+        UserUploadImageLog log = new UserUploadImageLog();
+        log.setUserId(FCtx.getId());
+        log.setTyped(FrontendConstant.USER_UPLOAD_IMAGE_TYPE_AVATAR);
+        log.setScene(FrontendConstant.USER_UPLOAD_IMAGE_SCENE_AVATAR);
+        log.setSize(info.getSize());
+        log.setDriver(info.getDisk());
+        log.setPath(info.getSavePath());
+        log.setName(info.getOriginalName());
+        log.setCreatedAt(new Date());
+        userUploadImageLogService.save(log);
+
         return JsonResponse.success();
     }
 
@@ -173,7 +218,7 @@ public class UserController {
                     courses.stream()
                             .sorted(
                                     Comparator.comparing(
-                                                    Course::getPublishedAt,
+                                                    Course::getSortAt,
                                                     Comparator.nullsFirst(Date::compareTo))
                                             .reversed())
                             .toList();
@@ -256,6 +301,11 @@ public class UserController {
                                         UserCourseHourRecordCourseCountMapper::getCourseId,
                                         UserCourseHourRecordCourseCountMapper::getTotal)));
 
+        // 获取签名url
+        data.put(
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(
+                        courses.stream().map(Course::getThumb).toList()));
         return JsonResponse.data(data);
     }
 
@@ -310,12 +360,17 @@ public class UserController {
                 userCourseRecordService.chunk(FCtx.getId(), courseIds).stream()
                         .collect(Collectors.toMap(UserCourseRecord::getCourseId, e -> e));
         List<UserLatestLearn> userLatestLearns = new ArrayList<>();
+        List<Integer> rids = new ArrayList<>();
         for (Integer courseId : courseIds) {
             UserCourseRecord record = records.get(courseId); // 线上课学习进度
             Course tmpCourse = courses.get(courseId); // 线上课
             Integer tmpHourId = course2hour.get(courseId); // 最近学习的课时id
             UserCourseHourRecord tmpUserCourseHourRecord = hour2Record.get(tmpHourId); // 课时学习进度
             CourseHour tmpHour = hours.get(tmpHourId); // 课时
+
+            if (StringUtil.isNotNull(tmpCourse)) {
+                rids.add(tmpCourse.getThumb());
+            }
 
             userLatestLearns.add(
                     new UserLatestLearn() {
@@ -328,6 +383,11 @@ public class UserController {
                     });
         }
 
-        return JsonResponse.data(userLatestLearns);
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("user_latest_learns", userLatestLearns);
+        // 获取签名url
+        data.put("resource_url", resourceService.chunksPreSignUrlByIds(rids));
+
+        return JsonResponse.data(data);
     }
 }

@@ -2,7 +2,7 @@ declare global {
   interface CourseModel {
     id: number;
     title: string;
-    thumb: string;
+    thumb: number;
     short_desc: string;
     is_required: number;
     charge: number;
@@ -57,7 +57,7 @@ declare global {
   interface UserModel {
     id: number;
     name: string;
-    avatar: string;
+    avatar: number;
     credit1: number;
     email: string;
     create_city: string;
@@ -71,6 +71,10 @@ declare global {
     updated_at: string;
     login_at?: string;
     verify_at?: string;
+  }
+
+  interface ResourceUrlModel {
+    [key: number]: string;
   }
 }
 

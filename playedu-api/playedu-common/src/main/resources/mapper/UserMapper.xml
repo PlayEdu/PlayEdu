@@ -60,7 +60,7 @@
                 AND `users`.`name` LIKE concat('%',#{name},'%')
             </if>
             <if test="email != null and email != ''">
-                AND `users`.`email` = #{email}
+                AND `users`.`email` LIKE concat('%',#{email},'%')
             </if>
             <if test="idCard != null and idCard != ''">
                 AND `users`.`id_card` = #{idCard}
@@ -111,7 +111,7 @@
                 AND `users`.`name` LIKE concat('%',#{name},'%')
             </if>
             <if test="email != null and email != ''">
-                AND `users`.`email` = #{email}
+                AND `users`.`email` LIKE concat('%',#{email},'%')
             </if>
             <if test="idCard != null and idCard != ''">
                 AND `users`.`id_card` = #{idCard}

@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.resource.service;
+package xyz.playedu.course.mapper;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import java.util.List;
-import xyz.playedu.resource.domain.ResourceVideo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import xyz.playedu.course.domain.CourseDepartmentUser;
 
 /**
  * @author tengteng
- * @description 针对表【resource_videos】的数据库操作Service
- * @createDate 2023-03-02 15:13:03
+ * @description 针对表【course_department_user】的数据库操作Mapper
+ * @createDate 2023-02-24 14:53:52
  */
-public interface ResourceVideoService extends IService<ResourceVideo> {
-
-    void create(Integer resourceId, Integer duration, String poster);
-
-    void removeByRid(Integer resourceId);
-
-    List<ResourceVideo> chunksByRids(List<Integer> resourceIds);
-}
+@Mapper
+public interface CourseDepartmentUserMapper extends BaseMapper<CourseDepartmentUser> {}

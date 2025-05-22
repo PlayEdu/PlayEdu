@@ -5,25 +5,27 @@
 <mapper namespace="xyz.playedu.course.mapper.CourseMapper">
 
     <resultMap id="BaseResultMap" type="xyz.playedu.course.domain.Course">
-            <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="title" column="title" jdbcType="VARCHAR"/>
-            <result property="thumb" column="thumb" jdbcType="VARCHAR"/>
-            <result property="shortDesc" column="short_desc" jdbcType="VARCHAR"/>
-            <result property="charge" column="charge" jdbcType="INTEGER"/>
-            <result property="classHour" column="class_hour" jdbcType="INTEGER"/>
-            <result property="isShow" column="is_show" jdbcType="TINYINT"/>
-            <result property="isRequired" column="is_required" jdbcType="TINYINT"/>
-            <result property="publishedAt" column="published_at" jdbcType="TIMESTAMP"/>
-            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
-            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
-            <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="thumb" column="thumb" jdbcType="VARCHAR"/>
+        <result property="shortDesc" column="short_desc" jdbcType="VARCHAR"/>
+        <result property="charge" column="charge" jdbcType="INTEGER"/>
+        <result property="classHour" column="class_hour" jdbcType="INTEGER"/>
+        <result property="isShow" column="is_show" jdbcType="TINYINT"/>
+        <result property="isRequired" column="is_required" jdbcType="TINYINT"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="sortAt" column="sort_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
+        <result property="extra" column="extra" jdbcType="VARCHAR"/>
+        <result property="adminId" column="admin_id" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,title,thumb,short_desc,
         charge,class_hour,is_show,
-        is_required,published_at,created_at,updated_at,
-        deleted_at
+        is_required,created_at,updated_at,sort_at,
+        deleted_at,extra,admin_id
     </sql>
 
     <select id="paginate" resultType="xyz.playedu.course.domain.Course">
@@ -32,10 +34,10 @@
         <if test="depIds != null and !depIds.isEmpty()">
             <choose>
                 <when test="depIds.get(0) == 0">
-                    LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
+                    LEFT JOIN `course_department_user` ON `course_department_user`.`course_id` = `courses`.`id`
                 </when>
                 <otherwise>
-                    INNER JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
+                    INNER JOIN `course_department_user` ON `course_department_user`.`course_id` = `courses`.`id`
                 </otherwise>
             </choose>
         </if>
@@ -54,10 +56,10 @@
             <if test="depIds != null and !depIds.isEmpty()">
                 <choose>
                     <when test="depIds.get(0) == 0">
-                        AND `course_department`.`course_id` IS NULL
+                        AND `course_department_user`.`course_id` IS NULL
                     </when>
                     <otherwise>
-                        AND `course_department`.`dep_id` IN (<foreach collection="depIds" item="tmpId" separator=",">
+                        AND `course_department_user`.`range_id` IN (<foreach collection="depIds" item="tmpId" separator=",">
                         #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
@@ -127,10 +129,10 @@
         <if test="depIds != null and !depIds.isEmpty()">
             <choose>
                 <when test="depIds.get(0) == 0">
-                    LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
+                    LEFT JOIN `course_department_user` ON `course_department_user`.`course_id` = `courses`.`id`
                 </when>
                 <otherwise>
-                    INNER JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
+                    INNER JOIN `course_department_user` ON `course_department_user`.`course_id` = `courses`.`id`
                 </otherwise>
             </choose>
         </if>
@@ -149,10 +151,10 @@
             <if test="depIds != null and !depIds.isEmpty()">
                 <choose>
                     <when test="depIds.get(0) == 0">
-                        AND `course_department`.`course_id` IS NULL
+                        AND `course_department_user`.`course_id` IS NULL
                     </when>
                     <otherwise>
-                        AND `course_department`.`dep_id` IN (<foreach collection="depIds" item="tmpId" separator=",">
+                        AND `course_department_user`.`range_id` IN (<foreach collection="depIds" item="tmpId" separator=",">
                         #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
@@ -185,11 +187,11 @@
     <select id="openCoursesAndShow" resultType="xyz.playedu.course.domain.Course">
         SELECT `courses`.*
         FROM `courses`
-        LEFT JOIN `course_department` ON `course_department`.`course_id` = `courses`.`id`
+        LEFT JOIN `course_department_user` ON `course_department_user`.`course_id` = `courses`.`id`
         <if test="categoryIds != null and !categoryIds.isEmpty()">
             INNER JOIN `resource_course_category` ON `resource_course_category`.`course_id` = `courses`.`id`
         </if>
-        WHERE `course_department`.`course_id` IS NULL
+        WHERE `course_department_user`.`course_id` IS NULL
         AND `courses`.`is_show` = 1
         <if test="categoryIds != null and !categoryIds.isEmpty()">
             AND `resource_course_category`.`category_id` IN (<foreach collection="categoryIds" item="tmpId"

@@ -12,9 +12,7 @@
         <result property="extension" column="extension" jdbcType="VARCHAR"/>
         <result property="size" column="size" jdbcType="BIGINT"/>
         <result property="disk" column="disk" jdbcType="VARCHAR"/>
-        <result property="fileId" column="file_id" jdbcType="VARCHAR"/>
         <result property="path" column="path" jdbcType="VARCHAR"/>
-        <result property="url" column="url" jdbcType="VARCHAR"/>
         <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
         <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
         <result property="isHidden" column="is_hidden" jdbcType="TINYINT"/>
@@ -24,75 +22,74 @@
         id
         ,admin_id,type,
         name,extension,size,
-        disk,file_id,path,
-        url,created_at,parent_id,
+        disk,path,created_at,parent_id,
         is_hidden
     </sql>
 
     <select id="paginate" resultType="xyz.playedu.resource.domain.Resource">
-        SELECT `resources`.*
-        FROM `resources`
+        SELECT `resource`.*
+        FROM `resource`
         <choose>
             <when test="categoryIds != null and !categoryIds.isEmpty()">
                 <choose>
                     <when test="categoryIds.get(0) == 0">
-                        LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
-                        WHERE `resources`.`is_hidden` = 0
+                        LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resource`.`id`
+                        WHERE `resource`.`is_hidden` = 0
                         AND `resource_category`.`cid` IS NULL
                     </when>
                     <otherwise>
-                        INNER JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
-                        WHERE `resources`.`is_hidden` = 0
+                        INNER JOIN `resource_category` ON `resource_category`.`rid` = `resource`.`id`
+                        WHERE `resource`.`is_hidden` = 0
                         AND `resource_category`.`cid` IN (<foreach collection="categoryIds" item="tmpId" separator=",">
                         #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
             </when>
             <otherwise>
-                WHERE `resources`.`is_hidden` = 0
+                WHERE `resource`.`is_hidden` = 0
             </otherwise>
         </choose>
         <if test="name != null and name != ''">
-            AND `resources`.`name` LIKE concat('%',#{name},'%')
+            AND `resource`.`name` LIKE concat('%',#{name},'%')
         </if>
         <if test="disk != null and disk != ''">
-            AND `resources`.`disk` = #{disk}
+            AND `resource`.`disk` = #{disk}
         </if>
         <if test="extension != null and extension != ''">
-            AND `resources`.`extension` = #{extension}
+            AND `resource`.`extension` = #{extension}
         </if>
         <if test="type != null and type != ''">
-            AND `resources`.`type` IN
+            AND `resource`.`type` IN
             <foreach item="item" collection="type.split(',')" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
         <if test="adminId != null and adminId != 0">
-            AND `resources`.`admin_id` = #{adminId}
+            AND `resource`.`admin_id` = #{adminId}
         </if>
         <if test="sortAlgo == 'asc'">
             <choose>
                 <when test="sortField == 'size'">
-                    ORDER BY `resources`.`size` ASC
+                    ORDER BY `resource`.`size` ASC
                 </when>
                 <when test="sortField == 'created_at'">
-                    ORDER BY `resources`.`created_at` ASC
+                    ORDER BY `resource`.`created_at` ASC
                 </when>
                 <otherwise>
-                    ORDER BY `resources`.`id` ASC
+                    ORDER BY `resource`.`id` ASC
                 </otherwise>
             </choose>
         </if>
         <if test="sortAlgo != 'asc'">
             <choose>
                 <when test="sortField == 'size'">
-                    ORDER BY `resources`.`size` DESC
+                    ORDER BY `resource`.`size` DESC
                 </when>
                 <when test="sortField == 'created_at'">
-                    ORDER BY `resources`.`created_at` DESC
+                    ORDER BY `resource`.`created_at` DESC
                 </when>
                 <otherwise>
-                    ORDER BY `resources`.`id` DESC
+                    ORDER BY `resource`.`id` DESC
                 </otherwise>
             </choose>
         </if>
@@ -101,87 +98,87 @@
 
     <select id="paginateCount" resultType="java.lang.Long">
         SELECT count(1)
-        FROM `resources`
+        FROM `resource`
         <choose>
             <when test="categoryIds != null and !categoryIds.isEmpty()">
                 <choose>
                     <when test="categoryIds.get(0) == 0">
-                        LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
-                        WHERE `resources`.`is_hidden` = 0
+                        LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resource`.`id`
+                        WHERE `resource`.`is_hidden` = 0
                         AND `resource_category`.`cid` IS NULL
                     </when>
                     <otherwise>
-                        INNER JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
-                        WHERE `resources`.`is_hidden` = 0
+                        INNER JOIN `resource_category` ON `resource_category`.`rid` = `resource`.`id`
+                        WHERE `resource`.`is_hidden` = 0
                         AND `resource_category`.`cid` IN (<foreach collection="categoryIds" item="tmpId" separator=",">
                         #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
             </when>
             <otherwise>
-                WHERE `resources`.`is_hidden` = 0
+                WHERE `resource`.`is_hidden` = 0
             </otherwise>
         </choose>
         <if test="name != null and name != ''">
-            AND `resources`.`name` LIKE concat('%',#{name},'%')
+            AND `resource`.`name` LIKE concat('%',#{name},'%')
         </if>
         <if test="disk != null and disk != ''">
-            AND `resources`.`disk` = #{disk}
+            AND `resource`.`disk` = #{disk}
         </if>
         <if test="extension != null and extension != ''">
-            AND `resources`.`extension` = #{extension}
+            AND `resource`.`extension` = #{extension}
         </if>
         <if test="type != null and type != ''">
-            AND `resources`.`type` IN
+            AND `resource`.`type` IN
             <foreach item="item" collection="type.split(',')" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
         <if test="adminId != null and adminId != 0">
-            AND `resources`.`admin_id` = #{adminId}
+            AND `resource`.`admin_id` = #{adminId}
         </if>
     </select>
 
     <select id="paginateType" resultType="java.lang.String">
-        SELECT DISTINCT ( `resources`.`type` )
-        FROM `resources`
+        SELECT DISTINCT ( `resource`.`type` )
+        FROM `resource`
         <choose>
             <when test="categoryIds != null and !categoryIds.isEmpty()">
                 <choose>
                     <when test="categoryIds.get(0) == 0">
-                        LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
-                        WHERE `resources`.`is_hidden` = 0
+                        LEFT JOIN `resource_category` ON `resource_category`.`rid` = `resource`.`id`
+                        WHERE `resource`.`is_hidden` = 0
                         AND `resource_category`.`cid` IS NULL
                     </when>
                     <otherwise>
-                        INNER JOIN `resource_category` ON `resource_category`.`rid` = `resources`.`id`
-                        WHERE `resources`.`is_hidden` = 0
+                        INNER JOIN `resource_category` ON `resource_category`.`rid` = `resource`.`id`
+                        WHERE `resource`.`is_hidden` = 0
                         AND `resource_category`.`cid` IN (<foreach collection="categoryIds" item="tmpId" separator=",">
                         #{tmpId}</foreach>)
                     </otherwise>
                 </choose>
             </when>
             <otherwise>
-                WHERE `resources`.`is_hidden` = 0
+                WHERE `resource`.`is_hidden` = 0
             </otherwise>
         </choose>
         <if test="name != null and name != ''">
-            AND `resources`.`name` LIKE concat('%',#{name},'%')
+            AND `resource`.`name` LIKE concat('%',#{name},'%')
         </if>
         <if test="disk != null and disk != ''">
-            AND `resources`.`disk` = #{disk}
+            AND `resource`.`disk` = #{disk}
         </if>
         <if test="extension != null and extension != ''">
-            AND `resources`.`extension` = #{extension}
+            AND `resource`.`extension` = #{extension}
         </if>
         <if test="type != null and type != ''">
-            AND `resources`.`type` IN
+            AND `resource`.`type` IN
             <foreach item="item" collection="type.split(',')" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
         <if test="adminId != null and adminId != 0">
-            AND `resources`.`admin_id` = #{adminId}
+            AND `resource`.`admin_id` = #{adminId}
         </if>
     </select>
 

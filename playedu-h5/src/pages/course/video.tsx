@@ -120,7 +120,7 @@ const CoursePlayPage = () => {
         } else if (record && record.is_finished === 1) {
           setWatchedSeconds(res.data.hour.duration);
         }
-        getVideoUrl(params);
+        getVideoUrl(res.data.hour.rid, params);
         setLoading(false);
       })
       .catch((e) => {
@@ -128,12 +128,12 @@ const CoursePlayPage = () => {
       });
   };
 
-  const getVideoUrl = (data: any) => {
+  const getVideoUrl = (rid: number, data: any) => {
     Course.playUrl(Number(params.courseId), Number(params.hourId)).then(
       (res: any) => {
         window.player && window.player.destroy();
-        setPlayUrl(res.data.url);
-        initDPlayer(res.data.url, 0, data);
+        setPlayUrl(res.data.resource_url[rid]);
+        initDPlayer(res.data.resource_url[rid], 0, data);
       }
     );
   };

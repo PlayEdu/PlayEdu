@@ -56,6 +56,7 @@ const ResourceVideosPage = () => {
   const [videoList, setVideoList] = useState<DataType[]>([]);
   const [videosExtra, setVideoExtra] = useState<VideosExtraModel>({});
   const [adminUsers, setAdminUsers] = useState<AdminUsersModel>({});
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [refresh, setRefresh] = useState(false);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
@@ -164,7 +165,7 @@ const ResourceVideosPage = () => {
               className="b-n-link c-red"
               onClick={() => {
                 setUpdateId(record.id);
-                setPlayUrl(record.url);
+                setPlayUrl(resourceUrl[record.id]);
                 setPlayeVisible(true);
               }}
             >
@@ -247,6 +248,7 @@ const ResourceVideosPage = () => {
         setVideoList(res.data.result.data);
         setVideoExtra(res.data.videos_extra);
         setAdminUsers(res.data.admin_users);
+        setResourceUrl(res.data.resource_url);
         setLoading(false);
       })
       .catch((err: any) => {

@@ -44,10 +44,7 @@ import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.paginate.CoursePaginateFiler;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.util.StringUtil;
-import xyz.playedu.course.domain.Course;
-import xyz.playedu.course.domain.CourseAttachment;
-import xyz.playedu.course.domain.CourseChapter;
-import xyz.playedu.course.domain.CourseHour;
+import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.CourseAttachmentService;
 import xyz.playedu.course.service.CourseChapterService;
 import xyz.playedu.course.service.CourseHourService;
@@ -182,6 +179,12 @@ public class CourseController {
                             .collect(Collectors.toMap(AdminUser::getId, AdminUser::getName));
             data.put("admin_users", adminUsers);
         }
+
+        // 课程封面资源ID
+        data.put(
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(
+                        result.getData().stream().map(Course::getThumb).toList()));
 
         return JsonResponse.data(data);
     }
@@ -320,6 +323,8 @@ public class CourseController {
         if (!backendBus.isSuperAdmin() && !course.getAdminId().equals(BCtx.getId())) {
             return JsonResponse.error("无权限操作");
         }
+        List<Integer> rids = new ArrayList<>();
+        rids.add(course.getThumb());
 
         List<Integer> depIds = courseService.getDepIdsByCourseId(course.getId());
         List<Integer> categoryIds = courseService.getCategoryIdsByCourseId(course.getId());
@@ -327,17 +332,17 @@ public class CourseController {
         List<CourseHour> hours = hourService.getHoursByCourseId(course.getId());
         List<CourseAttachment> attachments =
                 attachmentService.getAttachmentsByCourseId(course.getId());
-        if (null != attachments && !attachments.isEmpty()) {
+        if (StringUtil.isNotEmpty(attachments)) {
+            List<Integer> attachmentIds =
+                    attachments.stream().map(CourseAttachment::getRid).toList();
+            rids.addAll(attachmentIds);
             Map<Integer, Resource> resourceMap =
-                    resourceService
-                            .chunks(attachments.stream().map(CourseAttachment::getRid).toList())
-                            .stream()
+                    resourceService.chunks(attachmentIds).stream()
                             .collect(Collectors.toMap(Resource::getId, Function.identity()));
             attachments.forEach(
                     courseAttachment -> {
                         Resource resource = resourceMap.get(courseAttachment.getRid());
-                        if (null != resource) {
-                            courseAttachment.setUrl(resource.getUrl());
+                        if (StringUtil.isNotNull(resource)) {
                             courseAttachment.setExt(resource.getExtension());
                         }
                     });
@@ -359,6 +364,8 @@ public class CourseController {
         data.put("hours", hours.stream().collect(Collectors.groupingBy(CourseHour::getChapterId)));
         data.put("attachments", attachments);
         data.put("deps", deps);
+        // 获取签名url
+        data.put("resource_url", resourceService.chunksPreSignUrlByIds(rids));
         return JsonResponse.data(data);
     }
 
@@ -381,7 +388,7 @@ public class CourseController {
                 req.getShortDesc(),
                 req.getIsRequired(),
                 req.getIsShow(),
-                req.getPublishedAt(),
+                req.getSortAt(),
                 req.getCategoryIds(),
                 req.getDepIds());
 

@@ -43,9 +43,9 @@ import xyz.playedu.common.types.paginate.ResourcePaginateFilter;
 import xyz.playedu.common.util.S3Util;
 import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.resource.domain.Resource;
-import xyz.playedu.resource.domain.ResourceVideo;
+import xyz.playedu.resource.domain.ResourceExtra;
+import xyz.playedu.resource.service.ResourceExtraService;
 import xyz.playedu.resource.service.ResourceService;
-import xyz.playedu.resource.service.ResourceVideoService;
 
 @RestController
 @RequestMapping("/backend/v1/resource")
@@ -55,7 +55,7 @@ public class ResourceController {
 
     @Autowired private ResourceService resourceService;
 
-    @Autowired private ResourceVideoService resourceVideoService;
+    @Autowired private ResourceExtraService resourceExtraService;
 
     @Autowired private AppConfigService appConfigService;
 
@@ -122,14 +122,18 @@ public class ResourceController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("result", result);
 
-        if (type.equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
-            List<ResourceVideo> resourceVideos =
-                    resourceVideoService.chunksByRids(
-                            result.getData().stream().map(Resource::getId).toList());
-            Map<Integer, ResourceVideo> resourceVideosExtra =
-                    resourceVideos.stream()
-                            .collect(Collectors.toMap(ResourceVideo::getRid, e -> e));
-            data.put("videos_extra", resourceVideosExtra);
+        List<Integer> ids = result.getData().stream().map(Resource::getId).toList();
+        if (StringUtil.isNotEmpty(ids)) {
+            if (type.equals(BackendConstant.RESOURCE_TYPE_VIDEO)) {
+                List<ResourceExtra> resourceExtras = resourceExtraService.chunksByRids(ids);
+                Map<Integer, ResourceExtra> resourceVideosExtra =
+                        resourceExtras.stream()
+                                .collect(Collectors.toMap(ResourceExtra::getRid, e -> e));
+                data.put("videos_extra", resourceVideosExtra);
+            }
+
+            // 获取资源签名url
+            data.put("resource_url", resourceService.chunksPreSignUrlByIds(ids));
         }
 
         // 操作人
@@ -169,7 +173,7 @@ public class ResourceController {
         s3Util.removeByPath(resource.getPath());
         // 如果是视频资源文件则删除对应的时长关联记录
         if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(resource.getType())) {
-            resourceVideoService.removeByRid(resource.getId());
+            resourceExtraService.removeByRid(resource.getId());
         }
         // 删除资源记录
         resourceService.removeById(resource.getId());
@@ -203,7 +207,7 @@ public class ResourceController {
             s3Util.removeByPath(resourceItem.getPath());
             // 如果是视频资源的话还需要删除视频的关联资源，如: 封面截图
             if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(resourceItem.getType())) {
-                resourceVideoService.removeByRid(resourceItem.getId());
+                resourceExtraService.removeByRid(resourceItem.getId());
             }
             // 删除数据库的记录
             resourceService.removeById(resourceItem.getId());
@@ -226,6 +230,15 @@ public class ResourceController {
         HashMap<String, Object> data = new HashMap<>();
         data.put("resources", resource);
         data.put("category_ids", resourceService.categoryIds(id));
+        // 获取资源签名url
+        data.put(
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(
+                        new ArrayList<>() {
+                            {
+                                add(id);
+                            }
+                        }));
         return JsonResponse.data(data);
     }
 

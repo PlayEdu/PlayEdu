@@ -27,6 +27,9 @@ import { CourseCreate } from "./compenents/create";
 import { CourseUpdate } from "./compenents/update";
 import { CourseHourUpdate } from "./compenents/hour-update";
 import { CourseAttachmentUpdate } from "./compenents/attachment-update";
+import defaultThumb1 from "../../assets/thumb/thumb1.png";
+import defaultThumb2 from "../../assets/thumb/thumb2.png";
+import defaultThumb3 from "../../assets/thumb/thumb3.png";
 
 const { confirm } = Modal;
 
@@ -77,6 +80,7 @@ const CoursePage = () => {
     useState<CategoryIdsModel>({});
   const [course_dep_ids, setCourseDepIds] = useState<DepIdsModel>({});
   const [categories, setCategories] = useState<CategoriesModel>({});
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [departments, setDepartments] = useState<DepartmentsModel>({});
   const [tabKey, setTabKey] = useState(result.get("did") ? "2" : "1");
   const [adminUsers, setAdminUsers] = useState<any>({});
@@ -166,7 +170,15 @@ const CoursePage = () => {
             width={80}
             height={60}
             style={{ borderRadius: 6 }}
-            src={record.thumb}
+            src={
+              record.thumb === -1
+                ? defaultThumb1
+                : record.thumb === -2
+                ? defaultThumb2
+                : record.thumb === -3
+                ? defaultThumb3
+                : resourceUrl[record.thumb]
+            }
           ></Image>
           <span className="ml-8">{record.title}</span>
         </div>
@@ -227,7 +239,7 @@ const CoursePage = () => {
     },
     {
       title: "上架时间",
-      dataIndex: "published_at",
+      dataIndex: "sort_at",
       render: (text: string) => <span>{dateFormat(text)}</span>,
     },
     {
@@ -381,6 +393,7 @@ const CoursePage = () => {
         setCategories(res.data.categories);
         setDepartments(res.data.departments);
         setAdminUsers(res.data.admin_users);
+        setResourceUrl(res.data.resource_url)
         setLoading(false);
       })
       .catch((err: any) => {

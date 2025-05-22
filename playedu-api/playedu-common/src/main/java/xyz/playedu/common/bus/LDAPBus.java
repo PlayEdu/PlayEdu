@@ -587,7 +587,7 @@ public class LDAPBus {
             return;
         }
 
-        String defaultAvatar = appConfigService.defaultAvatar();
+        Integer defaultAvatar = appConfigService.defaultAvatar();
 
         for (LdapTransformUser ldapTransformUser : userList) {
             if (ldapTransformUser.isBan()) {
@@ -607,7 +607,7 @@ public class LDAPBus {
         }
     }
 
-    public User singleUserSync(LdapTransformUser ldapTransformUser, String defaultAvatar) {
+    public User singleUserSync(LdapTransformUser ldapTransformUser, Integer defaultAvatar) {
         log.info(
                 "*****START*****LDAP-用户同步-开始|ctx=[dn:{},uuid:{}]",
                 ldapTransformUser.getDn(),

@@ -96,6 +96,14 @@ const items = [
     null,
     null
   ),
+  getItem(
+    "使用许可",
+    "/licensing",
+    <i className="iconfont icon-xuke" />,
+    null,
+    null,
+    null,
+  ),
 ];
 
 export const LeftMenu: React.FC = () => {

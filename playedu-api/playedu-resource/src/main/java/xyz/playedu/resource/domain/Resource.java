@@ -26,9 +26,9 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * @TableName resources
+ * @TableName resource
  */
-@TableName(value = "resources")
+@TableName(value = "resource")
 @Data
 public class Resource implements Serializable {
     /** */
@@ -54,15 +54,8 @@ public class Resource implements Serializable {
     /** 存储磁盘 */
     private String disk;
 
-    /** 文件id */
-    @JsonProperty("file_id")
-    private String fileId;
-
     /** 相对地址 */
     private String path;
-
-    /** URL地址 */
-    private String url;
 
     /** */
     @JsonProperty("created_at")
@@ -109,15 +102,9 @@ public class Resource implements Serializable {
                 && (this.getDisk() == null
                         ? other.getDisk() == null
                         : this.getDisk().equals(other.getDisk()))
-                && (this.getFileId() == null
-                        ? other.getFileId() == null
-                        : this.getFileId().equals(other.getFileId()))
                 && (this.getPath() == null
                         ? other.getPath() == null
                         : this.getPath().equals(other.getPath()))
-                && (this.getUrl() == null
-                        ? other.getUrl() == null
-                        : this.getUrl().equals(other.getUrl()))
                 && (this.getCreatedAt() == null
                         ? other.getCreatedAt() == null
                         : this.getCreatedAt().equals(other.getCreatedAt()))
@@ -140,9 +127,7 @@ public class Resource implements Serializable {
         result = prime * result + ((getExtension() == null) ? 0 : getExtension().hashCode());
         result = prime * result + ((getSize() == null) ? 0 : getSize().hashCode());
         result = prime * result + ((getDisk() == null) ? 0 : getDisk().hashCode());
-        result = prime * result + ((getFileId() == null) ? 0 : getFileId().hashCode());
         result = prime * result + ((getPath() == null) ? 0 : getPath().hashCode());
-        result = prime * result + ((getUrl() == null) ? 0 : getUrl().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
         result = prime * result + ((getParentId() == null) ? 0 : getParentId().hashCode());
         result = prime * result + ((getIsHidden() == null) ? 0 : getIsHidden().hashCode());
@@ -162,9 +147,7 @@ public class Resource implements Serializable {
         sb.append(", extension=").append(extension);
         sb.append(", size=").append(size);
         sb.append(", disk=").append(disk);
-        sb.append(", fileId=").append(fileId);
         sb.append(", path=").append(path);
-        sb.append(", url=").append(url);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", parentId=").append(parentId);
         sb.append(", isHidden=").append(isHidden);

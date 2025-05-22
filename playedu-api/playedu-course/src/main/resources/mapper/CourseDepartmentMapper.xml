@@ -2,14 +2,15 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="xyz.playedu.course.mapper.CourseDepartmentMapper">
+<mapper namespace="xyz.playedu.course.mapper.CourseDepartmentUserMapper">
 
-    <resultMap id="BaseResultMap" type="xyz.playedu.course.domain.CourseDepartment">
-            <result property="courseId" column="course_id" jdbcType="INTEGER"/>
-            <result property="depId" column="dep_id" jdbcType="INTEGER"/>
+    <resultMap id="BaseResultMap" type="xyz.playedu.course.domain.CourseDepartmentUser">
+        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+        <result property="rangeId" column="range_id" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        course_id,dep_id
+        course_id,range_id,type
     </sql>
 </mapper>

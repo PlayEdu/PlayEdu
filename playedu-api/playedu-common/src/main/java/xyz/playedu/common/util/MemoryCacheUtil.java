@@ -145,13 +145,31 @@ public class MemoryCacheUtil {
     }
 
     // 内部方法
-    public static Long increment(String key, long delta) {
+    public static Long increment(String key, long delta, long expireSeconds) {
+        key = cacheNamePrefix + key;
         CacheObject cacheObject = cache.get(key);
         if (cacheObject == null || cacheObject.isExpired()) {
-            cache.put(key, new CacheObject(new AtomicLong(delta), Long.MAX_VALUE));
+            cache.put(
+                    key,
+                    new CacheObject(
+                            new AtomicLong(delta),
+                            System.currentTimeMillis() + expireSeconds * 1000));
             return delta;
         }
-        AtomicLong counter = (AtomicLong) cacheObject.getValue();
+        // 检查值的类型，如果是Long类型，将其转换为AtomicLong
+        Object value = cacheObject.getValue();
+        AtomicLong counter;
+        if (value instanceof Long) {
+            counter = new AtomicLong((Long) value);
+            cacheObject.setValue(counter); // 更新缓存对象中的值为AtomicLong类型
+        } else if (value instanceof AtomicLong) {
+            counter = (AtomicLong) value;
+        } else {
+            // 如果既不是Long也不是AtomicLong，重新初始化为delta
+            counter = new AtomicLong(delta);
+            cacheObject.setValue(counter);
+        }
+
         return counter.addAndGet(delta);
     }
 

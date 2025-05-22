@@ -27,6 +27,7 @@ public class BackendConstant {
                 {
                     add("/backend/v1/system/image-captcha");
                     add("/backend/v1/auth/login");
+                    add("/backend/v1/cache/list");
                 }
             };
 
@@ -46,6 +47,7 @@ public class BackendConstant {
     public static final String RESOURCE_TYPE_ZIP = "ZIP";
     public static final String RESOURCE_TYPE_RAR = "RAR";
     public static final String RESOURCE_TYPE_TXT = "TXT";
+    public static final String RESOURCE_TYPE_OTHER = "OTHER";
 
     public static final String RESOURCE_TYPE_ATTACHMENT =
             RESOURCE_TYPE_PDF

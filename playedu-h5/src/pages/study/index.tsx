@@ -5,6 +5,9 @@ import styles from "./index.module.scss";
 import { course } from "../../api/index";
 import { Empty } from "../../components";
 import { CoursesModel } from "./compenents/courses-model";
+import defaultThumb1 from "../../assets/thumb/thumb1.png";
+import defaultThumb2 from "../../assets/thumb/thumb2.png";
+import defaultThumb3 from "../../assets/thumb/thumb3.png";
 import moment from "moment";
 
 const StudyPage = () => {
@@ -12,6 +15,7 @@ const StudyPage = () => {
   const [todayCourses, setTodayCourses] = useState<CourseModel[]>([]);
   const [yesterdayCourses, setYesterdayCourses] = useState<CourseModel[]>([]);
   const [courses, setCourses] = useState<CourseModel[]>([]);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
 
   useEffect(() => {
     document.title = "最近学习";
@@ -26,29 +30,32 @@ const StudyPage = () => {
     course
       .latestLearn()
       .then((res: any) => {
-        let data = res.data;
-        let today: CourseModel[] = [];
-        let yesterday: CourseModel[] = [];
-        let box: CourseModel[] = [];
-        if (data && data.length > 0) {
-          data.map((item: any) => {
-            let time = moment(item.hour_record.updated_at)
-              .utcOffset(0)
-              .format("YYYY-MM-DD HH:mm:ss");
-            if (moment(time).isSame(moment(), "day")) {
-              today.push(item);
-            } else if (
-              moment(time).isSame(moment().subtract(1, "day"), "day")
-            ) {
-              yesterday.push(item);
-            } else {
-              box.push(item);
-            }
-          });
+        if (res.data.resource_url && res.data.user_latest_learns) {
+          setResourceUrl(res.data.resource_url);
+          let data = res.data.user_latest_learns;
+          let today: CourseModel[] = [];
+          let yesterday: CourseModel[] = [];
+          let box: CourseModel[] = [];
+          if (data && data.length > 0) {
+            data.map((item: any) => {
+              let time = moment(item.hour_record.updated_at)
+                .utcOffset(0)
+                .format("YYYY-MM-DD HH:mm:ss");
+              if (moment(time).isSame(moment(), "day")) {
+                today.push(item);
+              } else if (
+                moment(time).isSame(moment().subtract(1, "day"), "day")
+              ) {
+                yesterday.push(item);
+              } else {
+                box.push(item);
+              }
+            });
+          }
+          setTodayCourses(today);
+          setYesterdayCourses(yesterday);
+          setCourses(box);
         }
-        setTodayCourses(today);
-        setYesterdayCourses(yesterday);
-        setCourses(box);
         setLoading(false);
       })
       .catch((e) => {
@@ -101,7 +108,15 @@ const StudyPage = () => {
                           <CoursesModel
                             id={item.course.id}
                             title={item.course.title}
-                            thumb={item.course.thumb}
+                            thumb={
+                              item.course.thumb === -1
+                                ? defaultThumb1
+                                : item.course.thumb === -2
+                                ? defaultThumb2
+                                : item.course.thumb === -3
+                                ? defaultThumb3
+                                : resourceUrl[item.course.thumb]
+                            }
                             isRequired={item.course.is_required}
                             record={item.record}
                           ></CoursesModel>
@@ -119,7 +134,15 @@ const StudyPage = () => {
                           <CoursesModel
                             id={item.course.id}
                             title={item.course.title}
-                            thumb={item.course.thumb}
+                            thumb={
+                              item.course.thumb === -1
+                                ? defaultThumb1
+                                : item.course.thumb === -2
+                                ? defaultThumb2
+                                : item.course.thumb === -3
+                                ? defaultThumb3
+                                : resourceUrl[item.course.thumb]
+                            }
                             isRequired={item.course.is_required}
                             record={item.record}
                           ></CoursesModel>
@@ -137,7 +160,15 @@ const StudyPage = () => {
                           <CoursesModel
                             id={item.course.id}
                             title={item.course.title}
-                            thumb={item.course.thumb}
+                            thumb={
+                              item.course.thumb === -1
+                                ? defaultThumb1
+                                : item.course.thumb === -2
+                                ? defaultThumb2
+                                : item.course.thumb === -3
+                                ? defaultThumb3
+                                : resourceUrl[item.course.thumb]
+                            }
                             isRequired={item.course.is_required}
                             record={item.record}
                           ></CoursesModel>

@@ -38,8 +38,8 @@ public class UserRequest {
     @Length(min = 1, max = 20, message = "姓名长度在1-20个字符之间")
     private String name;
 
-    @NotBlank(message = "请上传头像")
-    private String avatar;
+    @NotNull(message = "请上传头像")
+    private Integer avatar;
 
     @NotNull(message = "password参数不存在")
     private String password;

@@ -26,6 +26,7 @@ import xyz.playedu.common.service.AdminPermissionService;
 import xyz.playedu.common.service.AdminRoleService;
 import xyz.playedu.common.service.AdminUserService;
 import xyz.playedu.common.util.PrivacyUtil;
+import xyz.playedu.common.util.StringUtil;
 
 @Component
 public class BackendBus {
@@ -70,6 +71,9 @@ public class BackendBus {
         }
 
         HashMap<String, Boolean> permissions = BCtx.getAdminPer();
+        if (StringUtil.isNull(permissions)) {
+            return "";
+        }
         if (permissions.get(permissionSlug) != null) {
             return value;
         }

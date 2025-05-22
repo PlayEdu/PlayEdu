@@ -8,6 +8,9 @@ import { user as member } from "../../api/index";
 import * as echarts from "echarts";
 import type { ColumnsType } from "antd/es/table";
 import { MemberLearnProgressDialog } from "./compenents/progress";
+import defaultThumb1 from "../../assets/thumb/thumb1.png";
+import defaultThumb2 from "../../assets/thumb/thumb2.png";
+import defaultThumb3 from "../../assets/thumb/thumb3.png";
 
 interface DataType {
   id: React.Key;
@@ -87,6 +90,7 @@ const MemberLearnPage = () => {
   const [records, setRecords] = useState<UserCourseRecordsModel>({});
   const [perRecords, setPerRecords] = useState<PerCourseRecordsModel>({});
   const [hourCount, setHourCount] = useState<HourCountModel>({});
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [total2, setTotal2] = useState(0);
   const [refresh2, setRefresh2] = useState(false);
   const [uid, setUid] = useState(Number(result.get("id")));
@@ -212,6 +216,7 @@ const MemberLearnPage = () => {
       setHourCount(res.data.user_course_hour_count);
       setRecords(res.data.user_course_records);
       setPerRecords(res.data.per_course_earliest_records);
+      setResourceUrl(res.data.resource_url);
       if (res.data.departments.length > 0) {
         let box: OptionModel[] = [];
         res.data.departments.map((item: any) => {
@@ -236,13 +241,31 @@ const MemberLearnPage = () => {
       dataIndex: "title",
       render: (_, record: any) => (
         <div className="d-flex">
-          <Image
-            src={record.thumb}
-            preview={false}
-            width={80}
-            height={60}
-            style={{ borderRadius: 6 }}
-          />
+          {loading2 ? (
+            <Image
+              src={defaultThumb1}
+              preview={false}
+              width={80}
+              height={60}
+              style={{ borderRadius: 6 }}
+            />
+          ) : (
+            <Image
+              src={
+                record.thumb === -1
+                  ? defaultThumb1
+                  : record.thumb === -2
+                  ? defaultThumb2
+                  : record.thumb === -3
+                  ? defaultThumb3
+                  : resourceUrl[record.thumb]
+              }
+              preview={false}
+              width={80}
+              height={60}
+              style={{ borderRadius: 6 }}
+            />
+          )}
           <span className="ml-8">{record.title}</span>
         </div>
       ),

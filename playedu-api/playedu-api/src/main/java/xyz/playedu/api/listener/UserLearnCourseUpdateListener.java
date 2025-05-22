@@ -44,8 +44,8 @@ public class UserLearnCourseUpdateListener {
         // 观看记录
         userLearnDurationRecordService.store(
                 event.getUserId(),
-                event.getCourseId(),
-                event.getHourId(),
+                event.getCourseId() + "_" + event.getHourId(),
+                "hour",
                 event.getStartAt(),
                 event.getEndAt());
     }

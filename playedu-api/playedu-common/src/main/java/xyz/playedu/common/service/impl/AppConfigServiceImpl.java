@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import xyz.playedu.common.constant.BackendConstant;
+import xyz.playedu.common.constant.CommonConstant;
 import xyz.playedu.common.constant.ConfigConstant;
 import xyz.playedu.common.domain.AppConfig;
 import xyz.playedu.common.exception.ServiceException;
@@ -102,32 +104,24 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
         s3Config.setSecretKey(config.get(ConfigConstant.S3_SECRET_KEY));
         s3Config.setBucket(config.get(ConfigConstant.S3_BUCKET));
         s3Config.setEndpoint(config.get(ConfigConstant.S3_ENDPOINT));
-        s3Config.setDomain(config.get(ConfigConstant.S3_DOMAIN));
-        s3Config.setService(ConfigConstant.S3_SERVICE);
 
         // region解析
         String region = config.get(ConfigConstant.S3_REGION);
         s3Config.setRegion(StringUtil.isEmpty(region) ? null : region);
 
-        if (StringUtil.isNotEmpty(s3Config.getService())
-                && StringUtil.isNotEmpty(s3Config.getDomain())) {
-            String _domain = s3Config.getDomain();
-            // 拼接https://前缀
-            if (_domain.length() < 7
-                    || (!"http://".equalsIgnoreCase(_domain.substring(0, 7))
-                            && !"https://".equalsIgnoreCase(_domain.substring(0, 8)))) {
-                _domain = "https://" + _domain;
-            }
-
-            // 移除 / 后缀
-            if (StringUtil.endsWith(_domain, "/")) {
-                _domain = _domain.substring(0, _domain.length() - 1);
-            }
-
-            s3Config.setDomain(_domain);
-        }
-
         return s3Config;
+    }
+
+    @Override
+    public List<Integer> getAllImageValue() {
+        return list(
+                        query().getWrapper()
+                                .eq("field_type", BackendConstant.APP_CONFIG_FIELD_TYPE_IMAGE)
+                                .isNotNull("key_value"))
+                .stream()
+                .filter(appConfig -> !appConfig.getKeyValue().isEmpty())
+                .map(appConfig -> Integer.parseInt(appConfig.getKeyValue()))
+                .toList();
     }
 
     @Override
@@ -138,10 +132,13 @@ public class AppConfigServiceImpl extends ServiceImpl<AppConfigMapper, AppConfig
     }
 
     @Override
-    public String defaultAvatar() {
+    public Integer defaultAvatar() {
         AppConfig appConfig =
                 getOne(query().getWrapper().eq("key_name", ConfigConstant.MEMBER_DEFAULT_AVATAR));
-        return appConfig.getKeyValue();
+        if (StringUtil.isEmpty(appConfig.getKeyValue())) {
+            return CommonConstant.MINUS_ONE;
+        }
+        return Integer.parseInt(appConfig.getKeyValue());
     }
 
     @Override

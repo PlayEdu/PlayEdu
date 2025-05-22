@@ -18,7 +18,6 @@ package xyz.playedu.api.request.backend;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.util.Date;
 import java.util.List;
 import lombok.Data;
 
@@ -33,8 +32,8 @@ public class CourseRequest {
     @NotBlank(message = "请输入课程标题")
     private String title;
 
-    @NotBlank(message = "请上传课程封面")
-    private String thumb;
+    @NotNull(message = "请上传课程封面")
+    private Integer thumb;
 
     @NotNull(message = "short_desc参数不存在")
     @JsonProperty("short_desc")
@@ -56,8 +55,8 @@ public class CourseRequest {
     @JsonProperty("category_ids")
     private Integer[] categoryIds;
 
-    @JsonProperty("published_at")
-    private Date publishedAt;
+    @JsonProperty("sort_at")
+    private String sortAt;
 
     @Data
     public static class HourItem {

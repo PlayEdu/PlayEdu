@@ -4,6 +4,9 @@ import { course } from "../../api/index";
 import { Row, Col, Spin, Image, Progress } from "antd";
 import { Empty } from "../../compenents";
 import mediaIcon from "../../assets/images/commen/icon-medal.png";
+import defaultThumb1 from "../../assets/thumb/thumb1.png";
+import defaultThumb2 from "../../assets/thumb/thumb2.png";
+import defaultThumb3 from "../../assets/thumb/thumb3.png";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -47,6 +50,7 @@ const LatestLearnPage = () => {
   const systemConfig = useSelector((state: any) => state.systemConfig.value);
   const [loading, setLoading] = useState<boolean>(false);
   const [courses, setCourses] = useState<LastLearnModel[]>([]);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
 
   useEffect(() => {
     getCourses();
@@ -55,7 +59,10 @@ const LatestLearnPage = () => {
   const getCourses = () => {
     setLoading(true);
     course.latestLearn().then((res: any) => {
-      setCourses(res.data);
+      if (res.data.resource_url && res.data.user_latest_learns) {
+        setResourceUrl(res.data.resource_url);
+        setCourses(res.data.user_latest_learns);
+      }
       setLoading(false);
     });
   };
@@ -91,7 +98,15 @@ const LatestLearnPage = () => {
                   <div style={{ width: 120 }}>
                     <Image
                       loading="lazy"
-                      src={item.course.thumb}
+                      src={
+                        item.course.thumb === -1
+                          ? defaultThumb1
+                          : item.course.thumb === -2
+                          ? defaultThumb2
+                          : item.course.thumb === -3
+                          ? defaultThumb3
+                          : resourceUrl[item.course.thumb]
+                      }
                       width={120}
                       height={90}
                       style={{ borderRadius: 10 }}

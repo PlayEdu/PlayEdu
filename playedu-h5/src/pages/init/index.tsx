@@ -25,11 +25,11 @@ export const InitPage = (props: Props) => {
       let config: SystemConfigStoreInterface = {
         //系统配置
         "ldap-enabled": props.configData["ldap-enabled"],
-        systemApiUrl: props.configData["system-api-url"],
         systemH5Url: props.configData["system-h5-url"],
         systemLogo: props.configData["system-logo"],
         systemName: props.configData["system-name"],
         systemPcUrl: props.configData["system-pc-url"],
+        resourceUrl: props.configData["resource_url"],
         pcIndexFooterMsg: props.configData["system-pc-index-footer-msg"],
         //播放器配置
         playerPoster: props.configData["player-poster"],

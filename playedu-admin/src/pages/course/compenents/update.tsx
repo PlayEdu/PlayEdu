@@ -14,9 +14,11 @@ import {
   Tag,
 } from "antd";
 import styles from "./update.module.less";
-import { useSelector } from "react-redux";
 import { course, department } from "../../../api/index";
 import { UploadImageButton, SelectRange } from "../../../compenents";
+import defaultThumb1 from "../../../assets/thumb/thumb1.png";
+import defaultThumb2 from "../../../assets/thumb/thumb2.png";
+import defaultThumb3 from "../../../assets/thumb/thumb3.png";
 import dayjs from "dayjs";
 import moment from "moment";
 
@@ -39,15 +41,10 @@ export const CourseUpdate: React.FC<PropInterface> = ({
 }) => {
   const [form] = Form.useForm();
   const [init, setInit] = useState(true);
-  const courseDefaultThumbs = useSelector(
-    (state: any) => state.systemConfig.value.courseDefaultThumbs
-  );
-  const defaultThumb1 = courseDefaultThumbs[0];
-  const defaultThumb2 = courseDefaultThumbs[1];
-  const defaultThumb3 = courseDefaultThumbs[2];
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<Option[]>([]);
   const [categories, setCategories] = useState<Option[]>([]);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [thumb, setThumb] = useState("");
   const [depIds, setDepIds] = useState<number[]>([]);
   const [deps, setDeps] = useState<any[]>([]);
@@ -98,8 +95,8 @@ export const CourseUpdate: React.FC<PropInterface> = ({
         short_desc: res.data.course.short_desc,
         hasChapter: chapterType,
         type: type,
-        published_at: res.data.course.published_at
-          ? dayjs(res.data.course.published_at)
+        published_at: res.data.course.sort_at
+          ? dayjs(res.data.course.sort_at)
           : "",
       });
       setType(type);
@@ -111,6 +108,16 @@ export const CourseUpdate: React.FC<PropInterface> = ({
       if (deps && JSON.stringify(deps) !== "{}") {
         form.setFieldsValue({ ids: [1, 2] });
       }
+      setResourceUrl(res.data.resource_url);
+      setThumb(
+        res.data.course.thumb === -1
+          ? defaultThumb1
+          : res.data.course.thumb === -2
+          ? defaultThumb2
+          : res.data.course.thumb === -3
+          ? defaultThumb3
+          : res.data.resource_url[res.data.course.thumb]
+      );
       setInit(false);
     });
   };
@@ -412,7 +419,7 @@ export const CourseUpdate: React.FC<PropInterface> = ({
                         onClick={() => {
                           setThumb(defaultThumb1);
                           form.setFieldsValue({
-                            thumb: defaultThumb1,
+                            thumb: -1,
                           });
                         }}
                       >
@@ -433,7 +440,7 @@ export const CourseUpdate: React.FC<PropInterface> = ({
                         onClick={() => {
                           setThumb(defaultThumb2);
                           form.setFieldsValue({
-                            thumb: defaultThumb2,
+                            thumb: -2,
                           });
                         }}
                       >
@@ -454,7 +461,7 @@ export const CourseUpdate: React.FC<PropInterface> = ({
                         onClick={() => {
                           setThumb(defaultThumb3);
                           form.setFieldsValue({
-                            thumb: defaultThumb3,
+                            thumb: -3,
                           });
                         }}
                       >
@@ -470,9 +477,9 @@ export const CourseUpdate: React.FC<PropInterface> = ({
                     <div className="d-flex">
                       <UploadImageButton
                         text="更换封面"
-                        onSelected={(url) => {
+                        onSelected={(url, id) => {
                           setThumb(url);
-                          form.setFieldsValue({ thumb: url });
+                          form.setFieldsValue({ thumb: id });
                         }}
                       ></UploadImageButton>
                       <span className="helper-text ml-8">

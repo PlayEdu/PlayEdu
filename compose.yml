@@ -6,7 +6,7 @@ x-logging: &default-logging
 
 networks:
   playedu:
-    driver: host
+    driver: bridge
 
 volumes:
   mysql-data:
@@ -24,12 +24,10 @@ services:
       - SA_TOKEN_IS_CONCURRENT=false
       - SA_TOKEN_JWT_SECRET_KEY=${PLAYEDU_JWT_KEY:-playeduxyz}
     ports:
-      - "${PLAYEDU_API_PORT:-9700}:9700"
+      - "${PLAYEDU_API_PORT:-9700}:9898"
       - "${PLAYEDU_PC_PORT:-9800}:9800"
       - "${PLAYEDU_H5_PORT:-9801}:9801"
       - "${PLAYEDU_ADMIN_PORT:-9900}:9900"
-    volumes:
-      - "./docker/data/:/playedu-data/"
     networks:
       - playedu
     depends_on:
@@ -45,8 +43,8 @@ services:
       - TZ=UTC
     volumes:
       - mysql-data:/var/lib/mysql
-    # ports:
-    #   - "${MYSQL_PORT:-3306}:3306"
+    ports:
+      - "${MYSQL_PORT:-23307}:3306"
     networks:
       - playedu
     logging: *default-logging

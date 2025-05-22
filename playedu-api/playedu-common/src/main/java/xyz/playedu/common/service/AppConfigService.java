@@ -35,9 +35,11 @@ public interface AppConfigService extends IService<AppConfig> {
 
     S3Config getS3Config();
 
+    List<Integer> getAllImageValue();
+
     boolean enabledLdapLogin();
 
-    String defaultAvatar();
+    Integer defaultAvatar();
 
     LdapConfig ldapConfig();
 }

@@ -24,17 +24,22 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- * @TableName course_department
+ * @TableName course_department_user
  */
-@TableName(value = "course_department")
 @Data
-public class CourseDepartment implements Serializable {
+@TableName(value = "course_department_user")
+public class CourseDepartmentUser implements Serializable {
+    /** 任务ID */
     @TableId(type = IdType.NONE)
     @JsonProperty("course_id")
     private Integer courseId;
 
-    @JsonProperty("dep_id")
-    private Integer depId;
+    /** 指派范围ID */
+    @JsonProperty("range_id")
+    private Integer rangeId;
+
+    /** 指派范围类型[0:部门,1:学员] */
+    private Integer type;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -50,13 +55,16 @@ public class CourseDepartment implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        CourseDepartment other = (CourseDepartment) that;
+        CourseDepartmentUser other = (CourseDepartmentUser) that;
         return (this.getCourseId() == null
                         ? other.getCourseId() == null
                         : this.getCourseId().equals(other.getCourseId()))
-                && (this.getDepId() == null
-                        ? other.getDepId() == null
-                        : this.getDepId().equals(other.getDepId()));
+                && (this.getRangeId() == null
+                        ? other.getRangeId() == null
+                        : this.getRangeId().equals(other.getRangeId()))
+                && (this.getType() == null
+                        ? other.getType() == null
+                        : this.getType().equals(other.getType()));
     }
 
     @Override
@@ -64,7 +72,8 @@ public class CourseDepartment implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getCourseId() == null) ? 0 : getCourseId().hashCode());
-        result = prime * result + ((getDepId() == null) ? 0 : getDepId().hashCode());
+        result = prime * result + ((getRangeId() == null) ? 0 : getRangeId().hashCode());
+        result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
         return result;
     }
 
@@ -75,7 +84,8 @@ public class CourseDepartment implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", courseId=").append(courseId);
-        sb.append(", depId=").append(depId);
+        sb.append(", rangeId=").append(rangeId);
+        sb.append(", type=").append(type);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

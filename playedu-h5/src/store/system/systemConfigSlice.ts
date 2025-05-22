@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 
 type SystemConfigStoreInterface = {
   "ldap-enabled": string;
-  systemApiUrl: string;
   systemPcUrl: string;
   systemH5Url: string;
   systemLogo: string;
@@ -14,11 +13,11 @@ type SystemConfigStoreInterface = {
   playerBulletSecretText: string;
   playerBulletSecretColor: string;
   playerBulletSecretOpacity: string;
+  resourceUrl?: ResourceUrlModel;
 };
 
 let defaultValue: SystemConfigStoreInterface = {
   "ldap-enabled": "",
-  systemApiUrl: "",
   systemPcUrl: "",
   systemH5Url: "",
   systemLogo: "",
@@ -30,6 +29,7 @@ let defaultValue: SystemConfigStoreInterface = {
   playerBulletSecretText: "",
   playerBulletSecretColor: "",
   playerBulletSecretOpacity: "",
+  resourceUrl: {},
 };
 
 const systemConfigSlice = createSlice({

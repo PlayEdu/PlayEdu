@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { user, department } from "../../../api/index";
 import { UploadImageButton } from "../../../compenents";
 import { ValidataCredentials } from "../../../utils/index";
+import memberDefaultAvatar from "../../../assets/thumb/avatar.png";
 
 interface PropInterface {
   open: boolean;
@@ -27,8 +28,11 @@ export const MemberCreate: React.FC<PropInterface> = ({
   const [init, setInit] = useState(true);
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<any>([]);
-  const memberDefaultAvatar = useSelector(
+  const systemMemberDefaultAvatar = useSelector(
     (state: any) => state.systemConfig.value.memberDefaultAvatar
+  );
+  const systemResourceUrl = useSelector(
+    (state: any) => state.systemConfig.value.resourceUrl
   );
   const [avatar, setAvatar] = useState<string>(memberDefaultAvatar);
 
@@ -44,11 +48,20 @@ export const MemberCreate: React.FC<PropInterface> = ({
       email: "",
       name: "",
       password: "",
-      avatar: memberDefaultAvatar,
+      avatar: systemMemberDefaultAvatar
+        ? Number(systemMemberDefaultAvatar)
+        : -1,
       idCard: "",
       dep_ids: depIds,
+  
     });
-    setAvatar(memberDefaultAvatar);
+    if (systemMemberDefaultAvatar === -1) {
+      setAvatar(memberDefaultAvatar);
+    } else if (systemMemberDefaultAvatar >= 0) {
+      setAvatar(systemResourceUrl[Number(systemMemberDefaultAvatar)]);
+    } else {
+      setAvatar(memberDefaultAvatar);
+    }
   }, [form, open, depIds]);
 
   const getParams = () => {
@@ -160,9 +173,9 @@ export const MemberCreate: React.FC<PropInterface> = ({
                   <div className="d-flex">
                     <UploadImageButton
                       text="更换头像"
-                      onSelected={(url) => {
+                      onSelected={(url, id) => {
                         setAvatar(url);
-                        form.setFieldsValue({ avatar: url });
+                        form.setFieldsValue({ avatar: id });
                       }}
                     ></UploadImageButton>
                   </div>

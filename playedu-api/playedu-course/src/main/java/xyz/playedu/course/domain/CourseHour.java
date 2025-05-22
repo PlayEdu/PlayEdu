@@ -61,6 +61,9 @@ public class CourseHour implements Serializable {
     /** */
     @JsonIgnore private Date createdAt;
 
+    /** 删除标志[0:存在,1:删除] */
+    private Integer deleted;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
@@ -100,7 +103,10 @@ public class CourseHour implements Serializable {
                         : this.getDuration().equals(other.getDuration()))
                 && (this.getCreatedAt() == null
                         ? other.getCreatedAt() == null
-                        : this.getCreatedAt().equals(other.getCreatedAt()));
+                        : this.getCreatedAt().equals(other.getCreatedAt()))
+                && (this.getDeleted() == null
+                        ? other.getDeleted() == null
+                        : this.getDeleted().equals(other.getDeleted()));
     }
 
     @Override
@@ -116,6 +122,7 @@ public class CourseHour implements Serializable {
         result = prime * result + ((getRid() == null) ? 0 : getRid().hashCode());
         result = prime * result + ((getDuration() == null) ? 0 : getDuration().hashCode());
         result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
+        result = prime * result + ((getDeleted() == null) ? 0 : getDeleted().hashCode());
         return result;
     }
 
@@ -134,6 +141,7 @@ public class CourseHour implements Serializable {
         sb.append(", rid=").append(rid);
         sb.append(", duration=").append(duration);
         sb.append(", createdAt=").append(createdAt);
+        sb.append(", deleted=").append(deleted);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

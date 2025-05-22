@@ -15,22 +15,21 @@
  */
 package xyz.playedu.resource.service.impl;
 
-import java.util.Date;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import xyz.playedu.common.constant.BackendConstant;
-import xyz.playedu.common.constant.FrontendConstant;
-import xyz.playedu.common.domain.UserUploadImageLog;
+import xyz.playedu.common.constant.CommonConstant;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.AppConfigService;
-import xyz.playedu.common.service.UserUploadImageLogService;
 import xyz.playedu.common.types.UploadFileInfo;
+import xyz.playedu.common.types.config.S3Config;
 import xyz.playedu.common.util.Base64Util;
 import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.S3Util;
+import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.resource.domain.Resource;
 import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.UploadService;
@@ -43,12 +42,10 @@ public class UploadServiceImpl implements UploadService {
 
     @Autowired private AppConfigService appConfigService;
 
-    @Autowired private UserUploadImageLogService userUploadImageLogService;
-
     @Override
     @SneakyThrows
-    public UploadFileInfo upload(MultipartFile file, String dir) {
-        if (file == null || file.isEmpty() || file.getOriginalFilename() == null) {
+    public UploadFileInfo upload(S3Config s3Config, MultipartFile file, String dir) {
+        if (file == null || file.isEmpty() || StringUtil.isEmpty(file.getOriginalFilename())) {
             throw new ServiceException("请上传文件");
         }
 
@@ -59,12 +56,17 @@ public class UploadServiceImpl implements UploadService {
         // 文件大小
         fileInfo.setSize(file.getSize());
         // 解析扩展名
-        fileInfo.setExtension(HelperUtil.fileExt(filename));
+        fileInfo.setExtension(HelperUtil.fileExt(filename).toLowerCase());
         // 解析扩展名称对应的系统资源类型
-        fileInfo.setResourceType(BackendConstant.RESOURCE_EXT_2_TYPE.get(fileInfo.getExtension()));
+        String type = BackendConstant.RESOURCE_EXT_2_TYPE.get(fileInfo.getExtension());
+        // 附件模块上传文件 非系统格式统一为OTHER
+        if (StringUtil.isEmpty(type)) {
+            type = BackendConstant.RESOURCE_TYPE_OTHER;
+        }
+        fileInfo.setResourceType(type);
         // 检测是否为系统不支持的资源类型
-        if (fileInfo.getResourceType() == null) {
-            throw new ServiceException("当前资源扩展不支持上传");
+        if (StringUtil.isEmpty(fileInfo.getResourceType())) {
+            throw new ServiceException("当前格式不支持");
         }
 
         // 上传原文件的文件名
@@ -72,45 +74,24 @@ public class UploadServiceImpl implements UploadService {
         // 自定义新的存储文件名
         fileInfo.setSaveName(HelperUtil.randomString(32) + "." + fileInfo.getExtension());
         // 生成保存的相对路径
-        if (dir == null || dir.isEmpty()) {
+        if (StringUtil.isEmpty(dir)) {
             dir = BackendConstant.RESOURCE_TYPE_2_DIR.get(fileInfo.getResourceType());
         }
         fileInfo.setSavePath(dir + fileInfo.getSaveName());
-        // 保存文件并生成访问url
-        S3Util s3Util = new S3Util(appConfigService.getS3Config());
-        String url =
-                s3Util.saveFile(
+        // 保存文件
+        new S3Util(s3Config)
+                .saveFile(
                         file,
                         fileInfo.getSavePath(),
                         BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(fileInfo.getExtension()));
-        fileInfo.setUrl(url);
-
+        fileInfo.setDisk("");
         return fileInfo;
     }
 
     @Override
     @SneakyThrows
-    public Resource storeMinio(
-            String disk, Integer adminId, MultipartFile file, String categoryIds) {
-        UploadFileInfo info = upload(file, null);
-
-        return resourceService.create(
-                adminId,
-                categoryIds,
-                info.getResourceType(),
-                info.getOriginalName(),
-                info.getExtension(),
-                file.getSize(),
-                disk,
-                "",
-                info.getSavePath(),
-                info.getUrl());
-    }
-
-    @Override
-    @SneakyThrows
     public Resource storeBase64Image(
-            String disk, Integer adminId, String content, String categoryIds) {
+            S3Config s3Config, Integer adminId, String content, String categoryIds) {
         // data:image/jpeg;base64,
         String[] base64Rows = content.split(",");
         // 解析出content-type
@@ -121,8 +102,8 @@ public class UploadServiceImpl implements UploadService {
         // 通过文件格式解析资源类型
         String type = BackendConstant.RESOURCE_EXT_2_TYPE.get(ext);
         // 资源类型必须存在
-        if (type == null) {
-            throw new ServiceException("资源类型不支持");
+        if (StringUtil.isEmpty(type)) {
+            throw new ServiceException("当前格式不支持");
         }
         byte[] binary = Base64Util.decode(base64Rows[1]);
 
@@ -130,10 +111,9 @@ public class UploadServiceImpl implements UploadService {
         String savePath = BackendConstant.RESOURCE_TYPE_2_DIR.get(type) + filename;
 
         // 保存文件
-        S3Util s3Util = new S3Util(appConfigService.getS3Config());
-        String url =
-                s3Util.saveBytes(
-                        binary, savePath, BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext));
+        new S3Util(s3Config)
+                .saveBytes(binary, savePath, BackendConstant.RESOURCE_EXT_2_CONTENT_TYPE.get(ext));
+
         // 上传记录
         return resourceService.create(
                 adminId,
@@ -142,28 +122,9 @@ public class UploadServiceImpl implements UploadService {
                 filename,
                 ext,
                 (long) binary.length,
-                disk,
                 "",
                 savePath,
-                url);
-    }
-
-    @Override
-    @SneakyThrows
-    public UserUploadImageLog userAvatar(
-            String disk, Integer userId, MultipartFile file, String typed, String scene) {
-        UploadFileInfo info = upload(file, FrontendConstant.DIR_AVATAR);
-        UserUploadImageLog log = new UserUploadImageLog();
-        log.setUserId(userId);
-        log.setTyped(typed);
-        log.setScene(scene);
-        log.setSize(info.getSize());
-        log.setDriver(disk);
-        log.setPath(info.getSavePath());
-        log.setUrl(info.getUrl());
-        log.setName(info.getOriginalName());
-        log.setCreatedAt(new Date());
-        userUploadImageLogService.save(log);
-        return log;
+                CommonConstant.ZERO,
+                CommonConstant.ONE);
     }
 }

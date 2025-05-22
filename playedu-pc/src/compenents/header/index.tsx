@@ -18,6 +18,7 @@ import { ChangePasswordModel } from "../change-password";
 import { UserInfoModel } from "../user-info";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import logo from "../../assets/logo.png";
+import memberDefaultAvatar from "../../assets/thumb/avatar.png";
 const { confirm } = Modal;
 
 export const Header: React.FC = () => {
@@ -35,6 +36,9 @@ export const Header: React.FC = () => {
   const [departmentsMenu, setDepartmentsMenu] = useState<any>([]);
   const [currentDepartment, setCurrentDepartment] = useState<string>("");
   const [currentNav, serCurrentNav] = useState(location.pathname);
+  const resourceUrl = useSelector(
+    (state: any) => state.loginUser.value.resourceUrl
+  );
 
   useEffect(() => {
     if (departments.length > 0) {
@@ -178,7 +182,7 @@ export const Header: React.FC = () => {
         <div className="d-flex">
           <Link to="/" className={styles["App-logo"]}>
             {/* 此处为版权标识，严禁删改 */}
-            <img src={config.systemLogo || logo} />
+            <img src={config.resourceUrl[config.systemLogo] || logo} />
           </Link>
           <div className={styles["navs"]}>
             {navs.map((item: any) => (
@@ -221,7 +225,11 @@ export const Header: React.FC = () => {
                     <Image
                       loading="lazy"
                       style={{ width: 36, height: 36, borderRadius: "50%" }}
-                      src={user.avatar}
+                      src={
+                        user.avatar === -1
+                          ? memberDefaultAvatar
+                          : resourceUrl[user.avatar]
+                      }
                       preview={false}
                     />
                     <span className="ml-8 c-admin">{user.name}</span>

@@ -35,6 +35,7 @@ interface ImageItem {
 const ResourceImagesPage = () => {
   const result = new URLSearchParams(useLocation().search);
   const [imageList, setImageList] = useState<ImageItem[]>([]);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [refresh, setRefresh] = useState(false);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(32);
@@ -96,6 +97,7 @@ const ResourceImagesPage = () => {
       .then((res: any) => {
         setTotal(res.data.result.total);
         setImageList(res.data.result.data);
+        setResourceUrl(res.data.resource_url);
         let data: ImageItem[] = res.data.result.data;
         let arr = [];
         for (let i = 0; i < data.length; i++) {
@@ -232,7 +234,7 @@ const ResourceImagesPage = () => {
               <div
                 key={item.id}
                 className={`${styles.imageItem} ref-image-item`}
-                style={{ backgroundImage: `url(${item.url})` }}
+                style={{ backgroundImage: `url(${resourceUrl[item.id]})` }}
                 onClick={() => showImage(index, true)}
                 onMouseOver={() => showHover(index, true)}
                 onMouseOut={() => showHover(index, false)}
@@ -254,10 +256,10 @@ const ResourceImagesPage = () => {
                 <Image
                   width={200}
                   style={{ display: "none" }}
-                  src={item.url}
+                  src={resourceUrl[item.id]}
                   preview={{
                     visible: visibleArr[index],
-                    src: item.url,
+                    src: resourceUrl[item.id],
                     onVisibleChange: (value) => {
                       showImage(index, value);
                     },

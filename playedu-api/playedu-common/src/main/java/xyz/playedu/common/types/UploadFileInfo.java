@@ -30,5 +30,5 @@ public class UploadFileInfo {
     private String saveName;
     private String resourceType;
     private String savePath;
-    private String url;
+    private String disk;
 }

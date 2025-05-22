@@ -15,7 +15,10 @@
  */
 package xyz.playedu.api.controller.backend;
 
+import com.amazonaws.services.s3.model.PartSummary;
 import java.util.HashMap;
+import java.util.List;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +31,18 @@ import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.constant.BPermissionConstant;
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
+import xyz.playedu.common.constant.CommonConstant;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.types.JsonResponse;
+import xyz.playedu.common.types.UploadFileInfo;
 import xyz.playedu.common.types.config.S3Config;
 import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.S3Util;
+import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.resource.domain.Resource;
+import xyz.playedu.resource.service.ResourceExtraService;
 import xyz.playedu.resource.service.ResourceService;
 import xyz.playedu.resource.service.UploadService;
 
@@ -50,19 +57,39 @@ public class UploadController {
 
     @Autowired private ResourceService resourceService;
 
+    @Autowired private ResourceExtraService resourceExtraService;
+
     @BackendPermission(slug = BPermissionConstant.UPLOAD)
     @PostMapping("/minio")
     @Log(title = "上传-MinIO", businessType = BusinessTypeConstant.UPLOAD)
     public JsonResponse uploadMinio(
             @RequestParam HashMap<String, Object> params, MultipartFile file)
             throws ServiceException {
+        // 校验存储配置是否完整
+        S3Config s3Config = appConfigService.getS3Config();
+        if (StringUtil.isEmpty(s3Config.getAccessKey())
+                || StringUtil.isEmpty(s3Config.getSecretKey())
+                || StringUtil.isEmpty(s3Config.getBucket())
+                || StringUtil.isEmpty(s3Config.getEndpoint())
+                || StringUtil.isEmpty(s3Config.getRegion())) {
+            throw new ServiceException("存储服务未配置");
+        }
         String categoryIds = MapUtils.getString(params, "category_ids");
+
+        UploadFileInfo info = uploadService.upload(s3Config, file, null);
+
         Resource res =
-                uploadService.storeMinio(
-                        appConfigService.getS3Config().getService(),
+                resourceService.create(
                         BCtx.getId(),
-                        file,
-                        categoryIds);
+                        categoryIds,
+                        info.getResourceType(),
+                        info.getOriginalName(),
+                        info.getExtension(),
+                        file.getSize(),
+                        "",
+                        info.getSavePath(),
+                        CommonConstant.ZERO,
+                        CommonConstant.ZERO);
         return JsonResponse.data(res);
     }
 
@@ -70,6 +97,16 @@ public class UploadController {
     @GetMapping("/minio/upload-id")
     @Log(title = "上传-MinIO-uploadId", businessType = BusinessTypeConstant.UPLOAD)
     public JsonResponse minioUploadId(@RequestParam HashMap<String, Object> params) {
+        // 校验存储配置是否完整
+        S3Config s3Config = appConfigService.getS3Config();
+        if (StringUtil.isEmpty(s3Config.getAccessKey())
+                || StringUtil.isEmpty(s3Config.getSecretKey())
+                || StringUtil.isEmpty(s3Config.getBucket())
+                || StringUtil.isEmpty(s3Config.getEndpoint())
+                || StringUtil.isEmpty(s3Config.getRegion())) {
+            throw new ServiceException("存储服务未配置");
+        }
+
         String extension = MapUtils.getString(params, "extension");
         if (extension == null || extension.trim().isEmpty()) {
             return JsonResponse.error("extension参数为空");
@@ -79,7 +116,7 @@ public class UploadController {
             return JsonResponse.error("该格式文件不支持上传");
         }
 
-        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+        S3Util s3Util = new S3Util(s3Config);
 
         String filename = HelperUtil.randomString(32) + "." + extension; // 文件名
         String path = BackendConstant.RESOURCE_TYPE_2_DIR.get(type) + filename; // 存储路径
@@ -93,7 +130,6 @@ public class UploadController {
         return JsonResponse.data(data);
     }
 
-    @BackendPermission(slug = BPermissionConstant.UPLOAD)
     @GetMapping("/minio/pre-sign-url")
     @Log(title = "上传-MinIO-签名URL", businessType = BusinessTypeConstant.UPLOAD)
     public JsonResponse minioPreSignUrl(@RequestParam HashMap<String, Object> params) {
@@ -101,14 +137,36 @@ public class UploadController {
         Integer partNumber = MapUtils.getInteger(params, "part_number");
         String filename = MapUtils.getString(params, "filename");
 
-        S3Util s3Util = new S3Util(appConfigService.getS3Config());
-
-        String url = s3Util.generatePartUploadPreSignUrl(filename, partNumber + "", uploadId);
+        String url =
+                new S3Util(appConfigService.getS3Config())
+                        .generatePartUploadPreSignUrl(filename, partNumber + "", uploadId);
 
         HashMap<String, String> data = new HashMap<>();
         data.put("url", url);
 
         return JsonResponse.data(data);
+    }
+
+    @GetMapping("/minio/list-parts")
+    @Log(title = "上传-MinIO-已上传查询", businessType = BusinessTypeConstant.UPLOAD)
+    public JsonResponse minioListParts(@RequestParam HashMap<String, Object> params) {
+        String uploadId = MapUtils.getString(params, "upload_id");
+        String filename = MapUtils.getString(params, "filename");
+
+        List<PartSummary> parts =
+                new S3Util(appConfigService.getS3Config()).listParts(uploadId, filename);
+
+        return JsonResponse.data(parts);
+    }
+
+    @GetMapping("/minio/purge-segments")
+    @Log(title = "上传-MinIO-已上传查询", businessType = BusinessTypeConstant.UPLOAD)
+    public JsonResponse purgeIncompleteSegments(@RequestParam HashMap<String, Object> params) {
+        String uploadId = MapUtils.getString(params, "upload_id");
+        String filename = MapUtils.getString(params, "filename");
+
+        new S3Util(appConfigService.getS3Config()).purgeSegments(uploadId, filename);
+        return JsonResponse.success();
     }
 
     @BackendPermission(slug = BPermissionConstant.UPLOAD)
@@ -126,10 +184,10 @@ public class UploadController {
         // 合并资源文件
         S3Config s3Config = appConfigService.getS3Config();
         S3Util s3Util = new S3Util(s3Config);
-        String url = s3Util.merge(req.getFilename(), req.getUploadId());
+        s3Util.merge(req.getFilename(), req.getUploadId());
 
         // 资源素材保存
-        Resource videoResource =
+        Resource resource =
                 resourceService.create(
                         BCtx.getId(),
                         req.getCategoryIds(),
@@ -137,50 +195,32 @@ public class UploadController {
                         originalFilename,
                         extension,
                         req.getSize(),
-                        s3Config.getService(),
                         "",
                         req.getFilename(),
-                        url);
+                        CommonConstant.ZERO,
+                        CommonConstant.ZERO);
 
-        // 视频资源特殊处理--视频封面资源
-        if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(type)) {
-            // 视频封面素材保存
-            Resource posterResource =
-                    uploadService.storeBase64Image(
-                            s3Config.getService(), BCtx.getId(), req.getPoster(), null);
-            // 视频的封面素材改为[隐藏 && 属于视频的子素材]
-            resourceService.changeParentId(posterResource.getId(), videoResource.getId());
-            // 视频信息
-            resourceService.storeResourceVideo(
-                    videoResource.getId(), req.getDuration(), posterResource.getUrl());
-        }
+        // 记录资源详情信息
+        doSaveResourceExtra(resource, req.getPoster(), req.getDuration());
 
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("url", url);
-
-        return JsonResponse.data(data);
+        return JsonResponse.success();
     }
 
-    @BackendPermission(slug = BPermissionConstant.UPLOAD)
-    @GetMapping("/minio/merge")
-    @Log(title = "上传-MinIO-文件合并", businessType = BusinessTypeConstant.UPLOAD)
-    public JsonResponse minioMerge(@RequestParam HashMap<String, Object> params) {
-        String filename = MapUtils.getString(params, "filename");
-        String uploadId = MapUtils.getString(params, "upload_id");
-        if (filename == null || filename.trim().isEmpty()) {
-            return JsonResponse.error("filename必填");
+    /** 记录资源详情信息 */
+    @SneakyThrows
+    public void doSaveResourceExtra(Resource resource, String poster, Integer duration) {
+        log.info("资源文件,类型={},id={}", resource.getType(), resource.getId());
+        String type = resource.getType();
+        // 视频资源特殊处理--视频封面资源
+        if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(type)) {
+            Integer posterId = 0;
+            if (StringUtil.isNotEmpty(poster)) {
+                Resource posterResource =
+                        uploadService.storeBase64Image(
+                                appConfigService.getS3Config(), BCtx.getId(), poster, null);
+                posterId = posterResource.getId();
+            }
+            resourceExtraService.create(resource.getId(), duration, posterId);
         }
-        if (uploadId == null || uploadId.trim().isEmpty()) {
-            return JsonResponse.error("uploadId必填");
-        }
-
-        S3Util s3Util = new S3Util(appConfigService.getS3Config());
-
-        String url = s3Util.merge(filename, uploadId);
-
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("url", url);
-
-        return JsonResponse.data(data);
     }
 }

@@ -79,7 +79,7 @@ export function updateCourse(
     category_ids: categoryIds,
     chapters: chapters,
     hours: hours,
-    published_at: publishedAt,
+    sort_at: publishedAt,
   });
 }
 

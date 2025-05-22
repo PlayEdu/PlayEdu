@@ -7,6 +7,7 @@ import { loginAction } from "../../store/user/loginUserSlice";
 import type { UploadProps } from "antd";
 import config from "../../js/config";
 import { getToken, changeAppUrl } from "../../utils/index";
+import memberDefaultAvatar from "../../assets/thumb/avatar.png";
 
 interface PropInterface {
   open: boolean;
@@ -17,9 +18,10 @@ export const UserInfoModel: React.FC<PropInterface> = ({ open, onCancel }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(true);
-  const [avatar, setAvatar] = useState<string>("");
+  const [avatar, setAvatar] = useState(0);
   const [name, setName] = useState<string>("");
   const [idCard, setIdCard] = useState<string>("");
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
 
   useEffect(() => {
     if (open) {
@@ -30,6 +32,7 @@ export const UserInfoModel: React.FC<PropInterface> = ({ open, onCancel }) => {
   const getUser = () => {
     user.detail().then((res: any) => {
       setAvatar(res.data.user.avatar);
+      setResourceUrl(res.data.resource_url);
       setName(res.data.user.name);
       setIdCard(res.data.user.id_card);
       dispatch(loginAction(res.data));
@@ -106,7 +109,11 @@ export const UserInfoModel: React.FC<PropInterface> = ({ open, onCancel }) => {
                       width={60}
                       height={60}
                       style={{ borderRadius: "50%" }}
-                      src={avatar}
+                      src={
+                        avatar === -1
+                          ? memberDefaultAvatar
+                          : resourceUrl[avatar]
+                      }
                       preview={false}
                     />
                   )}

@@ -8,6 +8,7 @@ import { ImageUploadItem } from "antd-mobile/es/components/image-uploader";
 import styles from "./index.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import moreIcon from "../../assets/images/commen/icon-more.png";
+import memberDefaultAvatar from "../../assets/thumb/avatar.png";
 
 const MemberPage = () => {
   const dispatch = useDispatch();
@@ -33,6 +34,9 @@ const MemberPage = () => {
   const currentDepId = useSelector(
     (state: any) => state.loginUser.value.currentDepId
   );
+  const resourceUrl = useSelector(
+    (state: any) => state.loginUser.value.resourceUrl
+  );
 
   useEffect(() => {
     document.title = "我的";
@@ -50,30 +54,35 @@ const MemberPage = () => {
       return;
     }
     getData();
-  }, [currentDepId, user]);
+  }, [currentDepId]);
 
   const getData = () => {
     setLoading(true);
-    member.courses(currentDepId, 0).then((res: any) => {
-      setStats(res.data.stats);
-      let todayData = studyTimeFormat(res.data.stats.today_learn_duration);
-      if (todayData) {
-        setLearnTodayHour(todayData[0]);
-        setLearnTodayMin(todayData[1]);
-        if (todayData[1] === 0 && todayData[2] > 0) {
-          setLearnTodayMin(1);
+    member
+      .courses(currentDepId, 0)
+      .then((res: any) => {
+        setStats(res.data.stats);
+        let todayData = studyTimeFormat(res.data.stats.today_learn_duration);
+        if (todayData) {
+          setLearnTodayHour(todayData[0]);
+          setLearnTodayMin(todayData[1]);
+          if (todayData[1] === 0 && todayData[2] > 0) {
+            setLearnTodayMin(1);
+          }
         }
-      }
-      let totalData = studyTimeFormat(res.data.stats.learn_duration);
-      if (totalData) {
-        setLearnTotalHour(totalData[0]);
-        setLearnTotalMin(totalData[1]);
-        if (totalData[1] === 0 && totalData[2] > 0) {
-          setLearnTodayMin(1);
+        let totalData = studyTimeFormat(res.data.stats.learn_duration);
+        if (totalData) {
+          setLearnTotalHour(totalData[0]);
+          setLearnTotalMin(totalData[1]);
+          if (totalData[1] === 0 && totalData[2] > 0) {
+            setLearnTodayMin(1);
+          }
         }
-      }
-      setLoading(false);
-    });
+        setLoading(false);
+      })
+      .catch((e) => {
+        setLoading(false);
+      });
   };
 
   const setClick = () => {
@@ -157,16 +166,22 @@ const MemberPage = () => {
             )}
             {init && (
               <>
-                <Image
-                  width={100}
-                  height={100}
-                  style={{
-                    borderRadius: "50%",
-                    marginRight: 20,
-                  }}
-                  fit="cover"
-                  src={user?.avatar}
-                />
+                {user ? (
+                  <Image
+                    width={100}
+                    height={100}
+                    style={{
+                      borderRadius: "50%",
+                      marginRight: 20,
+                    }}
+                    fit="cover"
+                    src={
+                      user.avatar === -1
+                        ? memberDefaultAvatar
+                        : resourceUrl[user.avatar]
+                    }
+                  />
+                ) : null}
                 <div className={styles["other-cont"]}>
                   <div className={styles["name"]}>{user?.name}</div>
                   <div className={styles["departments"]}>

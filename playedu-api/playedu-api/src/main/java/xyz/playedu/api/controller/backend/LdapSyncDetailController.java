@@ -42,9 +42,7 @@ public class LdapSyncDetailController {
      *
      * @param id 同步记录ID
      * @param type 详情类型：department-部门，user-用户
-     * @param action 操作类型：
-     *      - 部门：1-新增，2-更新，3-删除，4-无变化
-     *      - 用户：1-新增，2-更新，3-删除，4-无变化，5-禁止
+     * @param action 操作类型： - 部门：1-新增，2-更新，3-删除，4-无变化 - 用户：1-新增，2-更新，3-删除，4-无变化，5-禁止
      * @param page 页码
      * @param size 每页数量
      * @return 分页结果
@@ -67,9 +65,9 @@ public class LdapSyncDetailController {
             }
             queryWrapper.orderByDesc("id");
 
-            IPage<LdapSyncDepartmentDetail> pageResult = 
-                ldapSyncDepartmentDetailService.page(new Page<>(page, size), queryWrapper);
-            
+            IPage<LdapSyncDepartmentDetail> pageResult =
+                    ldapSyncDepartmentDetailService.page(new Page<>(page, size), queryWrapper);
+
             return JsonResponse.data(pageResult);
         } else if ("user".equals(type)) {
             // 用户同步详情
@@ -80,9 +78,9 @@ public class LdapSyncDetailController {
             }
             queryWrapper.orderByDesc("id");
 
-            IPage<LdapSyncUserDetail> pageResult = 
-                ldapSyncUserDetailService.page(new Page<>(page, size), queryWrapper);
-            
+            IPage<LdapSyncUserDetail> pageResult =
+                    ldapSyncUserDetailService.page(new Page<>(page, size), queryWrapper);
+
             return JsonResponse.data(pageResult);
         }
 

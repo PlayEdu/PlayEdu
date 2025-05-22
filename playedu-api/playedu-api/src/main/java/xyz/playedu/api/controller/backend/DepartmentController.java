@@ -46,7 +46,7 @@ import xyz.playedu.common.types.paginate.UserPaginateFilter;
 import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.UserCourseRecord;
-import xyz.playedu.course.service.CourseDepartmentService;
+import xyz.playedu.course.service.CourseDepartmentUserService;
 import xyz.playedu.course.service.CourseService;
 import xyz.playedu.course.service.UserCourseRecordService;
 
@@ -57,7 +57,7 @@ public class DepartmentController {
 
     @Autowired private DepartmentService departmentService;
 
-    @Autowired private CourseDepartmentService courseDepartmentService;
+    @Autowired private CourseDepartmentUserService courseDepartmentUserService;
 
     @Autowired private UserService userService;
 
@@ -163,7 +163,7 @@ public class DepartmentController {
         if (ldapBus.enabledLDAP()) {
             return JsonResponse.error("已启用LDAP服务，禁止添加部门");
         }
-        List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepId(id);
+        List<Integer> courseIds = courseDepartmentUserService.getCourseIdsByDepId(id);
         List<Integer> userIds = departmentService.getUserIdsByDepId(id);
 
         HashMap<String, Object> data = new HashMap<>();

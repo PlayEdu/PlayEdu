@@ -26,6 +26,7 @@ const CoursePalyPage = () => {
   const [totalHours, setTotalHours] = useState<HourModel[]>([]);
   const [playingTime, setPlayingTime] = useState(0);
   const [watchedSeconds, setWatchedSeconds] = useState(0);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const myRef = useRef(0);
   const playRef = useRef(0);
   const watchRef = useRef(0);
@@ -105,7 +106,7 @@ const CoursePalyPage = () => {
         } else if (record && record.is_finished === 1) {
           setWatchedSeconds(res.data.hour.duration);
         }
-        getVideoUrl(params);
+        getVideoUrl(res.data.hour.rid, params);
         setLoading(false);
       })
       .catch((e) => {
@@ -113,11 +114,12 @@ const CoursePalyPage = () => {
       });
   };
 
-  const getVideoUrl = (data: any) => {
+  const getVideoUrl = (rid: number, data: any) => {
     Course.playUrl(Number(params.courseId), Number(params.hourId)).then(
       (res: any) => {
-        setPlayUrl(res.data.url);
-        initDPlayer(res.data.url, 0, data);
+        setResourceUrl(res.data.resource_url[rid]);
+        setPlayUrl(res.data.resource_url[rid]);
+        initDPlayer(res.data.resource_url[rid], 0, data);
         savePlayId(String(params.courseId) + "-" + String(params.hourId));
       }
     );

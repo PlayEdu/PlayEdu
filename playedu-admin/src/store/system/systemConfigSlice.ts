@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 
 type SystemConfigStoreInterface = {
   "ldap-enabled"?: boolean;
-  systemApiUrl?: string;
   systemPcUrl?: string;
   systemH5Url?: string;
   systemLogo?: string;
@@ -11,6 +10,7 @@ type SystemConfigStoreInterface = {
   courseDefaultThumbs?: string[];
   departments?: any;
   resourceCategories?: any;
+  resourceUrl?: ResourceUrlModel;
 };
 
 let defaultValue: SystemConfigStoreInterface = {};

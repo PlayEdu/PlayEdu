@@ -15,10 +15,7 @@
  */
 package xyz.playedu.api.controller.frontend;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
@@ -64,9 +61,15 @@ public class CourseController {
 
         List<CourseHour> courseHours = hourService.getHoursByCourseId(course.getId());
 
+        List<Integer> rids = new ArrayList<>();
+        rids.add(course.getThumb());
+
         List<CourseAttachment> attachments =
                 attachmentService.getAttachmentsByCourseId(course.getId());
         if (null != attachments && !attachments.isEmpty()) {
+            List<Integer> attachmentIds =
+                    attachments.stream().map(CourseAttachment::getRid).toList();
+            rids.addAll(attachmentIds);
             Map<Integer, Resource> resourceMap =
                     resourceService
                             .chunks(attachments.stream().map(CourseAttachment::getRid).toList())
@@ -93,6 +96,10 @@ public class CourseController {
                 userCourseHourRecordService.getRecords(FCtx.getId(), course.getId()).stream()
                         .collect(Collectors.toMap(UserCourseHourRecord::getHourId, e -> e)));
         data.put("attachments", attachments);
+
+        // 获取签名url
+        data.put("resource_url", resourceService.chunksPreSignUrlByIds(rids));
+
         return JsonResponse.data(data);
     }
 
@@ -105,7 +112,8 @@ public class CourseController {
         Resource resource = resourceService.findOrFail(attachment.getRid());
 
         HashMap<String, Object> data = new HashMap<>();
-        data.put("download_url", resource.getUrl());
+        // 获取资源签名url
+        data.put("resource_url", resourceService.downloadResById(attachment.getRid()));
 
         courseAttachmentDownloadLogService.save(
                 new CourseAttachmentDownloadLog() {

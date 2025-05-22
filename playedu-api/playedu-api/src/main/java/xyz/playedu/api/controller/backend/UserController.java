@@ -27,7 +27,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import xyz.playedu.api.bus.UserBus;
 import xyz.playedu.api.event.UserCourseHourRecordDestroyEvent;
 import xyz.playedu.api.event.UserCourseRecordDestroyEvent;
 import xyz.playedu.api.event.UserDestroyEvent;
@@ -35,9 +34,7 @@ import xyz.playedu.api.request.backend.UserImportRequest;
 import xyz.playedu.api.request.backend.UserRequest;
 import xyz.playedu.common.annotation.BackendPermission;
 import xyz.playedu.common.annotation.Log;
-import xyz.playedu.common.constant.BPermissionConstant;
-import xyz.playedu.common.constant.BusinessTypeConstant;
-import xyz.playedu.common.constant.SystemConstant;
+import xyz.playedu.common.constant.*;
 import xyz.playedu.common.context.BCtx;
 import xyz.playedu.common.domain.*;
 import xyz.playedu.common.exception.NotFoundException;
@@ -53,6 +50,7 @@ import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
+import xyz.playedu.resource.service.ResourceService;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -83,6 +81,8 @@ public class UserController {
     @Autowired private UserLearnDurationStatsService userLearnDurationStatsService;
 
     @Autowired private ApplicationContext ctx;
+
+    @Autowired private ResourceService resourceService;
 
     @BackendPermission(slug = BPermissionConstant.USER_INDEX)
     @GetMapping("/index")
@@ -164,6 +164,12 @@ public class UserController {
         data.put("pure_total", userService.total());
         data.put("dep_user_count", departmentService.getDepartmentsUserCount());
 
+        // 课程封面资源ID
+        data.put(
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(
+                        result.getData().stream().map(User::getAvatar).toList()));
+
         return JsonResponse.data(data);
     }
 
@@ -208,6 +214,16 @@ public class UserController {
         data.put("user", user);
         data.put("dep_ids", depIds);
 
+        // 获取签名url
+        data.put(
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(
+                        new ArrayList<>() {
+                            {
+                                add(user.getAvatar());
+                            }
+                        }));
+
         return JsonResponse.data(data);
     }
 
@@ -249,7 +265,7 @@ public class UserController {
     @PostMapping("/store-batch")
     @Transactional
     @Log(title = "学员-批量导入", businessType = BusinessTypeConstant.INSERT)
-    public JsonResponse batchStore(@RequestBody @Validated UserImportRequest req, UserBus userBus) {
+    public JsonResponse batchStore(@RequestBody @Validated UserImportRequest req) {
         List<UserImportRequest.UserItem> users = req.getUsers();
         if (users.isEmpty()) {
             return JsonResponse.error("数据为空");
@@ -262,7 +278,11 @@ public class UserController {
         Integer startLine = req.getStartLine();
 
         // 默认的学员头像
-        String defaultAvatar = userBus.getUserDefaultAvatar(BCtx.getConfig());
+        int defaultAvatar = CommonConstant.MINUS_ONE;
+        String defaultAvatarConfig = BCtx.getConfig().get(ConfigConstant.MEMBER_DEFAULT_AVATAR);
+        if (StringUtil.isNotEmpty(defaultAvatarConfig)) {
+            defaultAvatar = Integer.parseInt(defaultAvatarConfig);
+        }
 
         List<String[]> errorLines = new ArrayList<>();
         errorLines.add(new String[] {"错误行", "错误信息"}); // 错误表-表头
@@ -467,18 +487,20 @@ public class UserController {
         PaginationResult<UserCourseRecord> result =
                 userCourseRecordService.paginate(page, size, filter);
 
+        List<Course> courseList =
+                courseService.chunks(
+                        result.getData().stream().map(UserCourseRecord::getCourseId).toList());
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("data", result.getData());
         data.put("total", result.getTotal());
+        data.put("courses", courseList.stream().collect(Collectors.toMap(Course::getId, e -> e)));
+
+        // 获取签名url
         data.put(
-                "courses",
-                courseService
-                        .chunks(
-                                result.getData().stream()
-                                        .map(UserCourseRecord::getCourseId)
-                                        .toList())
-                        .stream()
-                        .collect(Collectors.toMap(Course::getId, e -> e)));
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(
+                        courseList.stream().map(Course::getThumb).toList()));
 
         return JsonResponse.data(data);
     }
@@ -492,6 +514,7 @@ public class UserController {
         List<Department> departments = new ArrayList<>();
         HashMap<Integer, List<Course>> depCourses = new HashMap<>();
         List<Integer> courseIds = new ArrayList<>();
+        List<Integer> rids = new ArrayList<>();
 
         if (depIds != null && !depIds.isEmpty()) {
             departments = departmentService.chunk(depIds);
@@ -522,6 +545,7 @@ public class UserController {
 
                         if (tmpCourses != null && !tmpCourses.isEmpty()) {
                             courseIds.addAll(tmpCourses.stream().map(Course::getId).toList());
+                            rids.addAll(tmpCourses.stream().map(Course::getThumb).toList());
                         }
                     });
         }
@@ -530,6 +554,7 @@ public class UserController {
         List<Course> openCourses = courseService.getOpenCoursesAndShow(1000);
         if (openCourses != null && !openCourses.isEmpty()) {
             courseIds.addAll(openCourses.stream().map(Course::getId).toList());
+            rids.addAll(openCourses.stream().map(Course::getThumb).toList());
         }
 
         // 读取学员的线上课学习记录
@@ -563,7 +588,8 @@ public class UserController {
                 "per_course_earliest_records",
                 perCourseEarliestRecords.stream()
                         .collect(Collectors.toMap(UserCourseHourRecord::getCourseId, e -> e)));
-
+        // 获取签名url
+        data.put("resource_url", resourceService.chunksPreSignUrlByIds(rids));
         return JsonResponse.data(data);
     }
 

@@ -9,6 +9,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Footer, Empty } from "../../components";
 import { CoursesModel } from "./compenents/courses-model";
 import { isEmptyObject } from "../../utils/index";
+import defaultThumb1 from "../../assets/thumb/thumb1.png";
+import defaultThumb2 from "../../assets/thumb/thumb2.png";
+import defaultThumb3 from "../../assets/thumb/thumb3.png";
 
 type LocalUserLearnHourRecordModel = {
   [key: number]: UserLearnHourRecordModel;
@@ -36,6 +39,7 @@ const IndexPage = () => {
     useState<LocalUserLearnHourRecordModel>({});
   const [learnCourseHourCount, setLearnCourseHourCount] =
     useState<LocalUserLearnHourCountModel>({});
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const systemConfig = useSelector((state: any) => state.systemConfig.value);
   const currentDepId = useSelector(
     (state: any) => state.loginUser.value.currentDepId
@@ -85,6 +89,7 @@ const IndexPage = () => {
       const records = res.data.learn_course_records;
       setLearnCourseRecords(records);
       setLearnCourseHourCount(res.data.user_course_hour_count);
+      setResourceUrl(res.data.resource_url);
       if (Number(tabKey) === 0) {
         setCoursesList(res.data.courses);
       } else if (Number(tabKey) === 1) {
@@ -323,7 +328,15 @@ const IndexPage = () => {
                     <CoursesModel
                       id={item.id}
                       title={item.title}
-                      thumb={item.thumb}
+                      thumb={
+                        item.thumb === -1
+                          ? defaultThumb1
+                          : item.thumb === -2
+                          ? defaultThumb2
+                          : item.thumb === -3
+                          ? defaultThumb3
+                          : resourceUrl[item.thumb]
+                      }
                       isRequired={item.is_required}
                       record={learnCourseRecords[item.id]}
                       hourCount={learnCourseHourCount[item.id]}

@@ -15,6 +15,7 @@
  */
 package xyz.playedu.course.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,10 +29,10 @@ import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.CourseCategory;
-import xyz.playedu.course.domain.CourseDepartment;
+import xyz.playedu.course.domain.CourseDepartmentUser;
 import xyz.playedu.course.mapper.CourseMapper;
 import xyz.playedu.course.service.CourseCategoryService;
-import xyz.playedu.course.service.CourseDepartmentService;
+import xyz.playedu.course.service.CourseDepartmentUserService;
 import xyz.playedu.course.service.CourseService;
 
 /**
@@ -42,7 +43,7 @@ import xyz.playedu.course.service.CourseService;
 @Service
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements CourseService {
 
-    @Autowired private CourseDepartmentService courseDepartmentService;
+    @Autowired private CourseDepartmentUserService courseDepartmentUserService;
 
     @Autowired private CourseCategoryService courseCategoryService;
 
@@ -62,7 +63,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     @Transactional
     public Course createWithCategoryIdsAndDepIds(
             String title,
-            String thumb,
+            Integer thumb,
             String shortDesc,
             Integer isRequired,
             Integer isShow,
@@ -76,7 +77,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         course.setShortDesc(shortDesc);
         course.setIsShow(isShow);
         course.setIsRequired(isRequired);
-        course.setPublishedAt(new Date());
+        course.setSortAt(new Date());
         course.setCreatedAt(new Date());
         course.setUpdatedAt(new Date());
         course.setAdminId(adminId);
@@ -94,23 +95,23 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         if (depIds == null || depIds.length == 0) {
             return;
         }
-        List<CourseDepartment> courseDepartments = new ArrayList<>();
+        List<CourseDepartmentUser> courseDepartmentUsers = new ArrayList<>();
         for (int i = 0; i < depIds.length; i++) {
             Integer tmpDepId = depIds[i];
-            courseDepartments.add(
-                    new CourseDepartment() {
+            courseDepartmentUsers.add(
+                    new CourseDepartmentUser() {
                         {
                             setCourseId(course.getId());
-                            setDepId(tmpDepId);
+                            setRangeId(tmpDepId);
                         }
                     });
         }
-        courseDepartmentService.saveBatch(courseDepartments);
+        courseDepartmentUserService.saveBatch(courseDepartmentUsers);
     }
 
     @Override
     public void resetRelateDepartments(Course course, Integer[] depIds) {
-        courseDepartmentService.removeByCourseId(course.getId());
+        courseDepartmentUserService.removeByCourseId(course.getId());
         relateDepartments(course, depIds);
     }
 
@@ -144,11 +145,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     public void updateWithCategoryIdsAndDepIds(
             Course course,
             String title,
-            String thumb,
+            Integer thumb,
             String shortDesc,
             Integer isRequired,
             Integer isShow,
-            Date publishedAt,
+            String sortAt,
             Integer[] categoryIds,
             Integer[] depIds) {
         Course newCourse = new Course();
@@ -159,8 +160,8 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         newCourse.setIsRequired(isRequired);
         newCourse.setShortDesc(shortDesc);
 
-        if (null != publishedAt) {
-            newCourse.setPublishedAt(publishedAt);
+        if (StringUtil.isNotEmpty(sortAt)) {
+            newCourse.setSortAt(DateUtil.parseDate(sortAt));
         }
 
         updateById(newCourse);
@@ -180,7 +181,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public List<Integer> getDepIdsByCourseId(Integer courseId) {
-        return courseDepartmentService.getDepIdsByCourseId(courseId);
+        return courseDepartmentUserService.getDepIdsByCourseId(courseId);
     }
 
     @Override
@@ -231,7 +232,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             return new ArrayList<>();
         }
         // 获取部门课程ID
-        List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(depIds);
+        List<Integer> courseIds = courseDepartmentUserService.getCourseIdsByDepIds(depIds);
         if (StringUtil.isEmpty(courseIds)) {
             return new ArrayList<>();
         }
@@ -258,7 +259,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             return new ArrayList<>();
         }
         // 获取部门课程ID
-        List<Integer> courseIds = courseDepartmentService.getCourseIdsByDepIds(depIds);
+        List<Integer> courseIds = courseDepartmentUserService.getCourseIdsByDepIds(depIds);
         if (StringUtil.isEmpty(courseIds)) {
             return new ArrayList<>();
         }
@@ -289,19 +290,21 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         if (courseIds == null || courseIds.size() == 0) {
             return null;
         }
-        Map<Integer, List<CourseDepartment>> data =
-                courseDepartmentService
+        Map<Integer, List<CourseDepartmentUser>> data =
+                courseDepartmentUserService
                         .list(
-                                courseDepartmentService
+                                courseDepartmentUserService
                                         .query()
                                         .getWrapper()
                                         .in("course_id", courseIds))
                         .stream()
-                        .collect(Collectors.groupingBy(CourseDepartment::getCourseId));
+                        .collect(Collectors.groupingBy(CourseDepartmentUser::getCourseId));
         Map<Integer, List<Integer>> result = new HashMap<>();
         data.forEach(
                 (courseId, records) -> {
-                    result.put(courseId, records.stream().map(CourseDepartment::getDepId).toList());
+                    result.put(
+                            courseId,
+                            records.stream().map(CourseDepartmentUser::getRangeId).toList());
                 });
         return result;
     }

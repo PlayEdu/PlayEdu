@@ -7,6 +7,9 @@ import mediaIcon from "../../assets/images/commen/icon-medal.png";
 import { HourCompenent } from "./compenents/hour";
 import { Empty } from "../../compenents";
 import iconRoute from "../../assets/images/commen/icon-route.png";
+import defaultThumb1 from "../../assets/thumb/thumb1.png";
+import defaultThumb2 from "../../assets/thumb/thumb2.png";
+import defaultThumb3 from "../../assets/thumb/thumb3.png";
 
 type TabModel = {
   key: number;
@@ -56,6 +59,7 @@ const CoursePage = () => {
   );
   const [tabKey, setTabKey] = useState(Number(result.get("tab") || 1));
   const [attachments, setAttachments] = useState<AttachModel[]>([]);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [items, setItems] = useState<TabModel[]>([]);
 
   useEffect(() => {
@@ -70,6 +74,7 @@ const CoursePage = () => {
         setCourse(res.data.course);
         setChapters(res.data.chapters);
         setHours(res.data.hours);
+        setResourceUrl(res.data.resource_url);
         if (res.data.learn_record) {
           setLearnRecord(res.data.learn_record);
         }
@@ -104,9 +109,35 @@ const CoursePage = () => {
     navigate("/course/" + params.courseId + "?tab=" + key);
   };
 
-  const downLoadFile = (cid: number, id: number) => {
+  const downLoadFile = (
+    cid: number,
+    id: number,
+    rid: number,
+    fileName: string,
+    type: string
+  ) => {
     Course.downloadAttachment(cid, id).then((res: any) => {
-      window.open(res.data.download_url);
+      if (type === "TXT") {
+        fetch(res.data.resource_url[rid])
+          .then((response) => response.blob())
+          .then((blob) => {
+            const n_url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = n_url;
+            a.download = fileName; // 设置下载的文件名
+            document.body.appendChild(a);
+            a.click(); // 触发点击事件
+            // 释放 URL 对象
+            URL.revokeObjectURL(n_url);
+            document.body.removeChild(a);
+          })
+          .catch((error) => {
+            console.error("下载文件时出错:", error);
+          });
+      } else {
+        window.open(res.data.resource_url[rid]);
+      }
     });
   };
 
@@ -131,13 +162,23 @@ const CoursePage = () => {
           <div className={styles["top-cont"]}>
             <div className="j-b-flex">
               <div className="d-flex">
-                <Image
-                  width={120}
-                  height={90}
-                  style={{ borderRadius: 10 }}
-                  preview={false}
-                  src={course?.thumb}
-                />
+                {course ? (
+                  <Image
+                    width={120}
+                    height={90}
+                    style={{ borderRadius: 10 }}
+                    preview={false}
+                    src={
+                      course.thumb === -1
+                        ? defaultThumb1
+                        : course.thumb === -2
+                        ? defaultThumb2
+                        : course.thumb === -3
+                        ? defaultThumb3
+                        : resourceUrl[course.thumb]
+                    }
+                  />
+                ) : null}
                 <div className={styles["info"]}>
                   <div className={styles["title"]}>{course?.title}</div>
                   <div className={styles["status"]}>
@@ -327,7 +368,15 @@ const CoursePage = () => {
                   </div>
                   <div
                     className={styles["download"]}
-                    onClick={() => downLoadFile(item.course_id, item.id)}
+                    onClick={() =>
+                      downLoadFile(
+                        item.course_id,
+                        item.id,
+                        item.rid,
+                        `${item.title}.${item.ext}`,
+                        item.type
+                      )
+                    }
                   >
                     下载
                   </div>

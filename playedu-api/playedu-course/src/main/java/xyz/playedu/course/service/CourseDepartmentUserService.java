@@ -17,14 +17,14 @@ package xyz.playedu.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
-import xyz.playedu.course.domain.CourseDepartment;
+import xyz.playedu.course.domain.CourseDepartmentUser;
 
 /**
  * @author tengteng
- * @description 针对表【course_department】的数据库操作Service
+ * @description 针对表【course_department_user】的数据库操作Service
  * @createDate 2023-02-24 14:53:52
  */
-public interface CourseDepartmentService extends IService<CourseDepartment> {
+public interface CourseDepartmentUserService extends IService<CourseDepartmentUser> {
 
     List<Integer> getCourseIdsByDepIds(List<Integer> depIds);
 

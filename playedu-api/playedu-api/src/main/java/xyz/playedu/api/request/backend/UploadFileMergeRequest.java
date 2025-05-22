@@ -51,6 +51,5 @@ public class UploadFileMergeRequest {
     @JsonProperty("category_ids")
     private String categoryIds;
 
-    @NotNull(message = "请上传视频封面")
     private String poster;
 }

@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Service;
-import xyz.playedu.resource.domain.ResourceVideo;
-import xyz.playedu.resource.mapper.ResourceVideoMapper;
-import xyz.playedu.resource.service.ResourceVideoService;
+import xyz.playedu.resource.domain.ResourceExtra;
+import xyz.playedu.resource.mapper.ResourceExtraMapper;
+import xyz.playedu.resource.service.ResourceExtraService;
 
 /**
  * @author tengteng
@@ -30,11 +30,11 @@ import xyz.playedu.resource.service.ResourceVideoService;
  * @createDate 2023-03-02 15:13:03
  */
 @Service
-public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, ResourceVideo>
-        implements ResourceVideoService {
+public class ResourceExtraServiceImpl extends ServiceImpl<ResourceExtraMapper, ResourceExtra>
+        implements ResourceExtraService {
     @Override
-    public void create(Integer resourceId, Integer duration, String poster) {
-        ResourceVideo video = new ResourceVideo();
+    public void create(Integer resourceId, Integer duration, Integer poster) {
+        ResourceExtra video = new ResourceExtra();
         video.setRid(resourceId);
         video.setDuration(duration);
         video.setPoster(poster);
@@ -48,7 +48,7 @@ public class ResourceVideoServiceImpl extends ServiceImpl<ResourceVideoMapper, R
     }
 
     @Override
-    public List<ResourceVideo> chunksByRids(List<Integer> resourceIds) {
+    public List<ResourceExtra> chunksByRids(List<Integer> resourceIds) {
         if (resourceIds == null || resourceIds.size() == 0) {
             return new ArrayList<>();
         }

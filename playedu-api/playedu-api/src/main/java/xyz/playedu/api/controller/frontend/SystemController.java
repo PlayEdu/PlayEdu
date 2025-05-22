@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import xyz.playedu.common.constant.ConfigConstant;
 import xyz.playedu.common.service.AppConfigService;
 import xyz.playedu.common.types.JsonResponse;
+import xyz.playedu.resource.service.ResourceService;
 
 @RestController
 @RequestMapping("/api/v1/system")
@@ -31,15 +32,16 @@ public class SystemController {
 
     @Autowired private AppConfigService appConfigService;
 
+    @Autowired private ResourceService resourceService;
+
     @GetMapping("/config")
     public JsonResponse config() {
         Map<String, String> configs = appConfigService.keyValues();
 
-        HashMap<String, String> data = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
 
         data.put("system-name", configs.get(ConfigConstant.SYSTEM_NAME));
         data.put("system-logo", configs.get(ConfigConstant.SYSTEM_LOGO));
-        data.put("system-api-url", configs.get(ConfigConstant.SYSTEM_API_URL));
         data.put("system-pc-url", configs.get(ConfigConstant.SYSTEM_PC_URL));
         data.put("system-h5-url", configs.get(ConfigConstant.SYSTEM_H5_URL));
         data.put("system-pc-index-footer-msg", configs.get("system.pc_index_footer_msg"));
@@ -52,6 +54,11 @@ public class SystemController {
         data.put("player-disabled-drag", configs.get("player.disabled_drag"));
 
         data.put("ldap-enabled", configs.get(ConfigConstant.LDAP_ENABLED));
+
+        // 获取签名url
+        data.put(
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(appConfigService.getAllImageValue()));
 
         return JsonResponse.data(data);
     }

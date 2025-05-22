@@ -141,6 +141,10 @@ declare global {
     rid: number;
     type: string;
   }
+
+  interface ResourceUrlModel {
+    [key: number]: string;
+  }
 }
 
 export {};

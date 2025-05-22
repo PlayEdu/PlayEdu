@@ -47,7 +47,7 @@ public interface UserService extends IService<User> {
     User createWithDepIds(
             String email,
             String name,
-            String avatar,
+            Integer avatar,
             String password,
             String idCard,
             Integer[] depIds);
@@ -56,7 +56,7 @@ public interface UserService extends IService<User> {
             User user,
             String email,
             String name,
-            String avatar,
+            Integer avatar,
             String password,
             String idCard,
             Integer[] depIds);
@@ -77,7 +77,7 @@ public interface UserService extends IService<User> {
 
     Map<Integer, List<Integer>> getDepIdsGroup(List<Integer> userIds);
 
-    void changeAvatar(Integer userId, String avatar);
+    void changeAvatar(Integer userId, Integer avatar);
 
     void updateName(Integer id, String cn);
 

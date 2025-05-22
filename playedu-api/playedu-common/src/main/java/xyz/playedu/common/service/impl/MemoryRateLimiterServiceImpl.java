@@ -28,14 +28,14 @@ public class MemoryRateLimiterServiceImpl implements RateLimiterService {
     public Long current(String key, Long duration) {
         lock.lock();
         try {
-            Long count = (Long) MemoryCacheUtil.get(key);
-            if (count == null) {
+            Object value = MemoryCacheUtil.get(key);
+            if (value == null) {
                 // 第一次访问，设置初始值和过期时间
                 MemoryCacheUtil.set(key, 1L, duration);
                 return 1L;
             }
-            // 已存在计数器，直接自增
-            return MemoryCacheUtil.increment(key, 1L);
+            // 已存在计数器，直接自增，increment方法已经能处理Long和AtomicLong类型
+            return MemoryCacheUtil.increment(key, 1L, duration);
         } finally {
             lock.unlock();
         }

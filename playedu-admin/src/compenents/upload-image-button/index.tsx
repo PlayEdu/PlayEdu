@@ -37,7 +37,7 @@ interface ImageItem {
 
 interface PropsInterface {
   text: any;
-  onSelected: (url: string) => void;
+  onSelected: (url: string, id: number) => void;
 }
 
 export const UploadImageButton = (props: PropsInterface) => {
@@ -50,6 +50,8 @@ export const UploadImageButton = (props: PropsInterface) => {
   const [size, setSize] = useState(15);
   const [total, setTotal] = useState(0);
   const [selected, setSelected] = useState<string>("");
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
+  const [selectedKey, setSelectedKey] = useState<number>(0);
 
   // 获取图片列表
   const getImageList = () => {
@@ -59,6 +61,7 @@ export const UploadImageButton = (props: PropsInterface) => {
       .then((res: any) => {
         setTotal(res.data.result.total);
         setImageList(res.data.result.data);
+        setResourceUrl(res.data.resource_url);
       })
       .catch((err) => {
         console.log("错误,", err);
@@ -103,7 +106,7 @@ export const UploadImageButton = (props: PropsInterface) => {
               message.error("请选择图片后确定");
               return;
             }
-            props.onSelected(selected);
+            props.onSelected(selected, selectedKey);
             setShowModal(false);
           }}
         >
@@ -140,17 +143,19 @@ export const UploadImageButton = (props: PropsInterface) => {
                   <div
                     key={item.id}
                     className="image-item"
-                    style={{ backgroundImage: `url(${item.url})` }}
+                    style={{ backgroundImage: `url(${resourceUrl[item.id]})` }}
                     onClick={() => {
-                      setSelected(item.url);
+                      setSelected(resourceUrl[item.id]);
+                      setSelectedKey(item.id);
                     }}
                   >
-                    {selected.indexOf(item.url) !== -1 && (
+                    {selected.indexOf(resourceUrl[item.id]) !== -1 && (
                       <i
                         className={styles.checked}
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelected("");
+                          setSelectedKey(0);
                         }}
                       >
                         <CheckOutlined />

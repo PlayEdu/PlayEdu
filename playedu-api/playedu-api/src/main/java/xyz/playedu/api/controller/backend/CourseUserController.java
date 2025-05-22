@@ -43,6 +43,7 @@ import xyz.playedu.course.domain.UserCourseRecord;
 import xyz.playedu.course.service.CourseService;
 import xyz.playedu.course.service.UserCourseHourRecordService;
 import xyz.playedu.course.service.UserCourseRecordService;
+import xyz.playedu.resource.service.ResourceService;
 
 /**
  * @Author 杭州白书科技有限公司
@@ -65,6 +66,8 @@ public class CourseUserController {
     @Autowired private DepartmentService departmentService;
 
     @Autowired private ApplicationContext ctx;
+
+    @Autowired private ResourceService resourceService;
 
     @BackendPermission(slug = BPermissionConstant.COURSE_USER)
     @GetMapping("/index")
@@ -147,6 +150,11 @@ public class CourseUserController {
                 perUserEarliestRecords.stream()
                         .collect(Collectors.toMap(UserCourseHourRecord::getUserId, e -> e)));
 
+        // 获取签名url
+        data.put(
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(
+                        result.getData().stream().map(User::getAvatar).toList()));
         return JsonResponse.data(data);
     }
 

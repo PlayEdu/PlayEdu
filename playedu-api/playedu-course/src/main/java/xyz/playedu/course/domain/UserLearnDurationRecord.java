@@ -54,12 +54,12 @@ public class UserLearnDurationRecord implements Serializable {
     private Date endAt;
 
     /** */
-    @JsonProperty("course_id")
-    private Integer courseId;
+    @JsonProperty("from_id")
+    private String fromId;
 
     /** */
-    @JsonProperty("hour_id")
-    private Integer hourId;
+    @JsonProperty("from_scene")
+    private String fromScene;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -92,12 +92,12 @@ public class UserLearnDurationRecord implements Serializable {
                 && (this.getEndAt() == null
                         ? other.getEndAt() == null
                         : this.getEndAt().equals(other.getEndAt()))
-                && (this.getCourseId() == null
-                        ? other.getCourseId() == null
-                        : this.getCourseId().equals(other.getCourseId()))
-                && (this.getHourId() == null
-                        ? other.getHourId() == null
-                        : this.getHourId().equals(other.getHourId()));
+                && (this.getFromId() == null
+                        ? other.getFromId() == null
+                        : this.getFromId().equals(other.getFromId()))
+                && (this.getFromScene() == null
+                        ? other.getFromScene() == null
+                        : this.getFromScene().equals(other.getFromScene()));
     }
 
     @Override
@@ -110,8 +110,8 @@ public class UserLearnDurationRecord implements Serializable {
         result = prime * result + ((getDuration() == null) ? 0 : getDuration().hashCode());
         result = prime * result + ((getStartAt() == null) ? 0 : getStartAt().hashCode());
         result = prime * result + ((getEndAt() == null) ? 0 : getEndAt().hashCode());
-        result = prime * result + ((getCourseId() == null) ? 0 : getCourseId().hashCode());
-        result = prime * result + ((getHourId() == null) ? 0 : getHourId().hashCode());
+        result = prime * result + ((getFromId() == null) ? 0 : getFromId().hashCode());
+        result = prime * result + ((getFromScene() == null) ? 0 : getFromScene().hashCode());
         return result;
     }
 
@@ -127,8 +127,8 @@ public class UserLearnDurationRecord implements Serializable {
         sb.append(", duration=").append(duration);
         sb.append(", startAt=").append(startAt);
         sb.append(", endAt=").append(endAt);
-        sb.append(", courseId=").append(courseId);
-        sb.append(", hourId=").append(hourId);
+        sb.append(", fromId=").append(fromId);
+        sb.append(", fromScene=").append(fromScene);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

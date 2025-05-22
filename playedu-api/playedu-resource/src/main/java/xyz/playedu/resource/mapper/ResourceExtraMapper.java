@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package xyz.playedu.course.mapper;
+package xyz.playedu.resource.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import xyz.playedu.course.domain.CourseDepartment;
+import xyz.playedu.resource.domain.ResourceExtra;
 
 /**
  * @author tengteng
- * @description 针对表【course_department】的数据库操作Mapper
- * @createDate 2023-02-24 14:53:52
+ * @description 针对表【resource_videos】的数据库操作Mapper
+ * @createDate 2023-03-08 13:39:06
  */
 @Mapper
-public interface CourseDepartmentMapper extends BaseMapper<CourseDepartment> {}
+public interface ResourceExtraMapper extends BaseMapper<ResourceExtra> {}

@@ -25,6 +25,7 @@ import { useSelector } from "react-redux";
 import { TreeDepartment, PerButton } from "../../compenents";
 import { MemberCreate } from "./compenents/create";
 import { MemberUpdate } from "./compenents/update";
+import memberDefaultAvatar from "../../assets/thumb/avatar.png";
 const { confirm } = Modal;
 
 interface DataType {
@@ -69,6 +70,7 @@ const MemberPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [list, setList] = useState<DataType[]>([]);
+  const [resourceUrl, setResourceUrl] = useState<ResourceUrlModel>({});
   const [total, setTotal] = useState(0);
   const [refresh, setRefresh] = useState(false);
   const [dep_ids, setDepIds] = useState<number[]>([]);
@@ -103,7 +105,11 @@ const MemberPage = () => {
         <>
           <Image
             style={{ borderRadius: "50%" }}
-            src={record.avatar}
+            src={
+              record.avatar == -1
+                ? memberDefaultAvatar
+                : resourceUrl[record.avatar]
+            }
             preview={false}
             width={40}
             height={40}
@@ -250,6 +256,7 @@ const MemberPage = () => {
         setList(res.data.data);
         setDepartments(res.data.departments);
         setUserDepIds(res.data.user_dep_ids);
+        setResourceUrl(res.data.resource_url);
         setTotal(res.data.total);
         setLoading(false);
       });

@@ -11,6 +11,7 @@ type UserStoreInterface = {
   user: UserModel | null;
   departments: string[];
   currentDepId: number;
+  resourceUrl: ResourceUrlModel;
   isLogin: boolean;
 };
 
@@ -18,6 +19,7 @@ let defaultValue: UserStoreInterface = {
   user: null,
   departments: [],
   currentDepId: Number(getDepKey()) || 0,
+  resourceUrl: {},
   isLogin: false,
 };
 
@@ -30,6 +32,7 @@ const loginUserSlice = createSlice({
     loginAction(stage, e) {
       stage.value.user = e.payload.user;
       stage.value.departments = e.payload.departments;
+      stage.value.resourceUrl = e.payload.resource_url;
       stage.value.isLogin = true;
       if (e.payload.departments.length > 0 && stage.value.currentDepId === 0) {
         stage.value.currentDepId = e.payload.departments[0].id;
@@ -39,6 +42,7 @@ const loginUserSlice = createSlice({
     logoutAction(stage) {
       stage.value.user = null;
       stage.value.departments = [];
+      stage.value.resourceUrl = {};
       stage.value.isLogin = false;
       stage.value.currentDepId = 0;
       clearToken();

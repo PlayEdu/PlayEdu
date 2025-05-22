@@ -15,6 +15,7 @@
  */
 package xyz.playedu.api.controller.frontend;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
@@ -97,7 +98,15 @@ public class HourController {
         Resource resource = resourceService.findOrFail(hour.getRid());
 
         HashMap<String, Object> data = new HashMap<>();
-        data.put("url", resource.getUrl()); // 视频播放地址
+        // 获取资源签名url
+        data.put(
+                "resource_url",
+                resourceService.chunksPreSignUrlByIds(
+                        new ArrayList<>() {
+                            {
+                                add(resource.getId());
+                            }
+                        }));
         data.put("extension", resource.getExtension()); // 视频格式
         data.put("duration", resourceService.duration(resource.getId())); // 视频时长
 
