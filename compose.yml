@@ -13,7 +13,7 @@ volumes:
 
 services:
   playedu:
-    image: registry.cn-hangzhou.aliyuncs.com/playedu/light:1.9
+    image: registry.cn-hangzhou.aliyuncs.com/playedu/light:2.0
     restart: always
     environment:
       - DB_HOST=mysql
