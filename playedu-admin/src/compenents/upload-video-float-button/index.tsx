@@ -65,8 +65,8 @@ export const UploadVideoFloatButton = () => {
   const uploadProps = {
     multiple: true,
     beforeUpload: async (file: File, fileList: any) => {
-      if (file.size > 2 * 1024 * 1024 * 1024) {
-        message.error(`${file.name} 大小超过2G`);
+      if (file.size > 10 * 1024 * 1024 * 1024) {
+        message.error(`${file.name} 大小超过10G`);
         return Upload.LIST_IGNORE;
       }
       if (fileList.length > 10) {
@@ -186,7 +186,7 @@ export const UploadVideoFloatButton = () => {
                   </p>
                   <p className="ant-upload-text">请将视频拖拽到此处上传</p>
                   <p className="ant-upload-hint">
-                    支持一次上传多个 / 支持2G以内的mp4文件
+                    支持一次上传多个 / 支持10G以内的mp4文件
                   </p>
                 </Dragger>
               </Col>
