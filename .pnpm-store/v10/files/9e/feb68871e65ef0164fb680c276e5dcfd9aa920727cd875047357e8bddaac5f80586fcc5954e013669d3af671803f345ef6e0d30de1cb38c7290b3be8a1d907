@@ -1,0 +1,23 @@
+{
+  "name": "intersection-observer",
+  "version": "0.12.2",
+  "description": "A polyfill for IntersectionObserver",
+  "keywords": [
+    "Intersection",
+    "Observer"
+  ],
+  "main": "intersection-observer.js",
+  "author": {
+    "name": "Philip Walton",
+    "email": "philip@philipwalton.com",
+    "url": "http://philipwalton.com"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GoogleChromeLabs/intersection-observer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GoogleChromeLabs/intersection-observer/issues"
+  }
+}

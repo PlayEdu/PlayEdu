@@ -1,0 +1,387 @@
+{
+  "functions": [
+    {
+      "name": "useAntdTable",
+      "docs": "https://ahooks.js.org/hooks/use-antd-table",
+      "description": "`useAntdTable` is implemented based on `useRequest` and encapsulates the commonly used [Ant Design Form](https://ant.design/components/form/) and [Ant Design Table](https://ant.design/components/table/) data binding logic"
+    },
+    {
+      "name": "useAsyncEffect",
+      "docs": "https://ahooks.js.org/hooks/use-async-effect",
+      "description": "useEffect support async function"
+    },
+    {
+      "name": "useBoolean",
+      "docs": "https://ahooks.js.org/hooks/use-boolean",
+      "description": "a hook that elegantly manages boolean state"
+    },
+    {
+      "name": "useClickAway",
+      "docs": "https://ahooks.js.org/hooks/use-click-away",
+      "description": "listen for click events outside the target element"
+    },
+    {
+      "name": "useControllableValue",
+      "docs": "https://ahooks.js.org/hooks/use-controllable-value",
+      "description": "in some components"
+    },
+    {
+      "name": "useCookieState",
+      "docs": "https://ahooks.js.org/hooks/use-cookie-state",
+      "description": "a Hook that store state into Cookie"
+    },
+    {
+      "name": "useCountDown",
+      "docs": "https://ahooks.js.org/hooks/use-count-down",
+      "description": "a hook for manage countdown"
+    },
+    {
+      "name": "useCounter",
+      "docs": "https://ahooks.js.org/hooks/use-counter",
+      "description": "a hook that manage counter"
+    },
+    {
+      "name": "useCreation",
+      "docs": "https://ahooks.js.org/hooks/use-creation",
+      "description": "`useCreation` is the replacement for `useMemo` or `useRef`"
+    },
+    {
+      "name": "useDebounce",
+      "docs": "https://ahooks.js.org/hooks/use-debounce",
+      "description": "a hook that deal with the debounced value"
+    },
+    {
+      "name": "useDebounceEffect",
+      "docs": "https://ahooks.js.org/hooks/use-debounce-effect",
+      "description": "debounce your `useEffect`"
+    },
+    {
+      "name": "useDebounceFn",
+      "docs": "https://ahooks.js.org/hooks/use-debounce-fn",
+      "description": "a hook that deal with the debounced function"
+    },
+    {
+      "name": "useDeepCompareEffect",
+      "docs": "https://ahooks.js.org/hooks/use-deep-compare-effect",
+      "description": "usage is the same as `useEffect`"
+    },
+    {
+      "name": "useDeepCompareLayoutEffect",
+      "docs": "https://ahooks.js.org/hooks/use-deep-compare-layout-effect",
+      "description": "usage is the same as `useLayoutEffect`"
+    },
+    {
+      "name": "useDocumentVisibility",
+      "docs": "https://ahooks.js.org/hooks/use-document-visibility",
+      "description": "a Hook can tell if the page is visible"
+    },
+    {
+      "name": "useDrag",
+      "docs": "https://ahooks.js.org/hooks/use-drag"
+    },
+    {
+      "name": "useDrop",
+      "docs": "https://ahooks.js.org/hooks/use-drop",
+      "description": "& useDrag"
+    },
+    {
+      "name": "useDynamicList",
+      "docs": "https://ahooks.js.org/hooks/use-dynamic-list",
+      "description": "a hook that helps you manage dynamic list and generate unique key for each item"
+    },
+    {
+      "name": "useEventEmitter",
+      "docs": "https://ahooks.js.org/hooks/use-event-emitter",
+      "description": "sometimes it is difficult to pass events between multiple components"
+    },
+    {
+      "name": "useEventListener",
+      "docs": "https://ahooks.js.org/hooks/use-event-listener",
+      "description": "use addEventListener elegant by Hook"
+    },
+    {
+      "name": "useEventTarget",
+      "docs": "https://ahooks.js.org/hooks/use-event-target",
+      "description": "a hook that encapsulates `onChange` and `value` logic for form controls that obtains value through `event.target.value`"
+    },
+    {
+      "name": "useExternal",
+      "docs": "https://ahooks.js.org/hooks/use-external",
+      "description": "dynamically load JS or CSS"
+    },
+    {
+      "name": "useFavicon",
+      "docs": "https://ahooks.js.org/hooks/use-favicon",
+      "description": "a hook that set the favicon of the page"
+    },
+    {
+      "name": "useFocusWithin",
+      "docs": "https://ahooks.js.org/hooks/use-focus-within",
+      "description": "monitor whether the current focus is within a certain area"
+    },
+    {
+      "name": "useFullscreen",
+      "docs": "https://ahooks.js.org/hooks/use-fullscreen",
+      "description": "manages DOM full screen"
+    },
+    {
+      "name": "useFusionTable",
+      "docs": "https://ahooks.js.org/hooks/use-fusion-table",
+      "description": "useFusionTable encapsulates the commonly used [Fusion Form](https://fusion.design/pc/component/basic/form) and [Fusion Table](https://fusion.design/pc/component/basic/table) data binding logic"
+    },
+    {
+      "name": "useGetState",
+      "docs": "https://ahooks.js.org/hooks/use-get-state",
+      "description": "add a getter method to the return value of `React.useState` to get the latest value"
+    },
+    {
+      "name": "useHistoryTravel",
+      "docs": "https://ahooks.js.org/hooks/use-history-travel",
+      "description": "a hook to manage state change history"
+    },
+    {
+      "name": "useHover",
+      "docs": "https://ahooks.js.org/hooks/use-hover",
+      "description": "a hook that tracks whether the element is being hovered"
+    },
+    {
+      "name": "useInViewport",
+      "docs": "https://ahooks.js.org/hooks/use-in-viewport",
+      "description": "observe whether the element is in the visible area"
+    },
+    {
+      "name": "useInfiniteScroll",
+      "docs": "https://ahooks.js.org/hooks/use-infinite-scroll",
+      "description": "useInfiniteScroll encapsulates the common infinite scroll logic"
+    },
+    {
+      "name": "useInterval",
+      "docs": "https://ahooks.js.org/hooks/use-interval",
+      "description": "a hook that handles the `setInterval` timer function"
+    },
+    {
+      "name": "useIsomorphicLayoutEffect",
+      "docs": "https://ahooks.js.org/hooks/use-isomorphic-layout-effect",
+      "description": "in SSR mode"
+    },
+    {
+      "name": "useKeyPress",
+      "docs": "https://ahooks.js.org/hooks/use-key-press",
+      "description": "listen for the keyboard press"
+    },
+    {
+      "name": "useLatest",
+      "docs": "https://ahooks.js.org/hooks/use-latest",
+      "description": "a Hook that returns the latest value"
+    },
+    {
+      "name": "useLocalStorageState",
+      "docs": "https://ahooks.js.org/hooks/use-local-storage-state",
+      "description": "a Hook that store state into localStorage"
+    },
+    {
+      "name": "useLockFn",
+      "docs": "https://ahooks.js.org/hooks/use-lock-fn",
+      "description": "add lock to an async function to prevent parallel executions"
+    },
+    {
+      "name": "useLongPress",
+      "docs": "https://ahooks.js.org/hooks/use-long-press",
+      "description": "listen for the long press event of the target element"
+    },
+    {
+      "name": "useMap",
+      "docs": "https://ahooks.js.org/hooks/use-map",
+      "description": "a hook that can manage the state of Map"
+    },
+    {
+      "name": "useMemoizedFn",
+      "docs": "https://ahooks.js.org/hooks/use-memoized-fn",
+      "description": "hooks for persistent functions"
+    },
+    {
+      "name": "useMount",
+      "docs": "https://ahooks.js.org/hooks/use-mount",
+      "description": "a hook that executes a function after the component is mounted"
+    },
+    {
+      "name": "useMouse",
+      "docs": "https://ahooks.js.org/hooks/use-mouse",
+      "description": "track cursor position"
+    },
+    {
+      "name": "useMutationObserver",
+      "docs": "https://ahooks.js.org/hooks/use-mutation-observer",
+      "description": "a hook that provides the ability to watch for changes being made to the DOM tree"
+    },
+    {
+      "name": "useNetwork",
+      "docs": "https://ahooks.js.org/hooks/use-network",
+      "description": "a hook that tracks the state of network connection"
+    },
+    {
+      "name": "usePagination",
+      "docs": "https://ahooks.js.org/hooks/use-pagination",
+      "description": "`usePagination` is implemented based on `useRequest` and encapsulates common paging logic"
+    },
+    {
+      "name": "usePrevious",
+      "docs": "https://ahooks.js.org/hooks/use-previous",
+      "description": "a Hook to return the previous state"
+    },
+    {
+      "name": "useRafInterval",
+      "docs": "https://ahooks.js.org/hooks/use-raf-interval",
+      "description": "a hook implements with `requestAnimationFrame` for better performance"
+    },
+    {
+      "name": "useRafState",
+      "docs": "https://ahooks.js.org/hooks/use-raf-state",
+      "description": "update the state in [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame) callback"
+    },
+    {
+      "name": "useRafTimeout",
+      "docs": "https://ahooks.js.org/hooks/use-raf-timeout",
+      "description": "a hook implements with `requestAnimationFrame` for better performance"
+    },
+    {
+      "name": "useReactive",
+      "docs": "https://ahooks.js.org/hooks/use-reactive",
+      "description": "it offers data reactivity when manipulating states and views"
+    },
+    {
+      "name": "useRequest",
+      "docs": "https://ahooks.js.org/hooks/use-request"
+    },
+    {
+      "name": "useResetState",
+      "docs": "https://ahooks.js.org/hooks/use-reset-state",
+      "description": "useResetState works similar to `React.useState`"
+    },
+    {
+      "name": "useResponsive",
+      "docs": "https://ahooks.js.org/hooks/use-responsive",
+      "description": "react Hook for getting responsive info"
+    },
+    {
+      "name": "useSafeState",
+      "docs": "https://ahooks.js.org/hooks/use-safe-state",
+      "description": "it is exactly the same with `React.useState`"
+    },
+    {
+      "name": "useScroll",
+      "docs": "https://ahooks.js.org/hooks/use-scroll",
+      "description": "get the scroll position of an element"
+    },
+    {
+      "name": "useSelections",
+      "docs": "https://ahooks.js.org/hooks/use-selections",
+      "description": "this hook is used for Checkbox group"
+    },
+    {
+      "name": "useSessionStorageState",
+      "docs": "https://ahooks.js.org/hooks/use-session-storage-state",
+      "description": "a Hook for store state into sessionStorage"
+    },
+    {
+      "name": "useSet",
+      "docs": "https://ahooks.js.org/hooks/use-set",
+      "description": "a hook that can manage the state of Set"
+    },
+    {
+      "name": "useSetState",
+      "docs": "https://ahooks.js.org/hooks/use-set-state",
+      "description": "useSetState works similar to `this.setState` of class component"
+    },
+    {
+      "name": "useSize",
+      "docs": "https://ahooks.js.org/hooks/use-size",
+      "description": "a hook that observes size change of an element"
+    },
+    {
+      "name": "useTextSelection",
+      "docs": "https://ahooks.js.org/hooks/use-text-selection",
+      "description": "tracking content"
+    },
+    {
+      "name": "useTheme",
+      "docs": "https://ahooks.js.org/hooks/use-theme",
+      "description": "this hook is used to get and set the theme"
+    },
+    {
+      "name": "useThrottle",
+      "docs": "https://ahooks.js.org/hooks/use-throttle",
+      "description": "a hook that deal with the throttled value"
+    },
+    {
+      "name": "useThrottleEffect",
+      "docs": "https://ahooks.js.org/hooks/use-throttle-effect",
+      "description": "throttle your `useEffect`"
+    },
+    {
+      "name": "useThrottleFn",
+      "docs": "https://ahooks.js.org/hooks/use-throttle-fn",
+      "description": "a hook that deal with the throttled function"
+    },
+    {
+      "name": "useTimeout",
+      "docs": "https://ahooks.js.org/hooks/use-timeout",
+      "description": "a hook that handles the `setTimeout` timer function"
+    },
+    {
+      "name": "useTitle",
+      "docs": "https://ahooks.js.org/hooks/use-title",
+      "description": "a hook that set title of the page"
+    },
+    {
+      "name": "useToggle",
+      "docs": "https://ahooks.js.org/hooks/use-toggle",
+      "description": "a hook that toggle states"
+    },
+    {
+      "name": "useTrackedEffect",
+      "docs": "https://ahooks.js.org/hooks/use-tracked-effect",
+      "description": "a hook of useEffect that allow us to track which dependencies caused the effect to trigger"
+    },
+    {
+      "name": "useUnmount",
+      "docs": "https://ahooks.js.org/hooks/use-unmount",
+      "description": "a hook that executes the function right before the component is unmounted"
+    },
+    {
+      "name": "useUnmountedRef",
+      "docs": "https://ahooks.js.org/hooks/use-unmounted-ref",
+      "description": "a Hook can be used to get whether the component is unmounted"
+    },
+    {
+      "name": "useUpdate",
+      "docs": "https://ahooks.js.org/hooks/use-update",
+      "description": "a hook that returns a function which can be used to force the component to re-render"
+    },
+    {
+      "name": "useUpdateEffect",
+      "docs": "https://ahooks.js.org/hooks/use-update-effect",
+      "description": "a hook alike `useEffect` but skips running the effect for the first time"
+    },
+    {
+      "name": "useUpdateLayoutEffect",
+      "docs": "https://ahooks.js.org/hooks/use-update-layout-effect",
+      "description": "a hook alike `useLayoutEffect` but skips running the effect for the first time"
+    },
+    {
+      "name": "useVirtualList",
+      "docs": "https://ahooks.js.org/hooks/use-virtual-list",
+      "description": "a hook that allows you to use virtual list to render huge chunks of list data"
+    },
+    {
+      "name": "useWebSocket",
+      "docs": "https://ahooks.js.org/hooks/use-web-socket",
+      "description": "a hook for WebSocket"
+    },
+    {
+      "name": "useWhyDidYouUpdate",
+      "docs": "https://ahooks.js.org/hooks/use-why-did-you-update",
+      "description": "help developers troubleshoot what changes have caused component rerender"
+    }
+  ]
+}

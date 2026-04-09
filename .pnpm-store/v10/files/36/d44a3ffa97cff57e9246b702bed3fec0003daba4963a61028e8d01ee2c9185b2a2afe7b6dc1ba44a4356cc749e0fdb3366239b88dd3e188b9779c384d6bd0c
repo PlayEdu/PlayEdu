@@ -1,0 +1,2 @@
+declare const useEffectWithTarget: (effect: import("react").EffectCallback, deps: import("react").DependencyList, target: import("./domTarget").BasicTarget<any> | import("./domTarget").BasicTarget<any>[]) => void;
+export default useEffectWithTarget;

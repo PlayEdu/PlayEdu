@@ -1,0 +1,66 @@
+{
+  "name": "rollup-plugin-gzip",
+  "version": "3.1.2",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "description": "Compress your Rollup / Vite bundle with Gzip or Brotli",
+  "keywords": [
+    "rollup",
+    "rollup-plugin",
+    "gzip",
+    "compress",
+    "compression",
+    "brotli",
+    "vite",
+    "vite-plugin"
+  ],
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "module": "./dist-es/index.mjs",
+  "exports": {
+    "require": "./dist/index.js",
+    "import": "./dist-es/index.mjs",
+    "default": "./dist/index.js"
+  },
+  "typings": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && tsc --project tsconfig-es.json && node rename-dist-es.js",
+    "clean": "rimraf dist dist-es",
+    "format": "prettier --write --config .prettierrc '*.js', './src/**' './test/**' './examples/**'",
+    "lint": "eslint --ext .js,.ts  .",
+    "test": "vitest run",
+    "prepack": "yarn run clean && yarn run build",
+    "prepublish": "yarn run lint && yarn run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/kryops/rollup-plugin-gzip.git"
+  },
+  "author": "Michael Manzinger <michael@kryops.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kryops/rollup-plugin-gzip/issues"
+  },
+  "homepage": "https://github.com/kryops/rollup-plugin-gzip#readme",
+  "devDependencies": {
+    "@types/node": "^20.11.28",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jest": "^27.9.0",
+    "eslint-plugin-node": "^11.1.0",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.13.0",
+    "typescript": "^5.4.2",
+    "vite": "^5.1.6",
+    "vitest": "^1.4.0"
+  },
+  "peerDependencies": {
+    "rollup": ">=2.0.0"
+  },
+  "packageManager": "yarn@4.0.2"
+}

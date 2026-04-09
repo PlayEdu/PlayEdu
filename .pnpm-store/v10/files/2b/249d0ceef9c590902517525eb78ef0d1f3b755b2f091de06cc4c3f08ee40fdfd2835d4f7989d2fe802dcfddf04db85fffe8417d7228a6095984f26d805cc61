@@ -1,0 +1,56 @@
+{
+  "name": "ahooks",
+  "version": "3.9.7",
+  "description": "react hooks library",
+  "keywords": [
+    "ahooks",
+    "umi hooks",
+    "react hooks"
+  ],
+  "main": "./lib/index.js",
+  "module": "./es/index.js",
+  "types": "./lib/index.d.ts",
+  "unpkg": "dist/ahooks.js",
+  "sideEffects": false,
+  "authors": {
+    "name": "brickspert",
+    "email": "brickspert.fjl@alipay.com"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": "https://github.com/alibaba/hooks",
+  "homepage": "https://github.com/alibaba/hooks",
+  "files": [
+    "dist",
+    "lib",
+    "es",
+    "metadata.json",
+    "package.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "@babel/runtime": "^7.21.0",
+    "dayjs": "^1.9.1",
+    "intersection-observer": "^0.12.0",
+    "js-cookie": "^3.0.5",
+    "lodash": "^4.17.21",
+    "react-fast-compare": "^3.2.2",
+    "resize-observer-polyfill": "^1.5.1",
+    "screenfull": "^5.0.0",
+    "tslib": "^2.4.1"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "license": "MIT",
+  "gitHead": "11f6ad571bd365c95ecb9409ca3050cbbfc9b34a",
+  "scripts": {
+    "build": "gulp && webpack-cli",
+    "test": "vitest run --color",
+    "test:cov": "vitest run --color --coverage",
+    "tsc": "tsc --noEmit"
+  }
+}

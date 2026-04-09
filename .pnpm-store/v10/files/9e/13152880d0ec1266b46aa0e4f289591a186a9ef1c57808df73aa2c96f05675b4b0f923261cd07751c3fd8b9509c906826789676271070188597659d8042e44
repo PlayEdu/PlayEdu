@@ -1,0 +1,14066 @@
+/**
+ * Less - Leaner CSS v4.6.4
+ * http://lesscss.org
+ *
+ * Copyright (c) 2009-2026, Alexis Sellier <self@cloudhead.net>
+ * Licensed under the Apache-2.0 License.
+ *
+ * @license Apache-2.0
+ */
+
+'use strict';
+
+var path = require('path');
+var nodeFs = require('fs');
+var url = require('url');
+
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
+var nodeFs__default = /*#__PURE__*/_interopDefaultLegacy(nodeFs);
+var url__default = /*#__PURE__*/_interopDefaultLegacy(url);
+
+function createRequire() { return require; }
+
+const require$6 = createRequire();
+
+class SourceMapGeneratorFallback {
+    addMapping(){}
+    setSourceContent(){}
+    toJSON(){
+        return null;
+    }
+}
+var environment = {
+    encodeBase64: function encodeBase64(str) {
+        // Avoid Buffer constructor on newer versions of Node.js.
+        const buffer = (Buffer.from ? Buffer.from(str) : (new Buffer(str)));
+        return buffer.toString('base64');
+    },
+    mimeLookup: function (filename) {
+        try {
+            const mimeModule = require$6('mime');
+            return mimeModule ? mimeModule.lookup(filename) : "application/octet-stream";
+        } catch (e) {
+            return "application/octet-stream";
+        }
+    },
+    charsetLookup: function (mime) {
+        try {
+            const mimeModule = require$6('mime');
+            return mimeModule ? mimeModule.charsets.lookup(mime) : undefined;
+        } catch (e) {
+            return undefined;
+        }
+    },
+    getSourceMapGenerator: function getSourceMapGenerator() {
+        try {
+            const sourceMapModule = require$6('source-map');
+            return sourceMapModule ? sourceMapModule.SourceMapGenerator : SourceMapGeneratorFallback;
+        } catch (e) {
+            return SourceMapGeneratorFallback;
+        }
+    }
+};
+
+/** @typedef {import('fs')} FS */
+
+const require$5 = createRequire();
+
+/** @type {FS} */
+let fs;
+try {
+    fs = require$5('graceful-fs');
+} catch (e) {
+    fs = nodeFs__default["default"];
+}
+var fs$1 = fs;
+
+class AbstractFileManager {
+    getPath(filename) {
+        let j = filename.lastIndexOf('?');
+        if (j > 0) {
+            filename = filename.slice(0, j);
+        }
+        j = filename.lastIndexOf('/');
+        if (j < 0) {
+            j = filename.lastIndexOf('\\');
+        }
+        if (j < 0) {
+            return '';
+        }
+        return filename.slice(0, j + 1);
+    }
+
+    tryAppendExtension(path, ext) {
+        return /(\.[a-z]*$)|([?;].*)$/.test(path) ? path : path + ext;
+    }
+
+    tryAppendLessExtension(path) {
+        return this.tryAppendExtension(path, '.less');
+    }
+
+    supportsSync() {
+        return false;
+    }
+
+    alwaysMakePathsAbsolute() {
+        return false;
+    }
+
+    isPathAbsolute(filename) {
+        return (/^(?:[a-z-]+:|\/|\\|#)/i).test(filename);
+    }
+
+    // TODO: pull out / replace?
+    join(basePath, laterPath) {
+        if (!basePath) {
+            return laterPath;
+        }
+        return basePath + laterPath;
+    }
+
+    pathDiff(url, baseUrl) {
+        // diff between two paths to create a relative path
+
+        const urlParts = this.extractUrlParts(url);
+
+        const baseUrlParts = this.extractUrlParts(baseUrl);
+        let i;
+        let max;
+        let urlDirectories;
+        let baseUrlDirectories;
+        let diff = '';
+        if (urlParts.hostPart !== baseUrlParts.hostPart) {
+            return '';
+        }
+        max = Math.max(baseUrlParts.directories.length, urlParts.directories.length);
+        for (i = 0; i < max; i++) {
+            if (baseUrlParts.directories[i] !== urlParts.directories[i]) { break; }
+        }
+        baseUrlDirectories = baseUrlParts.directories.slice(i);
+        urlDirectories = urlParts.directories.slice(i);
+        for (i = 0; i < baseUrlDirectories.length - 1; i++) {
+            diff += '../';
+        }
+        for (i = 0; i < urlDirectories.length - 1; i++) {
+            diff += `${urlDirectories[i]}/`;
+        }
+        return diff;
+    }
+
+    /**
+     * Helper function, not part of API.
+     * This should be replaceable by newer Node / Browser APIs
+     * 
+     * @param {string} url 
+     * @param {string} baseUrl
+     */
+    extractUrlParts(url, baseUrl) {
+        // urlParts[1] = protocol://hostname/ OR /
+        // urlParts[2] = / if path relative to host base
+        // urlParts[3] = directories
+        // urlParts[4] = filename
+        // urlParts[5] = parameters
+
+        const urlPartsRegex = /^((?:[a-z-]+:)?\/{2}(?:[^/?#]*\/)|([/\\]))?((?:[^/\\?#]*[/\\])*)([^/\\?#]*)([#?].*)?$/i;
+
+        const urlParts = url.match(urlPartsRegex);
+        const returner = {};
+        let rawDirectories = [];
+        const directories = [];
+        let i;
+        let baseUrlParts;
+
+        if (!urlParts) {
+            throw new Error(`Could not parse sheet href - '${url}'`);
+        }
+
+        // Stylesheets in IE don't always return the full path
+        if (baseUrl && (!urlParts[1] || urlParts[2])) {
+            baseUrlParts = baseUrl.match(urlPartsRegex);
+            if (!baseUrlParts) {
+                throw new Error(`Could not parse page url - '${baseUrl}'`);
+            }
+            urlParts[1] = urlParts[1] || baseUrlParts[1] || '';
+            if (!urlParts[2]) {
+                urlParts[3] = baseUrlParts[3] + urlParts[3];
+            }
+        }
+
+        if (urlParts[3]) {
+            rawDirectories = urlParts[3].replace(/\\/g, '/').split('/');
+
+            // collapse '..' and skip '.'
+            for (i = 0; i < rawDirectories.length; i++) {
+
+                if (rawDirectories[i] === '..') {
+                    directories.pop();
+                }
+                else if (rawDirectories[i] !== '.') {
+                    directories.push(rawDirectories[i]);
+                }
+            
+            }
+        }
+
+        returner.hostPart = urlParts[1];
+        returner.directories = directories;
+        returner.rawPath = (urlParts[1] || '') + rawDirectories.join('/');
+        returner.path = (urlParts[1] || '') + directories.join('/');
+        returner.filename = urlParts[4];
+        returner.fileUrl = returner.path + (urlParts[4] || '');
+        returner.url = returner.fileUrl + (urlParts[5] || '');
+        return returner;
+    }
+}
+
+const require$4 = createRequire();
+
+const FileManager = function() {};
+FileManager.prototype = Object.assign(new AbstractFileManager(), {
+    supports() {
+        return true;
+    },
+
+    supportsSync() {
+        return true;
+    },
+
+    loadFile(filename, currentDirectory, options, environment, callback) {
+        let fullFilename;
+        const isAbsoluteFilename = this.isPathAbsolute(filename);
+        const filenamesTried = [];
+        const self = this;
+        const prefix = filename.slice(0, 1);
+        const explicit = prefix === '.' || prefix === '/';
+        let result = null;
+        let isNodeModule = false;
+        const npmPrefix = 'npm://';
+
+        options = options || {};
+
+        const paths = isAbsoluteFilename ? [''] : [currentDirectory];
+
+        if (options.paths) { paths.push.apply(paths, options.paths); }
+
+        if (!isAbsoluteFilename && paths.indexOf('.') === -1) { paths.push('.'); }
+
+        const prefixes = options.prefixes || [''];
+        const fileParts = this.extractUrlParts(filename);
+
+        if (options.syncImport) {
+            getFileData(returnData, returnData);
+            if (callback) {
+                callback(result.error, result);
+            }
+            else {
+                return result;
+            }
+        }
+        else {
+            // promise is guaranteed to be asyncronous
+            // which helps as it allows the file handle
+            // to be closed before it continues with the next file
+            return new Promise(getFileData);
+        }
+
+        function returnData(data) {
+            if (!data.filename) {
+                result = { error: data };
+            }
+            else {
+                result = data;
+            }
+        }
+
+        function getFileData(fulfill, reject) {
+            (function tryPathIndex(i) {
+                function tryWithExtension() {
+                    const extFilename = options.ext ? self.tryAppendExtension(fullFilename, options.ext) : fullFilename;
+
+                    if (extFilename !== fullFilename && !explicit && paths[i] === '.') {
+                        try {
+                            fullFilename = require$4.resolve(extFilename);
+                            isNodeModule = true;
+                        }
+                        catch (e) {
+                            filenamesTried.push(npmPrefix + extFilename);
+                            fullFilename = extFilename;
+                        }
+                    }
+                    else {
+                        fullFilename = extFilename;
+                    }
+                }
+                if (i < paths.length) {
+                    (function tryPrefix(j) {
+                        if (j < prefixes.length) {
+                            isNodeModule = false;
+                            fullFilename = fileParts.rawPath + prefixes[j] + fileParts.filename;
+
+                            if (paths[i]) {
+                                if (paths[i].startsWith('#')) {
+                                    // Handling paths starting with '#'
+                                    fullFilename = paths[i].substr(1) + fullFilename;
+                                }else {
+                                    fullFilename = path__default["default"].join(paths[i], fullFilename);
+                                }
+                            }
+
+                            if (!explicit && paths[i] === '.') {
+                                try {
+                                    fullFilename = require$4.resolve(fullFilename);
+                                    isNodeModule = true;
+                                }
+                                catch (e) {
+                                    filenamesTried.push(npmPrefix + fullFilename);
+                                    tryWithExtension();
+                                }
+                            }
+                            else {
+                                tryWithExtension();
+                            }                            
+
+                            const readFileArgs = [fullFilename];
+                            if (!options.rawBuffer) {
+                                readFileArgs.push('utf-8');
+                            }
+                            if (options.syncImport) {
+                                try {
+                                    const data = fs$1.readFileSync.apply(this, readFileArgs);
+                                    fulfill({ contents: data, filename: fullFilename});
+                                }
+                                catch (e) {
+                                    filenamesTried.push(isNodeModule ? npmPrefix + fullFilename : fullFilename);
+                                    return tryPrefix(j + 1);
+                                }
+                            }
+                            else {
+                                readFileArgs.push(function(e, data) {
+                                    if (e) {
+                                        filenamesTried.push(isNodeModule ? npmPrefix + fullFilename : fullFilename);
+                                        return tryPrefix(j + 1);
+                                    }   
+                                    fulfill({ contents: data, filename: fullFilename});
+                                });
+                                fs$1.readFile.apply(this, readFileArgs);
+                            }
+
+                        }
+                        else {
+                            tryPathIndex(i + 1);
+                        }
+                    })(0);
+                } else {
+                    reject({ type: 'File', message: `'${filename}' wasn't found. Tried - ${filenamesTried.join(',')}` });
+                }
+            }(0));
+        }
+    },
+
+    loadFileSync(filename, currentDirectory, options, environment) {
+        options.syncImport = true;
+        return this.loadFile(filename, currentDirectory, options, environment);
+    }
+});
+
+var logger = {
+    error: function(msg) {
+        this._fireEvent('error', msg);
+    },
+    warn: function(msg) {
+        this._fireEvent('warn', msg);
+    },
+    info: function(msg) {
+        this._fireEvent('info', msg);
+    },
+    debug: function(msg) {
+        this._fireEvent('debug', msg);
+    },
+    addListener: function(listener) {
+        this._listeners.push(listener);
+    },
+    removeListener: function(listener) {
+        for (let i = 0; i < this._listeners.length; i++) {
+            if (this._listeners[i] === listener) {
+                this._listeners.splice(i, 1);
+                return;
+            }
+        }
+    },
+    _fireEvent: function(type, msg) {
+        for (let i = 0; i < this._listeners.length; i++) {
+            const logFunction = this._listeners[i][type];
+            if (logFunction) {
+                logFunction(msg);
+            }
+        }
+    },
+    _listeners: []
+};
+
+/* eslint-disable no-unused-vars */
+
+const require$3 = createRequire();
+
+const isUrlRe = /^(?:https?:)?\/\//i;
+let request;
+
+const UrlFileManager = function() {};
+UrlFileManager.prototype = Object.assign(new AbstractFileManager(), {
+    supports(filename, currentDirectory, options, environment) {
+        return isUrlRe.test( filename ) || isUrlRe.test(currentDirectory);
+    },
+
+    loadFile(filename, currentDirectory, options, environment) {
+        return new Promise((fulfill, reject) => {
+            if (request === undefined) {
+                try { request = require$3('needle'); }
+                catch (e) { request = null; }
+            }
+            if (!request) {
+                reject({ type: 'File', message: 'optional dependency \'needle\' required to import over http(s)\n' });
+                return;
+            }
+
+            let urlStr = isUrlRe.test( filename ) ? filename : url__default["default"].resolve(currentDirectory, filename);
+
+            /** native-request currently has a bug */
+            const hackUrlStr = urlStr.indexOf('?') === -1 ? urlStr + '?' : urlStr;
+
+            request.get(hackUrlStr, { follow_max: 5 }, (err, resp, body) => {
+                if (err || resp && resp.statusCode >= 400) {
+                    const message = resp && resp.statusCode === 404
+                        ? `resource '${urlStr}' was not found\n`
+                        : `resource '${urlStr}' gave this Error:\n  ${err || resp.statusMessage || resp.statusCode}\n`;
+                    reject({ type: 'File', message });
+                    return;
+                }
+                if (resp.statusCode >= 300) {
+                    reject({ type: 'File', message: `resource '${urlStr}' caused too many redirects` });
+                    return;
+                }
+                body = body.toString('utf8');
+                if (!body) {
+                    logger.warn(`Warning: Empty body (HTTP ${resp.statusCode}) returned by "${urlStr}"`);
+                }
+                fulfill({ contents: body || '', filename: urlStr });
+            });
+        });
+    }
+});
+
+/**
+ * @todo Document why this abstraction exists, and the relationship between
+ *       environment, file managers, and plugin manager
+ */
+
+class Environment {
+    constructor(externalEnvironment, fileManagers) {
+        this.fileManagers = fileManagers || [];
+        externalEnvironment = externalEnvironment || {};
+
+        const optionalFunctions = ['encodeBase64', 'mimeLookup', 'charsetLookup', 'getSourceMapGenerator'];
+        const requiredFunctions = [];
+        const functions = requiredFunctions.concat(optionalFunctions);
+
+        for (let i = 0; i < functions.length; i++) {
+            const propName = functions[i];
+            const environmentFunc = externalEnvironment[propName];
+            if (environmentFunc) {
+                this[propName] = environmentFunc.bind(externalEnvironment);
+            } else if (i < requiredFunctions.length) {
+                this.warn(`missing required function in environment - ${propName}`);
+            }
+        }
+    }
+
+    getFileManager(filename, currentDirectory, options, environment, isSync) {
+
+        if (!filename) {
+            logger.warn('getFileManager called with no filename.. Please report this issue. continuing.');
+        }
+        if (currentDirectory === undefined) {
+            logger.warn('getFileManager called with null directory.. Please report this issue. continuing.');
+        }
+
+        let fileManagers = this.fileManagers;
+        if (options.pluginManager) {
+            fileManagers = [].concat(fileManagers).concat(options.pluginManager.getFileManagers());
+        }
+        for (let i = fileManagers.length - 1; i >= 0 ; i--) {
+            const fileManager = fileManagers[i];
+            if (fileManager[isSync ? 'supportsSync' : 'supports'](filename, currentDirectory, options, environment)) {
+                return fileManager;
+            }
+        }
+        return null;
+    }
+
+    addFileManager(fileManager) {
+        this.fileManagers.push(fileManager);
+    }
+
+    clearFileManagers() {
+        this.fileManagers = [];
+    }
+}
+
+var colors = {
+    'aliceblue':'#f0f8ff',
+    'antiquewhite':'#faebd7',
+    'aqua':'#00ffff',
+    'aquamarine':'#7fffd4',
+    'azure':'#f0ffff',
+    'beige':'#f5f5dc',
+    'bisque':'#ffe4c4',
+    'black':'#000000',
+    'blanchedalmond':'#ffebcd',
+    'blue':'#0000ff',
+    'blueviolet':'#8a2be2',
+    'brown':'#a52a2a',
+    'burlywood':'#deb887',
+    'cadetblue':'#5f9ea0',
+    'chartreuse':'#7fff00',
+    'chocolate':'#d2691e',
+    'coral':'#ff7f50',
+    'cornflowerblue':'#6495ed',
+    'cornsilk':'#fff8dc',
+    'crimson':'#dc143c',
+    'cyan':'#00ffff',
+    'darkblue':'#00008b',
+    'darkcyan':'#008b8b',
+    'darkgoldenrod':'#b8860b',
+    'darkgray':'#a9a9a9',
+    'darkgrey':'#a9a9a9',
+    'darkgreen':'#006400',
+    'darkkhaki':'#bdb76b',
+    'darkmagenta':'#8b008b',
+    'darkolivegreen':'#556b2f',
+    'darkorange':'#ff8c00',
+    'darkorchid':'#9932cc',
+    'darkred':'#8b0000',
+    'darksalmon':'#e9967a',
+    'darkseagreen':'#8fbc8f',
+    'darkslateblue':'#483d8b',
+    'darkslategray':'#2f4f4f',
+    'darkslategrey':'#2f4f4f',
+    'darkturquoise':'#00ced1',
+    'darkviolet':'#9400d3',
+    'deeppink':'#ff1493',
+    'deepskyblue':'#00bfff',
+    'dimgray':'#696969',
+    'dimgrey':'#696969',
+    'dodgerblue':'#1e90ff',
+    'firebrick':'#b22222',
+    'floralwhite':'#fffaf0',
+    'forestgreen':'#228b22',
+    'fuchsia':'#ff00ff',
+    'gainsboro':'#dcdcdc',
+    'ghostwhite':'#f8f8ff',
+    'gold':'#ffd700',
+    'goldenrod':'#daa520',
+    'gray':'#808080',
+    'grey':'#808080',
+    'green':'#008000',
+    'greenyellow':'#adff2f',
+    'honeydew':'#f0fff0',
+    'hotpink':'#ff69b4',
+    'indianred':'#cd5c5c',
+    'indigo':'#4b0082',
+    'ivory':'#fffff0',
+    'khaki':'#f0e68c',
+    'lavender':'#e6e6fa',
+    'lavenderblush':'#fff0f5',
+    'lawngreen':'#7cfc00',
+    'lemonchiffon':'#fffacd',
+    'lightblue':'#add8e6',
+    'lightcoral':'#f08080',
+    'lightcyan':'#e0ffff',
+    'lightgoldenrodyellow':'#fafad2',
+    'lightgray':'#d3d3d3',
+    'lightgrey':'#d3d3d3',
+    'lightgreen':'#90ee90',
+    'lightpink':'#ffb6c1',
+    'lightsalmon':'#ffa07a',
+    'lightseagreen':'#20b2aa',
+    'lightskyblue':'#87cefa',
+    'lightslategray':'#778899',
+    'lightslategrey':'#778899',
+    'lightsteelblue':'#b0c4de',
+    'lightyellow':'#ffffe0',
+    'lime':'#00ff00',
+    'limegreen':'#32cd32',
+    'linen':'#faf0e6',
+    'magenta':'#ff00ff',
+    'maroon':'#800000',
+    'mediumaquamarine':'#66cdaa',
+    'mediumblue':'#0000cd',
+    'mediumorchid':'#ba55d3',
+    'mediumpurple':'#9370d8',
+    'mediumseagreen':'#3cb371',
+    'mediumslateblue':'#7b68ee',
+    'mediumspringgreen':'#00fa9a',
+    'mediumturquoise':'#48d1cc',
+    'mediumvioletred':'#c71585',
+    'midnightblue':'#191970',
+    'mintcream':'#f5fffa',
+    'mistyrose':'#ffe4e1',
+    'moccasin':'#ffe4b5',
+    'navajowhite':'#ffdead',
+    'navy':'#000080',
+    'oldlace':'#fdf5e6',
+    'olive':'#808000',
+    'olivedrab':'#6b8e23',
+    'orange':'#ffa500',
+    'orangered':'#ff4500',
+    'orchid':'#da70d6',
+    'palegoldenrod':'#eee8aa',
+    'palegreen':'#98fb98',
+    'paleturquoise':'#afeeee',
+    'palevioletred':'#d87093',
+    'papayawhip':'#ffefd5',
+    'peachpuff':'#ffdab9',
+    'peru':'#cd853f',
+    'pink':'#ffc0cb',
+    'plum':'#dda0dd',
+    'powderblue':'#b0e0e6',
+    'purple':'#800080',
+    'rebeccapurple':'#663399',
+    'red':'#ff0000',
+    'rosybrown':'#bc8f8f',
+    'royalblue':'#4169e1',
+    'saddlebrown':'#8b4513',
+    'salmon':'#fa8072',
+    'sandybrown':'#f4a460',
+    'seagreen':'#2e8b57',
+    'seashell':'#fff5ee',
+    'sienna':'#a0522d',
+    'silver':'#c0c0c0',
+    'skyblue':'#87ceeb',
+    'slateblue':'#6a5acd',
+    'slategray':'#708090',
+    'slategrey':'#708090',
+    'snow':'#fffafa',
+    'springgreen':'#00ff7f',
+    'steelblue':'#4682b4',
+    'tan':'#d2b48c',
+    'teal':'#008080',
+    'thistle':'#d8bfd8',
+    'tomato':'#ff6347',
+    'turquoise':'#40e0d0',
+    'violet':'#ee82ee',
+    'wheat':'#f5deb3',
+    'white':'#ffffff',
+    'whitesmoke':'#f5f5f5',
+    'yellow':'#ffff00',
+    'yellowgreen':'#9acd32'
+};
+
+var unitConversions = {
+    length: {
+        'm': 1,
+        'cm': 0.01,
+        'mm': 0.001,
+        'in': 0.0254,
+        'px': 0.0254 / 96,
+        'pt': 0.0254 / 72,
+        'pc': 0.0254 / 72 * 12
+    },
+    duration: {
+        's': 1,
+        'ms': 0.001
+    },
+    angle: {
+        'rad': 1 / (2 * Math.PI),
+        'deg': 1 / 360,
+        'grad': 1 / 400,
+        'turn': 1
+    }
+};
+
+var data = { colors, unitConversions };
+
+// @ts-check
+/**
+ * @typedef {object} FileInfo
+ * @property {string} [filename]
+ * @property {string} [rootpath]
+ * @property {string} [currentDirectory]
+ * @property {string} [rootFilename]
+ * @property {string} [entryPath]
+ * @property {boolean} [reference]
+ */
+
+/**
+ * @typedef {object} VisibilityInfo
+ * @property {number} [visibilityBlocks]
+ * @property {boolean} [nodeVisible]
+ */
+
+/**
+ * @typedef {object} CSSOutput
+ * @property {(chunk: string, fileInfo?: FileInfo, index?: number, mapLines?: boolean) => void} add
+ * @property {() => boolean} isEmpty
+ */
+
+/**
+ * @typedef {object} EvalContext
+ * @property {number} [numPrecision]
+ * @property {(op?: string) => boolean} [isMathOn]
+ * @property {number} [math]
+ * @property {Node[]} [frames]
+ * @property {Array<{important?: string}>} [importantScope]
+ * @property {string[]} [paths]
+ * @property {boolean} [compress]
+ * @property {boolean} [strictUnits]
+ * @property {boolean} [sourceMap]
+ * @property {boolean} [importMultiple]
+ * @property {string} [urlArgs]
+ * @property {boolean} [javascriptEnabled]
+ * @property {object} [pluginManager]
+ * @property {number} [rewriteUrls]
+ * @property {boolean} [inCalc]
+ * @property {boolean} [mathOn]
+ * @property {boolean[]} [calcStack]
+ * @property {boolean[]} [parensStack]
+ * @property {Node[]} [mediaBlocks]
+ * @property {Node[]} [mediaPath]
+ * @property {() => void} [inParenthesis]
+ * @property {() => void} [outOfParenthesis]
+ * @property {() => void} [enterCalc]
+ * @property {() => void} [exitCalc]
+ * @property {(path: string) => boolean} [pathRequiresRewrite]
+ * @property {(path: string, rootpath?: string) => string} [rewritePath]
+ * @property {(path: string) => string} [normalizePath]
+ * @property {number} [tabLevel]
+ * @property {boolean} [lastRule]
+ */
+
+/**
+ * @typedef {object} TreeVisitor
+ * @property {(node: Node) => Node} visit
+ * @property {(nodes: Node[], nonReplacing?: boolean) => Node[]} visitArray
+ */
+
+/**
+ * The reason why Node is a class and other nodes simply do not extend
+ * from Node (since we're transpiling) is due to this issue:
+ *
+ * @see https://github.com/less/less.js/issues/3434
+ */
+class Node {
+    get type() { return ''; }
+
+    constructor() {
+        /** @type {Node | null} */
+        this.parent = null;
+        /** @type {number | undefined} */
+        this.visibilityBlocks = undefined;
+        /** @type {boolean | undefined} */
+        this.nodeVisible = undefined;
+        /** @type {Node | null} */
+        this.rootNode = null;
+        /** @type {Node | null} */
+        this.parsed = null;
+
+        /** @type {Node | Node[] | string | number | undefined} */
+        this.value = undefined;
+        /** @type {number | undefined} */
+        this._index = undefined;
+        /** @type {FileInfo | undefined} */
+        this._fileInfo = undefined;
+    }
+
+    get currentFileInfo() {
+        return this.fileInfo();
+    }
+
+    get index() {
+        return this.getIndex();
+    }
+
+    /**
+     * @param {Node | Node[]} nodes
+     * @param {Node} parent
+     */
+    setParent(nodes, parent) {
+        /** @param {Node} node */
+        function set(node) {
+            if (node && node instanceof Node) {
+                node.parent = parent;
+            }
+        }
+        if (Array.isArray(nodes)) {
+            nodes.forEach(set);
+        }
+        else {
+            set(nodes);
+        }
+    }
+
+    /** @returns {number} */
+    getIndex() {
+        return this._index || (this.parent && this.parent.getIndex()) || 0;
+    }
+
+    /** @returns {FileInfo} */
+    fileInfo() {
+        return this._fileInfo || (this.parent && this.parent.fileInfo()) || {};
+    }
+
+    /** @returns {boolean} */
+    isRulesetLike() { return false; }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {string}
+     */
+    toCSS(context) {
+        /** @type {string[]} */
+        const strs = [];
+        this.genCSS(context, {
+            add: function(chunk, fileInfo, index) {
+                strs.push(chunk);
+            },
+            isEmpty: function () {
+                return strs.length === 0;
+            }
+        });
+        return strs.join('');
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add(/** @type {string} */ (this.value));
+    }
+
+    /**
+     * @param {TreeVisitor} visitor
+     */
+    accept(visitor) {
+        this.value = visitor.visit(/** @type {Node} */ (this.value));
+    }
+
+    /**
+     * @param {EvalContext} [context]
+     * @returns {Node}
+     */
+    eval(context) { return this; }
+
+    /**
+     * @param {EvalContext} context
+     * @param {string} op
+     * @param {number} a
+     * @param {number} b
+     * @returns {number | undefined}
+     */
+    _operate(context, op, a, b) {
+        switch (op) {
+            case '+': return a + b;
+            case '-': return a - b;
+            case '*': return a * b;
+            case '/': return a / b;
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {number} value
+     * @returns {number}
+     */
+    fround(context, value) {
+        const precision = context && context.numPrecision;
+        // add "epsilon" to ensure numbers like 1.000000005 (represented as 1.000000004999...) are properly rounded:
+        return (precision) ? Number((value + 2e-16).toFixed(precision)) : value;
+    }
+
+    /**
+     * @param {Node & { compare?: (other: Node) => number | undefined }} a
+     * @param {Node & { compare?: (other: Node) => number | undefined }} b
+     * @returns {number | undefined}
+     */
+    static compare(a, b) {
+        /* returns:
+         -1: a < b
+         0: a = b
+         1: a > b
+         and *any* other value for a != b (e.g. undefined, NaN, -2 etc.) */
+
+        if ((a.compare) &&
+            // for "symmetric results" force toCSS-based comparison
+            // of Quoted or Anonymous if either value is one of those
+            !(b.type === 'Quoted' || b.type === 'Anonymous')) {
+            return a.compare(b);
+        } else if (b.compare) {
+            return -b.compare(a);
+        } else if (a.type !== b.type) {
+            return undefined;
+        }
+
+        let aVal = a.value;
+        let bVal = b.value;
+        if (!Array.isArray(aVal)) {
+            return aVal === bVal ? 0 : undefined;
+        }
+        if (!Array.isArray(bVal)) {
+            return undefined;
+        }
+        if (aVal.length !== bVal.length) {
+            return undefined;
+        }
+        for (let i = 0; i < aVal.length; i++) {
+            if (Node.compare(aVal[i], bVal[i]) !== 0) {
+                return undefined;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * @param {number | string} a
+     * @param {number | string} b
+     * @returns {number | undefined}
+     */
+    static numericCompare(a, b) {
+        return a  <  b ? -1
+            : a === b ?  0
+                : a  >  b ?  1 : undefined;
+    }
+
+    /** @returns {boolean} */
+    blocksVisibility() {
+        if (this.visibilityBlocks === undefined) {
+            this.visibilityBlocks = 0;
+        }
+        return this.visibilityBlocks !== 0;
+    }
+
+    addVisibilityBlock() {
+        if (this.visibilityBlocks === undefined) {
+            this.visibilityBlocks = 0;
+        }
+        this.visibilityBlocks = this.visibilityBlocks + 1;
+    }
+
+    removeVisibilityBlock() {
+        if (this.visibilityBlocks === undefined) {
+            this.visibilityBlocks = 0;
+        }
+        this.visibilityBlocks = this.visibilityBlocks - 1;
+    }
+
+    ensureVisibility() {
+        this.nodeVisible = true;
+    }
+
+    ensureInvisibility() {
+        this.nodeVisible = false;
+    }
+
+    /** @returns {boolean | undefined} */
+    isVisible() {
+        return this.nodeVisible;
+    }
+
+    /** @returns {VisibilityInfo} */
+    visibilityInfo() {
+        return {
+            visibilityBlocks: this.visibilityBlocks,
+            nodeVisible: this.nodeVisible
+        };
+    }
+
+    /** @param {VisibilityInfo} info */
+    copyVisibilityInfo(info) {
+        if (!info) {
+            return;
+        }
+        this.visibilityBlocks = info.visibilityBlocks;
+        this.nodeVisible = info.nodeVisible;
+    }
+}
+
+/**
+ * Set by the parser at runtime on Node.prototype.
+ * @type {{ context: EvalContext, importManager: object, imports: object } | undefined}
+ */
+Node.prototype.parse = undefined;
+
+// @ts-check
+
+/** @import { EvalContext, CSSOutput } from './node.js' */
+
+//
+// RGB Colors - #ff0014, #eee
+//
+class Color extends Node {
+    get type() { return 'Color'; }
+
+    /**
+     * @param {number[] | string} rgb
+     * @param {number} [a]
+     * @param {string} [originalForm]
+     */
+    constructor(rgb, a, originalForm) {
+        super();
+        const self = this;
+        //
+        // The end goal here, is to parse the arguments
+        // into an integer triplet, such as `128, 255, 0`
+        //
+        // This facilitates operations and conversions.
+        //
+        if (Array.isArray(rgb)) {
+            /** @type {number[]} */
+            this.rgb = rgb;
+        } else if (rgb.length >= 6) {
+            /** @type {number[]} */
+            this.rgb = [];
+            /** @type {RegExpMatchArray} */ (rgb.match(/.{2}/g)).map(function (c, i) {
+                if (i < 3) {
+                    self.rgb.push(parseInt(c, 16));
+                } else {
+                    self.alpha = (parseInt(c, 16)) / 255;
+                }
+            });
+        } else {
+            /** @type {number[]} */
+            this.rgb = [];
+            rgb.split('').map(function (c, i) {
+                if (i < 3) {
+                    self.rgb.push(parseInt(c + c, 16));
+                } else {
+                    self.alpha = (parseInt(c + c, 16)) / 255;
+                }
+            });
+        }
+        /** @type {number} */
+        if (typeof this.alpha === 'undefined') {
+            this.alpha = (typeof a === 'number') ? a : 1;
+        }
+        if (typeof originalForm !== 'undefined') {
+            this.value = originalForm;
+        }
+    }
+
+    luma() {
+        let r = this.rgb[0] / 255, g = this.rgb[1] / 255, b = this.rgb[2] / 255;
+
+        r = (r <= 0.03928) ? r / 12.92 : Math.pow(((r + 0.055) / 1.055), 2.4);
+        g = (g <= 0.03928) ? g / 12.92 : Math.pow(((g + 0.055) / 1.055), 2.4);
+        b = (b <= 0.03928) ? b / 12.92 : Math.pow(((b + 0.055) / 1.055), 2.4);
+
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add(this.toCSS(context));
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {boolean} [doNotCompress]
+     * @returns {string}
+     */
+    toCSS(context, doNotCompress) {
+        const compress = context && context.compress && !doNotCompress;
+        let color;
+        let alpha;
+        /** @type {string | undefined} */
+        let colorFunction;
+        /** @type {(string | number)[]} */
+        let args = [];
+
+        // `value` is set if this color was originally
+        // converted from a named color string so we need
+        // to respect this and try to output named color too.
+        alpha = this.fround(context, this.alpha);
+
+        if (this.value) {
+            if (/** @type {string} */ (this.value).indexOf('rgb') === 0) {
+                if (alpha < 1) {
+                    colorFunction = 'rgba';
+                }
+            } else if (/** @type {string} */ (this.value).indexOf('hsl') === 0) {
+                if (alpha < 1) {
+                    colorFunction = 'hsla';
+                } else {
+                    colorFunction = 'hsl';
+                }
+            } else {
+                return /** @type {string} */ (this.value);
+            }
+        } else {
+            if (alpha < 1) {
+                colorFunction = 'rgba';
+            }
+        }
+
+        switch (colorFunction) {
+            case 'rgba':
+                args = this.rgb.map(function (c) {
+                    return clamp$1(Math.round(c), 255);
+                }).concat(clamp$1(alpha, 1));
+                break;
+            case 'hsla':
+                args.push(clamp$1(alpha, 1));
+            // eslint-disable-next-line no-fallthrough
+            case 'hsl':
+                color = this.toHSL();
+                args = [
+                    this.fround(context, color.h),
+                    `${this.fround(context, color.s * 100)}%`,
+                    `${this.fround(context, color.l * 100)}%`
+                ].concat(args);
+        }
+
+        if (colorFunction) {
+            // Values are capped between `0` and `255`, rounded and zero-padded.
+            return `${colorFunction}(${args.join(`,${compress ? '' : ' '}`)})`;
+        }
+
+        color = this.toRGB();
+
+        if (compress) {
+            const splitcolor = color.split('');
+
+            // Convert color to short format
+            if (splitcolor[1] === splitcolor[2] && splitcolor[3] === splitcolor[4] && splitcolor[5] === splitcolor[6]) {
+                color = `#${splitcolor[1]}${splitcolor[3]}${splitcolor[5]}`;
+            }
+        }
+
+        return color;
+    }
+
+    //
+    // Operations have to be done per-channel, if not,
+    // channels will spill onto each other. Once we have
+    // our result, in the form of an integer triplet,
+    // we create a new Color node to hold the result.
+    //
+    /**
+     * @param {EvalContext} context
+     * @param {string} op
+     * @param {Color} other
+     */
+    operate(context, op, other) {
+        const rgb = new Array(3);
+        const alpha = this.alpha * (1 - other.alpha) + other.alpha;
+        for (let c = 0; c < 3; c++) {
+            rgb[c] = this._operate(context, op, this.rgb[c], other.rgb[c]);
+        }
+        return new Color(rgb, alpha);
+    }
+
+    toRGB() {
+        return toHex(this.rgb);
+    }
+
+    toHSL() {
+        const r = this.rgb[0] / 255, g = this.rgb[1] / 255, b = this.rgb[2] / 255, a = this.alpha;
+
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        /** @type {number} */
+        let h;
+        let s;
+        const l = (max + min) / 2;
+        const d = max - min;
+
+        if (max === min) {
+            h = s = 0;
+        } else {
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2;               break;
+                case b: h = (r - g) / d + 4;               break;
+            }
+            /** @type {number} */ (h) /= 6;
+        }
+        return { h: /** @type {number} */ (h) * 360, s, l, a };
+    }
+
+    // Adapted from http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+    toHSV() {
+        const r = this.rgb[0] / 255, g = this.rgb[1] / 255, b = this.rgb[2] / 255, a = this.alpha;
+
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        /** @type {number} */
+        let h;
+        let s;
+        const v = max;
+
+        const d = max - min;
+        if (max === 0) {
+            s = 0;
+        } else {
+            s = d / max;
+        }
+
+        if (max === min) {
+            h = 0;
+        } else {
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            /** @type {number} */ (h) /= 6;
+        }
+        return { h: /** @type {number} */ (h) * 360, s, v, a };
+    }
+
+    toARGB() {
+        return toHex([this.alpha * 255].concat(this.rgb));
+    }
+
+    /**
+     * @param {Node & { rgb?: number[], alpha?: number }} x
+     * @returns {0 | undefined}
+     */
+    compare(x) {
+        return (x.rgb &&
+            x.rgb[0] === this.rgb[0] &&
+            x.rgb[1] === this.rgb[1] &&
+            x.rgb[2] === this.rgb[2] &&
+            x.alpha  === this.alpha) ? 0 : undefined;
+    }
+
+    /** @param {string} keyword */
+    static fromKeyword(keyword) {
+        /** @type {Color | undefined} */
+        let c;
+        const key = keyword.toLowerCase();
+        // eslint-disable-next-line no-prototype-builtins
+        if (colors.hasOwnProperty(key)) {
+            c = new Color(/** @type {string} */ (colors[/** @type {keyof typeof colors} */ (key)]).slice(1));
+        }
+        else if (key === 'transparent') {
+            c = new Color([0, 0, 0], 0);
+        }
+
+        if (c) {
+            c.value = keyword;
+            return c;
+        }
+    }
+}
+
+/**
+ * @param {number} v
+ * @param {number} max
+ */
+function clamp$1(v, max) {
+    return Math.min(Math.max(v, 0), max);
+}
+
+/** @param {number[]} v */
+function toHex(v) {
+    return `#${v.map(function (c) {
+        c = clamp$1(Math.round(c), 255);
+        return (c < 16 ? '0' : '') + c.toString(16);
+    }).join('')}`;
+}
+
+// @ts-check
+
+class Paren extends Node {
+    get type() { return 'Paren'; }
+
+    /** @param {Node} node */
+    constructor(node) {
+        super();
+        this.value = node;
+        /** @type {boolean | undefined} */
+        this.noSpacing = undefined;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add('(');
+        /** @type {Node} */ (this.value).genCSS(context, output);
+        output.add(')');
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Paren}
+     */
+    eval(context) {
+        const paren = new Paren(/** @type {Node} */ (this.value).eval(context));
+
+        if (this.noSpacing) {
+            paren.noSpacing = true;
+        }
+
+        return paren;
+    }
+}
+
+// @ts-check
+
+/** @import { EvalContext, CSSOutput } from './node.js' */
+
+/** @type {Record<string, boolean>} */
+const _noSpaceCombinators = {
+    '': true,
+    ' ': true,
+    '|': true
+};
+
+class Combinator extends Node {
+    get type() { return 'Combinator'; }
+
+    /** @param {string} value */
+    constructor(value) {
+        super();
+        if (value === ' ') {
+            this.value = ' ';
+            this.emptyOrWhitespace = true;
+        } else {
+            this.value = value ? value.trim() : '';
+            this.emptyOrWhitespace = this.value === '';
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        const spaceOrEmpty = (context.compress || _noSpaceCombinators[/** @type {string} */ (this.value)]) ? '' : ' ';
+        output.add(spaceOrEmpty + this.value + spaceOrEmpty);
+    }
+}
+
+// @ts-check
+
+class Element extends Node {
+    get type() { return 'Element'; }
+
+    /**
+     * @param {Combinator | string} combinator
+     * @param {string | Node} value
+     * @param {boolean} [isVariable]
+     * @param {number} [index]
+     * @param {FileInfo} [currentFileInfo]
+     * @param {VisibilityInfo} [visibilityInfo]
+     */
+    constructor(combinator, value, isVariable, index, currentFileInfo, visibilityInfo) {
+        super();
+        this.combinator = combinator instanceof Combinator ?
+            combinator : new Combinator(combinator);
+
+        if (typeof value === 'string') {
+            this.value = value.trim();
+        } else if (value) {
+            this.value = value;
+        } else {
+            this.value = '';
+        }
+        /** @type {boolean | undefined} */
+        this.isVariable = isVariable;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        this.copyVisibilityInfo(visibilityInfo);
+        this.setParent(this.combinator, this);
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        const value = this.value;
+        this.combinator = /** @type {Combinator} */ (visitor.visit(this.combinator));
+        if (typeof value === 'object') {
+            this.value = visitor.visit(/** @type {Node} */ (value));
+        }
+    }
+
+    /** @param {EvalContext} context */
+    eval(context) {
+        return new Element(this.combinator,
+            /** @type {Node} */ (this.value).eval ? /** @type {Node} */ (this.value).eval(context) : /** @type {string} */ (this.value),
+            this.isVariable,
+            this.getIndex(),
+            this.fileInfo(), this.visibilityInfo());
+    }
+
+    clone() {
+        return new Element(this.combinator,
+            /** @type {string | Node} */ (this.value),
+            this.isVariable,
+            this.getIndex(),
+            this.fileInfo(), this.visibilityInfo());
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add(this.toCSS(context), this.fileInfo(), this.getIndex());
+    }
+
+    /** @param {EvalContext} [context] */
+    toCSS(context) {
+        /** @type {EvalContext & { firstSelector?: boolean }} */
+        const ctx = context || {};
+        let value = this.value;
+        const firstSelector = ctx.firstSelector;
+        if (value instanceof Paren) {
+            // selector in parens should not be affected by outer selector
+            // flags (breaks only interpolated selectors - see #1973)
+            ctx.firstSelector = true;
+        }
+        value = /** @type {Node} */ (value).toCSS ? /** @type {Node} */ (value).toCSS(ctx) : /** @type {string} */ (value);
+        ctx.firstSelector = firstSelector;
+        if (value === '' && this.combinator.value.charAt(0) === '&') {
+            return '';
+        } else {
+            return this.combinator.toCSS(ctx) + value;
+        }
+    }
+}
+
+const Math$1 = {
+    ALWAYS: 0,
+    PARENS_DIVISION: 1,
+    PARENS: 2
+    // removed - STRICT_LEGACY: 3
+};
+
+const RewriteUrls = {
+    OFF: 0,
+    LOCAL: 1,
+    ALL: 2
+};
+
+function getType(payload) {
+  return Object.prototype.toString.call(payload).slice(8, -1);
+}
+
+function isArray(payload) {
+  return getType(payload) === "Array";
+}
+
+function isPlainObject(payload) {
+  if (getType(payload) !== "Object")
+    return false;
+  const prototype = Object.getPrototypeOf(payload);
+  return !!prototype && prototype.constructor === Object && prototype === Object.prototype;
+}
+
+function assignProp(carry, key, newVal, originalObject, includeNonenumerable) {
+  const propType = {}.propertyIsEnumerable.call(originalObject, key) ? "enumerable" : "nonenumerable";
+  if (propType === "enumerable")
+    carry[key] = newVal;
+  if (includeNonenumerable && propType === "nonenumerable") {
+    Object.defineProperty(carry, key, {
+      value: newVal,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    });
+  }
+}
+function copy(target, options = {}) {
+  if (isArray(target)) {
+    return target.map((item) => copy(item, options));
+  }
+  if (!isPlainObject(target)) {
+    return target;
+  }
+  const props = Object.getOwnPropertyNames(target);
+  const symbols = Object.getOwnPropertySymbols(target);
+  return [...props, ...symbols].reduce((carry, key) => {
+    if (isArray(options.props) && !options.props.includes(key)) {
+      return carry;
+    }
+    const val = target[key];
+    const newVal = copy(val, options);
+    assignProp(carry, key, newVal, target, options.nonenumerable);
+    return carry;
+  }, {});
+}
+
+/* jshint proto: true */
+
+function getLocation(index, inputStream) {
+    let n = index + 1;
+    let line = null;
+    let column = -1;
+
+    while (--n >= 0 && inputStream.charAt(n) !== '\n') {
+        column++;
+    }
+
+    if (typeof index === 'number') {
+        line = (inputStream.slice(0, index).match(/\n/g) || '').length;
+    }
+
+    return {
+        line,
+        column
+    };
+}
+
+function copyArray(arr) {
+    let i;
+    const length = arr.length;
+    const copy = new Array(length);
+
+    for (i = 0; i < length; i++) {
+        copy[i] = arr[i];
+    }
+    return copy;
+}
+
+function clone(obj) {
+    const cloned = {};
+    for (const prop in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+            cloned[prop] = obj[prop];
+        }
+    }
+    return cloned;
+}
+
+function defaults(obj1, obj2) {
+    let newObj = obj2 || {};
+    if (!obj2._defaults) {
+        newObj = {};
+        const defaults = copy(obj1);
+        newObj._defaults = defaults;
+        const cloned = obj2 ? copy(obj2) : {};
+        Object.assign(newObj, defaults, cloned);
+    }
+    return newObj;
+}
+
+function copyOptions(obj1, obj2) {
+    if (obj2 && obj2._defaults) {
+        return obj2;
+    }
+    const opts = defaults(obj1, obj2);
+    if (opts.strictMath) {
+        opts.math = Math$1.PARENS;
+    }
+    // Back compat with changed relativeUrls option
+    if (opts.relativeUrls) {
+        opts.rewriteUrls = RewriteUrls.ALL;
+    }
+    if (typeof opts.math === 'string') {
+        switch (opts.math.toLowerCase()) {
+            case 'always':
+                opts.math = Math$1.ALWAYS;
+                break;
+            case 'parens-division':
+                opts.math = Math$1.PARENS_DIVISION;
+                break;
+            case 'strict':
+            case 'parens':
+                opts.math = Math$1.PARENS;
+                break;
+            default:
+                opts.math = Math$1.PARENS;
+        }
+    }
+    if (typeof opts.rewriteUrls === 'string') {
+        switch (opts.rewriteUrls.toLowerCase()) {
+            case 'off':
+                opts.rewriteUrls = RewriteUrls.OFF;
+                break;
+            case 'local':
+                opts.rewriteUrls = RewriteUrls.LOCAL;
+                break;
+            case 'all':
+                opts.rewriteUrls = RewriteUrls.ALL;
+                break;
+        }
+    }
+    return opts;
+}
+
+function merge(obj1, obj2) {
+    for (const prop in obj2) {
+        if (Object.prototype.hasOwnProperty.call(obj2, prop)) {
+            obj1[prop] = obj2[prop];
+        }
+    }
+    return obj1;
+}
+
+function flattenArray(arr, result = []) {
+    for (let i = 0, length = arr.length; i < length; i++) {
+        const value = arr[i];
+        if (Array.isArray(value)) {
+            flattenArray(value, result);
+        } else {
+            if (value !== undefined) {
+                result.push(value);
+            }
+        }
+    }
+    return result;
+}
+
+function isNullOrUndefined(val) {
+    return val === null || val === undefined
+}
+
+var utils = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    getLocation: getLocation,
+    copyArray: copyArray,
+    clone: clone,
+    defaults: defaults,
+    copyOptions: copyOptions,
+    merge: merge,
+    flattenArray: flattenArray,
+    isNullOrUndefined: isNullOrUndefined
+});
+
+const anonymousFunc = /(<anonymous>|Function):(\d+):(\d+)/;
+
+/**
+ * This is a centralized class of any error that could be thrown internally (mostly by the parser).
+ * Besides standard .message it keeps some additional data like a path to the file where the error
+ * occurred along with line and column numbers.
+ *
+ * @class
+ * @extends Error
+ * @type {module.LessError}
+ *
+ * @prop {string} type
+ * @prop {string} filename
+ * @prop {number} index
+ * @prop {number} line
+ * @prop {number} column
+ * @prop {number} callLine
+ * @prop {number} callExtract
+ * @prop {string[]} extract
+ *
+ * @param {Object} e              - An error object to wrap around or just a descriptive object
+ * @param {Object} fileContentMap - An object with file contents in 'contents' property (like importManager) @todo - move to fileManager?
+ * @param {string} [currentFilename]
+ */
+const LessError = function(e, fileContentMap, currentFilename) {
+    Error.call(this);
+
+    const filename = e.filename || currentFilename;
+
+    this.message = e.message;
+    this.stack = e.stack;
+    
+    // Set type early so it's always available, even if fileContentMap is missing
+    this.type = e.type || 'Syntax';
+
+    if (fileContentMap && filename) {
+        const input = fileContentMap.contents[filename];
+        const loc = getLocation(e.index, input);
+        var line = loc.line;
+        const col  = loc.column;
+        const callLine = e.call && getLocation(e.call, input).line;
+        const lines = input ? input.split('\n') : '';
+
+        this.filename = filename;
+        this.index = e.index;
+        this.line = typeof line === 'number' ? line + 1 : null;
+        this.column = col;
+
+        if (!this.line && this.stack) {
+            const found = this.stack.match(anonymousFunc);
+
+            /**
+             * We have to figure out how this environment stringifies anonymous functions
+             * so we can correctly map plugin errors.
+             *
+             * Note, in Node 8, the output of anonymous funcs varied based on parameters
+             * being present or not, so we inject dummy params.
+             */
+            const func = new Function('a', 'throw new Error()');
+            let lineAdjust = 0;
+            try {
+                func();
+            } catch (e) {
+                const match = e.stack.match(anonymousFunc);
+                lineAdjust = 1 - parseInt(match[2]);
+            }
+
+            if (found) {
+                if (found[2]) {
+                    this.line = parseInt(found[2]) + lineAdjust;
+                }
+                if (found[3]) {
+                    this.column = parseInt(found[3]);
+                }
+            }
+        }
+
+        this.callLine = callLine + 1;
+        this.callExtract = lines[callLine];
+
+        this.extract = [
+            lines[this.line - 2],
+            lines[this.line - 1],
+            lines[this.line]
+        ];
+    }
+
+};
+
+if (typeof Object.create === 'undefined') {
+    const F = function () {};
+    F.prototype = Error.prototype;
+    LessError.prototype = new F();
+} else {
+    LessError.prototype = Object.create(Error.prototype);
+}
+
+LessError.prototype.constructor = LessError;
+
+/**
+ * An overridden version of the default Object.prototype.toString
+ * which uses additional information to create a helpful message.
+ *
+ * @param {Object} options
+ * @returns {string}
+ */
+LessError.prototype.toString = function(options) {
+    options = options || {};
+    const isWarning = (this.type ?? '').toLowerCase().includes('warning');
+    const type = isWarning ? this.type : `${this.type}Error`;
+    const color = isWarning ? 'yellow' : 'red';
+
+    let message = '';
+    const extract = this.extract || [];
+    let error = [];
+    let stylize = function (str) { return str; };
+    if (options.stylize) {
+        const type = typeof options.stylize;
+        if (type !== 'function') {
+            throw Error(`options.stylize should be a function, got a ${type}!`);
+        }
+        stylize = options.stylize;
+    }
+
+    if (this.line !== null) {
+        if (!isWarning && typeof extract[0] === 'string') {
+            error.push(stylize(`${this.line - 1} ${extract[0]}`, 'grey'));
+        }
+
+        if (typeof extract[1] === 'string') {
+            let errorTxt = `${this.line} `;
+            if (extract[1]) {
+                errorTxt += extract[1].slice(0, this.column) +
+                    stylize(stylize(stylize(extract[1].slice(this.column, this.column + 1), 'bold') +
+                        extract[1].slice(this.column + 1), 'red'), 'inverse');
+            }
+            error.push(errorTxt);
+        }
+
+        if (!isWarning && typeof extract[2] === 'string') {
+            error.push(stylize(`${this.line + 1} ${extract[2]}`, 'grey'));
+        }
+        error = `${error.join('\n') + stylize('', 'reset')}\n`;
+    }
+
+    message += stylize(`${type}: ${this.message}`, color);
+    if (this.filename) {
+        message += stylize(' in ', color) + this.filename;
+    }
+    if (this.line) {
+        message += stylize(` on line ${this.line}, column ${this.column + 1}:`, 'grey');
+    }
+
+    message += `\n${error}`;
+
+    if (this.callLine) {
+        message += `${stylize('from ', color) + (this.filename || '')}/n`;
+        message += `${stylize(this.callLine, 'grey')} ${this.callExtract}/n`;
+    }
+
+    return message;
+};
+
+const _visitArgs = { visitDeeper: true };
+let _hasIndexed = false;
+
+function _noop(node) {
+    return node;
+}
+
+function indexNodeTypes(parent, ticker) {
+    // add .typeIndex to tree node types for lookup table
+    let key, child;
+    for (key in parent) { 
+        /* eslint guard-for-in: 0 */
+        child = parent[key];
+        switch (typeof child) {
+            case 'function':
+                // ignore bound functions directly on tree which do not have a prototype
+                // or aren't nodes
+                if (child.prototype && child.prototype.type) {
+                    child.prototype.typeIndex = ticker++;
+                }
+                break;
+            case 'object':
+                ticker = indexNodeTypes(child, ticker);
+                break;
+        
+        }
+    }
+    return ticker;
+}
+
+class Visitor {
+    constructor(implementation) {
+        this._implementation = implementation;
+        this._visitInCache = {};
+        this._visitOutCache = {};
+
+        if (!_hasIndexed) {
+            indexNodeTypes(tree, 1);
+            _hasIndexed = true;
+        }
+    }
+
+    visit(node) {
+        if (!node) {
+            return node;
+        }
+
+        const nodeTypeIndex = node.typeIndex;
+        if (!nodeTypeIndex) {
+            // MixinCall args aren't a node type?
+            if (node.value && node.value.typeIndex) {
+                this.visit(node.value);
+            }
+            return node;
+        }
+
+        const impl = this._implementation;
+        let func = this._visitInCache[nodeTypeIndex];
+        let funcOut = this._visitOutCache[nodeTypeIndex];
+        const visitArgs = _visitArgs;
+        let fnName;
+
+        visitArgs.visitDeeper = true;
+
+        if (!func) {
+            fnName = `visit${node.type}`;
+            func = impl[fnName] || _noop;
+            funcOut = impl[`${fnName}Out`] || _noop;
+            this._visitInCache[nodeTypeIndex] = func;
+            this._visitOutCache[nodeTypeIndex] = funcOut;
+        }
+
+        if (func !== _noop) {
+            const newNode = func.call(impl, node, visitArgs);
+            if (node && impl.isReplacing) {
+                node = newNode;
+            }
+        }
+
+        if (visitArgs.visitDeeper && node) {
+            if (node.length) {
+                for (let i = 0, cnt = node.length; i < cnt; i++) {
+                    if (node[i].accept) {
+                        node[i].accept(this);
+                    }
+                }
+            } else if (node.accept) {
+                node.accept(this);
+            }
+        }
+
+        if (funcOut != _noop) {
+            funcOut.call(impl, node);
+        }
+
+        return node;
+    }
+
+    visitArray(nodes, nonReplacing) {
+        if (!nodes) {
+            return nodes;
+        }
+
+        const cnt = nodes.length;
+        let i;
+
+        // Non-replacing
+        if (nonReplacing || !this._implementation.isReplacing) {
+            for (i = 0; i < cnt; i++) {
+                this.visit(nodes[i]);
+            }
+            return nodes;
+        }
+
+        // Replacing
+        const out = [];
+        for (i = 0; i < cnt; i++) {
+            const evald = this.visit(nodes[i]);
+            if (evald === undefined) { continue; }
+            if (!evald.splice) {
+                out.push(evald);
+            } else if (evald.length) {
+                this.flatten(evald, out);
+            }
+        }
+        return out;
+    }
+
+    flatten(arr, out) {
+        if (!out) {
+            out = [];
+        }
+
+        let cnt, i, item, nestedCnt, j, nestedItem;
+
+        for (i = 0, cnt = arr.length; i < cnt; i++) {
+            item = arr[i];
+            if (item === undefined) {
+                continue;
+            }
+            if (!item.splice) {
+                out.push(item);
+                continue;
+            }
+
+            for (j = 0, nestedCnt = item.length; j < nestedCnt; j++) {
+                nestedItem = item[j];
+                if (nestedItem === undefined) {
+                    continue;
+                }
+                if (!nestedItem.splice) {
+                    out.push(nestedItem);
+                } else if (nestedItem.length) {
+                    this.flatten(nestedItem, out);
+                }
+            }
+        }
+
+        return out;
+    }
+}
+
+const contexts = {};
+
+const copyFromOriginal = function copyFromOriginal(original, destination, propertiesToCopy) {
+    if (!original) { return; }
+
+    for (let i = 0; i < propertiesToCopy.length; i++) {
+        if (Object.prototype.hasOwnProperty.call(original, propertiesToCopy[i])) {
+            destination[propertiesToCopy[i]] = original[propertiesToCopy[i]];
+        }
+    }
+};
+
+/*
+ parse is used whilst parsing
+ */
+const parseCopyProperties = [
+    // options
+    'paths',            // option - unmodified - paths to search for imports on
+    'rewriteUrls',      // option - whether to adjust URL's to be relative
+    'rootpath',         // option - rootpath to append to URL's
+    'strictImports',    // option -
+    'insecure',         // option - whether to allow imports from insecure ssl hosts
+    'dumpLineNumbers',  // option - @deprecated The dumpLineNumbers option is deprecated. Use sourcemaps instead. All modes ('comments', 'mediaquery', 'all') will be removed in a future version.
+    'compress',         // option - whether to compress
+    'syncImport',       // option - whether to import synchronously
+    'mime',             // browser only - mime type for sheet import
+    'useFileCache',     // browser only - whether to use the per file session cache
+    // context
+    'processImports',   // option & context - whether to process imports. if false then imports will not be imported.
+    // Used by the import manager to stop multiple import visitors being created.
+    'pluginManager',    // Used as the plugin manager for the session
+    'quiet',            // option - whether to log warnings
+    'quietDeprecations', // option - whether to suppress deprecation warnings only
+];
+
+contexts.Parse = function(options) {
+    copyFromOriginal(options, this, parseCopyProperties);
+
+    if (typeof this.paths === 'string') { this.paths = [this.paths]; }
+};
+
+const evalCopyProperties = [
+    'paths',             // additional include paths
+    'compress',          // whether to compress
+    'math',              // whether math has to be within parenthesis
+    'strictUnits',       // whether units need to evaluate correctly
+    'sourceMap',         // whether to output a source map
+    'importMultiple',    // whether we are currently importing multiple copies
+    'urlArgs',           // whether to add args into url tokens
+    'javascriptEnabled', // option - whether Inline JavaScript is enabled. if undefined, defaults to false
+    'pluginManager',     // Used as the plugin manager for the session
+    'importantScope',    // used to bubble up !important statements
+    'rewriteUrls'        // option - whether to adjust URL's to be relative
+];
+
+contexts.Eval = function(options, frames) {
+    copyFromOriginal(options, this, evalCopyProperties);
+
+    if (typeof this.paths === 'string') { this.paths = [this.paths]; }
+
+    this.frames = frames || [];
+    this.importantScope = this.importantScope || [];
+};
+
+contexts.Eval.prototype.enterCalc = function () {
+    if (!this.calcStack) {
+        this.calcStack = [];
+    }
+    this.calcStack.push(true);
+    this.inCalc = true;
+};
+
+contexts.Eval.prototype.exitCalc = function () {
+    this.calcStack.pop();
+    if (!this.calcStack.length) {
+        this.inCalc = false;
+    }
+};
+
+contexts.Eval.prototype.inParenthesis = function () {
+    if (!this.parensStack) {
+        this.parensStack = [];
+    }
+    this.parensStack.push(true);
+};
+
+contexts.Eval.prototype.outOfParenthesis = function () {
+    this.parensStack.pop();
+};
+
+contexts.Eval.prototype.inCalc = false;
+contexts.Eval.prototype.mathOn = true;
+contexts.Eval.prototype.isMathOn = function (op) {
+    if (!this.mathOn) {
+        return false;
+    }
+    if (op === '/' && this.math !== Math$1.ALWAYS && (!this.parensStack || !this.parensStack.length)) {
+        return false;
+    }
+    if (this.math > Math$1.PARENS_DIVISION) {
+        return this.parensStack && this.parensStack.length;
+    }
+    return true;
+};
+
+contexts.Eval.prototype.pathRequiresRewrite = function (path) {
+    const isRelative = this.rewriteUrls === RewriteUrls.LOCAL ? isPathLocalRelative : isPathRelative;
+
+    return isRelative(path);
+};
+
+contexts.Eval.prototype.rewritePath = function (path, rootpath) {
+    let newPath;
+
+    rootpath = rootpath || '';
+    newPath = this.normalizePath(rootpath + path);
+
+    // If a path was explicit relative and the rootpath was not an absolute path
+    // we must ensure that the new path is also explicit relative.
+    if (isPathLocalRelative(path) &&
+        isPathRelative(rootpath) &&
+        isPathLocalRelative(newPath) === false) {
+        newPath = `./${newPath}`;
+    }
+
+    return newPath;
+};
+
+contexts.Eval.prototype.normalizePath = function (path) {
+    const segments = path.split('/').reverse();
+    let segment;
+
+    path = [];
+    while (segments.length !== 0) {
+        segment = segments.pop();
+        switch ( segment ) {
+            case '.':
+                break;
+            case '..':
+                if ((path.length === 0) || (path[path.length - 1] === '..')) {
+                    path.push( segment );
+                } else {
+                    path.pop();
+                }
+                break;
+            default:
+                path.push(segment);
+                break;
+        }
+    }
+
+    return path.join('/');
+};
+
+function isPathRelative(path) {
+    return !/^(?:[a-z-]+:|\/|#)/i.test(path);
+}
+
+function isPathLocalRelative(path) {
+    return path.charAt(0) === '.';
+}
+
+// todo - do the same for the toCSS ?
+
+class ImportSequencer {
+    constructor(onSequencerEmpty) {
+        this.imports = [];
+        this.variableImports = [];
+        this._onSequencerEmpty = onSequencerEmpty;
+        this._currentDepth = 0;
+    }
+
+    addImport(callback) {
+        const importSequencer = this,
+            importItem = {
+                callback,
+                args: null,
+                isReady: false
+            };
+        this.imports.push(importItem);
+        return function() {
+            importItem.args = Array.prototype.slice.call(arguments, 0);
+            importItem.isReady = true;
+            importSequencer.tryRun();
+        };
+    }
+
+    addVariableImport(callback) {
+        this.variableImports.push(callback);
+    }
+
+    tryRun() {
+        this._currentDepth++;
+        try {
+            while (true) {
+                while (this.imports.length > 0) {
+                    const importItem = this.imports[0];
+                    if (!importItem.isReady) {
+                        return;
+                    }
+                    this.imports = this.imports.slice(1);
+                    importItem.callback.apply(null, importItem.args);
+                }
+                if (this.variableImports.length === 0) {
+                    break;
+                }
+                const variableImport = this.variableImports[0];
+                this.variableImports = this.variableImports.slice(1);
+                variableImport();
+            }
+        } finally {
+            this._currentDepth--;
+        }
+        if (this._currentDepth === 0 && this._onSequencerEmpty) {
+            this._onSequencerEmpty();
+        }
+    }
+}
+
+/* eslint-disable no-unused-vars */
+
+const ImportVisitor = function(importer, finish) {
+
+    this._visitor = new Visitor(this);
+    this._importer = importer;
+    this._finish = finish;
+    this.context = new contexts.Eval();
+    this.importCount = 0;
+    this.onceFileDetectionMap = {};
+    this.recursionDetector = {};
+    this._sequencer = new ImportSequencer(this._onSequencerEmpty.bind(this));
+};
+
+ImportVisitor.prototype = {
+    isReplacing: false,
+    run: function (root) {
+        try {
+            // process the contents
+            this._visitor.visit(root);
+        }
+        catch (e) {
+            this.error = e;
+        }
+
+        this.isFinished = true;
+        this._sequencer.tryRun();
+    },
+    _onSequencerEmpty: function() {
+        if (!this.isFinished) {
+            return;
+        }
+        this._finish(this.error);
+    },
+    visitImport: function (importNode, visitArgs) {
+        const inlineCSS = importNode.options.inline;
+
+        if (!importNode.css || inlineCSS) {
+
+            const context = new contexts.Eval(this.context, copyArray(this.context.frames));
+            const importParent = context.frames[0];
+
+            this.importCount++;
+            if (importNode.isVariableImport()) {
+                this._sequencer.addVariableImport(this.processImportNode.bind(this, importNode, context, importParent));
+            } else {
+                this.processImportNode(importNode, context, importParent);
+            }
+        }
+        visitArgs.visitDeeper = false;
+    },
+    processImportNode: function(importNode, context, importParent) {
+        let evaldImportNode;
+        const inlineCSS = importNode.options.inline;
+
+        try {
+            evaldImportNode = importNode.evalForImport(context);
+        } catch (e) {
+            if (!e.filename) { e.index = importNode.getIndex(); e.filename = importNode.fileInfo().filename; }
+            // attempt to eval properly and treat as css
+            importNode.css = true;
+            // if that fails, this error will be thrown
+            importNode.error = e;
+        }
+
+        if (evaldImportNode && (!evaldImportNode.css || inlineCSS)) {
+
+            if (evaldImportNode.options.multiple) {
+                context.importMultiple = true;
+            }
+
+            // try appending if we haven't determined if it is css or not
+            const tryAppendLessExtension = evaldImportNode.css === undefined;
+
+            for (let i = 0; i < importParent.rules.length; i++) {
+                if (importParent.rules[i] === importNode) {
+                    importParent.rules[i] = evaldImportNode;
+                    break;
+                }
+            }
+
+            const onImported = this.onImported.bind(this, evaldImportNode, context), sequencedOnImported = this._sequencer.addImport(onImported);
+
+            this._importer.push(evaldImportNode.getPath(), tryAppendLessExtension, evaldImportNode.fileInfo(),
+                evaldImportNode.options, sequencedOnImported);
+        } else {
+            this.importCount--;
+            if (this.isFinished) {
+                this._sequencer.tryRun();
+            }
+        }
+    },
+    onImported: function (importNode, context, e, root, importedAtRoot, fullPath) {
+        if (e) {
+            if (!e.filename) {
+                e.index = importNode.getIndex(); e.filename = importNode.fileInfo().filename;
+            }
+            this.error = e;
+        }
+
+        const importVisitor = this,
+            inlineCSS = importNode.options.inline,
+            isPlugin = importNode.options.isPlugin,
+            isOptional = importNode.options.optional,
+            duplicateImport = importedAtRoot || fullPath in importVisitor.recursionDetector;
+
+        if (!context.importMultiple) {
+            if (duplicateImport) {
+                importNode.skip = true;
+            } else {
+                importNode.skip = function() {
+                    if (fullPath in importVisitor.onceFileDetectionMap) {
+                        return true;
+                    }
+                    importVisitor.onceFileDetectionMap[fullPath] = true;
+                    return false;
+                };
+            }
+        }
+
+        if (!fullPath && isOptional) {
+            importNode.skip = true;
+        }
+
+        if (root) {
+            importNode.root = root;
+            importNode.importedFilename = fullPath;
+
+            if (!inlineCSS && !isPlugin && (context.importMultiple || !duplicateImport)) {
+                importVisitor.recursionDetector[fullPath] = true;
+
+                const oldContext = this.context;
+                this.context = context;
+                try {
+                    this._visitor.visit(root);
+                } catch (e) {
+                    this.error = e;
+                }
+                this.context = oldContext;
+            }
+        }
+
+        importVisitor.importCount--;
+
+        if (importVisitor.isFinished) {
+            importVisitor._sequencer.tryRun();
+        }
+    },
+    visitDeclaration: function (declNode, visitArgs) {
+        if (declNode.value.type === 'DetachedRuleset') {
+            this.context.frames.unshift(declNode);
+        } else {
+            visitArgs.visitDeeper = false;
+        }
+    },
+    visitDeclarationOut: function(declNode) {
+        if (declNode.value.type === 'DetachedRuleset') {
+            this.context.frames.shift();
+        }
+    },
+    visitAtRule: function (atRuleNode, visitArgs) {
+        if (atRuleNode.value) {
+            this.context.frames.unshift(atRuleNode);
+        } else if (atRuleNode.declarations && atRuleNode.declarations.length) {
+            if (atRuleNode.isRooted) {
+                this.context.frames.unshift(atRuleNode);
+            } else {
+                this.context.frames.unshift(atRuleNode.declarations[0]);
+            }
+        } else if (atRuleNode.rules && atRuleNode.rules.length) {
+            this.context.frames.unshift(atRuleNode);
+        }
+    },
+    visitAtRuleOut: function (atRuleNode) {
+        this.context.frames.shift();
+    },
+    visitMixinDefinition: function (mixinDefinitionNode, visitArgs) {
+        this.context.frames.unshift(mixinDefinitionNode);
+    },
+    visitMixinDefinitionOut: function (mixinDefinitionNode) {
+        this.context.frames.shift();
+    },
+    visitRuleset: function (rulesetNode, visitArgs) {
+        this.context.frames.unshift(rulesetNode);
+    },
+    visitRulesetOut: function (rulesetNode) {
+        this.context.frames.shift();
+    },
+    visitMedia: function (mediaNode, visitArgs) {
+        this.context.frames.unshift(mediaNode.rules[0]);
+    },
+    visitMediaOut: function (mediaNode) {
+        this.context.frames.shift();
+    }
+};
+
+class SetTreeVisibilityVisitor {
+    /** @param {boolean} visible */
+    constructor(visible) {
+        this.visible = visible;
+    }
+
+    /** @param {Node} root */
+    run(root) {
+        this.visit(root);
+    }
+
+    /**
+     * @param {Node[]} nodes
+     * @returns {Node[]}
+     */
+    visitArray(nodes) {
+        if (!nodes) {
+            return nodes;
+        }
+
+        const cnt = nodes.length;
+        let i;
+        for (i = 0; i < cnt; i++) {
+            this.visit(nodes[i]);
+        }
+        return nodes;
+    }
+
+    /**
+     * @param {*} node
+     * @returns {*}
+     */
+    visit(node) {
+        if (!node) {
+            return node;
+        }
+        if (node.constructor === Array) {
+            return this.visitArray(node);
+        }
+
+        if (!node.blocksVisibility || node.blocksVisibility()) {
+            return node;
+        }
+        if (this.visible) {
+            node.ensureVisibility();
+        } else {
+            node.ensureInvisibility();
+        }
+
+        node.accept(this);
+        return node;
+    }
+}
+
+/* eslint-disable no-unused-vars */
+
+/* jshint loopfunc:true */
+
+class ExtendFinderVisitor {
+    constructor() {
+        this._visitor = new Visitor(this);
+        this.contexts = [];
+        this.allExtendsStack = [[]];
+    }
+
+    run(root) {
+        root = this._visitor.visit(root);
+        root.allExtends = this.allExtendsStack[0];
+        return root;
+    }
+
+    visitDeclaration(declNode, visitArgs) {
+        visitArgs.visitDeeper = false;
+    }
+
+    visitMixinDefinition(mixinDefinitionNode, visitArgs) {
+        visitArgs.visitDeeper = false;
+    }
+
+    visitRuleset(rulesetNode, visitArgs) {
+        if (rulesetNode.root) {
+            return;
+        }
+
+        let i;
+        let j;
+        let extend;
+        const allSelectorsExtendList = [];
+        let extendList;
+
+        // get &:extend(.a); rules which apply to all selectors in this ruleset
+        const rules = rulesetNode.rules, ruleCnt = rules ? rules.length : 0;
+        for (i = 0; i < ruleCnt; i++) {
+            if (rulesetNode.rules[i] instanceof tree.Extend) {
+                allSelectorsExtendList.push(rules[i]);
+                rulesetNode.extendOnEveryPath = true;
+            }
+        }
+
+        // now find every selector and apply the extends that apply to all extends
+        // and the ones which apply to an individual extend
+        const paths = rulesetNode.paths;
+        for (i = 0; i < paths.length; i++) {
+            const selectorPath = paths[i], selector = selectorPath[selectorPath.length - 1], selExtendList = selector.extendList;
+
+            extendList = selExtendList ? copyArray(selExtendList).concat(allSelectorsExtendList)
+                : allSelectorsExtendList;
+
+            if (extendList) {
+                extendList = extendList.map(function(allSelectorsExtend) {
+                    return allSelectorsExtend.clone();
+                });
+            }
+
+            for (j = 0; j < extendList.length; j++) {
+                this.foundExtends = true;
+                extend = extendList[j];
+                extend.findSelfSelectors(selectorPath);
+                extend.ruleset = rulesetNode;
+                if (j === 0) { extend.firstExtendOnThisSelectorPath = true; }
+                this.allExtendsStack[this.allExtendsStack.length - 1].push(extend);
+            }
+        }
+
+        this.contexts.push(rulesetNode.selectors);
+    }
+
+    visitRulesetOut(rulesetNode) {
+        if (!rulesetNode.root) {
+            this.contexts.length = this.contexts.length - 1;
+        }
+    }
+
+    visitMedia(mediaNode, visitArgs) {
+        mediaNode.allExtends = [];
+        this.allExtendsStack.push(mediaNode.allExtends);
+    }
+
+    visitMediaOut(mediaNode) {
+        this.allExtendsStack.length = this.allExtendsStack.length - 1;
+    }
+
+    visitAtRule(atRuleNode, visitArgs) {
+        atRuleNode.allExtends = [];
+        this.allExtendsStack.push(atRuleNode.allExtends);
+    }
+
+    visitAtRuleOut(atRuleNode) {
+        this.allExtendsStack.length = this.allExtendsStack.length - 1;
+    }
+}
+
+class ProcessExtendsVisitor {
+    constructor() {
+        this._visitor = new Visitor(this);
+    }
+
+    run(root) {
+        const extendFinder = new ExtendFinderVisitor();
+        this.extendIndices = {};
+        extendFinder.run(root);
+        if (!extendFinder.foundExtends) { return root; }
+        root.allExtends = root.allExtends.concat(this.doExtendChaining(root.allExtends, root.allExtends));
+        this.allExtendsStack = [root.allExtends];
+        const newRoot = this._visitor.visit(root);
+        this.checkExtendsForNonMatched(root.allExtends);
+        return newRoot;
+    }
+
+    checkExtendsForNonMatched(extendList) {
+        const indices = this.extendIndices;
+        extendList.filter(function(extend) {
+            return !extend.hasFoundMatches && extend.parent_ids.length == 1;
+        }).forEach(function(extend) {
+            let selector = '_unknown_';
+            try {
+                selector = extend.selector.toCSS({});
+            }
+            catch (_) {}
+
+            if (!indices[`${extend.index} ${selector}`]) {
+                indices[`${extend.index} ${selector}`] = true;
+                /**
+                 * @todo Shouldn't this be an error? To alert the developer
+                 * that they may have made an error in the selector they are
+                 * targeting?
+                 */
+                logger.warn(`WARNING: extend '${selector}' has no matches`);
+            }
+        });
+    }
+
+    doExtendChaining(extendsList, extendsListTarget, iterationCount) {
+        //
+        // chaining is different from normal extension.. if we extend an extend then we are not just copying, altering
+        // and pasting the selector we would do normally, but we are also adding an extend with the same target selector
+        // this means this new extend can then go and alter other extends
+        //
+        // this method deals with all the chaining work - without it, extend is flat and doesn't work on other extend selectors
+        // this is also the most expensive.. and a match on one selector can cause an extension of a selector we had already
+        // processed if we look at each selector at a time, as is done in visitRuleset
+
+        let extendIndex;
+
+        let targetExtendIndex;
+        let matches;
+        const extendsToAdd = [];
+        let newSelector;
+        const extendVisitor = this;
+        let selectorPath;
+        let extend;
+        let targetExtend;
+        let newExtend;
+
+        iterationCount = iterationCount || 0;
+
+        // loop through comparing every extend with every target extend.
+        // a target extend is the one on the ruleset we are looking at copy/edit/pasting in place
+        // e.g.  .a:extend(.b) {}  and .b:extend(.c) {} then the first extend extends the second one
+        // and the second is the target.
+        // the separation into two lists allows us to process a subset of chains with a bigger set, as is the
+        // case when processing media queries
+        for (extendIndex = 0; extendIndex < extendsList.length; extendIndex++) {
+            for (targetExtendIndex = 0; targetExtendIndex < extendsListTarget.length; targetExtendIndex++) {
+
+                extend = extendsList[extendIndex];
+                targetExtend = extendsListTarget[targetExtendIndex];
+
+                // look for circular references
+                if ( extend.parent_ids.indexOf( targetExtend.object_id ) >= 0 ) { continue; }
+
+                // find a match in the target extends self selector (the bit before :extend)
+                selectorPath = [targetExtend.selfSelectors[0]];
+                matches = extendVisitor.findMatch(extend, selectorPath);
+
+                if (matches.length) {
+                    extend.hasFoundMatches = true;
+
+                    // we found a match, so for each self selector..
+                    extend.selfSelectors.forEach(function(selfSelector) {
+                        const info = targetExtend.visibilityInfo();
+
+                        // process the extend as usual
+                        newSelector = extendVisitor.extendSelector(matches, selectorPath, selfSelector, extend.isVisible());
+
+                        // but now we create a new extend from it
+                        newExtend = new(tree.Extend)(targetExtend.selector, targetExtend.option, 0, targetExtend.fileInfo(), info);
+                        newExtend.selfSelectors = newSelector;
+
+                        // add the extend onto the list of extends for that selector
+                        newSelector[newSelector.length - 1].extendList = [newExtend];
+
+                        // record that we need to add it.
+                        extendsToAdd.push(newExtend);
+                        newExtend.ruleset = targetExtend.ruleset;
+
+                        // remember its parents for circular references
+                        newExtend.parent_ids = newExtend.parent_ids.concat(targetExtend.parent_ids, extend.parent_ids);
+
+                        // only process the selector once.. if we have :extend(.a,.b) then multiple
+                        // extends will look at the same selector path, so when extending
+                        // we know that any others will be duplicates in terms of what is added to the css
+                        if (targetExtend.firstExtendOnThisSelectorPath) {
+                            newExtend.firstExtendOnThisSelectorPath = true;
+                            targetExtend.ruleset.paths.push(newSelector);
+                        }
+                    });
+                }
+            }
+        }
+
+        if (extendsToAdd.length) {
+            // try to detect circular references to stop a stack overflow.
+            // may no longer be needed.
+            this.extendChainCount++;
+            if (iterationCount > 100) {
+                let selectorOne = '{unable to calculate}';
+                let selectorTwo = '{unable to calculate}';
+                try {
+                    selectorOne = extendsToAdd[0].selfSelectors[0].toCSS();
+                    selectorTwo = extendsToAdd[0].selector.toCSS();
+                }
+                catch (e) {}
+                throw { message: `extend circular reference detected. One of the circular extends is currently:${selectorOne}:extend(${selectorTwo})`};
+            }
+
+            // now process the new extends on the existing rules so that we can handle a extending b extending c extending
+            // d extending e...
+            return extendsToAdd.concat(extendVisitor.doExtendChaining(extendsToAdd, extendsListTarget, iterationCount + 1));
+        } else {
+            return extendsToAdd;
+        }
+    }
+
+    visitDeclaration(ruleNode, visitArgs) {
+        visitArgs.visitDeeper = false;
+    }
+
+    visitMixinDefinition(mixinDefinitionNode, visitArgs) {
+        visitArgs.visitDeeper = false;
+    }
+
+    visitSelector(selectorNode, visitArgs) {
+        visitArgs.visitDeeper = false;
+    }
+
+    visitRuleset(rulesetNode, visitArgs) {
+        if (rulesetNode.root) {
+            return;
+        }
+        let matches;
+        const allExtends = this.allExtendsStack[this.allExtendsStack.length - 1];
+        const selectorsToAdd = [];
+        const paths = rulesetNode.paths;
+        const pathCount = paths.length;
+
+        // look at each selector path in the ruleset, find any extend matches and then copy, find and replace
+
+        for (let extendIndex = 0; extendIndex < allExtends.length; extendIndex++) {
+            const extend = allExtends[extendIndex];
+            for (let pathIndex = 0; pathIndex < pathCount; pathIndex++) {
+                const selectorPath = paths[pathIndex];
+
+                // extending extends happens initially, before the main pass
+                if (rulesetNode.extendOnEveryPath) { continue; }
+                const extendList = selectorPath[selectorPath.length - 1].extendList;
+                if (extendList && extendList.length) { continue; }
+
+                matches = this.findMatch(extend, selectorPath);
+
+                if (matches.length) {
+                    extend.hasFoundMatches = true;
+
+                    const selfSelectors = extend.selfSelectors;
+                    const isVisible = extend.isVisible();
+                    for (let si = 0; si < selfSelectors.length; si++) {
+                        selectorsToAdd.push(this.extendSelector(matches, selectorPath, selfSelectors[si], isVisible));
+                    }
+                }
+            }
+        }
+        rulesetNode.paths = paths.concat(selectorsToAdd);
+    }
+
+    findMatch(extend, haystackSelectorPath) {
+        //
+        // look through the haystack selector path to try and find the needle - extend.selector
+        // returns an array of selector matches that can then be replaced
+        //
+        let haystackSelectorIndex;
+
+        let hackstackSelector;
+        let hackstackElementIndex;
+        let haystackElement;
+        let targetCombinator;
+        let i;
+        const needleElements = extend.selector.elements;
+        const potentialMatches = [];
+        let potentialMatch;
+        const matches = [];
+
+        // loop through the haystack elements
+        for (haystackSelectorIndex = 0; haystackSelectorIndex < haystackSelectorPath.length; haystackSelectorIndex++) {
+            hackstackSelector = haystackSelectorPath[haystackSelectorIndex];
+
+            for (hackstackElementIndex = 0; hackstackElementIndex < hackstackSelector.elements.length; hackstackElementIndex++) {
+
+                haystackElement = hackstackSelector.elements[hackstackElementIndex];
+
+                // if we allow elements before our match we can add a potential match every time. otherwise only at the first element.
+                if (extend.allowBefore || (haystackSelectorIndex === 0 && hackstackElementIndex === 0)) {
+                    potentialMatches.push({pathIndex: haystackSelectorIndex, index: hackstackElementIndex, matched: 0,
+                        initialCombinator: haystackElement.combinator});
+                }
+
+                for (i = 0; i < potentialMatches.length; i++) {
+                    potentialMatch = potentialMatches[i];
+
+                    // selectors add " " onto the first element. When we use & it joins the selectors together, but if we don't
+                    // then each selector in haystackSelectorPath has a space before it added in the toCSS phase. so we need to
+                    // work out what the resulting combinator will be
+                    targetCombinator = haystackElement.combinator.value;
+                    if (targetCombinator === '' && hackstackElementIndex === 0) {
+                        targetCombinator = ' ';
+                    }
+
+                    // if we don't match, null our match to indicate failure
+                    if (!this.isElementValuesEqual(needleElements[potentialMatch.matched].value, haystackElement.value) ||
+                        (potentialMatch.matched > 0 && needleElements[potentialMatch.matched].combinator.value !== targetCombinator)) {
+                        potentialMatch = null;
+                    } else {
+                        potentialMatch.matched++;
+                    }
+
+                    // if we are still valid and have finished, test whether we have elements after and whether these are allowed
+                    if (potentialMatch) {
+                        potentialMatch.finished = potentialMatch.matched === needleElements.length;
+                        if (potentialMatch.finished &&
+                            (!extend.allowAfter &&
+                                (hackstackElementIndex + 1 < hackstackSelector.elements.length || haystackSelectorIndex + 1 < haystackSelectorPath.length))) {
+                            potentialMatch = null;
+                        }
+                    }
+                    // if null we remove, if not, we are still valid, so either push as a valid match or continue
+                    if (potentialMatch) {
+                        if (potentialMatch.finished) {
+                            potentialMatch.length = needleElements.length;
+                            potentialMatch.endPathIndex = haystackSelectorIndex;
+                            potentialMatch.endPathElementIndex = hackstackElementIndex + 1; // index after end of match
+                            potentialMatches.length = 0; // we don't allow matches to overlap, so start matching again
+                            matches.push(potentialMatch);
+                        }
+                    } else {
+                        potentialMatches.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+        }
+        return matches;
+    }
+
+    isElementValuesEqual(elementValue1, elementValue2) {
+        if (typeof elementValue1 === 'string' || typeof elementValue2 === 'string') {
+            return elementValue1 === elementValue2;
+        }
+        if (elementValue1 instanceof tree.Attribute) {
+            if (elementValue1.op !== elementValue2.op || elementValue1.key !== elementValue2.key) {
+                return false;
+            }
+            if (!elementValue1.value || !elementValue2.value) {
+                if (elementValue1.value || elementValue2.value) {
+                    return false;
+                }
+                return true;
+            }
+            elementValue1 = elementValue1.value.value || elementValue1.value;
+            elementValue2 = elementValue2.value.value || elementValue2.value;
+            return elementValue1 === elementValue2;
+        }
+        elementValue1 = elementValue1.value;
+        elementValue2 = elementValue2.value;
+        if (elementValue1 instanceof tree.Selector) {
+            if (!(elementValue2 instanceof tree.Selector) || elementValue1.elements.length !== elementValue2.elements.length) {
+                return false;
+            }
+            for (let i = 0; i  < elementValue1.elements.length; i++) {
+                if (elementValue1.elements[i].combinator.value !== elementValue2.elements[i].combinator.value) {
+                    if (i !== 0 || (elementValue1.elements[i].combinator.value || ' ') !== (elementValue2.elements[i].combinator.value || ' ')) {
+                        return false;
+                    }
+                }
+                if (!this.isElementValuesEqual(elementValue1.elements[i].value, elementValue2.elements[i].value)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    extendSelector(matches, selectorPath, replacementSelector, isVisible) {
+
+        // for a set of matches, replace each match with the replacement selector
+
+        let currentSelectorPathIndex = 0, currentSelectorPathElementIndex = 0, path = [], matchIndex, selector, firstElement, match, newElements;
+
+        for (matchIndex = 0; matchIndex < matches.length; matchIndex++) {
+            match = matches[matchIndex];
+            selector = selectorPath[match.pathIndex];
+            firstElement = new tree.Element(
+                match.initialCombinator,
+                replacementSelector.elements[0].value,
+                replacementSelector.elements[0].isVariable,
+                replacementSelector.elements[0].getIndex(),
+                replacementSelector.elements[0].fileInfo()
+            );
+
+            if (match.pathIndex > currentSelectorPathIndex && currentSelectorPathElementIndex > 0) {
+                path[path.length - 1].elements = path[path.length - 1]
+                    .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
+                currentSelectorPathElementIndex = 0;
+                currentSelectorPathIndex++;
+            }
+
+            newElements = selector.elements
+                .slice(currentSelectorPathElementIndex, match.index)
+                .concat([firstElement])
+                .concat(replacementSelector.elements.slice(1));
+
+            if (currentSelectorPathIndex === match.pathIndex && matchIndex > 0) {
+                path[path.length - 1].elements =
+                    path[path.length - 1].elements.concat(newElements);
+            } else {
+                path = path.concat(selectorPath.slice(currentSelectorPathIndex, match.pathIndex));
+
+                path.push(new tree.Selector(
+                    newElements
+                ));
+            }
+            currentSelectorPathIndex = match.endPathIndex;
+            currentSelectorPathElementIndex = match.endPathElementIndex;
+            if (currentSelectorPathElementIndex >= selectorPath[currentSelectorPathIndex].elements.length) {
+                currentSelectorPathElementIndex = 0;
+                currentSelectorPathIndex++;
+            }
+        }
+
+        if (currentSelectorPathIndex < selectorPath.length && currentSelectorPathElementIndex > 0) {
+            path[path.length - 1].elements = path[path.length - 1]
+                .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
+            currentSelectorPathIndex++;
+        }
+
+        path = path.concat(selectorPath.slice(currentSelectorPathIndex, selectorPath.length));
+        path = path.map(function (currentValue) {
+            // we can re-use elements here, because the visibility property matters only for selectors
+            const derived = currentValue.createDerived(currentValue.elements);
+            if (isVisible) {
+                derived.ensureVisibility();
+            } else {
+                derived.ensureInvisibility();
+            }
+            return derived;
+        });
+        return path;
+    }
+
+    visitMedia(mediaNode, visitArgs) {
+        let newAllExtends = mediaNode.allExtends.concat(this.allExtendsStack[this.allExtendsStack.length - 1]);
+        newAllExtends = newAllExtends.concat(this.doExtendChaining(newAllExtends, mediaNode.allExtends));
+        this.allExtendsStack.push(newAllExtends);
+    }
+
+    visitMediaOut(mediaNode) {
+        const lastIndex = this.allExtendsStack.length - 1;
+        this.allExtendsStack.length = lastIndex;
+    }
+
+    visitAtRule(atRuleNode, visitArgs) {
+        let newAllExtends = atRuleNode.allExtends.concat(this.allExtendsStack[this.allExtendsStack.length - 1]);
+        newAllExtends = newAllExtends.concat(this.doExtendChaining(newAllExtends, atRuleNode.allExtends));
+        this.allExtendsStack.push(newAllExtends);
+    }
+
+    visitAtRuleOut(atRuleNode) {
+        const lastIndex = this.allExtendsStack.length - 1;
+        this.allExtendsStack.length = lastIndex;
+    }
+}
+
+/* eslint-disable no-unused-vars */
+
+class JoinSelectorVisitor {
+    constructor() {
+        this.contexts = [[]];
+        this._visitor = new Visitor(this);
+    }
+
+    run(root) {
+        return this._visitor.visit(root);
+    }
+
+    visitDeclaration(declNode, visitArgs) {
+        visitArgs.visitDeeper = false;
+    }
+
+    visitMixinDefinition(mixinDefinitionNode, visitArgs) {
+        visitArgs.visitDeeper = false;
+    }
+
+    visitRuleset(rulesetNode, visitArgs) {
+        const context = this.contexts[this.contexts.length - 1];
+        const paths = [];
+        let selectors;
+
+        this.contexts.push(paths);
+
+        if (!rulesetNode.root) {
+            selectors = rulesetNode.selectors;
+            if (selectors) {
+                selectors = selectors.filter(function(selector) { return selector.getIsOutput(); });
+                rulesetNode.selectors = selectors.length ? selectors : (selectors = null);
+                if (selectors) { rulesetNode.joinSelectors(paths, context, selectors); }
+            }
+            if (!selectors) { rulesetNode.rules = null; }
+            rulesetNode.paths = paths;
+        }
+    }
+
+    visitRulesetOut(rulesetNode) {
+        this.contexts.length = this.contexts.length - 1;
+    }
+
+    visitMedia(mediaNode, visitArgs) {
+        const context = this.contexts[this.contexts.length - 1];
+        mediaNode.rules[0].root = (context.length === 0 || context[0].multiMedia);
+    }
+
+    visitAtRule(atRuleNode, visitArgs) {
+        const context = this.contexts[this.contexts.length - 1];
+
+        if (atRuleNode.declarations && atRuleNode.declarations.length) {
+            atRuleNode.declarations[0].root = (context.length === 0 || context[0].multiMedia);
+        }
+        else if (atRuleNode.rules && atRuleNode.rules.length) {
+            atRuleNode.rules[0].root = (atRuleNode.isRooted || context.length === 0 || null);
+        }
+    }
+}
+
+// @ts-check
+
+/**
+ * @typedef {object} DebugInfoData
+ * @property {number} lineNumber
+ * @property {string} fileName
+ */
+
+/**
+ * @typedef {object} DebugInfoContext
+ * @property {DebugInfoData} debugInfo
+ */
+
+/**
+ * @deprecated The dumpLineNumbers option is deprecated. Use sourcemaps instead.
+ * This will be removed in a future version.
+ *
+ * @param {DebugInfoContext} ctx - Context object with debugInfo
+ * @returns {string} Debug info as CSS comment
+ */
+function asComment(ctx) {
+    return `/* line ${ctx.debugInfo.lineNumber}, ${ctx.debugInfo.fileName} */\n`;
+}
+
+/**
+ * @deprecated The dumpLineNumbers option is deprecated. Use sourcemaps instead.
+ * This function generates Sass-compatible debug info using @media -sass-debug-info syntax.
+ * This format had short-lived usage and is no longer recommended.
+ * This will be removed in a future version.
+ *
+ * @param {DebugInfoContext} ctx - Context object with debugInfo
+ * @returns {string} Sass-compatible debug info as @media query
+ */
+function asMediaQuery(ctx) {
+    let filenameWithProtocol = ctx.debugInfo.fileName;
+    if (!/^[a-z]+:\/\//i.test(filenameWithProtocol)) {
+        filenameWithProtocol = `file://${filenameWithProtocol}`;
+    }
+    return `@media -sass-debug-info{filename{font-family:${filenameWithProtocol.replace(/([.:/\\])/g, function (a) {
+        if (a == '\\') {
+            a = '/';
+        }
+        return `\\${a}`;
+    })}}line{font-family:\\00003${ctx.debugInfo.lineNumber}}}\n`;
+}
+
+/**
+ * Generates debug information (line numbers) for CSS output.
+ *
+ * @param {{ dumpLineNumbers?: string, compress?: boolean }} context - Context object with dumpLineNumbers option
+ * @param {DebugInfoContext} ctx - Context object with debugInfo
+ * @param {string} [lineSeparator] - Separator between comment and media query (for 'all' mode)
+ * @returns {string} Debug info string
+ *
+ * @deprecated The dumpLineNumbers option is deprecated. Use sourcemaps instead.
+ * All modes ('comments', 'mediaquery', 'all') are deprecated and will be removed in a future version.
+ * The 'mediaquery' and 'all' modes generate Sass-compatible @media -sass-debug-info output
+ * which had short-lived usage and is no longer recommended.
+ */
+function debugInfo(context, ctx, lineSeparator) {
+    let result = '';
+    if (context.dumpLineNumbers && !context.compress) {
+        switch (context.dumpLineNumbers) {
+            case 'comments':
+                result = asComment(ctx);
+                break;
+            case 'mediaquery':
+                result = asMediaQuery(ctx);
+                break;
+            case 'all':
+                result = asComment(ctx) + (lineSeparator || '') + asMediaQuery(ctx);
+                break;
+        }
+    }
+    return result;
+}
+
+// @ts-check
+
+class Comment extends Node {
+    get type() { return 'Comment'; }
+
+    /**
+     * @param {string} value
+     * @param {boolean} isLineComment
+     * @param {number} index
+     * @param {FileInfo} currentFileInfo
+     */
+    constructor(value, isLineComment, index, currentFileInfo) {
+        super();
+        this.value = value;
+        this.isLineComment = isLineComment;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        this.allowRoot = true;
+        /** @type {{ lineNumber: number, fileName: string } | undefined} */
+        this.debugInfo = undefined;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        if (this.debugInfo) {
+            output.add(debugInfo(context, /** @type {DebugInfoContext} */ (this)), this.fileInfo(), this.getIndex());
+        }
+        output.add(/** @type {string} */ (this.value));
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {boolean}
+     */
+    isSilent(context) {
+        const isCompressed = context.compress && /** @type {string} */ (this.value)[2] !== '!';
+        return this.isLineComment || isCompressed;
+    }
+}
+
+// @ts-check
+
+/** @import { EvalContext, CSSOutput } from './node.js' */
+
+class Unit extends Node {
+    get type() { return 'Unit'; }
+
+    /**
+     * @param {string[]} [numerator]
+     * @param {string[]} [denominator]
+     * @param {string} [backupUnit]
+     */
+    constructor(numerator, denominator, backupUnit) {
+        super();
+        /** @type {string[]} */
+        this.numerator = numerator ? copyArray(numerator).sort() : [];
+        /** @type {string[]} */
+        this.denominator = denominator ? copyArray(denominator).sort() : [];
+        if (backupUnit) {
+            /** @type {string | undefined} */
+            this.backupUnit = backupUnit;
+        } else if (numerator && numerator.length) {
+            this.backupUnit = numerator[0];
+        }
+    }
+
+    clone() {
+        return new Unit(copyArray(this.numerator), copyArray(this.denominator), this.backupUnit);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        // Dimension checks the unit is singular and throws an error if in strict math mode.
+        const strictUnits = context && context.strictUnits;
+        if (this.numerator.length === 1) {
+            output.add(this.numerator[0]); // the ideal situation
+        } else if (!strictUnits && this.backupUnit) {
+            output.add(this.backupUnit);
+        } else if (!strictUnits && this.denominator.length) {
+            output.add(this.denominator[0]);
+        }
+    }
+
+    toString() {
+        let i, returnStr = this.numerator.join('*');
+        for (i = 0; i < this.denominator.length; i++) {
+            returnStr += `/${this.denominator[i]}`;
+        }
+        return returnStr;
+    }
+
+    /**
+     * @param {Unit} other
+     * @returns {0 | undefined}
+     */
+    compare(other) {
+        return this.is(other.toString()) ? 0 : undefined;
+    }
+
+    /** @param {string} unitString */
+    is(unitString) {
+        return this.toString().toUpperCase() === unitString.toUpperCase();
+    }
+
+    isLength() {
+        return RegExp('^(px|em|ex|ch|rem|in|cm|mm|pc|pt|ex|vw|vh|vmin|vmax)$', 'gi').test(this.toCSS(/** @type {import('./node.js').EvalContext} */ ({})));
+    }
+
+    isEmpty() {
+        return this.numerator.length === 0 && this.denominator.length === 0;
+    }
+
+    isSingular() {
+        return this.numerator.length <= 1 && this.denominator.length === 0;
+    }
+
+    /** @param {(atomicUnit: string, denominator: boolean) => string} callback */
+    map(callback) {
+        let i;
+
+        for (i = 0; i < this.numerator.length; i++) {
+            this.numerator[i] = callback(this.numerator[i], false);
+        }
+
+        for (i = 0; i < this.denominator.length; i++) {
+            this.denominator[i] = callback(this.denominator[i], true);
+        }
+    }
+
+    /** @returns {{ [groupName: string]: string }} */
+    usedUnits() {
+        /** @type {{ [unitName: string]: number }} */
+        let group;
+        /** @type {{ [groupName: string]: string }} */
+        const result = {};
+        /** @type {(atomicUnit: string) => string} */
+        let mapUnit;
+        /** @type {string} */
+        let groupName;
+
+        mapUnit = function (atomicUnit) {
+            // eslint-disable-next-line no-prototype-builtins
+            if (group.hasOwnProperty(atomicUnit) && !result[groupName]) {
+                result[groupName] = atomicUnit;
+            }
+
+            return atomicUnit;
+        };
+
+        for (groupName in unitConversions) {
+            // eslint-disable-next-line no-prototype-builtins
+            if (unitConversions.hasOwnProperty(groupName)) {
+                group = /** @type {{ [unitName: string]: number }} */ (unitConversions[/** @type {keyof typeof unitConversions} */ (groupName)]);
+
+                this.map(mapUnit);
+            }
+        }
+
+        return result;
+    }
+
+    cancel() {
+        /** @type {{ [unit: string]: number }} */
+        const counter = {};
+        /** @type {string} */
+        let atomicUnit;
+        let i;
+
+        for (i = 0; i < this.numerator.length; i++) {
+            atomicUnit = this.numerator[i];
+            counter[atomicUnit] = (counter[atomicUnit] || 0) + 1;
+        }
+
+        for (i = 0; i < this.denominator.length; i++) {
+            atomicUnit = this.denominator[i];
+            counter[atomicUnit] = (counter[atomicUnit] || 0) - 1;
+        }
+
+        this.numerator = [];
+        this.denominator = [];
+
+        for (atomicUnit in counter) {
+            // eslint-disable-next-line no-prototype-builtins
+            if (counter.hasOwnProperty(atomicUnit)) {
+                const count = counter[atomicUnit];
+
+                if (count > 0) {
+                    for (i = 0; i < count; i++) {
+                        this.numerator.push(atomicUnit);
+                    }
+                } else if (count < 0) {
+                    for (i = 0; i < -count; i++) {
+                        this.denominator.push(atomicUnit);
+                    }
+                }
+            }
+        }
+
+        this.numerator.sort();
+        this.denominator.sort();
+    }
+}
+
+// @ts-check
+
+/** @import { EvalContext, CSSOutput } from './node.js' */
+
+//
+// A number with a unit
+//
+class Dimension extends Node {
+    get type() { return 'Dimension'; }
+
+    /**
+     * @param {number | string} value
+     * @param {Unit | string} [unit]
+     */
+    constructor(value, unit) {
+        super();
+        /** @type {number} */
+        this.value = parseFloat(/** @type {string} */ (value));
+        if (isNaN(this.value)) {
+            throw new Error('Dimension is not a number.');
+        }
+        /** @type {Unit} */
+        this.unit = (unit && unit instanceof Unit) ? unit :
+            new Unit(unit ? [/** @type {string} */ (unit)] : undefined);
+        this.setParent(this.unit, this);
+    }
+
+    /**
+     * @param {import('./node.js').TreeVisitor} visitor
+     */
+    accept(visitor) {
+        this.unit = /** @type {Unit} */ (visitor.visit(this.unit));
+    }
+
+    // remove when Nodes have JSDoc types
+    // eslint-disable-next-line no-unused-vars
+    /** @param {EvalContext} context */
+    eval(context) {
+        return this;
+    }
+
+    toColor() {
+        const v = /** @type {number} */ (this.value);
+        return new Color([v, v, v]);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        if ((context && context.strictUnits) && !this.unit.isSingular()) {
+            throw new Error(`Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${this.unit.toString()}`);
+        }
+
+        const value = this.fround(context, /** @type {number} */ (this.value));
+        let strValue = String(value);
+
+        if (value !== 0 && value < 0.000001 && value > -0.000001) {
+            // would be output 1e-6 etc.
+            strValue = value.toFixed(20).replace(/0+$/, '');
+        }
+
+        if (context && context.compress) {
+            // Zero values doesn't need a unit
+            if (value === 0 && this.unit.isLength()) {
+                output.add(strValue);
+                return;
+            }
+
+            // Float values doesn't need a leading zero
+            if (value > 0 && value < 1) {
+                strValue = (strValue).slice(1);
+            }
+        }
+
+        output.add(strValue);
+        this.unit.genCSS(context, output);
+    }
+
+    // In an operation between two Dimensions,
+    // we default to the first Dimension's unit,
+    // so `1px + 2` will yield `3px`.
+    /**
+     * @param {EvalContext} context
+     * @param {string} op
+     * @param {Dimension} other
+     */
+    operate(context, op, other) {
+        /* jshint noempty:false */
+        let value = this._operate(context, op, /** @type {number} */ (this.value), /** @type {number} */ (other.value));
+        let unit = this.unit.clone();
+
+        if (op === '+' || op === '-') {
+            if (unit.numerator.length === 0 && unit.denominator.length === 0) {
+                unit = other.unit.clone();
+                if (this.unit.backupUnit) {
+                    unit.backupUnit = this.unit.backupUnit;
+                }
+            } else if (other.unit.numerator.length === 0 && unit.denominator.length === 0) ; else {
+                other = other.convertTo(this.unit.usedUnits());
+
+                if (context.strictUnits && other.unit.toString() !== unit.toString()) {
+                    throw new Error('Incompatible units. Change the units or use the unit function. '
+                        + `Bad units: '${unit.toString()}' and '${other.unit.toString()}'.`);
+                }
+
+                value = this._operate(context, op, /** @type {number} */ (this.value), /** @type {number} */ (other.value));
+            }
+        } else if (op === '*') {
+            unit.numerator = unit.numerator.concat(other.unit.numerator).sort();
+            unit.denominator = unit.denominator.concat(other.unit.denominator).sort();
+            unit.cancel();
+        } else if (op === '/') {
+            unit.numerator = unit.numerator.concat(other.unit.denominator).sort();
+            unit.denominator = unit.denominator.concat(other.unit.numerator).sort();
+            unit.cancel();
+        }
+        return new Dimension(/** @type {number} */ (value), unit);
+    }
+
+    /**
+     * @param {Node} other
+     * @returns {number | undefined}
+     */
+    compare(other) {
+        let a, b;
+
+        if (!(other instanceof Dimension)) {
+            return undefined;
+        }
+
+        if (this.unit.isEmpty() || other.unit.isEmpty()) {
+            a = this;
+            b = other;
+        } else {
+            a = this.unify();
+            b = other.unify();
+            if (a.unit.compare(b.unit) !== 0) {
+                return undefined;
+            }
+        }
+
+        return Node.numericCompare(/** @type {number} */ (a.value), /** @type {number} */ (b.value));
+    }
+
+    unify() {
+        return this.convertTo({ length: 'px', duration: 's', angle: 'rad' });
+    }
+
+    /**
+     * @param {string | { [groupName: string]: string }} conversions
+     * @returns {Dimension}
+     */
+    convertTo(conversions) {
+        let value = /** @type {number} */ (this.value);
+        const unit = this.unit.clone();
+        let i;
+        /** @type {string} */
+        let groupName;
+        /** @type {{ [unitName: string]: number }} */
+        let group;
+        /** @type {string} */
+        let targetUnit;
+        /** @type {{ [groupName: string]: string }} */
+        let derivedConversions = {};
+        /** @type {(atomicUnit: string, denominator: boolean) => string} */
+        let applyUnit;
+
+        if (typeof conversions === 'string') {
+            for (i in unitConversions) {
+                if (unitConversions[/** @type {keyof typeof unitConversions} */ (i)].hasOwnProperty(conversions)) {
+                    derivedConversions = {};
+                    derivedConversions[i] = conversions;
+                }
+            }
+            conversions = derivedConversions;
+        }
+        applyUnit = function (atomicUnit, denominator) {
+            if (group.hasOwnProperty(atomicUnit)) {
+                if (denominator) {
+                    value = value / (group[atomicUnit] / group[targetUnit]);
+                } else {
+                    value = value * (group[atomicUnit] / group[targetUnit]);
+                }
+
+                return targetUnit;
+            }
+
+            return atomicUnit;
+        };
+
+        for (groupName in conversions) {
+            if (conversions.hasOwnProperty(groupName)) {
+                targetUnit = conversions[groupName];
+                group = /** @type {{ [unitName: string]: number }} */ (unitConversions[/** @type {keyof typeof unitConversions} */ (groupName)]);
+
+                unit.map(applyUnit);
+            }
+        }
+
+        unit.cancel();
+
+        return new Dimension(value, unit);
+    }
+}
+
+// @ts-check
+
+class Anonymous extends Node {
+    get type() { return 'Anonymous'; }
+
+    /**
+     * @param {string | null} value
+     * @param {number} [index]
+     * @param {FileInfo} [currentFileInfo]
+     * @param {boolean} [mapLines]
+     * @param {boolean} [rulesetLike]
+     * @param {VisibilityInfo} [visibilityInfo]
+     */
+    constructor(value, index, currentFileInfo, mapLines, rulesetLike, visibilityInfo) {
+        super();
+        this.value = value;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        this.mapLines = mapLines;
+        this.rulesetLike = (typeof rulesetLike === 'undefined') ? false : rulesetLike;
+        this.allowRoot = true;
+        this.copyVisibilityInfo(visibilityInfo);
+    }
+
+    /** @returns {Anonymous} */
+    eval() {
+        return new Anonymous(/** @type {string | null} */ (this.value), this._index, this._fileInfo, this.mapLines, this.rulesetLike, this.visibilityInfo());
+    }
+
+    /**
+     * @param {Node} other
+     * @returns {number | undefined}
+     */
+    compare(other) {
+        return other.toCSS && this.toCSS(/** @type {EvalContext} */ ({})) === other.toCSS(/** @type {EvalContext} */ ({})) ? 0 : undefined;
+    }
+
+    /** @returns {boolean} */
+    isRulesetLike() {
+        return this.rulesetLike;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        this.nodeVisible = Boolean(this.value);
+        if (this.nodeVisible) {
+            output.add(/** @type {string} */ (this.value), this._fileInfo, this._index, this.mapLines);
+        }
+    }
+}
+
+// @ts-check
+
+class Expression extends Node {
+    get type() { return 'Expression'; }
+
+    /**
+     * @param {Node[]} value
+     * @param {boolean} [noSpacing]
+     */
+    constructor(value, noSpacing) {
+        super();
+        this.value = value;
+        /** @type {boolean | undefined} */
+        this.noSpacing = noSpacing;
+        /** @type {boolean | undefined} */
+        this.parens = undefined;
+        /** @type {boolean | undefined} */
+        this.parensInOp = undefined;
+        if (!value) {
+            throw new Error('Expression requires an array parameter');
+        }
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        this.value = visitor.visitArray(/** @type {Node[]} */ (this.value));
+    }
+
+    /** @param {EvalContext} context */
+    eval(context) {
+        const noSpacing = this.noSpacing;
+        /** @type {Node | Expression} */
+        let returnValue;
+        const mathOn = context.isMathOn();
+        const inParenthesis = this.parens;
+
+        let doubleParen = false;
+        if (inParenthesis) {
+            context.inParenthesis();
+        }
+        const value = /** @type {Node[]} */ (this.value);
+        if (value.length > 1) {
+            returnValue = new Expression(value.map(function (e) {
+                if (!e.eval) {
+                    return e;
+                }
+                return e.eval(context);
+            }), this.noSpacing);
+        } else if (value.length === 1) {
+            const first = /** @type {Expression} */ (value[0]);
+            if (first.parens && !first.parensInOp && !context.inCalc) {
+                doubleParen = true;
+            }
+            returnValue = value[0].eval(context);
+        } else {
+            returnValue = this;
+        }
+        if (inParenthesis) {
+            context.outOfParenthesis();
+        }
+        if (this.parens && this.parensInOp && !mathOn && !doubleParen
+            && (!(returnValue instanceof Dimension))) {
+            returnValue = new Paren(returnValue);
+        }
+        /** @type {Expression} */ (returnValue).noSpacing =
+            /** @type {Expression} */ (returnValue).noSpacing || noSpacing;
+        return returnValue;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        const value = /** @type {Node[]} */ (this.value);
+        for (let i = 0; i < value.length; i++) {
+            value[i].genCSS(context, output);
+            if (!this.noSpacing && i + 1 < value.length) {
+                if (!(value[i + 1] instanceof Anonymous) ||
+                    value[i + 1] instanceof Anonymous && /** @type {string} */ (value[i + 1].value) !== ',') {
+                    output.add(' ');
+                }
+            }
+        }
+    }
+
+    throwAwayComments() {
+        this.value = /** @type {Node[]} */ (this.value).filter(function(v) {
+            return !(v instanceof Comment);
+        });
+    }
+}
+
+// @ts-check
+
+class Value extends Node {
+    get type() { return 'Value'; }
+
+    /** @param {Node[] | Node} value */
+    constructor(value) {
+        super();
+        if (!value) {
+            throw new Error('Value requires an array argument');
+        }
+        if (!Array.isArray(value)) {
+            this.value = [ value ];
+        }
+        else {
+            this.value = value;
+        }
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        if (this.value) {
+            this.value = visitor.visitArray(/** @type {Node[]} */ (this.value));
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        const value = /** @type {Node[]} */ (this.value);
+        if (value.length === 1) {
+            return value[0].eval(context);
+        } else {
+            return new Value(value.map(function (v) {
+                return v.eval(context);
+            }));
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        const value = /** @type {Node[]} */ (this.value);
+        let i;
+        for (i = 0; i < value.length; i++) {
+            value[i].genCSS(context, output);
+            if (i + 1 < value.length) {
+                output.add((context && context.compress) ? ',' : ', ');
+            }
+        }
+    }
+}
+
+// @ts-check
+
+/**
+ * Merges declarations with merge flags (+ or ,) into combined values.
+ * Used by both the ToCSSVisitor and AtRule eval.
+ * @param {Node[]} rules
+ */
+function mergeRules(rules) {
+    if (!rules) {
+        return;
+    }
+
+    /** @type {Record<string, Array<Node & { merge: string, name: string, value: Node, important: string }>>} */
+    const groups    = {};
+    /** @type {Array<Array<Node & { merge: string, name: string, value: Node, important: string }>>} */
+    const groupsArr = [];
+
+    for (let i = 0; i < rules.length; i++) {
+        const rule = /** @type {Node & { merge: string, name: string }} */ (rules[i]);
+        if (rule.merge) {
+            const key = rule.name;
+            groups[key] ? rules.splice(i--, 1) :
+                groupsArr.push(groups[key] = []);
+            groups[key].push(/** @type {Node & { merge: string, name: string, value: Node, important: string }} */ (rule));
+        }
+    }
+
+    groupsArr.forEach(group => {
+        if (group.length > 0) {
+            const result = group[0];
+            /** @type {Node[]} */
+            let space  = [];
+            const comma  = [new Expression(space)];
+            group.forEach(rule => {
+                if ((rule.merge === '+') && (space.length > 0)) {
+                    comma.push(new Expression(space = []));
+                }
+                space.push(rule.value);
+                result.important = result.important || rule.important;
+            });
+            result.value = new Value(comma);
+        }
+    });
+}
+
+/* eslint-disable no-unused-vars */
+
+class CSSVisitorUtils {
+    constructor(context) {
+        this._visitor = new Visitor(this);
+        this._context = context;
+    }
+
+    containsSilentNonBlockedChild(bodyRules) {
+        let rule;
+        if (!bodyRules) {
+            return false;
+        }
+        for (let r = 0; r < bodyRules.length; r++) {
+            rule = bodyRules[r];
+            if (rule.isSilent && rule.isSilent(this._context) && !rule.blocksVisibility()) {
+                // the atrule contains something that was referenced (likely by extend)
+                // therefore it needs to be shown in output too
+                return true;
+            }
+        }
+        return false;
+    }
+
+    keepOnlyVisibleChilds(owner) {
+        if (owner && owner.rules) {
+            owner.rules = owner.rules.filter(thing => thing.isVisible());
+        }
+    }
+
+    isEmpty(owner) {
+        return (owner && owner.rules) 
+            ? (owner.rules.length === 0) : true;
+    }
+
+    hasVisibleSelector(rulesetNode) {
+        return (rulesetNode && rulesetNode.paths)
+            ? (rulesetNode.paths.length > 0) : false;
+    }
+
+    resolveVisibility(node) {
+        if (!node.blocksVisibility()) {
+            if (this.isEmpty(node)) {
+                return ;
+            }
+
+            return node;
+        }
+
+        const compiledRulesBody = node.rules[0];
+        this.keepOnlyVisibleChilds(compiledRulesBody);
+
+        if (this.isEmpty(compiledRulesBody)) {
+            return ;
+        }
+
+        node.ensureVisibility();
+        node.removeVisibilityBlock();
+
+        return node;
+    }
+
+    isVisibleRuleset(rulesetNode) {
+        if (rulesetNode.firstRoot) {
+            return true;
+        }
+
+        if (this.isEmpty(rulesetNode)) {
+            return false;
+        }
+
+        if (!rulesetNode.root && !this.hasVisibleSelector(rulesetNode)) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+const ToCSSVisitor = function(context) {
+    this._visitor = new Visitor(this);
+    this._context = context;
+    this.utils = new CSSVisitorUtils(context);
+};
+
+ToCSSVisitor.prototype = {
+    isReplacing: true,
+    run: function (root) {
+        return this._visitor.visit(root);
+    },
+
+    visitDeclaration: function (declNode, visitArgs) {
+        if (declNode.blocksVisibility() || declNode.variable) {
+            return;
+        }
+        return declNode;
+    },
+
+    visitMixinDefinition: function (mixinNode, visitArgs) {
+        // mixin definitions do not get eval'd - this means they keep state
+        // so we have to clear that state here so it isn't used if toCSS is called twice
+        mixinNode.frames = [];
+    },
+
+    visitExtend: function (extendNode, visitArgs) {
+    },
+
+    visitComment: function (commentNode, visitArgs) {
+        if (commentNode.blocksVisibility() || commentNode.isSilent(this._context)) {
+            return;
+        }
+        return commentNode;
+    },
+
+    visitMedia: function(mediaNode, visitArgs) {
+        const originalRules = mediaNode.rules[0].rules;
+        mediaNode.accept(this._visitor);
+        visitArgs.visitDeeper = false;
+
+        return this.utils.resolveVisibility(mediaNode, originalRules);
+    },
+
+    visitImport: function (importNode, visitArgs) {
+        if (importNode.blocksVisibility()) {
+            return ;
+        }
+        return importNode;
+    },
+
+    visitAtRule: function(atRuleNode, visitArgs) {
+        if (atRuleNode.rules && atRuleNode.rules.length) {
+            return this.visitAtRuleWithBody(atRuleNode, visitArgs);
+        } else {
+            return this.visitAtRuleWithoutBody(atRuleNode, visitArgs);
+        }
+    },
+
+    visitAnonymous: function(anonymousNode, visitArgs) {
+        if (!anonymousNode.blocksVisibility()) {
+            anonymousNode.accept(this._visitor);
+            return anonymousNode;
+        }
+    },
+
+    visitAtRuleWithBody: function(atRuleNode, visitArgs) {
+        // if there is only one nested ruleset and that one has no path, then it is
+        // just fake ruleset
+        function hasFakeRuleset(atRuleNode) {
+            const bodyRules = atRuleNode.rules;
+            return bodyRules.length === 1 && (!bodyRules[0].paths || bodyRules[0].paths.length === 0);
+        }
+        function getBodyRules(atRuleNode) {
+            const nodeRules = atRuleNode.rules;
+            if (hasFakeRuleset(atRuleNode)) {
+                return nodeRules[0].rules;
+            }
+
+            return nodeRules;
+        }
+        // it is still true that it is only one ruleset in array
+        // this is last such moment
+        // process childs
+        const originalRules = getBodyRules(atRuleNode);
+        atRuleNode.accept(this._visitor);
+        visitArgs.visitDeeper = false;
+
+        if (!this.utils.isEmpty(atRuleNode)) {
+            this._mergeRules(atRuleNode.rules[0].rules);
+        }
+
+        return this.utils.resolveVisibility(atRuleNode, originalRules);
+    },
+
+    visitAtRuleWithoutBody: function(atRuleNode, visitArgs) {
+        if (atRuleNode.blocksVisibility()) {
+            return;
+        }
+
+        if (atRuleNode.name === '@charset') {
+            // Only output the debug info together with subsequent @charset definitions
+            // a comment (or @media statement) before the actual @charset atrule would
+            // be considered illegal css as it has to be on the first line
+            if (this.charset) {
+                if (atRuleNode.debugInfo) {
+                    const comment = new tree.Comment(`/* ${atRuleNode.toCSS(this._context).replace(/\n/g, '')} */\n`);
+                    comment.debugInfo = atRuleNode.debugInfo;
+                    return this._visitor.visit(comment);
+                }
+                return;
+            }
+            this.charset = true;
+        }
+
+        return atRuleNode;
+    },
+
+    checkValidNodes: function(rules, isRoot) {
+        if (!rules) {
+            return;
+        }
+
+        for (let i = 0; i < rules.length; i++) {
+            const ruleNode = rules[i];
+            if (isRoot && ruleNode instanceof tree.Declaration && !ruleNode.variable) {
+                throw { message: 'Properties must be inside selector blocks. They cannot be in the root',
+                    index: ruleNode.getIndex(), filename: ruleNode.fileInfo() && ruleNode.fileInfo().filename};
+            }
+            if (ruleNode instanceof tree.Call) {
+                throw { message: `Function '${ruleNode.name}' did not return a root node`,
+                    index: ruleNode.getIndex(), filename: ruleNode.fileInfo() && ruleNode.fileInfo().filename};
+            }
+            if (ruleNode.type && !ruleNode.allowRoot) {
+                throw { message: `${ruleNode.type} node returned by a function is not valid here`,
+                    index: ruleNode.getIndex(), filename: ruleNode.fileInfo() && ruleNode.fileInfo().filename};
+            }
+        }
+    },
+
+    visitRuleset: function (rulesetNode, visitArgs) {
+        // at this point rulesets are nested into each other
+        let rule;
+
+        const rulesets = [];
+
+        this.checkValidNodes(rulesetNode.rules, rulesetNode.firstRoot);
+
+        if (!rulesetNode.root) {
+            // remove invisible paths
+            this._compileRulesetPaths(rulesetNode);
+
+            // remove rulesets from this ruleset body and compile them separately
+            const nodeRules = rulesetNode.rules;
+
+            let nodeRuleCnt = nodeRules ? nodeRules.length : 0;
+            for (let i = 0; i < nodeRuleCnt; ) {
+                rule = nodeRules[i];
+                if (rule && rule.rules) {
+                    // visit because we are moving them out from being a child
+                    rulesets.push(this._visitor.visit(rule));
+                    nodeRules.splice(i, 1);
+                    nodeRuleCnt--;
+                    continue;
+                }
+                i++;
+            }
+            // accept the visitor to remove rules and refactor itself
+            // then we can decide nogw whether we want it or not
+            // compile body
+            if (nodeRuleCnt > 0) {
+                rulesetNode.accept(this._visitor);
+            } else {
+                rulesetNode.rules = null;
+            }
+            visitArgs.visitDeeper = false;
+        } else { // if (! rulesetNode.root) {
+            rulesetNode.accept(this._visitor);
+            visitArgs.visitDeeper = false;
+        }
+
+        if (rulesetNode.rules) {
+            this._mergeRules(rulesetNode.rules);
+            this._removeDuplicateRules(rulesetNode.rules);
+        }
+
+        // now decide whether we keep the ruleset
+        if (this.utils.isVisibleRuleset(rulesetNode)) {
+            rulesetNode.ensureVisibility();
+            rulesets.splice(0, 0, rulesetNode);
+        }
+
+        if (rulesets.length === 1) {
+            return rulesets[0];
+        }
+        return rulesets;
+    },
+
+    _compileRulesetPaths: function(rulesetNode) {
+        if (rulesetNode.paths) {
+            rulesetNode.paths = rulesetNode.paths
+                .filter(p => {
+                    let i;
+                    if (p[0].elements[0].combinator.value === ' ') {
+                        p[0].elements[0].combinator = new(tree.Combinator)('');
+                    }
+                    for (i = 0; i < p.length; i++) {
+                        if (p[i].isVisible() && p[i].getIsOutput()) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+        }
+    },
+
+    _removeDuplicateRules: function(rules) {
+        if (!rules) { return; }
+
+        // remove duplicates
+        const ruleCache = {};
+
+        for (let i = rules.length - 1; i >= 0 ; i--) {
+            let rule = rules[i];
+            if (rule instanceof tree.Declaration) {
+                if (!Object.prototype.hasOwnProperty.call(ruleCache, rule.name)) {
+                    ruleCache[rule.name] = rule;
+                } else {
+                    let ruleList = ruleCache[rule.name];
+                    if (!Array.isArray(ruleList)) {
+                        const prevRuleCSS = ruleList.toCSS(this._context);
+                        ruleList = ruleCache[rule.name] = [prevRuleCSS];
+                    }
+                    const ruleCSS = rule.toCSS(this._context);
+                    if (ruleList.indexOf(ruleCSS) !== -1) {
+                        rules.splice(i, 1);
+                    } else {
+                        ruleList.push(ruleCSS);
+                    }
+                }
+            }
+        }
+    },
+
+    _mergeRules: mergeRules
+};
+
+var visitors = {
+    Visitor,
+    ImportVisitor,
+    MarkVisibleSelectorsVisitor: SetTreeVisibilityVisitor,
+    ExtendVisitor: ProcessExtendsVisitor,
+    JoinSelectorVisitor,
+    ToCSSVisitor
+};
+
+var getParserInput = () => {
+    let // Less input string
+        input;
+
+    let // current chunk
+        j;
+
+    const // holds state for backtracking
+        saveStack = [];
+
+    let // furthest index the parser has gone to
+        furthest;
+
+    let // if this is furthest we got to, this is the probably cause
+        furthestPossibleErrorMessage;
+
+    let // chunkified input
+        chunks;
+
+    let // current chunk
+        current;
+
+    let // index of current chunk, in `input`
+        currentPos;
+
+    const parserInput = {};
+    const CHARCODE_SPACE = 32;
+    const CHARCODE_TAB = 9;
+    const CHARCODE_LF = 10;
+    const CHARCODE_CR = 13;
+    const CHARCODE_PLUS = 43;
+    const CHARCODE_COMMA = 44;
+    const CHARCODE_FORWARD_SLASH = 47;
+    const CHARCODE_9 = 57;
+
+    function skipWhitespace(length) {
+        const oldi = parserInput.i;
+        const oldj = j;
+        const curr = parserInput.i - currentPos;
+        const endIndex = parserInput.i + current.length - curr;
+        const mem = (parserInput.i += length);
+        const inp = input;
+        let c;
+        let nextChar;
+        let comment;
+
+        for (; parserInput.i < endIndex; parserInput.i++) {
+            c = inp.charCodeAt(parserInput.i);
+
+            if (parserInput.autoCommentAbsorb && c === CHARCODE_FORWARD_SLASH) {
+                nextChar = inp.charAt(parserInput.i + 1);
+                if (nextChar === '/') {
+                    comment = {index: parserInput.i, isLineComment: true};
+                    let nextNewLine = inp.indexOf('\n', parserInput.i + 2);
+                    if (nextNewLine < 0) {
+                        nextNewLine = endIndex;
+                    }
+                    parserInput.i = nextNewLine;
+                    comment.text = inp.slice(comment.index, parserInput.i);
+                    parserInput.commentStore.push(comment);
+                    continue;
+                } else if (nextChar === '*') {
+                    const nextStarSlash = inp.indexOf('*/', parserInput.i + 2);
+                    if (nextStarSlash >= 0) {
+                        comment = {
+                            index: parserInput.i,
+                            text: inp.slice(parserInput.i, nextStarSlash + 2),
+                            isLineComment: false
+                        };
+                        parserInput.i += comment.text.length - 1;
+                        parserInput.commentStore.push(comment);
+                        continue;
+                    }
+                }
+                break;
+            }
+
+            if ((c !== CHARCODE_SPACE) && (c !== CHARCODE_LF) && (c !== CHARCODE_TAB) && (c !== CHARCODE_CR)) {
+                break;
+            }
+        }
+
+        current = current.slice(length + parserInput.i - mem + curr);
+        currentPos = parserInput.i;
+
+        if (!current.length) {
+            if (j < chunks.length - 1) {
+                current = chunks[++j];
+                skipWhitespace(0); // skip space at the beginning of a chunk
+                return true; // things changed
+            }
+            parserInput.finished = true;
+        }
+
+        return oldi !== parserInput.i || oldj !== j;
+    }
+
+    parserInput.save = () => {
+        currentPos = parserInput.i;
+        saveStack.push( { current, i: parserInput.i, j });
+    };
+    parserInput.restore = possibleErrorMessage => {
+
+        if (parserInput.i > furthest || (parserInput.i === furthest && possibleErrorMessage && !furthestPossibleErrorMessage)) {
+            furthest = parserInput.i;
+            furthestPossibleErrorMessage = possibleErrorMessage;
+        }
+        const state = saveStack.pop();
+        current = state.current;
+        currentPos = parserInput.i = state.i;
+        j = state.j;
+    };
+    parserInput.forget = () => {
+        saveStack.pop();
+    };
+    parserInput.isWhitespace = offset => {
+        const pos = parserInput.i + (offset || 0);
+        const code = input.charCodeAt(pos);
+        return (code === CHARCODE_SPACE || code === CHARCODE_CR || code === CHARCODE_TAB || code === CHARCODE_LF);
+    };
+
+    // Specialization of $(tok)
+    parserInput.$re = tok => {
+        if (parserInput.i > currentPos) {
+            current = current.slice(parserInput.i - currentPos);
+            currentPos = parserInput.i;
+        }
+
+        const m = tok.exec(current);
+        if (!m) {
+            return null;
+        }
+
+        skipWhitespace(m[0].length);
+        if (typeof m === 'string') {
+            return m;
+        }
+
+        return m.length === 1 ? m[0] : m;
+    };
+
+    parserInput.$char = tok => {
+        if (input.charAt(parserInput.i) !== tok) {
+            return null;
+        }
+        skipWhitespace(1);
+        return tok;
+    };
+
+    parserInput.$peekChar = tok => {
+        if (input.charAt(parserInput.i) !== tok) {
+            return null;
+        }
+        return tok;
+    };
+
+    parserInput.$str = tok => {
+        const tokLength = tok.length;
+
+        // https://jsperf.com/string-startswith/21
+        for (let i = 0; i < tokLength; i++) {
+            if (input.charAt(parserInput.i + i) !== tok.charAt(i)) {
+                return null;
+            }
+        }
+
+        skipWhitespace(tokLength);
+        return tok;
+    };
+
+    parserInput.$quoted = loc => {
+        const pos = loc || parserInput.i;
+        const startChar = input.charAt(pos);
+
+        if (startChar !== '\'' && startChar !== '"') {
+            return;
+        }
+        const length = input.length;
+        const currentPosition = pos;
+
+        for (let i = 1; i + currentPosition < length; i++) {
+            const nextChar = input.charAt(i + currentPosition);
+            switch (nextChar) {
+                case '\\':
+                    i++;
+                    continue;
+                case '\r':
+                case '\n':
+                    break;
+                case startChar: {
+                    const str = input.slice(currentPosition, currentPosition + i + 1);
+                    if (!loc && loc !== 0) {
+                        skipWhitespace(i + 1);
+                        return str
+                    }
+                    return [startChar, str];
+                }
+            }
+        }
+        return null;
+    };
+
+    /**
+     * Permissive parsing. Ignores everything except matching {} [] () and quotes
+     * until matching token (outside of blocks)
+     */
+    parserInput.$parseUntil = tok => {
+        let quote = '';
+        let returnVal = null;
+        let inComment = false;
+        let blockDepth = 0;
+        const blockStack = [];
+        const parseGroups = [];
+        const length = input.length;
+        const startPos = parserInput.i;
+        let lastPos = parserInput.i;
+        let i = parserInput.i;
+        let loop = true;
+        let testChar;
+
+        if (typeof tok === 'string') {
+            testChar = char => char === tok;
+        } else {
+            testChar = char => tok.test(char);
+        }
+
+        do {
+            let nextChar = input.charAt(i);
+            if (blockDepth === 0 && testChar(nextChar)) {
+                returnVal = input.slice(lastPos, i);
+                if (returnVal) {
+                    parseGroups.push(returnVal);
+                }
+                else {
+                    parseGroups.push(' ');
+                }
+                returnVal = parseGroups;
+                skipWhitespace(i - startPos);
+                loop = false;
+            } else {
+                if (inComment) {
+                    if (nextChar === '*' &&
+                        input.charAt(i + 1) === '/') {
+                        i++;
+                        blockDepth--;
+                        inComment = false;
+                    }
+                    i++;
+                    continue;
+                }
+                switch (nextChar) {
+                    case '\\':
+                        i++;
+                        nextChar = input.charAt(i);
+                        parseGroups.push(input.slice(lastPos, i + 1));
+                        lastPos = i + 1;
+                        break;
+                    case '/':
+                        if (input.charAt(i + 1) === '*') {
+                            i++;
+                            inComment = true;
+                            blockDepth++;
+                        }
+                        break;
+                    case '\'':
+                    case '"':
+                        quote = parserInput.$quoted(i);
+                        if (quote) {
+                            parseGroups.push(input.slice(lastPos, i), quote);
+                            i += quote[1].length - 1;
+                            lastPos = i + 1;
+                        }
+                        else {
+                            skipWhitespace(i - startPos);
+                            returnVal = nextChar;
+                            loop = false;
+                        }
+                        break;
+                    case '{':
+                        blockStack.push('}');
+                        blockDepth++;
+                        break;
+                    case '(':
+                        blockStack.push(')');
+                        blockDepth++;
+                        break;
+                    case '[':
+                        blockStack.push(']');
+                        blockDepth++;
+                        break;
+                    case '}':
+                    case ')':
+                    case ']': {
+                        const expected = blockStack.pop();
+                        if (nextChar === expected) {
+                            blockDepth--;
+                        } else {
+                            // move the parser to the error and return expected
+                            skipWhitespace(i - startPos);
+                            returnVal = expected;
+                            loop = false;
+                        }
+                    }
+                }
+                i++;
+                if (i > length) {
+                    loop = false;
+                }
+            }
+        } while (loop);
+
+        return returnVal ? returnVal : null;
+    };
+
+    parserInput.autoCommentAbsorb = true;
+    parserInput.commentStore = [];
+    parserInput.finished = false;
+
+    // Same as $(), but don't change the state of the parser,
+    // just return the match.
+    parserInput.peek = tok => {
+        if (typeof tok === 'string') {
+            // https://jsperf.com/string-startswith/21
+            for (let i = 0; i < tok.length; i++) {
+                if (input.charAt(parserInput.i + i) !== tok.charAt(i)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return tok.test(current);
+        }
+    };
+
+    // Specialization of peek()
+    // TODO remove or change some currentChar calls to peekChar
+    parserInput.peekChar = tok => input.charAt(parserInput.i) === tok;
+
+    parserInput.currentChar = () => input.charAt(parserInput.i);
+
+    parserInput.prevChar = () => input.charAt(parserInput.i - 1);
+
+    parserInput.getInput = () => input;
+
+    parserInput.peekNotNumeric = () => {
+        const c = input.charCodeAt(parserInput.i);
+        // Is the first char of the dimension 0-9, '.', '+' or '-'
+        return (c > CHARCODE_9 || c < CHARCODE_PLUS) || c === CHARCODE_FORWARD_SLASH || c === CHARCODE_COMMA;
+    };
+
+    parserInput.start = (str) => {
+        input = str;
+        parserInput.i = j = currentPos = furthest = 0;
+
+        chunks = [str];
+        current = chunks[0];
+
+        skipWhitespace(0);
+    };
+
+    parserInput.end = () => {
+        let message;
+        const isFinished = parserInput.i >= input.length;
+
+        if (parserInput.i < furthest) {
+            message = furthestPossibleErrorMessage;
+            parserInput.i = furthest;
+        }
+        return {
+            isFinished,
+            furthest: parserInput.i,
+            furthestPossibleErrorMessage: message,
+            furthestReachedEnd: parserInput.i >= input.length - 1,
+            furthestChar: input[parserInput.i]
+        };
+    };
+
+    return parserInput;
+};
+
+function makeRegistry( base ) {
+    return {
+        _data: {},
+        add: function(name, func) {
+            // precautionary case conversion, as later querying of
+            // the registry by function-caller uses lower case as well.
+            name = name.toLowerCase();
+
+            // eslint-disable-next-line no-prototype-builtins
+            if (this._data.hasOwnProperty(name)) ;
+            this._data[name] = func;
+        },
+        addMultiple: function(functions) {
+            Object.keys(functions).forEach(
+                name => {
+                    this.add(name, functions[name]);
+                });
+        },
+        get: function(name) {
+            return this._data[name] || ( base && base.get( name ));
+        },
+        getLocalFunctions: function() {
+            return this._data;
+        },
+        inherit: function() {
+            return makeRegistry( this );
+        },
+        create: function(base) {
+            return makeRegistry(base);
+        }
+    };
+}
+
+var functionRegistry = makeRegistry( null );
+
+// @ts-check
+const MediaSyntaxOptions = {
+    queryInParens: true
+};
+
+const ContainerSyntaxOptions = {
+    queryInParens: true
+};
+
+/**
+ * Deprecation registry for Less.js
+ *
+ * Each deprecation has a unique ID and description.
+ * Repetition limiting caps warnings at 5 per deprecation type per parse.
+ * Use --quiet-deprecations to suppress all deprecation warnings.
+ */
+
+const MAX_REPETITIONS = 5;
+
+class DeprecationHandler {
+    constructor() {
+        /** @type {Record<string, number>} */
+        this._counts = {};
+    }
+
+    /** @param {string} deprecationId */
+    shouldWarn(deprecationId) {
+        if (!deprecationId) { return true; }
+        const count = (this._counts[deprecationId] || 0) + 1;
+        this._counts[deprecationId] = count;
+        return count <= MAX_REPETITIONS;
+    }
+
+    /** @param {{ warn: (msg: string) => void }} logger */
+    summarize(logger) {
+        for (const id of Object.keys(this._counts)) {
+            const omitted = this._counts[id] - MAX_REPETITIONS;
+            if (omitted > 0) {
+                logger.warn(`${omitted} repetitive "${id}" deprecation warning(s) omitted.`);
+            }
+        }
+    }
+}
+
+//
+// less.js - parser
+//
+//    A relatively straight-forward predictive parser.
+//    There is no tokenization/lexing stage, the input is parsed
+//    in one sweep.
+//
+//    To make the parser fast enough to run in the browser, several
+//    optimization had to be made:
+//
+//    - Matching and slicing on a huge input is often cause of slowdowns.
+//      The solution is to chunkify the input into smaller strings.
+//      The chunks are stored in the `chunks` var,
+//      `j` holds the current chunk index, and `currentPos` holds
+//      the index of the current chunk in relation to `input`.
+//      This gives us an almost 4x speed-up.
+//
+//    - In many cases, we don't need to match individual tokens;
+//      for example, if a value doesn't hold any variables, operations
+//      or dynamic references, the parser can effectively 'skip' it,
+//      treating it as a literal.
+//      An example would be '1px solid #000' - which evaluates to itself,
+//      we don't need to know what the individual components are.
+//      The drawback, of course is that you don't get the benefits of
+//      syntax-checking on the CSS. This gives us a 50% speed-up in the parser,
+//      and a smaller speed-up in the code-gen.
+//
+//
+//    Token matching is done with the `$` function, which either takes
+//    a terminal string or regexp, or a non-terminal function to call.
+//    It also takes care of moving all the indices forwards.
+//
+
+const Parser = function Parser(context, imports, fileInfo, currentIndex) {
+    currentIndex = currentIndex || 0;
+    let parsers;
+    const parserInput = getParserInput();
+
+    function error(msg, type) {
+        throw new LessError(
+            {
+                index: parserInput.i,
+                filename: fileInfo.filename,
+                type: type || 'Syntax',
+                message: msg
+            },
+            imports
+        );
+    }
+
+    const deprecationHandler = new DeprecationHandler();
+
+    /**
+     * @param {string} msg
+     * @param {number} index
+     * @param {string} type
+     * @param {string} [deprecationId] - stable deprecation ID for repetition limiting
+     */
+    function warn(msg, index, type, deprecationId) {
+        if (context.quiet) { return; }
+        if (deprecationId && context.quietDeprecations) { return; }
+        if (deprecationId && !deprecationHandler.shouldWarn(deprecationId)) { return; }
+
+        logger.warn(
+            (new LessError(
+                {
+                    index: index ?? parserInput.i,
+                    filename: fileInfo.filename,
+                    type: type ? `${type.toUpperCase()} WARNING` : 'WARNING',
+                    message: msg
+                },
+                imports
+            )).toString()
+        );
+    }
+
+    function expect(arg, msg) {
+        // some older browsers return typeof 'function' for RegExp
+        const result = (arg instanceof Function) ? arg.call(parsers) : parserInput.$re(arg);
+        if (result) {
+            return result;
+        }
+
+        error(msg || (typeof arg === 'string'
+            ? `expected '${arg}' got '${parserInput.currentChar()}'`
+            : 'unexpected token'));
+    }
+
+    // Specialization of expect()
+    function expectChar(arg, msg) {
+        if (parserInput.$char(arg)) {
+            return arg;
+        }
+        error(msg || `expected '${arg}' got '${parserInput.currentChar()}'`);
+    }
+
+    function getDebugInfo(index) {
+        const filename = fileInfo.filename;
+
+        return {
+            lineNumber: getLocation(index, parserInput.getInput()).line + 1,
+            fileName: filename
+        };
+    }
+
+    /**
+     *  Used after initial parsing to create nodes on the fly
+     *
+     *  @param {String} str          - string to parse
+     *  @param {Array}  parseList    - array of parsers to run input through e.g. ["value", "important"]
+     *  @param {Number} currentIndex - start number to begin indexing
+     *  @param {Object} fileInfo     - fileInfo to attach to created nodes
+     */
+    function parseNode(str, parseList, callback) {
+        let result;
+        const returnNodes = [];
+        const parser = parserInput;
+
+        try {
+            parser.start(str);
+            for (let x = 0, p; (p = parseList[x]); x++) {
+                result = parsers[p]();
+                returnNodes.push(result || null);
+            }
+
+            const endInfo = parser.end();
+            if (endInfo.isFinished) {
+                callback(null, returnNodes);
+            }
+            else {
+                callback(true, null);
+            }
+        } catch (e) {
+            throw new LessError({
+                index: e.index + currentIndex,
+                message: e.message
+            }, imports, fileInfo.filename);
+        }
+    }
+
+    //
+    // The Parser
+    //
+    return {
+        parserInput,
+        imports,
+        fileInfo,
+        parseNode,
+        //
+        // Parse an input string into an abstract syntax tree,
+        // @param str A string containing 'less' markup
+        // @param callback call `callback` when done.
+        // @param [additionalData] An optional map which can contains vars - a map (key, value) of variables to apply
+        //
+        parse: function (str, callback, additionalData) {
+            let root;
+            let err = null;
+            let globalVars;
+            let modifyVars;
+            let ignored;
+            let preText = '';
+
+            // Optionally disable @plugin parsing
+            if (additionalData && additionalData.disablePluginRule) {
+                parsers.plugin = function() {
+                    var dir = parserInput.$re(/^@plugin?\s+/);
+                    if (dir) {
+                        error('@plugin statements are not allowed when disablePluginRule is set to true');
+                    }
+                };
+            }
+
+            globalVars = (additionalData && additionalData.globalVars) ? `${Parser.serializeVars(additionalData.globalVars)}\n` : '';
+            modifyVars = (additionalData && additionalData.modifyVars) ? `\n${Parser.serializeVars(additionalData.modifyVars)}` : '';
+
+            if (context.pluginManager) {
+                const preProcessors = context.pluginManager.getPreProcessors();
+                for (let i = 0; i < preProcessors.length; i++) {
+                    str = preProcessors[i].process(str, { context, imports, fileInfo });
+                }
+            }
+
+            if (globalVars || (additionalData && additionalData.banner)) {
+                preText = ((additionalData && additionalData.banner) ? additionalData.banner : '') + globalVars;
+                ignored = imports.contentsIgnoredChars;
+                ignored[fileInfo.filename] = ignored[fileInfo.filename] || 0;
+                ignored[fileInfo.filename] += preText.length;
+            }
+
+            str = str.replace(/\r\n?/g, '\n');
+            // Remove potential UTF Byte Order Mark
+            str = preText + str.replace(/^\uFEFF/, '') + modifyVars;
+            imports.contents[fileInfo.filename] = str;
+
+            // Start with the primary rule.
+            // The whole syntax tree is held under a Ruleset node,
+            // with the `root` property set to true, so no `{}` are
+            // output. The callback is called when the input is parsed.
+            try {
+                parserInput.start(str);
+
+                tree.Node.prototype.parse = this;
+                root = new tree.Ruleset(null, this.parsers.primary());
+                tree.Node.prototype.rootNode = root;
+                root.root = true;
+                root.firstRoot = true;
+                root.functionRegistry = functionRegistry.inherit();
+
+            } catch (e) {
+                return callback(new LessError(e, imports, fileInfo.filename));
+            }
+
+            // If `i` is smaller than the `input.length - 1`,
+            // it means the parser wasn't able to parse the whole
+            // string, so we've got a parsing error.
+            //
+            // We try to extract a \n delimited string,
+            // showing the line where the parse error occurred.
+            // We split it up into two parts (the part which parsed,
+            // and the part which didn't), so we can color them differently.
+            const endInfo = parserInput.end();
+            if (!endInfo.isFinished) {
+
+                let message = endInfo.furthestPossibleErrorMessage;
+
+                if (!message) {
+                    message = 'Unrecognised input';
+                    if (endInfo.furthestChar === '}') {
+                        message += '. Possibly missing opening \'{\'';
+                    } else if (endInfo.furthestChar === ')') {
+                        message += '. Possibly missing opening \'(\'';
+                    } else if (endInfo.furthestReachedEnd) {
+                        message += '. Possibly missing something';
+                    }
+                }
+
+                err = new LessError({
+                    type: 'Parse',
+                    message,
+                    index: endInfo.furthest,
+                    filename: fileInfo.filename
+                }, imports);
+            }
+
+            const finish = e => {
+                e = err || e || imports.error;
+
+                if (e) {
+                    if (!(e instanceof LessError)) {
+                        e = new LessError(e, imports, fileInfo.filename);
+                    }
+
+                    return callback(e);
+                }
+                else {
+                    return callback(null, root);
+                }
+            };
+
+            if (context.processImports !== false) {
+                new visitors.ImportVisitor(imports, finish)
+                    .run(root);
+            } else {
+                return finish();
+            }
+        },
+
+        //
+        // Here in, the parsing rules/functions
+        //
+        // The basic structure of the syntax tree generated is as follows:
+        //
+        //   Ruleset ->  Declaration -> Value -> Expression -> Entity
+        //
+        // Here's some Less code:
+        //
+        //    .class {
+        //      color: #fff;
+        //      border: 1px solid #000;
+        //      width: @w + 4px;
+        //      > .child {...}
+        //    }
+        //
+        // And here's what the parse tree might look like:
+        //
+        //     Ruleset (Selector '.class', [
+        //         Declaration ("color",  Value ([Expression [Color #fff]]))
+        //         Declaration ("border", Value ([Expression [Dimension 1px][Keyword "solid"][Color #000]]))
+        //         Declaration ("width",  Value ([Expression [Operation " + " [Variable "@w"][Dimension 4px]]]))
+        //         Ruleset (Selector [Element '>', '.child'], [...])
+        //     ])
+        //
+        //  In general, most rules will try to parse a token with the `$re()` function, and if the return
+        //  value is truly, will return a new node, of the relevant type. Sometimes, we need to check
+        //  first, before parsing, that's when we use `peek()`.
+        //
+        parsers: parsers = {
+            //
+            // The `primary` rule is the *entry* and *exit* point of the parser.
+            // The rules here can appear at any level of the parse tree.
+            //
+            // The recursive nature of the grammar is an interplay between the `block`
+            // rule, which represents `{ ... }`, the `ruleset` rule, and this `primary` rule,
+            // as represented by this simplified grammar:
+            //
+            //     primary  →  (ruleset | declaration)+
+            //     ruleset  →  selector+ block
+            //     block    →  '{' primary '}'
+            //
+            // Only at one point is the primary rule not called from the
+            // block rule: at the root level.
+            //
+            primary: function () {
+                const mixin = this.mixin;
+                let root = [];
+                let node;
+
+                while (true) {
+                    while (true) {
+                        node = this.comment();
+                        if (!node) { break; }
+                        root.push(node);
+                    }
+                    // always process comments before deciding if finished
+                    if (parserInput.finished) {
+                        break;
+                    }
+                    if (parserInput.peek('}')) {
+                        break;
+                    }
+
+                    node = this.extendRule();
+                    if (node) {
+                        root = root.concat(node);
+                        continue;
+                    }
+
+                    node = mixin.definition() || this.declaration() || mixin.call(false, false) ||
+                        this.ruleset() || this.variableCall() || this.entities.call() || this.atrule();
+                    if (node) {
+                        root.push(node);
+                    } else {
+                        let foundSemiColon = false;
+                        while (parserInput.$char(';')) {
+                            foundSemiColon = true;
+                        }
+                        if (!foundSemiColon) {
+                            break;
+                        }
+                    }
+                }
+
+                return root;
+            },
+
+            // comments are collected by the main parsing mechanism and then assigned to nodes
+            // where the current structure allows it
+            comment: function () {
+                if (parserInput.commentStore.length) {
+                    const comment = parserInput.commentStore.shift();
+                    return new(tree.Comment)(comment.text, comment.isLineComment, comment.index + currentIndex, fileInfo);
+                }
+            },
+
+            //
+            // Entities are tokens which can be found inside an Expression
+            //
+            entities: {
+                mixinLookup: function() {
+                    return parsers.mixin.call(true, true);
+                },
+                //
+                // A string, which supports escaping " and '
+                //
+                //     "milky way" 'he\'s the one!'
+                //
+                quoted: function (forceEscaped) {
+                    let str;
+                    const index = parserInput.i;
+                    let isEscaped = false;
+
+                    parserInput.save();
+                    if (parserInput.$char('~')) {
+                        isEscaped = true;
+                    } else if (forceEscaped) {
+                        parserInput.restore();
+                        return;
+                    }
+
+                    str = parserInput.$quoted();
+                    if (!str) {
+                        parserInput.restore();
+                        return;
+                    }
+                    parserInput.forget();
+
+                    return new(tree.Quoted)(str.charAt(0), str.slice(1, -1), isEscaped, index + currentIndex, fileInfo);
+                },
+
+                //
+                // A catch-all word, such as:
+                //
+                //     black border-collapse
+                //
+                keyword: function () {
+                    const k = parserInput.$char('%') || parserInput.$re(/^\[?(?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+\]?/);
+                    if (k) {
+                        return tree.Color.fromKeyword(k) || new(tree.Keyword)(k);
+                    }
+                },
+
+                //
+                // A function call
+                //
+                //     rgb(255, 0, 255)
+                //
+                // The arguments are parsed with the `entities.arguments` parser.
+                //
+                call: function () {
+                    let name;
+                    let args;
+                    let func;
+                    const index = parserInput.i;
+
+                    // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
+                    if (parserInput.peek(/^url\(/i)) {
+                        return;
+                    }
+
+                    parserInput.save();
+
+                    name = parserInput.$re(/^([\w-]+|%|~|progid:[\w.]+)\(/);
+                    if (!name) {
+                        parserInput.forget();
+                        return;
+                    }
+
+                    name = name[1];
+                    func = this.customFuncCall(name);
+                    if (func) {
+                        args = func.parse();
+                        if (args && func.stop) {
+                            parserInput.forget();
+                            return args;
+                        }
+                    }
+
+                    args = this.arguments(args);
+
+                    if (!parserInput.$char(')')) {
+                        parserInput.restore('Could not parse call arguments or missing \')\'');
+                        return;
+                    }
+
+                    parserInput.forget();
+
+                    return new(tree.Call)(name, args, index + currentIndex, fileInfo);
+                },
+
+                declarationCall: function () {
+                    let validCall;
+                    let args;
+                    const index = parserInput.i;
+
+                    parserInput.save();
+
+                    validCall = parserInput.$re(/^[\w]+\(/);
+                    if (!validCall) {
+                        parserInput.forget();
+                        return;
+                    }
+
+                    validCall = validCall.substring(0, validCall.length - 1);
+
+                    // CSS at-rule keywords should never be parsed as declaration calls
+                    if (/^(and|or|not|only|layer)$/i.test(validCall)) {
+                        parserInput.restore();
+                        return;
+                    }
+
+                    let rule = this.ruleProperty();
+                    let value;
+                  
+                    if (rule) {
+                        value = this.value();
+                    }
+                    
+                    if (rule && value) {
+                        args = [new (tree.Declaration)(rule, value, null, null, parserInput.i + currentIndex, fileInfo, true)];
+                    }
+
+                    if (!parserInput.$char(')')) {
+                        parserInput.restore('Could not parse call arguments or missing \')\'');
+                        return;
+                    }
+
+                    parserInput.forget();
+
+                    return new(tree.Call)(validCall, args, index + currentIndex, fileInfo);
+                },
+
+                //
+                // Parsing rules for functions with non-standard args, e.g.:
+                //
+                //     boolean(not(2 > 1))
+                //
+                //     This is a quick prototype, to be modified/improved when
+                //     more custom-parsed funcs come (e.g. `selector(...)`)
+                //
+
+                customFuncCall: function (name) {
+                    /* Ideally the table is to be moved out of here for faster perf.,
+                       but it's quite tricky since it relies on all these `parsers`
+                       and `expect` available only here */
+                    return {
+                        alpha:   f(parsers.ieAlpha, true),
+                        boolean: f(condition),
+                        'if':    f(condition)
+                    }[name.toLowerCase()];
+
+                    function f(parse, stop) {
+                        return {
+                            parse, // parsing function
+                            stop   // when true - stop after parse() and return its result,
+                            // otherwise continue for plain args
+                        };
+                    }
+
+                    function condition() {
+                        return [expect(parsers.condition, 'expected condition')];
+                    }
+                },
+
+                arguments: function (prevArgs) {
+                    let argsComma = prevArgs || [];
+                    const argsSemiColon = [];
+                    let isSemiColonSeparated;
+                    let value;
+
+                    parserInput.save();
+
+                    while (true) {
+                        if (prevArgs) {
+                            prevArgs = false;
+                        } else {
+                            value = parsers.detachedRuleset() || this.assignment() || parsers.expression();
+                            if (!value) {
+                                break;
+                            }
+
+                            if (value.value && value.value.length == 1) {
+                                value = value.value[0];
+                            }
+
+                            argsComma.push(value);
+                        }
+
+                        if (parserInput.$char(',')) {
+                            continue;
+                        }
+
+                        if (parserInput.$char(';') || isSemiColonSeparated) {
+                            isSemiColonSeparated = true;
+                            value = (argsComma.length < 1) ? argsComma[0]
+                                : new tree.Value(argsComma);
+                            argsSemiColon.push(value);
+                            argsComma = [];
+                        }
+                    }
+
+                    parserInput.forget();
+                    return isSemiColonSeparated ? argsSemiColon : argsComma;
+                },
+                literal: function () {
+                    return this.dimension() ||
+                           this.color() ||
+                           this.quoted() ||
+                           this.unicodeDescriptor();
+                },
+
+                // Assignments are argument entities for calls.
+                // They are present in ie filter properties as shown below.
+                //
+                //     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
+                //
+
+                assignment: function () {
+                    let key;
+                    let value;
+                    parserInput.save();
+                    key = parserInput.$re(/^\w+(?=\s?=)/i);
+                    if (!key) {
+                        parserInput.restore();
+                        return;
+                    }
+                    if (!parserInput.$char('=')) {
+                        parserInput.restore();
+                        return;
+                    }
+                    value = parsers.entity();
+                    if (value) {
+                        parserInput.forget();
+                        return new(tree.Assignment)(key, value);
+                    } else {
+                        parserInput.restore();
+                    }
+                },
+
+                //
+                // Parse url() tokens
+                //
+                // We use a specific rule for urls, because they don't really behave like
+                // standard function calls. The difference is that the argument doesn't have
+                // to be enclosed within a string, so it can't be parsed as an Expression.
+                //
+                url: function () {
+                    let value;
+                    const index = parserInput.i;
+
+                    parserInput.autoCommentAbsorb = false;
+
+                    if (!parserInput.$str('url(')) {
+                        parserInput.autoCommentAbsorb = true;
+                        return;
+                    }
+
+                    value = this.quoted() || this.variable() || this.property() ||
+                            parserInput.$re(/^(?:(?:\\[()'"])|[^()'"])+/) || '';
+
+                    parserInput.autoCommentAbsorb = true;
+
+                    expectChar(')');
+
+                    return new(tree.URL)((value.value !== undefined ||
+                        value instanceof tree.Variable ||
+                        value instanceof tree.Property) ?
+                        value : new(tree.Anonymous)(value, index), index + currentIndex, fileInfo);
+                },
+
+                //
+                // A Variable entity, such as `@fink`, in
+                //
+                //     width: @fink + 2px
+                //
+                // We use a different parser for variable definitions,
+                // see `parsers.variable`.
+                //
+                variable: function () {
+                    let ch;
+                    let name;
+                    const index = parserInput.i;
+
+                    parserInput.save();
+                    if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^@@?[\w-]+/))) {
+                        ch = parserInput.currentChar();
+                        if ((ch === '(' && !parserInput.prevChar().match(/^\s/))
+                            || (ch === '[' && !parserInput.prevChar().match(/^\s/))) {
+                            // this may be a VariableCall lookup
+                            const result = parsers.variableCall(name);
+                            if (result) {
+                                parserInput.forget();
+                                return result;
+                            }
+                        }
+                        parserInput.forget();
+                        return new(tree.Variable)(name, index + currentIndex, fileInfo);
+                    }
+                    parserInput.restore();
+                },
+
+                // A variable entity using the protective {} e.g. @{var}
+                variableCurly: function () {
+                    let curly;
+                    const index = parserInput.i;
+
+                    if (parserInput.currentChar() === '@' && (curly = parserInput.$re(/^@\{([\w-]+)\}/))) {
+                        return new(tree.Variable)(`@${curly[1]}`, index + currentIndex, fileInfo);
+                    }
+                },
+                //
+                // A Property accessor, such as `$color`, in
+                //
+                //     background-color: $color
+                //
+                property: function () {
+                    let name;
+                    const index = parserInput.i;
+
+                    if (parserInput.currentChar() === '$' && (name = parserInput.$re(/^\$[\w-]+/))) {
+                        return new(tree.Property)(name, index + currentIndex, fileInfo);
+                    }
+                },
+
+                //
+                // A Hexadecimal color
+                //
+                //     #4F3C2F
+                //
+                // `rgb` and `hsl` colors are parsed through the `entities.call` parser.
+                //
+                color: function () {
+                    let rgb;
+                    parserInput.save();
+
+                    if (parserInput.currentChar() === '#' && (rgb = parserInput.$re(/^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})([\w.#[])?/))) {
+                        if (!rgb[2]) {
+                            parserInput.forget();
+                            return new(tree.Color)(rgb[1], undefined, rgb[0]);
+                        }
+                    }
+                    parserInput.restore();
+                },
+
+                colorKeyword: function () {
+                    parserInput.save();
+                    const autoCommentAbsorb = parserInput.autoCommentAbsorb;
+                    parserInput.autoCommentAbsorb = false;
+                    const k = parserInput.$re(/^[_A-Za-z-][_A-Za-z0-9-]+/);
+                    parserInput.autoCommentAbsorb = autoCommentAbsorb;
+                    if (!k) {
+                        parserInput.forget();
+                        return;
+                    }
+                    parserInput.restore();
+                    const color = tree.Color.fromKeyword(k);
+                    if (color) {
+                        parserInput.$str(k);
+                        return color;
+                    }
+                },
+
+                //
+                // A Dimension, that is, a number and a unit
+                //
+                //     0.5em 95%
+                //
+                dimension: function () {
+                    if (parserInput.peekNotNumeric()) {
+                        return;
+                    }
+
+                    const value = parserInput.$re(/^([+-]?\d*\.?\d+)(%|[a-z_]+)?/i);
+                    if (value) {
+                        return new(tree.Dimension)(value[1], value[2]);
+                    }
+                },
+
+                //
+                // A unicode descriptor, as is used in unicode-range
+                //
+                // U+0??  or U+00A1-00A9
+                //
+                unicodeDescriptor: function () {
+                    let ud;
+
+                    ud = parserInput.$re(/^U\+[0-9a-fA-F?]+(-[0-9a-fA-F?]+)?/);
+                    if (ud) {
+                        return new(tree.UnicodeDescriptor)(ud[0]);
+                    }
+                },
+
+                //
+                // JavaScript code to be evaluated
+                //
+                //     `window.location.href`
+                //
+                javascript: function () {
+                    let js;
+                    const index = parserInput.i;
+
+                    parserInput.save();
+
+                    const escape = parserInput.$char('~');
+                    const jsQuote = parserInput.$char('`');
+
+                    if (!jsQuote) {
+                        parserInput.restore();
+                        return;
+                    }
+
+                    js = parserInput.$re(/^[^`]*`/);
+                    if (js) {
+                        warn('Inline JavaScript evaluation (backtick expressions) is deprecated and will be removed in Less 5.x. Use Less functions or custom plugins instead.', index, 'DEPRECATED', 'js-eval');
+                        parserInput.forget();
+                        return new(tree.JavaScript)(js.slice(0, -1), Boolean(escape), index + currentIndex, fileInfo);
+                    }
+                    parserInput.restore('invalid javascript definition');
+                }
+            },
+
+            //
+            // The variable part of a variable definition. Used in the `rule` parser
+            //
+            //     @fink:
+            //
+            variable: function () {
+                let name;
+
+                if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^(@[\w-]+)\s*:/))) { return name[1]; }
+            },
+
+            //
+            // Call a variable value to retrieve a detached ruleset
+            // or a value from a detached ruleset's rules.
+            //
+            //     @fink();
+            //     @fink;
+            //     color: @fink[@color];
+            //
+            variableCall: function (parsedName) {
+                let lookups;
+                const i = parserInput.i;
+                const inValue = !!parsedName;
+                let name = parsedName;
+
+                parserInput.save();
+
+                if (name || (parserInput.currentChar() === '@'
+                    && (name = parserInput.$re(/^(@[\w-]+)(\(\s*\))?/)))) {
+
+                    lookups = this.mixin.ruleLookups();
+
+                    if (!lookups && ((inValue && parserInput.$str('()') !== '()') || (name[2] !== '()'))) {
+                        parserInput.restore('Missing \'[...]\' lookup in variable call');
+                        return;
+                    }
+
+                    if (!inValue) {
+                        name = name[1];
+                    }
+
+                    const call = new tree.VariableCall(name, i, fileInfo);
+                    if (!inValue && parsers.end()) {
+                        parserInput.forget();
+                        return call;
+                    }
+                    else {
+                        parserInput.forget();
+                        return new tree.NamespaceValue(call, lookups, i, fileInfo);
+                    }
+                }
+
+                parserInput.restore();
+            },
+
+            //
+            // extend syntax - used to extend selectors
+            //
+            extend: function(isRule) {
+                let elements;
+                let e;
+                const index = parserInput.i;
+                let option;
+                let extendList;
+                let extend;
+
+                if (!parserInput.$str(isRule ? '&:extend(' : ':extend(')) {
+                    return;
+                }
+
+                do {
+                    option = null;
+                    elements = null;
+                    let first = true;
+                    while (!(option = parserInput.$re(/^(!?all)(?=\s*(\)|,))/))) {
+                        e = this.element();
+
+                        if (!e) {
+                            break;
+                        }
+                        /**
+                         * @note - This will not catch selectors in pseudos like :is() and :where() because
+                         * they don't currently parse their contents as selectors.
+                         */
+                        if (!first && e.combinator.value) {
+                            warn('Targeting complex selectors can have unexpected behavior, and this behavior may change in the future.', index);
+                        }
+
+                        first = false;
+                        if (elements) {
+                            elements.push(e);
+                        } else {
+                            elements = [ e ];
+                        }
+                    }
+
+                    option = option && option[1];
+                    if (!elements) {
+                        error('Missing target selector for :extend().');
+                    }
+                    extend = new(tree.Extend)(new(tree.Selector)(elements), option, index + currentIndex, fileInfo);
+                    if (extendList) {
+                        extendList.push(extend);
+                    } else {
+                        extendList = [ extend ];
+                    }
+                } while (parserInput.$char(','));
+
+                expect(/^\)/);
+
+                if (isRule) {
+                    expect(/^;/);
+                }
+
+                return extendList;
+            },
+
+            //
+            // extendRule - used in a rule to extend all the parent selectors
+            //
+            extendRule: function() {
+                return this.extend(true);
+            },
+
+            //
+            // Mixins
+            //
+            mixin: {
+                //
+                // A Mixin call, with an optional argument list
+                //
+                //     #mixins > .square(#fff);
+                //     #mixins.square(#fff);
+                //     .rounded(4px, black);
+                //     .button;
+                //
+                // We can lookup / return a value using the lookup syntax:
+                //
+                //     color: #mixin.square(#fff)[@color];
+                //
+                // The `while` loop is there because mixins can be
+                // namespaced, but we only support the child and descendant
+                // selector for now.
+                //
+                call: function (inValue, getLookup) {
+                    const s = parserInput.currentChar();
+                    let important = false;
+                    let lookups;
+                    const index = parserInput.i;
+                    let elements;
+                    let args;
+                    let hasParens;
+                    let parensIndex;
+                    let parensWS = false;
+
+                    if (s !== '.' && s !== '#') { return; }
+
+                    parserInput.save(); // stop us absorbing part of an invalid selector
+
+                    elements = this.elements();
+
+                    if (elements) {
+                        parensIndex = parserInput.i;
+                        parensWS = parserInput.isWhitespace(-1);
+                        if (parserInput.$char('(')) { 
+                            args = this.args(true).args;
+                            expectChar(')');
+                            hasParens = true;
+                            if (parensWS) {
+                                warn('Whitespace between a mixin name and parentheses for a mixin call is deprecated', parensIndex, 'DEPRECATED', 'mixin-call-whitespace');
+                            }
+                        }
+
+                        if (getLookup !== false) {
+                            lookups = this.ruleLookups();
+                        }
+                        if (getLookup === true && !lookups) {
+                            parserInput.restore();
+                            return;
+                        }
+
+                        if (inValue && !lookups && !hasParens) {
+                            // This isn't a valid in-value mixin call
+                            parserInput.restore();
+                            return;
+                        }
+
+                        if (!inValue && parsers.important()) {
+                            important = true;
+                        }
+
+                        if (inValue || parsers.end()) {
+                            parserInput.forget();
+                            const mixin = new(tree.mixin.Call)(elements, args, index + currentIndex, fileInfo, !lookups && important);
+                            if (lookups) {
+                                return new tree.NamespaceValue(mixin, lookups);
+                            }
+                            else {
+                                if (!hasParens) {
+                                    warn('Calling a mixin without parentheses is deprecated', parensIndex, 'DEPRECATED', 'mixin-call-no-parens');
+                                }
+                                return mixin;
+                            }
+                        }
+                    }
+
+                    parserInput.restore();
+                },
+                /**
+                 * Matching elements for mixins
+                 * (Start with . or # and can have > )
+                 */
+                elements: function() {
+                    let elements;
+                    let e;
+                    let c;
+                    let elem;
+                    let elemIndex;
+                    const re = /^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/;
+                    while (true) {
+                        elemIndex = parserInput.i;
+                        e = parserInput.$re(re);
+
+                        if (!e) {
+                            break;
+                        }
+                        elem = new(tree.Element)(c, e, false, elemIndex + currentIndex, fileInfo);
+                        if (elements) {
+                            elements.push(elem);
+                        } else {
+                            elements = [ elem ];
+                        }
+                        c = parserInput.$char('>');
+                    }
+                    return elements;
+                },
+                args: function (isCall) {
+                    const entities = parsers.entities;
+                    const returner = { args:null, variadic: false };
+                    let expressions = [];
+                    const argsSemiColon = [];
+                    const argsComma = [];
+                    let isSemiColonSeparated;
+                    let expressionContainsNamed;
+                    let name;
+                    let nameLoop;
+                    let value;
+                    let arg;
+                    let expand;
+                    let hasSep = true;
+
+                    parserInput.save();
+
+                    while (true) {
+                        if (isCall) {
+                            arg = parsers.detachedRuleset() || parsers.expression();
+                        } else {
+                            parserInput.commentStore.length = 0;
+                            if (parserInput.$str('...')) {
+                                returner.variadic = true;
+                                if (parserInput.$char(';') && !isSemiColonSeparated) {
+                                    isSemiColonSeparated = true;
+                                }
+                                (isSemiColonSeparated ? argsSemiColon : argsComma)
+                                    .push({ variadic: true });
+                                break;
+                            }
+                            arg = entities.variable() || entities.property() || entities.literal() || entities.keyword() || this.call(true);
+                        }
+
+                        if (!arg || !hasSep) {
+                            break;
+                        }
+
+                        nameLoop = null;
+                        if (arg.throwAwayComments) {
+                            arg.throwAwayComments();
+                        }
+                        value = arg;
+                        let val = null;
+
+                        if (isCall) {
+                            // Variable
+                            if (arg.value && arg.value.length == 1) {
+                                val = arg.value[0];
+                            }
+                        } else {
+                            val = arg;
+                        }
+
+                        if (val && (val instanceof tree.Variable || val instanceof tree.Property)) {
+                            if (parserInput.$char(':')) {
+                                if (expressions.length > 0) {
+                                    if (isSemiColonSeparated) {
+                                        error('Cannot mix ; and , as delimiter types');
+                                    }
+                                    expressionContainsNamed = true;
+                                }
+
+                                value = parsers.detachedRuleset() || parsers.expression();
+
+                                if (!value) {
+                                    if (isCall) {
+                                        error('could not understand value for named argument');
+                                    } else {
+                                        parserInput.restore();
+                                        returner.args = [];
+                                        return returner;
+                                    }
+                                }
+                                nameLoop = (name = val.name);
+                            } else if (parserInput.$str('...')) {
+                                if (!isCall) {
+                                    returner.variadic = true;
+                                    if (parserInput.$char(';') && !isSemiColonSeparated) {
+                                        isSemiColonSeparated = true;
+                                    }
+                                    (isSemiColonSeparated ? argsSemiColon : argsComma)
+                                        .push({ name: arg.name, variadic: true });
+                                    break;
+                                } else {
+                                    expand = true;
+                                }
+                            } else if (!isCall) {
+                                name = nameLoop = val.name;
+                                value = null;
+                            }
+                        }
+
+                        if (value) {
+                            expressions.push(value);
+                        }
+
+                        argsComma.push({ name:nameLoop, value, expand });
+
+                        if (parserInput.$char(',')) {
+                            hasSep = true;
+                            continue;
+                        }
+                        hasSep = parserInput.$char(';') === ';';
+
+                        if (hasSep || isSemiColonSeparated) {
+
+                            if (expressionContainsNamed) {
+                                error('Cannot mix ; and , as delimiter types');
+                            }
+
+                            isSemiColonSeparated = true;
+
+                            if (expressions.length > 1) {
+                                value = new(tree.Value)(expressions);
+                            }
+                            argsSemiColon.push({ name, value, expand });
+
+                            name = null;
+                            expressions = [];
+                            expressionContainsNamed = false;
+                        }
+                    }
+
+                    parserInput.forget();
+                    returner.args = isSemiColonSeparated ? argsSemiColon : argsComma;
+                    return returner;
+                },
+                //
+                // A Mixin definition, with a list of parameters
+                //
+                //     .rounded (@radius: 2px, @color) {
+                //        ...
+                //     }
+                //
+                // Until we have a finer grained state-machine, we have to
+                // do a look-ahead, to make sure we don't have a mixin call.
+                // See the `rule` function for more information.
+                //
+                // We start by matching `.rounded (`, and then proceed on to
+                // the argument list, which has optional default values.
+                // We store the parameters in `params`, with a `value` key,
+                // if there is a value, such as in the case of `@radius`.
+                //
+                // Once we've got our params list, and a closing `)`, we parse
+                // the `{...}` block.
+                //
+                definition: function () {
+                    let name;
+                    let params = [];
+                    let match;
+                    let ruleset;
+                    let cond;
+                    let variadic = false;
+                    if ((parserInput.currentChar() !== '.' && parserInput.currentChar() !== '#') ||
+                        parserInput.peek(/^[^{]*\}/)) {
+                        return;
+                    }
+
+                    parserInput.save();
+
+                    match = parserInput.$re(/^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(/);
+                    if (match) {
+                        name = match[1];
+
+                        const argInfo = this.args(false);
+                        params = argInfo.args;
+                        variadic = argInfo.variadic;
+
+                        // .mixincall("@{a}");
+                        // looks a bit like a mixin definition..
+                        // also
+                        // .mixincall(@a: {rule: set;});
+                        // so we have to be nice and restore
+                        if (!parserInput.$char(')')) {
+                            parserInput.restore('Missing closing \')\'');
+                            return;
+                        }
+
+                        parserInput.commentStore.length = 0;
+
+                        if (parserInput.$str('when')) { // Guard
+                            cond = expect(parsers.conditions, 'expected condition');
+                        }
+
+                        ruleset = parsers.block();
+
+                        if (ruleset) {
+                            parserInput.forget();
+                            return new(tree.mixin.Definition)(name, params, ruleset, cond, variadic);
+                        } else {
+                            parserInput.restore();
+                        }
+                    } else {
+                        parserInput.restore();
+                    }
+                },
+
+                ruleLookups: function() {
+                    let rule;
+                    const lookups = [];
+
+                    if (parserInput.currentChar() !== '[') {
+                        return;
+                    }
+
+                    while (true) {
+                        parserInput.save();
+                        rule = this.lookupValue();
+                        if (!rule && rule !== '') {
+                            parserInput.restore();
+                            break;
+                        }
+                        lookups.push(rule);
+                        parserInput.forget();
+                    }
+                    if (lookups.length > 0) {
+                        return lookups;
+                    }
+                },
+
+                lookupValue: function() {
+                    parserInput.save();
+
+                    if (!parserInput.$char('[')) {
+                        parserInput.restore();
+                        return;
+                    }
+
+                    const name = parserInput.$re(/^(?:[@$]{0,2})[_a-zA-Z0-9-]*/);
+
+                    if (!parserInput.$char(']')) {
+                        parserInput.restore();
+                        return;
+                    }
+
+                    if (name || name === '') {
+                        parserInput.forget();
+                        return name;
+                    }
+
+                    parserInput.restore();
+                }
+            },
+            //
+            // Entities are the smallest recognized token,
+            // and can be found inside a rule's value.
+            //
+            entity: function () {
+                const entities = this.entities;
+
+                return this.comment() || entities.literal() || entities.variable() || entities.url() ||
+                    entities.property() || entities.call() || entities.keyword() || this.mixin.call(true) ||
+                    entities.javascript();
+            },
+
+            //
+            // A Declaration terminator. Note that we use `peek()` to check for '}',
+            // because the `block` rule will be expecting it, but we still need to make sure
+            // it's there, if ';' was omitted.
+            //
+            end: function () {
+                return parserInput.$char(';') || parserInput.peek('}');
+            },
+
+            //
+            // IE's alpha function
+            //
+            //     alpha(opacity=88)
+            //
+            ieAlpha: function () {
+                let value;
+
+                // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
+                if (!parserInput.$re(/^opacity=/i)) { return; }
+                value = parserInput.$re(/^\d+/);
+                if (!value) {
+                    value = expect(parsers.entities.variable, 'Could not parse alpha');
+                    value = `@{${value.name.slice(1)}}`;
+                }
+                expectChar(')');
+                return new tree.Quoted('', `alpha(opacity=${value})`);
+            },
+
+            /** 
+             * A Selector Element
+             *
+             *   div
+             *   + h1
+             *   #socks
+             *   input[type="text"]
+             *
+             * Elements are the building blocks for Selectors,
+             * they are made out of a `Combinator` (see combinator rule),
+             * and an element name, such as a tag a class, or `*`.
+             */
+            element: function () {
+                let e;
+                let c;
+                let v;
+                const index = parserInput.i;
+
+                c = this.combinator();
+
+                /** This selector parser is quite simplistic and will pass a number of invalid selectors. */
+                e = parserInput.$re(/^(?:\d+\.\d+|\d+)%/) ||
+                    // eslint-disable-next-line no-control-regex
+                    parserInput.$re(/^(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/) ||
+                    parserInput.$char('*') || parserInput.$char('&') || this.attribute() ||
+                    parserInput.$re(/^\([^&()@]+\)/) ||  parserInput.$re(/^[.#:](?=@)/) ||
+                    this.entities.variableCurly();
+
+                if (!e) {
+                    parserInput.save();
+                    if (parserInput.$char('(')) {
+                        if ((v = this.selector(false))) {
+                            let selectors = [];
+                            while (parserInput.$char(',')) {
+                                selectors.push(v);
+                                selectors.push(new Anonymous(','));
+                                v = this.selector(false);
+                            }
+                            selectors.push(v);
+                                                        
+                            if (parserInput.$char(')')) {
+                                if (selectors.length > 1) {
+                                    e = new (tree.Paren)(new Selector(selectors));
+                                } else {
+                                    e = new(tree.Paren)(v);
+                                }
+                                parserInput.forget();
+                            } else {
+                                parserInput.restore('Missing closing \')\'');
+                            }
+                        } else {
+                            parserInput.restore('Missing closing \')\'');
+                        }
+                    } else {
+                        parserInput.forget();
+                    }
+                }
+
+                if (e) { return new(tree.Element)(c, e, e instanceof tree.Variable, index + currentIndex, fileInfo); }
+            },
+
+            //
+            // Combinators combine elements together, in a Selector.
+            //
+            // Because our parser isn't white-space sensitive, special care
+            // has to be taken, when parsing the descendant combinator, ` `,
+            // as it's an empty space. We have to check the previous character
+            // in the input, to see if it's a ` ` character. More info on how
+            // we deal with this in *combinator.js*.
+            //
+            combinator: function () {
+                let c = parserInput.currentChar();
+
+                if (c === '/') {
+                    parserInput.save();
+                    const slashedCombinator = parserInput.$re(/^\/[a-z]+\//i);
+                    if (slashedCombinator) {
+                        parserInput.forget();
+                        return new(tree.Combinator)(slashedCombinator);
+                    }
+                    parserInput.restore();
+                }
+
+                if (c === '>' || c === '+' || c === '~' || c === '|' || c === '^') {
+                    parserInput.i++;
+                    if (c === '^' && parserInput.currentChar() === '^') {
+                        c = '^^';
+                        parserInput.i++;
+                    }
+                    while (parserInput.isWhitespace()) { parserInput.i++; }
+                    return new(tree.Combinator)(c);
+                } else if (parserInput.isWhitespace(-1)) {
+                    return new(tree.Combinator)(' ');
+                } else {
+                    return new(tree.Combinator)(null);
+                }
+            },
+            //
+            // A CSS Selector
+            // with less extensions e.g. the ability to extend and guard
+            //
+            //     .class > div + h1
+            //     li a:hover
+            //
+            // Selectors are made out of one or more Elements, see above.
+            //
+            selector: function (isLess) {
+                const index = parserInput.i;
+                let elements;
+                let extendList;
+                let c;
+                let e;
+                let allExtends;
+                let when;
+                let condition;
+                isLess = isLess !== false;
+                while ((isLess && (extendList = this.extend())) || (isLess && (when = parserInput.$str('when'))) || (e = this.element())) {
+                    if (when) {
+                        condition = expect(this.conditions, 'expected condition');
+                    } else if (condition) {
+                        error('CSS guard can only be used at the end of selector');
+                    } else if (extendList) {
+                        if (allExtends) {
+                            allExtends = allExtends.concat(extendList);
+                        } else {
+                            allExtends = extendList;
+                        }
+                    } else {
+                        if (allExtends) { error('Extend can only be used at the end of selector'); }
+                        c = parserInput.currentChar();
+                        if (Array.isArray(e)){
+                            e.forEach(ele => elements.push(ele));
+                        } if (elements) {
+                            elements.push(e);
+                        } else {
+                            elements = [ e ];
+                        }
+                        e = null;
+                    }
+                    if (c === '{' || c === '}' || c === ';' || c === ',' || c === ')') {
+                        break;
+                    }
+                }
+
+                if (elements) { return new(tree.Selector)(elements, allExtends, condition, index + currentIndex, fileInfo); }
+                if (allExtends) { error('Extend must be used to extend a selector, it cannot be used on its own'); }
+            },
+            selectors: function () {
+                let s;
+                let selectors;
+                while (true) {
+                    s = this.selector();
+                    if (!s) {
+                        break;
+                    }
+                    if (selectors) {
+                        selectors.push(s);
+                    } else {
+                        selectors = [ s ];
+                    }
+                    parserInput.commentStore.length = 0;
+                    if (s.condition && selectors.length > 1) {
+                        error('Guards are only currently allowed on a single selector.');
+                    }
+                    if (!parserInput.$char(',')) { break; }
+                    if (s.condition) {
+                        error('Guards are only currently allowed on a single selector.');
+                    }
+                    parserInput.commentStore.length = 0;
+                }
+                return selectors;
+            },
+            attribute: function () {
+                if (!parserInput.$char('[')) { return; }
+
+                const entities = this.entities;
+                let key;
+                let val;
+                let op;
+                //
+                // case-insensitive flag
+                // e.g. [attr operator value i]
+                //
+                let cif;
+
+                if (!(key = entities.variableCurly())) {
+                    key = expect(/^(?:[_A-Za-z0-9-*]*\|)?(?:[_A-Za-z0-9-]|\\.)+/);
+                }
+
+                op = parserInput.$re(/^[|~*$^]?=/);
+                if (op) {
+                    val = entities.quoted() || parserInput.$re(/^[0-9]+%/) || parserInput.$re(/^[\w-]+/) || entities.variableCurly();
+                    if (val) {
+                        cif = parserInput.$re(/^[iIsS]/);
+                    }
+                }
+
+                expectChar(']');
+
+                return new(tree.Attribute)(key, op, val, cif);
+            },
+
+            //
+            // The `block` rule is used by `ruleset` and `mixin.definition`.
+            // It's a wrapper around the `primary` rule, with added `{}`.
+            //
+            block: function () {
+                let content;
+                if (parserInput.$char('{') && (content = this.primary()) && parserInput.$char('}')) {
+                    return content;
+                }
+            },
+
+            blockRuleset: function() {
+                let block = this.block();
+                if (block) {
+                    return new tree.Ruleset(null, block);
+                }
+            },
+
+            detachedRuleset: function() {
+                let argInfo;
+                let params;
+                let variadic;
+
+                parserInput.save();
+                if (parserInput.$re(/^[.#]\(/)) {
+                    /**
+                     * DR args currently only implemented for each() function, and not
+                     * yet settable as `@dr: #(@arg) {}`
+                     * This should be done when DRs are merged with mixins.
+                     * See: https://github.com/less/less-meta/issues/16
+                     */
+                    argInfo = this.mixin.args(false);
+                    params = argInfo.args;
+                    variadic = argInfo.variadic;
+                    if (!parserInput.$char(')')) {
+                        parserInput.restore();
+                        return;
+                    }
+                }
+                const blockRuleset = this.blockRuleset();
+                if (blockRuleset) {
+                    parserInput.forget();
+                    if (params) {
+                        return new tree.mixin.Definition(null, params, blockRuleset, null, variadic);
+                    }
+                    return new tree.DetachedRuleset(blockRuleset);
+                }
+                parserInput.restore();
+            },
+
+            //
+            // div, .class, body > p {...}
+            //
+            ruleset: function () {
+                let selectors;
+                let rules;
+                let debugInfo;
+
+                parserInput.save();
+
+                if (context.dumpLineNumbers) {
+                    debugInfo = getDebugInfo(parserInput.i);
+                }
+
+                selectors = this.selectors();
+
+                if (selectors && (rules = this.block())) {
+                    parserInput.forget();
+                    const ruleset = new(tree.Ruleset)(selectors, rules, context.strictImports);
+                    if (context.dumpLineNumbers) {
+                        ruleset.debugInfo = debugInfo;
+                    }
+                    return ruleset;
+                } else {
+                    parserInput.restore();
+                }
+            },
+            declaration: function () {
+                let name;
+                let value;
+                const index = parserInput.i;
+                let hasDR;
+                const c = parserInput.currentChar();
+                let important;
+                let merge;
+                let isVariable;
+
+                if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
+
+                parserInput.save();
+
+                name = this.variable() || this.ruleProperty();
+                if (name) {
+                    isVariable = typeof name === 'string';
+
+                    if (isVariable) {
+                        value = this.detachedRuleset();
+                        if (value) {
+                            hasDR = true;
+                        }
+                    }
+
+                    parserInput.commentStore.length = 0;
+                    if (!value) {
+                        // a name returned by this.ruleProperty() is always an array of the form:
+                        // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
+                        // where each item is a tree.Keyword or tree.Variable
+                        merge = !isVariable && name.length > 1 && name.pop().value;
+
+                        // Custom property values get permissive parsing
+                        if (name[0].value && name[0].value.slice(0, 2) === '--') {
+                            if (parserInput.$char(';')) {
+                                value = new Anonymous('');
+                            } else {
+                                value = this.permissiveValue(/[;}]/, true);
+                            }
+                        }
+                        // Try to store values as anonymous
+                        // If we need the value later we'll re-parse it in ruleset.parseValue
+                        else {
+                            value = this.anonymousValue();
+                        }
+                        if (value) {
+                            parserInput.forget();
+                            // anonymous values absorb the end ';' which is required for them to work
+                            return new(tree.Declaration)(name, value, false, merge, index + currentIndex, fileInfo);
+                        }
+
+                        if (!value) {
+                            value = this.value();
+                        }
+
+                        if (value) {
+                            important = this.important();
+                        } else if (isVariable) {
+                            /**
+                             * As a last resort, try permissiveValue
+                             *
+                             * @todo - This has created some knock-on problems of not
+                             * flagging incorrect syntax or detecting user intent.
+                             */
+                            value = this.permissiveValue();
+                        }
+                    }
+
+                    if (value && (this.end() || hasDR)) {
+                        parserInput.forget();
+                        return new(tree.Declaration)(name, value, important, merge, index + currentIndex, fileInfo);
+                    }
+                    else {
+                        parserInput.restore();
+                    }
+                } else {
+                    parserInput.restore();
+                }
+            },
+            anonymousValue: function () {
+                const index = parserInput.i;
+                const match = parserInput.$re(/^([^.#@$+/'"*`(;{}-]*);/);
+                if (match) {
+                    return new(tree.Anonymous)(match[1], index + currentIndex);
+                }
+            },
+            /**
+             * Used for custom properties, at-rules, and variables (as fallback)
+             * Parses almost anything inside of {} [] () "" blocks
+             * until it reaches outer-most tokens.
+             *
+             * First, it will try to parse comments and entities to reach
+             * the end. This is mostly like the Expression parser except no
+             * math is allowed.
+             * 
+             * @param {RexExp} untilTokens - Characters to stop parsing at
+             */
+            permissiveValue: function (untilTokens) {
+                let i;
+                let e;
+                let done;
+                let value;
+                const tok = untilTokens || ';';
+                const index = parserInput.i;
+                const result = [];
+
+                function testCurrentChar() {
+                    const char = parserInput.currentChar();
+                    if (typeof tok === 'string') {
+                        return char === tok;
+                    } else {
+                        return tok.test(char);
+                    }
+                }
+                if (testCurrentChar()) {
+                    return;
+                }
+                value = [];
+                do {
+                    e = this.comment();
+                    if (e) {
+                        value.push(e);
+                        continue;
+                    }
+                    e = this.entity();
+                    if (e) {
+                        value.push(e);
+                    }
+                    if (parserInput.peek(',')) {
+                        value.push(new (tree.Anonymous)(',', parserInput.i));
+                        parserInput.$char(',');
+                    }
+                } while (e);
+
+                done = testCurrentChar();
+
+                if (value.length > 0) {
+                    value = new(tree.Expression)(value);
+                    if (done) {
+                        return value;
+                    }
+                    else {
+                        result.push(value);
+                    }
+                    // Preserve space before $parseUntil as it will not
+                    if (parserInput.prevChar() === ' ') {
+                        result.push(new tree.Anonymous(' ', index));
+                    }
+                }
+                parserInput.save();
+
+                value = parserInput.$parseUntil(tok);
+
+                if (value) {
+                    if (typeof value === 'string') {
+                        error(`Expected '${value}'`, 'Parse');
+                    }
+                    if (value.length === 1 && value[0] === ' ') {
+                        parserInput.forget();
+                        return new tree.Anonymous('', index);
+                    }
+                    /** @type {string} */
+                    let item;
+                    for (i = 0; i < value.length; i++) {
+                        item = value[i];
+                        if (Array.isArray(item)) {
+                            // Treat actual quotes as normal quoted values
+                            result.push(new tree.Quoted(item[0], item[1], true, index, fileInfo));
+                        }
+                        else {
+                            if (i === value.length - 1) {
+                                item = item.trim();
+                            }
+                            // Treat like quoted values, but replace vars like unquoted expressions
+                            const quote = new tree.Quoted('\'', item, true, index, fileInfo);
+                            const variableRegex = /@([\w-]+)/g;
+                            const propRegex = /\$([\w-]+)/g;
+                            if (variableRegex.test(item)) {
+                                warn('@[ident] in unknown values will not be evaluated as variables in the future. Use @{[ident]}', index, 'DEPRECATED', 'variable-in-unknown-value');
+                            }
+                            if (propRegex.test(item)) {
+                                warn('$[ident] in unknown values will not be evaluated as property references in the future. Use ${[ident]}', index, 'DEPRECATED', 'property-in-unknown-value');
+                            }
+                            quote.variableRegex = /@([\w-]+)|@{([\w-]+)}/g;
+                            quote.propRegex = /\$([\w-]+)|\${([\w-]+)}/g;
+                            result.push(quote);
+                        }
+                    }
+                    parserInput.forget();
+                    return new tree.Expression(result, true);
+                }
+                parserInput.restore();
+            },
+
+            //
+            // An @import atrule
+            //
+            //     @import "lib";
+            //
+            // Depending on our environment, importing is done differently:
+            // In the browser, it's an XHR request, in Node, it would be a
+            // file-system operation. The function used for importing is
+            // stored in `import`, which we pass to the Import constructor.
+            //
+            'import': function () {
+                let path;
+                let features;
+                const index = parserInput.i;
+
+                const dir = parserInput.$re(/^@import\s+/);
+
+                if (dir) {
+                    const options = (dir ? this.importOptions() : null) || {};
+
+                    if ((path = this.entities.quoted() || this.entities.url())) {
+                        features = this.mediaFeatures({});
+
+                        if (!parserInput.$char(';')) {
+                            parserInput.i = index;
+                            error('missing semi-colon or unrecognised media features on import');
+                        }
+                        features = features && new(tree.Value)(features);
+                        return new(tree.Import)(path, features, options, index + currentIndex, fileInfo);
+                    }
+                    else {
+                        parserInput.i = index;
+                        error('malformed import statement');
+                    }
+                }
+            },
+
+            importOptions: function() {
+                let o;
+                const options = {};
+                let optionName;
+                let value;
+
+                // list of options, surrounded by parens
+                if (!parserInput.$char('(')) { return null; }
+                do {
+                    o = this.importOption();
+                    if (o) {
+                        optionName = o;
+                        value = true;
+                        switch (optionName) {
+                            case 'css':
+                                optionName = 'less';
+                                value = false;
+                                break;
+                            case 'once':
+                                optionName = 'multiple';
+                                value = false;
+                                break;
+                        }
+                        options[optionName] = value;
+                        if (!parserInput.$char(',')) { break; }
+                    }
+                } while (o);
+                expectChar(')');
+                return options;
+            },
+
+            importOption: function() {
+                const opt = parserInput.$re(/^(less|css|multiple|once|inline|reference|optional)/);
+                if (opt) {
+                    return opt[1];
+                }
+            },
+
+            mediaFeature: function (syntaxOptions) {
+                const entities = this.entities;
+                const nodes = [];
+                let e;
+                let p;
+                let rangeP;
+                let spacing = false;
+                parserInput.save();
+                do {
+                    parserInput.save();
+                    if (parserInput.$re(/^[0-9a-z-]*\s+\(/)) {
+                        spacing = true;
+                    }
+                    parserInput.restore();
+
+                    e = entities.declarationCall.bind(this)() || entities.keyword() || entities.variable() || entities.mixinLookup();
+                    if (e) {
+                        nodes.push(e);
+                        if (e.type === 'Variable' ||
+                            (e.type === 'Keyword' && /^(and|or|not|only)$/i.test(e.value))) {
+                            spacing = true;
+                        }
+                    } else if (parserInput.$char('(')) {
+                        p = this.property();
+                        parserInput.save();
+                        if (!p && syntaxOptions.queryInParens && parserInput.$re(/^[0-9a-z-]*\s*([<>]=|<=|>=|[<>]|=)/)) {
+                            parserInput.restore();
+                            p = this.condition();
+
+                            parserInput.save();
+                            rangeP = this.atomicCondition(null, p.rvalue);
+                            if (!rangeP) {
+                                parserInput.restore();
+                            }
+                        } else {
+                            parserInput.restore();
+                            e = this.value();
+                        }
+                        if (parserInput.$char(')')) {
+                            if (p && !e) {
+                                nodes.push(new (tree.Paren)(new (tree.QueryInParens)(p.op, p.lvalue, p.rvalue, rangeP ? rangeP.op : null, rangeP ? rangeP.rvalue : null, p._index)));
+                                e = p;
+                            } else if (p && e) {
+                                nodes.push(new (tree.Paren)(new (tree.Declaration)(p, e, null, null, parserInput.i + currentIndex, fileInfo, true)));
+                                if (!spacing) {
+                                    nodes[nodes.length - 1].noSpacing = true;
+                                }
+                                spacing = false;
+                            } else if (e) {
+                                nodes.push(new(tree.Paren)(e));
+                                spacing = false;
+                            } else {
+                                error('badly formed media feature definition');
+                            }
+                        } else {
+                            error('Missing closing \')\'', 'Parse');
+                        }
+                    }
+                } while (e);
+
+                parserInput.forget();
+                if (nodes.length > 0) {
+                    return new(tree.Expression)(nodes);
+                }
+            },
+
+            mediaFeatures: function (syntaxOptions) {
+                const entities = this.entities;
+                const features = [];
+                let e;
+                do {
+                    e = this.mediaFeature(syntaxOptions);
+                    if (e) {
+                        features.push(e);
+                        if (!parserInput.$char(',')) { break; }
+                        else if (!features[features.length - 1].noSpacing) {
+                            features[features.length - 1].noSpacing = false;
+                        }
+                    } else {
+                        e = entities.variable() || entities.mixinLookup();
+                        if (e) {
+                            features.push(e);
+                            if (!parserInput.$char(',')) { break; }
+                            else if (!features[features.length - 1].noSpacing) {
+                                features[features.length - 1].noSpacing = false;
+                            }
+                        }
+                    }
+                } while (e);
+
+                return features.length > 0 ? features : null;
+            },
+
+            prepareAndGetNestableAtRule: function (treeType, index, debugInfo, syntaxOptions) {
+                const features = this.mediaFeatures(syntaxOptions);
+
+                const rules = this.block();
+
+                if (!rules) {
+                    error('media definitions require block statements after any features');
+                }
+
+                parserInput.forget();
+
+                const atRule = new (treeType)(rules, features, index + currentIndex, fileInfo);
+                if (context.dumpLineNumbers) {
+                    atRule.debugInfo = debugInfo;
+                }
+
+                return atRule;
+            },
+
+            nestableAtRule: function () {
+                let debugInfo;
+                const index = parserInput.i;
+
+                if (context.dumpLineNumbers) {
+                    debugInfo = getDebugInfo(index);
+                }
+                parserInput.save();
+
+                if (parserInput.$peekChar('@')) {
+                    if (parserInput.$str('@media')) {
+                        return this.prepareAndGetNestableAtRule(tree.Media, index, debugInfo, MediaSyntaxOptions);
+                    }
+
+                    if (parserInput.$str('@container')) {
+                        return this.prepareAndGetNestableAtRule(tree.Container, index, debugInfo, ContainerSyntaxOptions);
+                    }
+                }
+
+                parserInput.restore();
+            },
+
+            //
+
+            // A @plugin directive, used to import plugins dynamically.
+            //
+            //     @plugin (args) "lib";
+            //
+            plugin: function () {
+                let path;
+                let args;
+                let options;
+                const index = parserInput.i;
+                const dir   = parserInput.$re(/^@plugin\s+/);
+
+                if (dir) {
+                    warn('The @plugin directive is deprecated and will be replaced in Less 5.x. Use --plugin CLI option or the programmatic plugin API instead.', index, 'DEPRECATED', 'at-plugin');
+                    args = this.pluginArgs();
+
+                    if (args) {
+                        options = {
+                            pluginArgs: args,
+                            isPlugin: true
+                        };
+                    }
+                    else {
+                        options = { isPlugin: true };
+                    }
+
+                    if ((path = this.entities.quoted() || this.entities.url())) {
+
+                        if (!parserInput.$char(';')) {
+                            parserInput.i = index;
+                            error('missing semi-colon on @plugin');
+                        }
+                        return new(tree.Import)(path, null, options, index + currentIndex, fileInfo);
+                    }
+                    else {
+                        parserInput.i = index;
+                        error('malformed @plugin statement');
+                    }
+                }
+            },
+
+            pluginArgs: function() {
+                // list of options, surrounded by parens
+                parserInput.save();
+                if (!parserInput.$char('(')) {
+                    parserInput.restore();
+                    return null;
+                }
+                const args = parserInput.$re(/^\s*([^);]+)\)\s*/);
+                if (args[1]) {
+                    parserInput.forget();
+                    return args[1].trim();
+                }
+                else {
+                    parserInput.restore();
+                    return null;
+                }
+            },
+            atruleUnknown: function (value, name, hasBlock) {
+                value = this.permissiveValue(/^[{;]/);
+                hasBlock = (parserInput.currentChar() === '{');
+                if (!value) {
+                    if (!hasBlock && parserInput.currentChar() !== ';') {
+                        error(''.concat(name, ' rule is missing block or ending semi-colon'));
+                    }
+                }
+                else if (!value.value) {
+                    value = null;
+                }
+                return [value, hasBlock];
+            },
+            atruleBlock: function (rules, value, isRooted, isKeywordList) {
+                rules = this.blockRuleset();
+                parserInput.save();
+                if (!rules && !isRooted) {
+                    value = this.entity();
+                    rules = this.blockRuleset();
+                }
+                if (!rules && !isRooted) {
+                    parserInput.restore();
+                    var e = [];
+                    value = this.entity();
+                    while (parserInput.$char(',')) {
+                        e.push(value);
+                        value = this.entity();
+                    }
+                    if (value && e.length > 0) {
+                        e.push(value);
+                        value = e;
+                        isKeywordList = true;
+                    }
+                    else {
+                        rules = this.blockRuleset();
+                    }
+                }
+                else {
+                    parserInput.forget();
+                }
+                    
+                return [rules, value, isKeywordList];
+            },
+            //
+            // A CSS AtRule
+            //
+            //     @charset "utf-8";
+            //
+            atrule: function () {
+                const index = parserInput.i;
+                let name;
+                let value;
+                let rules;
+                let nonVendorSpecificName;
+                let hasIdentifier;
+                let hasExpression;
+                let hasUnknown;
+                let hasBlock = true;
+                let isRooted = true;
+                let isKeywordList = false;
+
+                if (parserInput.currentChar() !== '@') { return; }
+
+                value = this['import']() || this.plugin() || this.nestableAtRule();
+                if (value) {
+                    return value;
+                }
+
+                parserInput.save();
+
+                name = parserInput.$re(/^@[a-z-]+/);
+
+                if (!name) { return; }
+
+                nonVendorSpecificName = name;
+                if (name.charAt(1) == '-' && name.indexOf('-', 2) > 0) {
+                    nonVendorSpecificName = `@${name.slice(name.indexOf('-', 2) + 1)}`;
+                }
+
+                switch (nonVendorSpecificName) {
+                    case '@charset':
+                        hasIdentifier = true;
+                        hasBlock = false;
+                        break;
+                    case '@namespace':
+                        hasExpression = true;
+                        hasBlock = false;
+                        break;
+                    case '@keyframes':
+                    case '@counter-style':
+                        hasIdentifier = true;
+                        break;
+                    case '@document':
+                    case '@supports':
+                        hasUnknown = true;
+                        isRooted = false;
+                        break;
+                    case '@starting-style':
+                        isRooted = false;
+                        break;
+                    case '@layer':
+                        isRooted = false;
+                        break;
+                    default:
+                        hasUnknown = true;
+                        break;
+                }
+
+                parserInput.commentStore.length = 0;
+
+                if (hasIdentifier) {
+                    value = this.entity();
+                    if (!value) {
+                        error(`expected ${name} identifier`);
+                    }
+                } else if (hasExpression) {
+                    value = this.expression();
+                    if (!value) {
+                        error(`expected ${name} expression`);
+                    }
+                } else if (hasUnknown) {
+                    const unknownPackage = this.atruleUnknown(value, name, hasBlock);
+                    value = unknownPackage[0];
+                    hasBlock = unknownPackage[1];
+                }
+                    
+                if (hasBlock) {
+                    let blockPackage = this.atruleBlock(rules, value, isRooted, isKeywordList);
+                    rules = blockPackage[0];
+                    value = blockPackage[1];
+                    isKeywordList = blockPackage[2];
+
+                    if (!rules && !hasUnknown) {
+                        parserInput.restore();
+                        name = parserInput.$re(/^@[a-z-]+/);
+                        const unknownPackage = this.atruleUnknown(value, name, hasBlock);
+                        value = unknownPackage[0];
+                        hasBlock = unknownPackage[1];
+                        if (hasBlock) {
+                            blockPackage = this.atruleBlock(rules, value, isRooted, isKeywordList);
+                            rules = blockPackage[0];
+                            value = blockPackage[1];
+                            isKeywordList = blockPackage[2];
+                        }
+                    }
+                }
+
+                if (rules || isKeywordList || (!hasBlock && value && parserInput.$char(';'))) {
+                    parserInput.forget();
+                    return new(tree.AtRule)(name, value, rules, index + currentIndex, fileInfo,
+                        context.dumpLineNumbers ? getDebugInfo(index) : null,
+                        isRooted
+                    );
+                }
+
+                parserInput.restore('at-rule options not recognised');
+            },
+
+            //
+            // A Value is a comma-delimited list of Expressions
+            //
+            //     font-family: Baskerville, Georgia, serif;
+            //
+            // In a Rule, a Value represents everything after the `:`,
+            // and before the `;`.
+            //
+            value: function () {
+                let e;
+                const expressions = [];
+                const index = parserInput.i;
+
+                do {
+                    e = this.expression();
+                    if (e) {
+                        expressions.push(e);
+                        if (!parserInput.$char(',')) { break; }
+                    }
+                } while (e);
+
+                if (expressions.length > 0) {
+                    return new(tree.Value)(expressions, index + currentIndex);
+                }
+            },
+            important: function () {
+                if (parserInput.currentChar() === '!') {
+                    return parserInput.$re(/^! *important/);
+                }
+            },
+            sub: function () {
+                let a;
+                let e;
+
+                parserInput.save();
+                if (parserInput.$char('(')) {
+                    a = this.addition();
+                    if (a && parserInput.$char(')')) {
+                        parserInput.forget();
+                        e = new(tree.Expression)([a]);
+                        e.parens = true;
+                        return e;
+                    }
+                    parserInput.restore('Expected \')\'');
+                    return;
+                }
+                parserInput.restore();
+            },
+            colorOperand: function () {
+                parserInput.save();
+
+                // hsl or rgb or lch operand
+                const match = parserInput.$re(/^[lchrgbs]\s+/);
+                if (match) {
+                    parserInput.forget();
+                    return new tree.Keyword(match[0]);
+                }
+
+                parserInput.restore();
+            },
+            multiplication: function () {
+                let m;
+                let a;
+                let op;
+                let operation;
+                let isSpaced;
+                m = this.operand();
+                if (m) {
+                    isSpaced = parserInput.isWhitespace(-1);
+                    while (true) {
+                        if (parserInput.peek(/^\/[*/]/)) {
+                            break;
+                        }
+
+                        parserInput.save();
+
+                        op = parserInput.$char('/') || parserInput.$char('*');
+                        if (!op) {
+                            let index = parserInput.i;
+                            op = parserInput.$str('./');
+                            if (op) {
+                                warn('./ operator is deprecated', index, 'DEPRECATED', 'dot-slash-operator');
+                            }
+                        }
+
+                        if (!op) { parserInput.forget(); break; }
+
+                        a = this.operand();
+
+                        if (!a) { parserInput.restore(); break; }
+                        parserInput.forget();
+
+                        m.parensInOp = true;
+                        a.parensInOp = true;
+                        operation = new(tree.Operation)(op, [operation || m, a], isSpaced);
+                        isSpaced = parserInput.isWhitespace(-1);
+                    }
+                    return operation || m;
+                }
+            },
+            addition: function () {
+                let m;
+                let a;
+                let op;
+                let operation;
+                let isSpaced;
+                m = this.multiplication();
+                if (m) {
+                    isSpaced = parserInput.isWhitespace(-1);
+                    while (true) {
+                        op = parserInput.$re(/^[-+]\s+/) || (!isSpaced && (parserInput.$char('+') || parserInput.$char('-')));
+                        if (!op) {
+                            break;
+                        }
+                        a = this.multiplication();
+                        if (!a) {
+                            break;
+                        }
+
+                        m.parensInOp = true;
+                        a.parensInOp = true;
+                        operation = new(tree.Operation)(op, [operation || m, a], isSpaced);
+                        isSpaced = parserInput.isWhitespace(-1);
+                    }
+                    return operation || m;
+                }
+            },
+            conditions: function () {
+                let a;
+                let b;
+                const index = parserInput.i;
+                let condition;
+
+                a = this.condition(true);
+                if (a) {
+                    while (true) {
+                        if (!parserInput.peek(/^,\s*(not\s*)?\(/) || !parserInput.$char(',')) {
+                            break;
+                        }
+                        b = this.condition(true);
+                        if (!b) {
+                            break;
+                        }
+                        condition = new(tree.Condition)('or', condition || a, b, index + currentIndex);
+                    }
+                    return condition || a;
+                }
+            },
+            condition: function (needsParens) {
+                let result;
+                let logical;
+                let next;
+                function or() {
+                    return parserInput.$str('or');
+                }
+
+                result = this.conditionAnd(needsParens);
+                if (!result) {
+                    return ;
+                }
+                logical = or();
+                if (logical) {
+                    next = this.condition(needsParens);
+                    if (next) {
+                        result = new(tree.Condition)(logical, result, next);
+                    } else {
+                        return ;
+                    }
+                }
+                return result;
+            },
+            conditionAnd: function (needsParens) {
+                let result;
+                let logical;
+                let next;
+                const self = this;
+                function insideCondition() {
+                    const cond = self.negatedCondition(needsParens) || self.parenthesisCondition(needsParens);
+                    if (!cond && !needsParens) {
+                        return self.atomicCondition(needsParens);
+                    }
+                    return cond;
+                }
+                function and() {
+                    return parserInput.$str('and');
+                }
+
+                result = insideCondition();
+                if (!result) {
+                    return ;
+                }
+                logical = and();
+                if (logical) {
+                    next = this.conditionAnd(needsParens);
+                    if (next) {
+                        result = new(tree.Condition)(logical, result, next);
+                    } else {
+                        return ;
+                    }
+                }
+                return result;
+            },
+            negatedCondition: function (needsParens) {
+                if (parserInput.$str('not')) {
+                    const result = this.parenthesisCondition(needsParens);
+                    if (result) {
+                        result.negate = !result.negate;
+                    }
+                    return result;
+                }
+            },
+            parenthesisCondition: function (needsParens) {
+                function tryConditionFollowedByParenthesis(me) {
+                    let body;
+                    parserInput.save();
+                    body = me.condition(needsParens);
+                    if (!body) {
+                        parserInput.restore();
+                        return ;
+                    }
+                    if (!parserInput.$char(')')) {
+                        parserInput.restore();
+                        return ;
+                    }
+                    parserInput.forget();
+                    return body;
+                }
+
+                let body;
+                parserInput.save();
+                if (!parserInput.$str('(')) {
+                    parserInput.restore();
+                    return ;
+                }
+                body = tryConditionFollowedByParenthesis(this);
+                if (body) {
+                    parserInput.forget();
+                    return body;
+                }
+
+                body = this.atomicCondition(needsParens);
+                if (!body) {
+                    parserInput.restore();
+                    return ;
+                }
+                if (!parserInput.$char(')')) {
+                    parserInput.restore(`expected ')' got '${parserInput.currentChar()}'`);
+                    return ;
+                }
+                parserInput.forget();
+                return body;
+            },
+            atomicCondition: function (needsParens, preparsedCond) {
+                const entities = this.entities;
+                const index = parserInput.i;
+                let a;
+                let b;
+                let c;
+                let op;
+
+                const cond = (function() {
+                    return this.addition() || entities.keyword() || entities.quoted() || entities.mixinLookup();
+                }).bind(this);
+
+                if (preparsedCond) {
+                    a = preparsedCond;
+                } else {
+                    a = cond();
+                }
+
+                if (a) {
+                    if (parserInput.$char('>')) {
+                        if (parserInput.$char('=')) {
+                            op = '>=';
+                        } else {
+                            op = '>';
+                        }
+                    } else
+                    if (parserInput.$char('<')) {
+                        if (parserInput.$char('=')) {
+                            op = '<=';
+                        } else {
+                            op = '<';
+                        }
+                    } else
+                    if (parserInput.$char('=')) {
+                        if (parserInput.$char('>')) {
+                            op = '=>';
+                        } else if (parserInput.$char('<')) {
+                            op = '=<';
+                        } else {
+                            op = '=';
+                        }
+                    }
+                    if (op) {
+                        b = cond();
+                        if (b) {
+                            c = new(tree.Condition)(op, a, b, index + currentIndex, false);
+                        } else {
+                            error('expected expression');
+                        }
+                    } else if (!preparsedCond) {
+                        c = new(tree.Condition)('=', a, new(tree.Keyword)('true'), index + currentIndex, false);
+                    }
+                    return c;
+                }
+            },
+
+            //
+            // An operand is anything that can be part of an operation,
+            // such as a Color, or a Variable
+            //
+            operand: function () {
+                const entities = this.entities;
+                let negate;
+
+                if (parserInput.peek(/^-[@$(]/)) {
+                    negate = parserInput.$char('-');
+                }
+
+                let o = this.sub() || entities.dimension() ||
+                        entities.color() || entities.variable() ||
+                        entities.property() || entities.call() ||
+                        entities.quoted(true) || entities.colorKeyword() ||
+                        this.colorOperand() || entities.mixinLookup();
+
+                if (negate) {
+                    o.parensInOp = true;
+                    o = new(tree.Negative)(o);
+                }
+
+                return o;
+            },
+
+            //
+            // Expressions either represent mathematical operations,
+            // or white-space delimited Entities.
+            //
+            //     1px solid black
+            //     @var * 2
+            //
+            expression: function () {
+                const entities = [];
+                let e;
+                let delim;
+                const index = parserInput.i;
+
+                do {
+                    e = this.comment();
+                    if (e && !e.isLineComment) {
+                        entities.push(e);
+                        continue;
+                    }
+                    e = this.addition() || this.entity();
+
+                    if (e instanceof tree.Comment) {
+                        e = null;
+                    }
+
+                    if (e) {
+                        entities.push(e);
+                        // operations do not allow keyword "/" dimension (e.g. small/20px) so we support that here
+                        if (!parserInput.peek(/^\/[/*]/)) {
+                            delim = parserInput.$char('/');
+                            if (delim) {
+                                entities.push(new(tree.Anonymous)(delim, index + currentIndex));
+                            }
+                        }
+                    }
+                } while (e);
+                if (entities.length > 0) {
+                    return new(tree.Expression)(entities);
+                }
+            },
+            property: function () {
+                const name = parserInput.$re(/^(\*?-?[_a-zA-Z0-9-]+)\s*:/);
+                if (name) {
+                    return name[1];
+                }
+            },
+            ruleProperty: function () {
+                let name = [];
+                const index = [];
+                let s;
+                let k;
+
+                parserInput.save();
+
+                const simpleProperty = parserInput.$re(/^([_a-zA-Z0-9-]+)\s*:/);
+                if (simpleProperty) {
+                    name = [new(tree.Keyword)(simpleProperty[1])];
+                    parserInput.forget();
+                    return name;
+                }
+
+                function match(re) {
+                    const i = parserInput.i;
+                    const chunk = parserInput.$re(re);
+                    if (chunk) {
+                        index.push(i);
+                        return name.push(chunk[1]);
+                    }
+                }
+
+                match(/^(\*?)/);
+                while (true) {
+                    if (!match(/^((?:[\w-]+)|(?:[@$]\{[\w-]+\}))/)) {
+                        break;
+                    }
+                }
+
+                if ((name.length > 1) && match(/^((?:\+_|\+)?)\s*:/)) {
+                    parserInput.forget();
+
+                    // at last, we have the complete match now. move forward,
+                    // convert name particles to tree objects and return:
+                    if (name[0] === '') {
+                        name.shift();
+                        index.shift();
+                    }
+                    for (k = 0; k < name.length; k++) {
+                        s = name[k];
+                        name[k] = (s.charAt(0) !== '@' && s.charAt(0) !== '$') ?
+                            new(tree.Keyword)(s) :
+                            (s.charAt(0) === '@' ?
+                                new(tree.Variable)(`@${s.slice(2, -1)}`, index[k] + currentIndex, fileInfo) :
+                                new(tree.Property)(`$${s.slice(2, -1)}`, index[k] + currentIndex, fileInfo));
+                    }
+                    return name;
+                }
+                parserInput.restore();
+            }
+        }
+    };
+};
+Parser.serializeVars = vars => {
+    let s = '';
+
+    for (const name in vars) {
+        if (Object.hasOwnProperty.call(vars, name)) {
+            const value = vars[name];
+            s += `${((name[0] === '@') ? '' : '@') + name}: ${value}${(String(value).slice(-1) === ';') ? '' : ';'}`;
+        }
+    }
+
+    return s;
+};
+
+// @ts-check
+
+/** @import { EvalContext, CSSOutput, FileInfo, VisibilityInfo, TreeVisitor } from './node.js' */
+
+class Selector extends Node {
+    get type() { return 'Selector'; }
+
+    /**
+     * @param {(Element | Selector)[] | string} [elements]
+     * @param {Node[] | null} [extendList]
+     * @param {Node | null} [condition]
+     * @param {number} [index]
+     * @param {FileInfo} [currentFileInfo]
+     * @param {VisibilityInfo} [visibilityInfo]
+     */
+    constructor(elements, extendList, condition, index, currentFileInfo, visibilityInfo) {
+        super();
+        /** @type {Node[] | null | undefined} */
+        this.extendList = extendList;
+        /** @type {Node | null | undefined} */
+        this.condition = condition;
+        /** @type {boolean | Node} */
+        this.evaldCondition = !condition;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        /** @type {Element[]} */
+        this.elements = this.getElements(elements);
+        /** @type {string[] | undefined} */
+        this.mixinElements_ = undefined;
+        /** @type {boolean | undefined} */
+        this.mediaEmpty = undefined;
+        this.copyVisibilityInfo(visibilityInfo);
+        this.setParent(this.elements, this);
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        if (this.elements) {
+            this.elements = /** @type {Element[]} */ (visitor.visitArray(this.elements));
+        }
+        if (this.extendList) {
+            this.extendList = visitor.visitArray(this.extendList);
+        }
+        if (this.condition) {
+            this.condition = visitor.visit(this.condition);
+        }
+    }
+
+    /**
+     * @param {Element[]} elements
+     * @param {Node[] | null} [extendList]
+     * @param {boolean | Node} [evaldCondition]
+     */
+    createDerived(elements, extendList, evaldCondition) {
+        elements = this.getElements(elements);
+        const newSelector = new Selector(elements, extendList || this.extendList,
+            null, this.getIndex(), this.fileInfo(), this.visibilityInfo());
+        newSelector.evaldCondition = (!isNullOrUndefined(evaldCondition)) ? evaldCondition : this.evaldCondition;
+        newSelector.mediaEmpty = this.mediaEmpty;
+        return newSelector;
+    }
+
+    /**
+     * @param {(Element | Selector)[] | string | null | undefined} els
+     * @returns {Element[]}
+     */
+    getElements(els) {
+        if (!els) {
+            return [new Element('', '&', false, this._index, this._fileInfo)];
+        }
+        if (typeof els === 'string') {
+            const fileInfo = this._fileInfo;
+            const parse = this.parse;
+            new (/** @type {new (...args: unknown[]) => { parseNode: Function }} */ (/** @type {unknown} */ (Parser)))(parse.context, parse.importManager, fileInfo, this._index).parseNode(
+                els,
+                ['selector'],
+                function(/** @type {{ index: number, message: string } | null} */ err, /** @type {Selector[]} */ result) {
+                    if (err) {
+                        throw new LessError({
+                            index: err.index,
+                            message: err.message
+                        }, parse.imports, /** @type {string} */ (/** @type {FileInfo} */ (fileInfo).filename));
+                    }
+                    els = result[0].elements;
+                });
+        }
+        return /** @type {Element[]} */ (els);
+    }
+
+    createEmptySelectors() {
+        const el = new Element('', '&', false, this._index, this._fileInfo), sels = [new Selector([el], null, null, this._index, this._fileInfo)];
+        sels[0].mediaEmpty = true;
+        return sels;
+    }
+
+    /**
+     * @param {Selector} other
+     * @returns {number}
+     */
+    match(other) {
+        const elements = this.elements;
+        const len = elements.length;
+        let olen;
+        let i;
+
+        /** @type {string[]} */
+        const mixinEls = other.mixinElements();
+        olen = mixinEls.length;
+        if (olen === 0 || len < olen) {
+            return 0;
+        } else {
+            for (i = 0; i < olen; i++) {
+                if (elements[i].value !== mixinEls[i]) {
+                    return 0;
+                }
+            }
+        }
+
+        return olen; // return number of matched elements
+    }
+
+    /** @returns {string[]} */
+    mixinElements() {
+        if (this.mixinElements_) {
+            return this.mixinElements_;
+        }
+
+        /** @type {string[] | null} */
+        let elements = this.elements.map( function(v) {
+            return /** @type {string} */ (v.combinator.value) + (/** @type {{ value: string }} */ (v.value).value || v.value);
+        }).join('').match(/[,&#*.\w-]([\w-]|(\\.))*/g);
+
+        if (elements) {
+            if (elements[0] === '&') {
+                elements.shift();
+            }
+        } else {
+            elements = [];
+        }
+
+        return (this.mixinElements_ = elements);
+    }
+
+    isJustParentSelector() {
+        return !this.mediaEmpty &&
+            this.elements.length === 1 &&
+            this.elements[0].value === '&' &&
+            (this.elements[0].combinator.value === ' ' || this.elements[0].combinator.value === '');
+    }
+
+    /** @param {EvalContext} context */
+    eval(context) {
+        const evaldCondition = this.condition && this.condition.eval(context);
+        let elements = this.elements;
+        /** @type {Node[] | null | undefined} */
+        let extendList = this.extendList;
+
+        if (elements) {
+            const evaldElements = new Array(elements.length);
+            for (let i = 0; i < elements.length; i++) {
+                evaldElements[i] = elements[i].eval(context);
+            }
+            elements = evaldElements;
+        }
+        if (extendList) {
+            const evaldExtends = new Array(extendList.length);
+            for (let i = 0; i < extendList.length; i++) {
+                evaldExtends[i] = extendList[i].eval(context);
+            }
+            extendList = evaldExtends;
+        }
+
+        return this.createDerived(elements, extendList, evaldCondition);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        let i, element;
+        if ((!context || !/** @type {EvalContext & { firstSelector?: boolean }} */ (context).firstSelector) && this.elements[0].combinator.value === '') {
+            output.add(' ', this.fileInfo(), this.getIndex());
+        }
+        for (i = 0; i < this.elements.length; i++) {
+            element = this.elements[i];
+            element.genCSS(context, output);
+        }
+    }
+
+    getIsOutput() {
+        return this.evaldCondition;
+    }
+}
+
+// @ts-check
+
+/** @import { EvalContext, CSSOutput } from './node.js' */
+
+class Keyword extends Node {
+    get type() { return 'Keyword'; }
+
+    /** @param {string} value */
+    constructor(value) {
+        super();
+        this.value = value;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        if (this.value === '%') { throw { type: 'Syntax', message: 'Invalid % without number' }; }
+        output.add(/** @type {string} */ (this.value));
+    }
+}
+
+Keyword.True = new Keyword('true');
+Keyword.False = new Keyword('false');
+
+// @ts-check
+const MATH$1 = Math$1;
+
+/**
+ * @param {EvalContext} context
+ * @param {Node[]} name
+ * @returns {string}
+ */
+function evalName(context, name) {
+    let value = '';
+    let i;
+    const n = name.length;
+    /** @type {CSSOutput} */
+    const output = {add: function (s) {value += s;}, isEmpty: function() { return value === ''; }};
+    for (i = 0; i < n; i++) {
+        name[i].eval(context).genCSS(context, output);
+    }
+    return value;
+}
+
+class Declaration extends Node {
+    get type() { return 'Declaration'; }
+
+    /**
+     * @param {string | Node[]} name
+     * @param {Node | string | null} value
+     * @param {string} [important]
+     * @param {string} [merge]
+     * @param {number} [index]
+     * @param {FileInfo} [currentFileInfo]
+     * @param {boolean} [inline]
+     * @param {boolean} [variable]
+     */
+    constructor(name, value, important, merge, index, currentFileInfo, inline, variable) {
+        super();
+        this.name = name;
+        this.value = (value instanceof Node) ? value : new Value([value ? new Anonymous(value) : null]);
+        this.important = important ? ` ${important.trim()}` : '';
+        /** @type {string | undefined} */
+        this.merge = merge;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        /** @type {boolean} */
+        this.inline = inline || false;
+        /** @type {boolean} */
+        this.variable = (variable !== undefined) ? variable
+            : (typeof name === 'string' && name.charAt(0) === '@');
+        /** @type {boolean} */
+        this.allowRoot = true;
+        this.setParent(this.value, this);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add(/** @type {string} */ (this.name) + (context.compress ? ':' : ': '), this.fileInfo(), this.getIndex());
+        try {
+            /** @type {Node} */ (this.value).genCSS(context, output);
+        }
+        catch (e) {
+            const err = /** @type {{ index?: number, filename?: string }} */ (e);
+            err.index = this._index;
+            err.filename = this._fileInfo && this._fileInfo.filename;
+            throw e;
+        }
+        output.add(this.important + ((this.inline || (context.lastRule && context.compress)) ? '' : ';'), this._fileInfo, this._index);
+    }
+
+    /** @param {EvalContext} context */
+    eval(context) {
+        let mathBypass = false, prevMath, name = this.name, evaldValue, variable = this.variable;
+        if (typeof name !== 'string') {
+            // expand 'primitive' name directly to get
+            // things faster (~10% for benchmark.less):
+            name = (/** @type {Node[]} */ (name).length === 1) && (/** @type {Node[]} */ (name)[0] instanceof Keyword) ?
+                /** @type {string} */ (/** @type {Node[]} */ (name)[0].value) : evalName(context, /** @type {Node[]} */ (name));
+            variable = false; // never treat expanded interpolation as new variable name
+        }
+
+        // @todo remove when parens-division is default
+        if (name === 'font' && context.math === MATH$1.ALWAYS) {
+            mathBypass = true;
+            prevMath = context.math;
+            context.math = MATH$1.PARENS_DIVISION;
+        }
+        try {
+            context.importantScope.push({});
+            evaldValue = /** @type {Node} */ (this.value).eval(context);
+
+            if (!this.variable && evaldValue.type === 'DetachedRuleset') {
+                throw { message: 'Rulesets cannot be evaluated on a property.',
+                    index: this.getIndex(), filename: this.fileInfo().filename };
+            }
+            let important = this.important;
+            const importantResult = context.importantScope.pop();
+            if (!important && importantResult && importantResult.important) {
+                important = importantResult.important;
+            }
+
+            return new Declaration(/** @type {string} */ (name),
+                evaldValue,
+                important,
+                this.merge,
+                this.getIndex(), this.fileInfo(), this.inline,
+                variable);
+        }
+        catch (e) {
+            const err = /** @type {{ index?: number, filename?: string }} */ (e);
+            if (typeof err.index !== 'number') {
+                err.index = this.getIndex();
+                err.filename = this.fileInfo().filename;
+            }
+            throw e;
+        }
+        finally {
+            if (mathBypass) {
+                context.math = prevMath;
+            }
+        }
+    }
+
+    makeImportant() {
+        return new Declaration(this.name,
+            /** @type {Node} */ (this.value),
+            '!important',
+            this.merge,
+            this.getIndex(), this.fileInfo(), this.inline);
+    }
+}
+
+const defaultFunc = {
+    eval: function () {
+        const v = this.value_;
+        const e = this.error_;
+        if (e) {
+            throw e;
+        }
+        if (!isNullOrUndefined(v)) {
+            return v ? Keyword.True : Keyword.False;
+        }
+    },
+    value: function (v) {
+        this.value_ = v;
+    },
+    error: function (e) {
+        this.error_ = e;
+    },
+    reset: function () {
+        this.value_ = this.error_ = null;
+    }
+};
+
+// @ts-check
+
+/**
+ * @typedef {Node & {
+ *   rules?: Node[],
+ *   selectors?: Selector[],
+ *   root?: boolean,
+ *   firstRoot?: boolean,
+ *   allowImports?: boolean,
+ *   functionRegistry?: FunctionRegistry,
+ *   originalRuleset?: Node,
+ *   debugInfo?: { lineNumber: number, fileName: string },
+ *   evalFirst?: boolean,
+ *   isRuleset?: boolean,
+ *   isCharset?: () => boolean,
+ *   merge?: boolean | string,
+ *   multiMedia?: boolean,
+ *   parse?: { context: EvalContext, importManager: object },
+ *   bubbleSelectors?: (selectors: Selector[]) => void
+ * }} RuleNode
+ */
+
+class Ruleset extends Node {
+    get type() { return 'Ruleset'; }
+
+    /**
+     * @param {Selector[] | null} selectors
+     * @param {Node[] | null} rules
+     * @param {boolean} [strictImports]
+     * @param {VisibilityInfo} [visibilityInfo]
+     */
+    constructor(selectors, rules, strictImports, visibilityInfo) {
+        super();
+        /** @type {Selector[] | null} */
+        this.selectors = selectors;
+        /** @type {Node[] | null} */
+        this.rules = rules;
+        /** @type {Object<string, { rule: Node, path: Node[] }[]>} */
+        this._lookups = {};
+        /** @type {Object<string, Declaration> | null} */
+        this._variables = null;
+        /** @type {Object<string, Declaration[]> | null} */
+        this._properties = null;
+        /** @type {boolean | undefined} */
+        this.strictImports = strictImports;
+        this.copyVisibilityInfo(visibilityInfo);
+        this.allowRoot = true;
+        /** @type {boolean} */
+        this.isRuleset = true;
+
+        /** @type {boolean | undefined} */
+        this.root = undefined;
+        /** @type {boolean | undefined} */
+        this.firstRoot = undefined;
+        /** @type {boolean | undefined} */
+        this.allowImports = undefined;
+        /** @type {FunctionRegistry | undefined} */
+        this.functionRegistry = undefined;
+        /** @type {Node | undefined} */
+        this.originalRuleset = undefined;
+        /** @type {{ lineNumber: number, fileName: string } | undefined} */
+        this.debugInfo = undefined;
+        /** @type {Selector[][] | undefined} */
+        this.paths = undefined;
+        /** @type {Ruleset[] | null | undefined} */
+        this._rulesets = undefined;
+        /** @type {boolean | undefined} */
+        this.evalFirst = undefined;
+        this.setParent(this.selectors, this);
+        this.setParent(this.rules, this);
+    }
+
+    isRulesetLike() { return true; }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        if (this.paths) {
+            this.paths = /** @type {Selector[][]} */ (/** @type {unknown} */ (visitor.visitArray(/** @type {Node[]} */ (/** @type {unknown} */ (this.paths)), true)));
+        } else if (this.selectors) {
+            this.selectors = /** @type {Selector[]} */ (visitor.visitArray(this.selectors));
+        }
+        if (this.rules && this.rules.length) {
+            this.rules = visitor.visitArray(this.rules);
+        }
+    }
+
+    /** @param {EvalContext} context */
+    eval(context) {
+        /** @type {Selector[] | undefined} */
+        let selectors;
+        /** @type {number} */
+        let selCnt;
+        /** @type {Selector} */
+        let selector;
+        /** @type {number} */
+        let i;
+        /** @type {boolean | undefined} */
+        let hasVariable;
+        let hasOnePassingSelector = false;
+
+        if (this.selectors && (selCnt = this.selectors.length)) {
+            selectors = new Array(selCnt);
+            defaultFunc.error({
+                type: 'Syntax',
+                message: 'it is currently only allowed in parametric mixin guards,'
+            });
+
+            for (i = 0; i < selCnt; i++) {
+                selector = /** @type {Selector} */ (this.selectors[i].eval(context));
+                for (let j = 0; j < selector.elements.length; j++) {
+                    if (selector.elements[j].isVariable) {
+                        hasVariable = true;
+                        break;
+                    }
+                }
+                selectors[i] = selector;
+                if (selector.evaldCondition) {
+                    hasOnePassingSelector = true;
+                }
+            }
+
+            if (hasVariable) {
+                const toParseSelectors = new Array(selCnt);
+                for (i = 0; i < selCnt; i++) {
+                    selector = selectors[i];
+                    toParseSelectors[i] = selector.toCSS(context);
+                }
+                const startingIndex = selectors[0].getIndex();
+                const selectorFileInfo = selectors[0].fileInfo();
+                new (/** @type {new (...args: [EvalContext, object, FileInfo, number]) => { parseNode: Function }} */ (/** @type {unknown} */ (Parser)))(context, /** @type {{ context: EvalContext, importManager: object }} */ (this.parse).importManager, selectorFileInfo, startingIndex).parseNode(
+                    toParseSelectors.join(','),
+                    ['selectors'],
+                    function(/** @type {Error | null} */ err, /** @type {Node[]} */ result) {
+                        if (result) {
+                            selectors = /** @type {Selector[]} */ (flattenArray(result));
+                        }
+                    });
+            }
+
+            defaultFunc.reset();
+        } else {
+            hasOnePassingSelector = true;
+        }
+
+        let rules = this.rules ? copyArray(this.rules) : null;
+        const ruleset = new Ruleset(selectors, rules, this.strictImports, this.visibilityInfo());
+        /** @type {Node} */
+        let rule;
+        /** @type {Node} */
+        let subRule;
+
+        ruleset.originalRuleset = this;
+        ruleset.root = this.root;
+        ruleset.firstRoot = this.firstRoot;
+        ruleset.allowImports = this.allowImports;
+
+        if (this.debugInfo) {
+            ruleset.debugInfo = this.debugInfo;
+        }
+
+        if (!hasOnePassingSelector) {
+            /** @type {Node[]} */ (rules).length = 0;
+        }
+
+        // push the current ruleset to the frames stack
+        const ctxFrames = context.frames;
+
+        // inherit a function registry from the frames stack when possible;
+        // otherwise from the global registry
+        /** @type {FunctionRegistry | undefined} */
+        let foundRegistry;
+        for (let fi = 0, fn = ctxFrames.length; fi !== fn; ++fi) {
+            foundRegistry = /** @type {RuleNode} */ (ctxFrames[fi]).functionRegistry;
+            if (foundRegistry) { break; }
+        }
+        ruleset.functionRegistry = (foundRegistry || functionRegistry).inherit();
+        ctxFrames.unshift(ruleset);
+
+        // currrent selectors
+        /** @type {Selector[][] | undefined} */
+        let ctxSelectors = /** @type {EvalContext & { selectors?: Selector[][] }} */ (context).selectors;
+        if (!ctxSelectors) {
+            /** @type {EvalContext & { selectors?: Selector[][] }} */ (context).selectors = ctxSelectors = [];
+        }
+        ctxSelectors.unshift(this.selectors);
+
+        // Evaluate imports
+        if (ruleset.root || ruleset.allowImports || !ruleset.strictImports) {
+            ruleset.evalImports(context);
+        }
+
+        // Store the frames around mixin definitions,
+        // so they can be evaluated like closures when the time comes.
+        const rsRules = /** @type {Node[]} */ (ruleset.rules);
+        for (i = 0; (rule = rsRules[i]); i++) {
+            if (/** @type {RuleNode} */ (rule).evalFirst) {
+                rsRules[i] = rule.eval(context);
+            }
+        }
+
+        const mediaBlockCount = (context.mediaBlocks && context.mediaBlocks.length) || 0;
+
+        // Evaluate mixin calls.
+        for (i = 0; (rule = rsRules[i]); i++) {
+            if (rule.type === 'MixinCall') {
+                /* jshint loopfunc:true */
+                rules = /** @type {Node[]} */ (/** @type {unknown} */ (rule.eval(context))).filter(function(/** @type {Node & { variable?: boolean }} */ r) {
+                    if ((r instanceof Declaration) && r.variable) {
+                        // do not pollute the scope if the variable is
+                        // already there. consider returning false here
+                        // but we need a way to "return" variable from mixins
+                        return !(ruleset.variable(/** @type {string} */ (r.name)));
+                    }
+                    return true;
+                });
+                rsRules.splice.apply(rsRules, /** @type {[number, number, ...Node[]]} */ ([i, 1].concat(rules)));
+                i += rules.length - 1;
+                ruleset.resetCache();
+            } else if (rule.type ===  'VariableCall') {
+                /* jshint loopfunc:true */
+                rules = /** @type {Node[]} */ (/** @type {RuleNode} */ (rule.eval(context)).rules).filter(function(/** @type {Node & { variable?: boolean }} */ r) {
+                    if ((r instanceof Declaration) && r.variable) {
+                        // do not pollute the scope at all
+                        return false;
+                    }
+                    return true;
+                });
+                rsRules.splice.apply(rsRules, /** @type {[number, number, ...Node[]]} */ ([i, 1].concat(rules)));
+                i += rules.length - 1;
+                ruleset.resetCache();
+            }
+        }
+
+        // Evaluate everything else
+        for (i = 0; (rule = rsRules[i]); i++) {
+            if (!/** @type {RuleNode} */ (rule).evalFirst) {
+                rsRules[i] = rule = rule.eval ? rule.eval(context) : rule;
+            }
+        }
+
+        // Evaluate everything else
+        for (i = 0; (rule = rsRules[i]); i++) {
+            // for rulesets, check if it is a css guard and can be removed
+            if (rule instanceof Ruleset && rule.selectors && rule.selectors.length === 1) {
+                // check if it can be folded in (e.g. & where)
+                if (rule.selectors[0] && rule.selectors[0].isJustParentSelector()) {
+                    rsRules.splice(i--, 1);
+
+                    for (let j = 0; (subRule = rule.rules[j]); j++) {
+                        if (subRule instanceof Node) {
+                            subRule.copyVisibilityInfo(rule.visibilityInfo());
+                            if (!(subRule instanceof Declaration) || !subRule.variable) {
+                                rsRules.splice(++i, 0, subRule);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Pop the stack
+        ctxFrames.shift();
+        ctxSelectors.shift();
+
+        if (context.mediaBlocks) {
+            for (i = mediaBlockCount; i < context.mediaBlocks.length; i++) {
+                /** @type {RuleNode} */ (context.mediaBlocks[i]).bubbleSelectors(selectors);
+            }
+        }
+
+        return ruleset;
+    }
+
+    /** @param {EvalContext} context */
+    evalImports(context) {
+        const rules = this.rules;
+        /** @type {number} */
+        let i;
+        /** @type {Node | Node[]} */
+        let importRules;
+        if (!rules) { return; }
+
+        for (i = 0; i < rules.length; i++) {
+            if (rules[i].type === 'Import') {
+                importRules = rules[i].eval(context);
+                if (importRules && (/** @type {Node[]} */ (/** @type {unknown} */ (importRules)).length || /** @type {Node[]} */ (/** @type {unknown} */ (importRules)).length === 0)) {
+                    const importArr = /** @type {Node[]} */ (/** @type {unknown} */ (importRules));
+                    rules.splice(i, 1, ...importArr);
+                    i += importArr.length - 1;
+                } else {
+                    rules.splice(i, 1, importRules);
+                }
+                this.resetCache();
+            }
+        }
+    }
+
+    makeImportant() {
+        const result = new Ruleset(this.selectors, /** @type {Node[]} */ (this.rules).map(function (/** @type {Node & { makeImportant?: () => Node }} */ r) {
+            if (r.makeImportant) {
+                return r.makeImportant();
+            } else {
+                return r;
+            }
+        }), this.strictImports, this.visibilityInfo());
+
+        return result;
+    }
+
+    /** @param {Node[] | object[] | null} [args] */
+    matchArgs(args) {
+        return !args || args.length === 0;
+    }
+
+    /**
+     * @param {Node[] | object[] | null} args
+     * @param {EvalContext} context
+     */
+    matchCondition(args, context) {
+        const lastSelector = /** @type {Selector[]} */ (this.selectors)[/** @type {Selector[]} */ (this.selectors).length - 1];
+        if (!lastSelector.evaldCondition) {
+            return false;
+        }
+        if (lastSelector.condition &&
+            !lastSelector.condition.eval(
+                new contexts.Eval(context,
+                    context.frames))) {
+            return false;
+        }
+        return true;
+    }
+
+    resetCache() {
+        this._rulesets = null;
+        this._variables = null;
+        this._properties = null;
+        this._lookups = {};
+    }
+
+    variables() {
+        if (!this._variables) {
+            this._variables = !this.rules ? {} : this.rules.reduce(function (/** @type {Object<string, Declaration>} */ hash, /** @type {Node} */ r) {
+                if (r instanceof Declaration && r.variable === true) {
+                    hash[/** @type {string} */ (r.name)] = r;
+                }
+                // when evaluating variables in an import statement, imports have not been eval'd
+                // so we need to go inside import statements.
+                // guard against root being a string (in the case of inlined less)
+                if (r.type === 'Import' && /** @type {RuleNode} */ (r).root && /** @type {RuleNode & { root: Ruleset }} */ (r).root.variables) {
+                    const vars = /** @type {RuleNode & { root: Ruleset }} */ (r).root.variables();
+                    for (const name in vars) {
+                        if (Object.prototype.hasOwnProperty.call(vars, name)) {
+                            hash[name] = /** @type {Declaration} */ (/** @type {RuleNode & { root: Ruleset }} */ (r).root.variable(name));
+                        }
+                    }
+                }
+                return hash;
+            }, {});
+        }
+        return this._variables;
+    }
+
+    properties() {
+        if (!this._properties) {
+            this._properties = !this.rules ? {} : this.rules.reduce(function (/** @type {Object<string, Declaration[]>} */ hash, /** @type {Node} */ r) {
+                if (r instanceof Declaration && r.variable !== true) {
+                    const name = (/** @type {Node[]} */ (r.name).length === 1) && (/** @type {Node[]} */ (r.name)[0] instanceof Keyword) ?
+                        /** @type {string} */ (/** @type {Node[]} */ (r.name)[0].value) : /** @type {string} */ (r.name);
+                    // Properties don't overwrite as they can merge
+                    if (!hash[`$${name}`]) {
+                        hash[`$${name}`] = [ r ];
+                    }
+                    else {
+                        hash[`$${name}`].push(r);
+                    }
+                }
+                return hash;
+            }, {});
+        }
+        return this._properties;
+    }
+
+    /** @param {string} name */
+    variable(name) {
+        const decl = this.variables()[name];
+        if (decl) {
+            return this.parseValue(decl);
+        }
+    }
+
+    /** @param {string} name */
+    property(name) {
+        const decl = this.properties()[name];
+        if (decl) {
+            return this.parseValue(decl);
+        }
+    }
+
+    lastDeclaration() {
+        for (let i = /** @type {Node[]} */ (this.rules).length; i > 0; i--) {
+            const decl = /** @type {Node[]} */ (this.rules)[i - 1];
+            if (decl instanceof Declaration) {
+                return this.parseValue(decl);
+            }
+        }
+    }
+
+    /** @param {Declaration | Declaration[]} toParse */
+    parseValue(toParse) {
+        const self = this;
+        /** @param {Declaration} decl */
+        function transformDeclaration(decl) {
+            if (decl.value instanceof Anonymous && !/** @type {Declaration & { parsed?: boolean }} */ (decl).parsed) {
+                if (typeof decl.value.value === 'string') {
+                    new (/** @type {new (...args: [EvalContext, object, FileInfo, number]) => { parseNode: Function }} */ (/** @type {unknown} */ (Parser)))(/** @type {{ context: EvalContext, importManager: object }} */ (/** @type {Ruleset} */ (this).parse).context, /** @type {{ context: EvalContext, importManager: object }} */ (/** @type {Ruleset} */ (this).parse).importManager, decl.fileInfo(), decl.value.getIndex()).parseNode(
+                        decl.value.value,
+                        ['value', 'important'],
+                        function(/** @type {Error | null} */ err, /** @type {Node[]} */ result) {
+                            if (err) {
+                                decl.parsed = /** @type {Node} */ (/** @type {unknown} */ (true));
+                            }
+                            if (result) {
+                                decl.value = result[0];
+                                /** @type {Declaration & { important?: string }} */ (decl).important = /** @type {string} */ (/** @type {unknown} */ (result[1])) || '';
+                                decl.parsed = /** @type {Node} */ (/** @type {unknown} */ (true));
+                            }
+                        });
+                } else {
+                    decl.parsed = /** @type {Node} */ (/** @type {unknown} */ (true));
+                }
+
+                return decl;
+            }
+            else {
+                return decl;
+            }
+        }
+        if (!Array.isArray(toParse)) {
+            return transformDeclaration.call(self, toParse);
+        }
+        else {
+            /** @type {Declaration[]} */
+            const nodes = [];
+            for (let ti = 0; ti < toParse.length; ti++) {
+                nodes.push(transformDeclaration.call(self, toParse[ti]));
+            }
+            return nodes;
+        }
+    }
+
+    rulesets() {
+        if (!this.rules) { return []; }
+
+        /** @type {Node[]} */
+        const filtRules = [];
+        const rules = this.rules;
+        /** @type {number} */
+        let i;
+        /** @type {Node} */
+        let rule;
+
+        for (i = 0; (rule = rules[i]); i++) {
+            if (/** @type {RuleNode} */ (rule).isRuleset) {
+                filtRules.push(rule);
+            }
+        }
+
+        return filtRules;
+    }
+
+    /** @param {Node} rule */
+    prependRule(rule) {
+        const rules = this.rules;
+        if (rules) {
+            rules.unshift(rule);
+        } else {
+            this.rules = [ rule ];
+        }
+        this.setParent(rule, this);
+    }
+
+    /**
+     * @param {Selector} selector
+     * @param {Ruleset | null} [self]
+     * @param {((rule: Node) => boolean)} [filter]
+     * @returns {{ rule: Node, path: Node[] }[]}
+     */
+    find(selector, self, filter) {
+        self = self || this;
+        /** @type {{ rule: Node, path: Node[] }[]} */
+        const rules = [];
+        /** @type {number | undefined} */
+        let match;
+        /** @type {{ rule: Node, path: Node[] }[]} */
+        let foundMixins;
+        const key = selector.toCSS(/** @type {EvalContext} */ ({}));
+
+        if (key in this._lookups) { return /** @type {{ rule: Node, path: Node[] }[]} */ (this._lookups[key]); }
+
+        this.rulesets().forEach(function (rule) {
+            if (rule !== self) {
+                for (let j = 0; j < /** @type {RuleNode} */ (rule).selectors.length; j++) {
+                    match = selector.match(/** @type {RuleNode} */ (rule).selectors[j]);
+                    if (match) {
+                        if (selector.elements.length > match) {
+                            if (!filter || filter(rule)) {
+                                foundMixins = /** @type {Ruleset} */ (/** @type {unknown} */ (rule)).find(new Selector(selector.elements.slice(match)), self, filter);
+                                for (let i = 0; i < foundMixins.length; ++i) {
+                                    foundMixins[i].path.push(rule);
+                                }
+                                Array.prototype.push.apply(rules, foundMixins);
+                            }
+                        } else {
+                            rules.push({ rule, path: []});
+                        }
+                        break;
+                    }
+                }
+            }
+        });
+        this._lookups[key] = rules;
+        return rules;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        /** @type {number} */
+        let i;
+        /** @type {number} */
+        let j;
+        /** @type {Node[]} */
+        const charsetRuleNodes = [];
+        /** @type {Node[]} */
+        let ruleNodes = [];
+
+        let // Line number debugging
+            debugInfo$1;
+
+        /** @type {Node} */
+        let rule;
+        /** @type {Selector[]} */
+        let path;
+
+        context.tabLevel = (context.tabLevel || 0);
+
+        if (!this.root) {
+            context.tabLevel++;
+        }
+
+        const tabRuleStr = context.compress ? '' : Array(context.tabLevel + 1).join('  ');
+        const tabSetStr = context.compress ? '' : Array(context.tabLevel).join('  ');
+        /** @type {string} */
+        let sep;
+
+        let charsetNodeIndex = 0;
+        let importNodeIndex = 0;
+        for (i = 0; (rule = /** @type {Node[]} */ (this.rules)[i]); i++) {
+            if (rule instanceof Comment) {
+                if (importNodeIndex === i) {
+                    importNodeIndex++;
+                }
+                ruleNodes.push(rule);
+            } else if (/** @type {RuleNode} */ (rule).isCharset && /** @type {RuleNode} */ (rule).isCharset()) {
+                ruleNodes.splice(charsetNodeIndex, 0, rule);
+                charsetNodeIndex++;
+                importNodeIndex++;
+            } else if (rule.type === 'Import') {
+                ruleNodes.splice(importNodeIndex, 0, rule);
+                importNodeIndex++;
+            } else {
+                ruleNodes.push(rule);
+            }
+        }
+        ruleNodes = charsetRuleNodes.concat(ruleNodes);
+
+        // If this is the root node, we don't render
+        // a selector, or {}.
+        if (!this.root) {
+            debugInfo$1 = debugInfo(context, /** @type {{ debugInfo: { lineNumber: number, fileName: string } }} */ (/** @type {unknown} */ (this)), tabSetStr);
+
+            if (debugInfo$1) {
+                output.add(debugInfo$1);
+                output.add(tabSetStr);
+            }
+
+            const paths = /** @type {Selector[][]} */ (this.paths);
+            const pathCnt = paths.length;
+            /** @type {number} */
+            let pathSubCnt;
+
+            sep = context.compress ? ',' : (`,\n${tabSetStr}`);
+
+            for (i = 0; i < pathCnt; i++) {
+                path = paths[i];
+                if (!(pathSubCnt = path.length)) { continue; }
+                if (i > 0) { output.add(sep); }
+
+                /** @type {EvalContext & { firstSelector?: boolean }} */ (context).firstSelector = true;
+                path[0].genCSS(context, output);
+
+                /** @type {EvalContext & { firstSelector?: boolean }} */ (context).firstSelector = false;
+                for (j = 1; j < pathSubCnt; j++) {
+                    path[j].genCSS(context, output);
+                }
+            }
+
+            output.add((context.compress ? '{' : ' {\n') + tabRuleStr);
+        }
+
+        // Compile rules and rulesets
+        for (i = 0; (rule = ruleNodes[i]); i++) {
+
+            if (i + 1 === ruleNodes.length) {
+                context.lastRule = true;
+            }
+
+            const currentLastRule = context.lastRule;
+            if (rule.isRulesetLike()) {
+                context.lastRule = false;
+            }
+
+            if (rule.genCSS) {
+                rule.genCSS(context, output);
+            } else if (rule.value) {
+                output.add(/** @type {string} */ (rule.value).toString());
+            }
+
+            context.lastRule = currentLastRule;
+
+            if (!context.lastRule && rule.isVisible()) {
+                output.add(context.compress ? '' : (`\n${tabRuleStr}`));
+            } else {
+                context.lastRule = false;
+            }
+        }
+
+        if (!this.root) {
+            output.add((context.compress ? '}' : `\n${tabSetStr}}`));
+            context.tabLevel--;
+        }
+
+        if (!output.isEmpty() && !context.compress && this.firstRoot) {
+            output.add('\n');
+        }
+    }
+
+    /**
+     * @param {Selector[][]} paths
+     * @param {Selector[][]} context
+     * @param {Selector[]} selectors
+     */
+    joinSelectors(paths, context, selectors) {
+        for (let s = 0; s < selectors.length; s++) {
+            this.joinSelector(paths, context, selectors[s]);
+        }
+    }
+
+    /**
+     * @param {Selector[][]} paths
+     * @param {Selector[][]} context
+     * @param {Selector} selector
+     */
+    joinSelector(paths, context, selector) {
+
+        /**
+         * @param {Selector[]} elementsToPak
+         * @param {Element} originalElement
+         * @returns {Paren}
+         */
+        function createParenthesis(elementsToPak, originalElement) {
+            /** @type {Paren} */
+            let replacementParen;
+            /** @type {number} */
+            let j;
+            if (elementsToPak.length === 0) {
+                replacementParen = new Paren(elementsToPak[0]);
+            } else {
+                const insideParent = new Array(elementsToPak.length);
+                for (j = 0; j < elementsToPak.length; j++) {
+                    insideParent[j] = new Element(
+                        null,
+                        elementsToPak[j],
+                        originalElement.isVariable,
+                        originalElement._index,
+                        originalElement._fileInfo
+                    );
+                }
+                replacementParen = new Paren(new Selector(insideParent));
+            }
+            return replacementParen;
+        }
+
+        /**
+         * @param {Paren | Selector} containedElement
+         * @param {Element} originalElement
+         * @returns {Selector}
+         */
+        function createSelector(containedElement, originalElement) {
+            /** @type {Element} */
+            let element;
+            /** @type {Selector} */
+            let selector;
+            element = new Element(null, containedElement, originalElement.isVariable, originalElement._index, originalElement._fileInfo);
+            selector = new Selector([element]);
+            return selector;
+        }
+
+        /**
+         * @param {Selector[]} beginningPath
+         * @param {Selector[]} addPath
+         * @param {Element} replacedElement
+         * @param {Selector} originalSelector
+         * @returns {Selector[]}
+         */
+        function addReplacementIntoPath(beginningPath, addPath, replacedElement, originalSelector) {
+            /** @type {Selector[]} */
+            let newSelectorPath;
+            /** @type {Selector} */
+            let lastSelector;
+            /** @type {Selector} */
+            let newJoinedSelector;
+            // our new selector path
+            newSelectorPath = [];
+
+            // construct the joined selector - if & is the first thing this will be empty,
+            // if not newJoinedSelector will be the last set of elements in the selector
+            if (beginningPath.length > 0) {
+                newSelectorPath = copyArray(beginningPath);
+                lastSelector = newSelectorPath.pop();
+                newJoinedSelector = originalSelector.createDerived(copyArray(lastSelector.elements));
+            }
+            else {
+                newJoinedSelector = originalSelector.createDerived([]);
+            }
+
+            if (addPath.length > 0) {
+                // /deep/ is a CSS4 selector - (removed, so should deprecate)
+                // that is valid without anything in front of it
+                // so if the & does not have a combinator that is "" or " " then
+                // and there is a combinator on the parent, then grab that.
+                // this also allows + a { & .b { .a & { ... though not sure why you would want to do that
+                let combinator = replacedElement.combinator;
+
+                const parentEl = addPath[0].elements[0];
+                if (combinator.emptyOrWhitespace && !parentEl.combinator.emptyOrWhitespace) {
+                    combinator = parentEl.combinator;
+                }
+                // join the elements so far with the first part of the parent
+                newJoinedSelector.elements.push(new Element(
+                    combinator,
+                    parentEl.value,
+                    replacedElement.isVariable,
+                    replacedElement._index,
+                    replacedElement._fileInfo
+                ));
+                newJoinedSelector.elements = newJoinedSelector.elements.concat(addPath[0].elements.slice(1));
+            }
+
+            // now add the joined selector - but only if it is not empty
+            if (newJoinedSelector.elements.length !== 0) {
+                newSelectorPath.push(newJoinedSelector);
+            }
+
+            // put together the parent selectors after the join (e.g. the rest of the parent)
+            if (addPath.length > 1) {
+                let restOfPath = addPath.slice(1);
+                restOfPath = restOfPath.map(function (/** @type {Selector} */ selector) {
+                    return selector.createDerived(selector.elements, []);
+                });
+                newSelectorPath = newSelectorPath.concat(restOfPath);
+            }
+            return newSelectorPath;
+        }
+
+        /**
+         * @param {Selector[][]} beginningPath
+         * @param {Selector[]} addPaths
+         * @param {Element} replacedElement
+         * @param {Selector} originalSelector
+         * @param {Selector[][]} result
+         * @returns {Selector[][]}
+         */
+        function addAllReplacementsIntoPath( beginningPath, addPaths, replacedElement, originalSelector, result) {
+            /** @type {number} */
+            let j;
+            for (j = 0; j < beginningPath.length; j++) {
+                const newSelectorPath = addReplacementIntoPath(beginningPath[j], addPaths, replacedElement, originalSelector);
+                result.push(newSelectorPath);
+            }
+            return result;
+        }
+
+        /**
+         * @param {Element[]} elements
+         * @param {Selector[][]} selectors
+         */
+        function mergeElementsOnToSelectors(elements, selectors) {
+            /** @type {number} */
+            let i;
+            /** @type {Selector[]} */
+            let sel;
+
+            if (elements.length === 0) {
+                return ;
+            }
+            if (selectors.length === 0) {
+                selectors.push([ new Selector(elements) ]);
+                return;
+            }
+
+            for (i = 0; (sel = selectors[i]); i++) {
+                // if the previous thing in sel is a parent this needs to join on to it
+                if (sel.length > 0) {
+                    sel[sel.length - 1] = sel[sel.length - 1].createDerived(sel[sel.length - 1].elements.concat(elements));
+                }
+                else {
+                    sel.push(new Selector(elements));
+                }
+            }
+        }
+
+        /**
+         * @param {Selector[][]} paths
+         * @param {Selector[][]} context
+         * @param {Selector} inSelector
+         * @returns {boolean}
+         */
+        function replaceParentSelector(paths, context, inSelector) {
+            // The paths are [[Selector]]
+            // The first list is a list of comma separated selectors
+            // The inner list is a list of inheritance separated selectors
+            // e.g.
+            // .a, .b {
+            //   .c {
+            //   }
+            // }
+            // == [[.a] [.c]] [[.b] [.c]]
+            //
+            /** @type {number} */
+            let i;
+            /** @type {number} */
+            let j;
+            /** @type {number} */
+            let k;
+            /** @type {Element[]} */
+            let currentElements;
+            /** @type {Selector[][]} */
+            let newSelectors;
+            /** @type {Selector[][]} */
+            let selectorsMultiplied;
+            /** @type {Selector[]} */
+            let sel;
+            /** @type {Element} */
+            let el;
+            let hadParentSelector = false;
+            /** @type {number} */
+            let length;
+            /** @type {Selector} */
+            let lastSelector;
+
+            /**
+             * @param {Element} element
+             * @returns {Selector | null}
+             */
+            function findNestedSelector(element) {
+                /** @type {Node} */
+                let maybeSelector;
+                if (!(element.value instanceof Paren)) {
+                    return null;
+                }
+
+                maybeSelector = /** @type {Node} */ (element.value.value);
+                if (!(maybeSelector instanceof Selector)) {
+                    return null;
+                }
+
+                return maybeSelector;
+            }
+
+            // the elements from the current selector so far
+            currentElements = [];
+            // the current list of new selectors to add to the path.
+            // We will build it up. We initiate it with one empty selector as we "multiply" the new selectors
+            // by the parents
+            newSelectors = [
+                []
+            ];
+
+            for (i = 0; (el = inSelector.elements[i]); i++) {
+                // non parent reference elements just get added
+                if (el.value !== '&') {
+                    const nestedSelector = findNestedSelector(el);
+                    if (nestedSelector !== null) {
+                        // merge the current list of non parent selector elements
+                        // on to the current list of selectors to add
+                        mergeElementsOnToSelectors(currentElements, newSelectors);
+
+                        /** @type {Selector[][]} */
+                        const nestedPaths = [];
+                        /** @type {boolean | undefined} */
+                        let replaced;
+                        /** @type {Selector[][]} */
+                        const replacedNewSelectors = [];
+
+                        // Check if this is a comma-separated selector list inside the paren
+                        // e.g. :not(&.a, &.b) produces Selector([Selector, Anonymous(','), Selector])
+                        const hasSubSelectors = nestedSelector.elements.some(e => e instanceof Selector);
+
+                        if (hasSubSelectors) {
+                            // Process each sub-selector individually
+                            /** @type {(Element | Selector)[]} */
+                            const resolvedElements = [];
+                            for (const subEl of nestedSelector.elements) {
+                                if (subEl instanceof Selector) {
+                                    /** @type {Selector[][]} */
+                                    const subPaths = [];
+                                    const subReplaced = replaceParentSelector(subPaths, context, subEl);
+                                    replaced = replaced || subReplaced;
+                                    if (subPaths.length > 0 && subPaths[0].length > 0) {
+                                        resolvedElements.push(subPaths[0][0]);
+                                    } else {
+                                        resolvedElements.push(subEl);
+                                    }
+                                } else {
+                                    resolvedElements.push(subEl);
+                                }
+                            }
+                            hadParentSelector = hadParentSelector || /** @type {boolean} */ (replaced);
+                            const resolvedNestedSelector = new Selector(resolvedElements);
+                            const replacementSelector = createSelector(createParenthesis([resolvedNestedSelector], el), el);
+                            addAllReplacementsIntoPath(newSelectors, [replacementSelector], el, inSelector, replacedNewSelectors);
+                        } else {
+                            replaced = replaceParentSelector(nestedPaths, context, nestedSelector);
+                            hadParentSelector = hadParentSelector || replaced;
+                            // the nestedPaths array should have only one member - replaceParentSelector does not multiply selectors
+                            for (k = 0; k < nestedPaths.length; k++) {
+                                const replacementSelector = createSelector(createParenthesis(nestedPaths[k], el), el);
+                                addAllReplacementsIntoPath(newSelectors, [replacementSelector], el, inSelector, replacedNewSelectors);
+                            }
+                        }
+                        newSelectors = replacedNewSelectors;
+                        currentElements = [];
+                    } else {
+                        currentElements.push(el);
+                    }
+
+                } else {
+                    hadParentSelector = true;
+                    // the new list of selectors to add
+                    selectorsMultiplied = [];
+
+                    // merge the current list of non parent selector elements
+                    // on to the current list of selectors to add
+                    mergeElementsOnToSelectors(currentElements, newSelectors);
+
+                    // loop through our current selectors
+                    for (j = 0; j < newSelectors.length; j++) {
+                        sel = newSelectors[j];
+                        // if we don't have any parent paths, the & might be in a mixin so that it can be used
+                        // whether there are parents or not
+                        if (context.length === 0) {
+                            // the combinator used on el should now be applied to the next element instead so that
+                            // it is not lost
+                            if (sel.length > 0) {
+                                sel[0].elements.push(new Element(el.combinator, '', el.isVariable, el._index, el._fileInfo));
+                            }
+                            selectorsMultiplied.push(sel);
+                        }
+                        else {
+                            // and the parent selectors
+                            for (k = 0; k < context.length; k++) {
+                                // We need to put the current selectors
+                                // then join the last selector's elements on to the parents selectors
+                                const newSelectorPath = addReplacementIntoPath(sel, context[k], el, inSelector);
+                                // add that to our new set of selectors
+                                selectorsMultiplied.push(newSelectorPath);
+                            }
+                        }
+                    }
+
+                    // our new selectors has been multiplied, so reset the state
+                    newSelectors = selectorsMultiplied;
+                    currentElements = [];
+                }
+            }
+
+            // if we have any elements left over (e.g. .a& .b == .b)
+            // add them on to all the current selectors
+            mergeElementsOnToSelectors(currentElements, newSelectors);
+
+            for (i = 0; i < newSelectors.length; i++) {
+                length = newSelectors[i].length;
+                if (length > 0) {
+                    paths.push(newSelectors[i]);
+                    lastSelector = newSelectors[i][length - 1];
+                    newSelectors[i][length - 1] = lastSelector.createDerived(lastSelector.elements, inSelector.extendList);
+                }
+            }
+
+            return hadParentSelector;
+        }
+
+        /**
+         * @param {VisibilityInfo} visibilityInfo
+         * @param {Selector} deriveFrom
+         */
+        function deriveSelector(visibilityInfo, deriveFrom) {
+            const newSelector = deriveFrom.createDerived(deriveFrom.elements, deriveFrom.extendList, deriveFrom.evaldCondition);
+            newSelector.copyVisibilityInfo(visibilityInfo);
+            return newSelector;
+        }
+
+        // joinSelector code follows
+        /** @type {number} */
+        let i;
+        /** @type {Selector[][]} */
+        let newPaths;
+        /** @type {boolean} */
+        let hadParentSelector;
+
+        newPaths = [];
+        hadParentSelector = replaceParentSelector(newPaths, context, selector);
+
+        if (!hadParentSelector) {
+            if (context.length > 0) {
+                newPaths = [];
+                for (i = 0; i < context.length; i++) {
+
+                    const concatenated = context[i].map(deriveSelector.bind(this, selector.visibilityInfo()));
+
+                    concatenated.push(selector);
+                    newPaths.push(concatenated);
+                }
+            }
+            else {
+                newPaths = [[selector]];
+            }
+        }
+
+        for (i = 0; i < newPaths.length; i++) {
+            paths.push(newPaths[i]);
+        }
+
+    }
+}
+
+// @ts-check
+
+/**
+ * @typedef {object} FunctionRegistry
+ * @property {(name: string, func: Function) => void} add
+ * @property {(functions: Object) => void} addMultiple
+ * @property {(name: string) => Function} get
+ * @property {() => Object} getLocalFunctions
+ * @property {() => FunctionRegistry} inherit
+ * @property {(base: FunctionRegistry) => FunctionRegistry} create
+ */
+
+/**
+ * @typedef {Node & {
+ *   features: Value,
+ *   rules: Ruleset[],
+ *   type: string,
+ *   functionRegistry?: FunctionRegistry,
+ *   multiMedia?: boolean,
+ *   debugInfo?: { lineNumber: number, fileName: string },
+ *   allowRoot?: boolean,
+ *   _evaluated?: boolean,
+ *   evalFunction: () => void,
+ *   evalTop: (context: EvalContext) => Node | Ruleset,
+ *   evalNested: (context: EvalContext) => Node | Ruleset,
+ *   permute: (arr: Node[][]) => Node[][],
+ *   bubbleSelectors: (selectors: Selector[] | undefined) => void,
+ *   outputRuleset: (context: EvalContext, output: CSSOutput, rules: Node[]) => void
+ * }} NestableAtRuleThis
+ */
+
+const NestableAtRulePrototype = {
+
+    isRulesetLike() {
+        return true;
+    },
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        /** @type {NestableAtRuleThis} */
+        const self = /** @type {NestableAtRuleThis} */ (/** @type {unknown} */ (this));
+        if (self.features) {
+            self.features = /** @type {Value} */ (visitor.visit(self.features));
+        }
+        if (self.rules) {
+            self.rules = /** @type {Ruleset[]} */ (visitor.visitArray(self.rules));
+        }
+    },
+
+    evalFunction: function () {
+        /** @type {NestableAtRuleThis} */
+        const self = /** @type {NestableAtRuleThis} */ (/** @type {unknown} */ (this));
+        if (!self.features || !Array.isArray(self.features.value) || self.features.value.length < 1) {
+            return;
+        }
+
+        const exprValues = /** @type {Node[]} */ (self.features.value);
+        /** @type {Node | undefined} */
+        let expr;
+        /** @type {Node | undefined} */
+        let paren;
+
+        for (let index = 0; index < exprValues.length; ++index) {
+            expr = exprValues[index];
+
+            if ((expr.type === 'Keyword' || expr.type === 'Variable')
+                && index + 1 < exprValues.length
+                && (/** @type {Node & { noSpacing?: boolean }} */ (expr).noSpacing || /** @type {Node & { noSpacing?: boolean }} */ (expr).noSpacing == null)) {
+                paren =  exprValues[index + 1];
+
+                if (paren.type ===  'Paren' && /** @type {Node & { noSpacing?: boolean }} */ (paren).noSpacing) {
+                    exprValues[index]= new Expression([expr, paren]);
+                    exprValues.splice(index + 1, 1);
+                    /** @type {Node & { noSpacing?: boolean }} */ (exprValues[index]).noSpacing = true;
+                }
+            }
+        }
+    },
+
+    /** @param {EvalContext} context */
+    evalTop(context) {
+        /** @type {NestableAtRuleThis} */
+        const self = /** @type {NestableAtRuleThis} */ (/** @type {unknown} */ (this));
+        self.evalFunction();
+
+        /** @type {Node | Ruleset} */
+        let result = self;
+
+        // Render all dependent Media blocks.
+        if (context.mediaBlocks.length > 1) {
+            const selectors = (new Selector([], null, null, self.getIndex(), self.fileInfo())).createEmptySelectors();
+            result = new Ruleset(selectors, context.mediaBlocks);
+            /** @type {Ruleset & { multiMedia?: boolean }} */ (result).multiMedia = true;
+            result.copyVisibilityInfo(self.visibilityInfo());
+            self.setParent(result, self);
+        }
+
+        delete context.mediaBlocks;
+        delete context.mediaPath;
+
+        return result;
+    },
+
+    /** @param {EvalContext} context */
+    evalNested(context) {
+        /** @type {NestableAtRuleThis} */
+        const self = /** @type {NestableAtRuleThis} */ (/** @type {unknown} */ (this));
+        self.evalFunction();
+
+        let i;
+        /** @type {Node | Node[]} */
+        let value;
+        const path = context.mediaPath.concat([self]);
+
+        // Extract the media-query conditions separated with `,` (OR).
+        for (i = 0; i < path.length; i++) {
+            if (path[i].type !== self.type) {
+                const blockIndex = context.mediaBlocks.indexOf(self);
+                if (blockIndex > -1) {
+                    context.mediaBlocks.splice(blockIndex, 1);
+                }
+                return self;
+            }
+
+            value = /** @type {NestableAtRuleThis} */ (path[i]).features instanceof Value ?
+                /** @type {Node[]} */ (/** @type {NestableAtRuleThis} */ (path[i]).features.value) : /** @type {NestableAtRuleThis} */ (path[i]).features;
+            path[i] = /** @type {Node} */ (/** @type {unknown} */ (Array.isArray(value) ? value : [value]));
+        }
+
+        // Trace all permutations to generate the resulting media-query.
+        //
+        // (a, b and c) with nested (d, e) ->
+        //    a and d
+        //    a and e
+        //    b and c and d
+        //    b and c and e
+        self.features = new Value(self.permute(/** @type {Node[][]} */ (/** @type {unknown} */ (path))).map(
+            /** @param {Node | Node[]} path */
+            path => {
+            path = /** @type {Node[]} */ (path).map(
+                /** @param {Node & { toCSS?: Function }} fragment */
+                fragment => fragment.toCSS ? fragment : new Anonymous(/** @type {string} */ (/** @type {unknown} */ (fragment))));
+
+            for (i = /** @type {Node[]} */ (path).length - 1; i > 0; i--) {
+                /** @type {Node[]} */ (path).splice(i, 0, new Anonymous('and'));
+            }
+
+            return new Expression(/** @type {Node[]} */ (path));
+        }));
+        self.setParent(self.features, self);
+
+        // Fake a tree-node that doesn't output anything.
+        return new Ruleset([], []);
+    },
+
+    /**
+     * @param {Node[][]} arr
+     * @returns {Node[][]}
+     */
+    permute(arr) {
+        if (arr.length === 0) {
+            return [];
+        } else if (arr.length === 1) {
+            return /** @type {Node[][]} */ (/** @type {unknown} */ (arr[0]));
+        } else {
+            /** @type {Node[][]} */
+            const result = [];
+            const rest = this.permute(arr.slice(1));
+            for (let i = 0; i < rest.length; i++) {
+                for (let j = 0; j < arr[0].length; j++) {
+                    result.push([arr[0][j]].concat(rest[i]));
+                }
+            }
+            return result;
+        }
+    },
+
+    /** @param {Selector[] | undefined} selectors */
+    bubbleSelectors(selectors) {
+        /** @type {NestableAtRuleThis} */
+        const self = /** @type {NestableAtRuleThis} */ (/** @type {unknown} */ (this));
+        if (!selectors) {
+            return;
+        }
+        self.rules = [new Ruleset(copyArray(selectors), [self.rules[0]])];
+        self.setParent(self.rules, self);
+    }
+};
+
+// @ts-check
+
+/**
+ * @typedef {Node & {
+ *   rules?: Node[],
+ *   selectors?: Selector[],
+ *   root?: boolean,
+ *   allowImports?: boolean,
+ *   functionRegistry?: FunctionRegistry,
+ *   merge?: boolean,
+ *   debugInfo?: { lineNumber: number, fileName: string },
+ *   elements?: import('./element.js').default[]
+ * }} RulesetLikeNode
+ */
+
+class AtRule extends Node {
+    get type() { return 'AtRule'; }
+
+    /**
+     * @param {string} [name]
+     * @param {Node | string} [value]
+     * @param {Node[] | Ruleset} [rules]
+     * @param {number} [index]
+     * @param {FileInfo} [currentFileInfo]
+     * @param {{ lineNumber: number, fileName: string }} [debugInfo]
+     * @param {boolean} [isRooted]
+     * @param {VisibilityInfo} [visibilityInfo]
+     */
+    constructor(
+        name,
+        value,
+        rules,
+        index,
+        currentFileInfo,
+        debugInfo,
+        isRooted,
+        visibilityInfo
+    ) {
+        super();
+        let i;
+        (new Selector([], null, null, index, currentFileInfo)).createEmptySelectors();
+
+        /** @type {string | undefined} */
+        this.name  = name;
+        this.value = (value instanceof Node) ? value : (value ? new Anonymous(value) : value);
+        /** @type {boolean | undefined} */
+        this.simpleBlock = undefined;
+        /** @type {RulesetLikeNode[] | undefined} */
+        this.declarations = undefined;
+        /** @type {RulesetLikeNode[] | undefined} */
+        this.rules = undefined;
+        if (rules) {
+            if (Array.isArray(rules)) {
+                const allDeclarations = this.declarationsBlock(rules);
+
+                let allRulesetDeclarations = true;
+                rules.forEach(rule => {
+                    if (rule.type === 'Ruleset' && /** @type {RulesetLikeNode} */ (rule).rules) allRulesetDeclarations = allRulesetDeclarations && this.declarationsBlock(/** @type {Node[]} */ (/** @type {RulesetLikeNode} */ (rule).rules), true);
+                });
+
+                if (allDeclarations && !isRooted) {
+                    this.simpleBlock = true;
+                    this.declarations = rules;
+                } else if (allRulesetDeclarations && rules.length === 1 && !isRooted && !value) {
+                    this.simpleBlock = true;
+                    this.declarations = /** @type {RulesetLikeNode} */ (rules[0]).rules ? /** @type {RulesetLikeNode} */ (rules[0]).rules : rules;
+                } else {
+                    this.rules = rules;
+                }
+            } else {
+                const allDeclarations = this.declarationsBlock(/** @type {Node[]} */ (rules.rules));
+
+                if (allDeclarations && !isRooted && !value) {
+                    this.simpleBlock = true;
+                    this.declarations = rules.rules;
+                } else {
+                    this.rules = [rules];
+                    /** @type {RulesetLikeNode} */ (this.rules[0]).selectors = (new Selector([], null, null, index, currentFileInfo)).createEmptySelectors();
+                }
+            }
+            if (!this.simpleBlock) {
+                for (i = 0; i < this.rules.length; i++) {
+                    /** @type {RulesetLikeNode} */ (this.rules[i]).allowImports = true;
+                }
+            }
+            if (this.declarations) {
+                this.setParent(this.declarations, /** @type {Node} */ (/** @type {unknown} */ (this)));
+            }
+            if (this.rules) {
+                this.setParent(this.rules, /** @type {Node} */ (/** @type {unknown} */ (this)));
+            }
+        }
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        /** @type {{ lineNumber: number, fileName: string } | undefined} */
+        this.debugInfo = debugInfo;
+        /** @type {boolean} */
+        this.isRooted = isRooted || false;
+        this.copyVisibilityInfo(visibilityInfo);
+        this.allowRoot = true;
+    }
+
+    /**
+     * @param {Node[]} rules
+     * @param {boolean} [mergeable]
+     * @returns {boolean}
+     */
+    declarationsBlock(rules, mergeable = false) {
+        if (!mergeable) {
+            return rules.filter(function (/** @type {Node & { merge?: boolean }} */ node) { return (node.type === 'Declaration' || node.type === 'Comment') && !node.merge}).length === rules.length;
+        } else {
+            return rules.filter(function (/** @type {Node} */ node) { return (node.type === 'Declaration' || node.type === 'Comment'); }).length === rules.length;
+        }
+    }
+
+    /**
+     * @param {Node[]} rules
+     * @returns {boolean}
+     */
+    keywordList(rules) {
+        if (!Array.isArray(rules)) {
+            return false;
+        } else {
+            return rules.filter(function (/** @type {Node} */ node) { return (node.type === 'Keyword' || node.type === 'Comment'); }).length === rules.length;
+        }
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        const value = this.value, rules = this.rules, declarations = this.declarations;
+
+        if (rules) {
+            this.rules = visitor.visitArray(rules);
+        } else if (declarations) {
+            this.declarations = visitor.visitArray(declarations);
+        }
+        if (value) {
+            this.value = visitor.visit(/** @type {Node} */ (value));
+        }
+    }
+
+    /** @override @returns {boolean} */
+    isRulesetLike() {
+        return /** @type {boolean} */ (/** @type {unknown} */ (this.rules || !this.isCharset()));
+    }
+
+    isCharset() {
+        return '@charset' === this.name;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        const value = this.value, rules = this.rules || this.declarations;
+        output.add(/** @type {string} */ (this.name), this.fileInfo(), this.getIndex());
+        if (value) {
+            output.add(' ');
+            /** @type {Node} */ (value).genCSS(context, output);
+        }
+        if (this.simpleBlock) {
+            this.outputRuleset(context, output, /** @type {Node[]} */ (this.declarations));
+        } else if (rules) {
+            this.outputRuleset(context, output, rules);
+        } else {
+            output.add(';');
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        let mediaPathBackup, mediaBlocksBackup, value = this.value, rules = this.rules || this.declarations;
+
+        // media stored inside other atrule should not bubble over it
+        // backpup media bubbling information
+        mediaPathBackup = context.mediaPath;
+        mediaBlocksBackup = context.mediaBlocks;
+        // deleted media bubbling information
+        context.mediaPath = [];
+        context.mediaBlocks = [];
+
+        if (value) {
+            value = /** @type {Node} */ (value).eval(context);
+        }
+
+        if (rules) {
+            rules = this.evalRoot(context, rules);
+        }
+        if (Array.isArray(rules) && /** @type {RulesetLikeNode} */ (rules[0]).rules && Array.isArray(/** @type {RulesetLikeNode} */ (rules[0]).rules) && /** @type {Node[]} */ (/** @type {RulesetLikeNode} */ (rules[0]).rules).length) {
+            const allMergeableDeclarations = this.declarationsBlock(/** @type {Node[]} */ (/** @type {RulesetLikeNode} */ (rules[0]).rules), true);
+            if (allMergeableDeclarations && !this.isRooted && !value) {
+                mergeRules(/** @type {Node[]} */ (/** @type {RulesetLikeNode} */ (rules[0]).rules));
+                rules = /** @type {RulesetLikeNode[]} */ (/** @type {RulesetLikeNode} */ (rules[0]).rules);
+                rules.forEach(/** @param {RulesetLikeNode} rule */ rule => { rule.merge = false; });
+            }
+        }
+        if (this.simpleBlock && rules) {
+            /** @type {RulesetLikeNode} */ (rules[0]).functionRegistry = /** @type {RulesetLikeNode} */ (context.frames[0]).functionRegistry.inherit();
+            rules = rules.map(function (/** @type {Node} */ rule) { return rule.eval(context); });
+        }
+
+        // restore media bubbling information
+        context.mediaPath = mediaPathBackup;
+        context.mediaBlocks = mediaBlocksBackup;
+        return /** @type {Node} */ (/** @type {unknown} */ (new AtRule(this.name, value, rules, this.getIndex(), this.fileInfo(), this.debugInfo, this.isRooted, this.visibilityInfo())));
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {Node[]} rules
+     * @returns {Node[]}
+     */
+    evalRoot(context, rules) {
+        let ampersandCount = 0;
+        let noAmpersandCount = 0;
+        let noAmpersands = true;
+
+        if (!this.simpleBlock) {
+            rules = [rules[0].eval(context)];
+        }
+
+        /** @type {Selector[]} */
+        let precedingSelectors = [];
+        if (context.frames.length > 0) {
+            for (let index = 0; index < context.frames.length; index++) {
+                const frame = /** @type {RulesetLikeNode} */ (context.frames[index]);
+                if (
+                    frame.type === 'Ruleset' &&
+                    frame.rules &&
+                    frame.rules.length > 0
+                ) {
+                    if (frame && !frame.root && frame.selectors && frame.selectors.length > 0) {
+                        precedingSelectors = precedingSelectors.concat(frame.selectors);
+                    }
+                }
+                if (precedingSelectors.length > 0) {
+                    const allAmpersandElements = precedingSelectors.every(
+                        sel => sel.elements && sel.elements.length > 0 && sel.elements.every(
+                            /** @param {import('./element.js').default} el */
+                            el => el.value === '&'
+                        )
+                    );
+                    if (allAmpersandElements) {
+                        noAmpersands = false;
+                        noAmpersandCount++;
+                    } else {
+                        ampersandCount++;
+                    }
+                }
+            }
+        }
+
+        const mixedAmpersands = ampersandCount > 0 && noAmpersandCount > 0 && !noAmpersands;
+        if (
+            (this.isRooted && ampersandCount > 0 && noAmpersandCount === 0 && noAmpersands)
+            || !mixedAmpersands
+        ) {
+            /** @type {RulesetLikeNode} */ (rules[0]).root = true;
+        }
+        return rules;
+    }
+
+    /** @param {string} name */
+    variable(name) {
+        if (this.rules) {
+            // assuming that there is only one rule at this point - that is how parser constructs the rule
+            return Ruleset.prototype.variable.call(this.rules[0], name);
+        }
+    }
+
+    find() {
+        if (this.rules) {
+            // assuming that there is only one rule at this point - that is how parser constructs the rule
+            return Ruleset.prototype.find.apply(this.rules[0], arguments);
+        }
+    }
+
+    rulesets() {
+        if (this.rules) {
+            // assuming that there is only one rule at this point - that is how parser constructs the rule
+            return Ruleset.prototype.rulesets.apply(this.rules[0]);
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     * @param {Node[]} rules
+     */
+    outputRuleset(context, output, rules) {
+        const ruleCnt = rules.length;
+        let i;
+        context.tabLevel = (context.tabLevel | 0) + 1;
+
+        // Compressed
+        if (context.compress) {
+            output.add('{');
+            for (i = 0; i < ruleCnt; i++) {
+                rules[i].genCSS(context, output);
+            }
+            output.add('}');
+            context.tabLevel--;
+            return;
+        }
+
+        // Non-compressed
+        const tabSetStr = `\n${Array(context.tabLevel).join('  ')}`, tabRuleStr = `${tabSetStr}  `;
+        if (!ruleCnt) {
+            output.add(` {${tabSetStr}}`);
+        } else {
+            output.add(` {${tabRuleStr}`);
+            rules[0].genCSS(context, output);
+            for (i = 1; i < ruleCnt; i++) {
+                output.add(tabRuleStr);
+                rules[i].genCSS(context, output);
+            }
+            output.add(`${tabSetStr}}`);
+        }
+
+        context.tabLevel--;
+    }
+}
+
+// Apply shared methods from NestableAtRulePrototype that AtRule doesn't override
+const { evalFunction, evalTop, evalNested, permute, bubbleSelectors } = NestableAtRulePrototype;
+Object.assign(AtRule.prototype, { evalFunction, evalTop, evalNested, permute, bubbleSelectors });
+
+// @ts-check
+
+class DetachedRuleset extends Node {
+    get type() { return 'DetachedRuleset'; }
+
+    /**
+     * @param {Node} ruleset
+     * @param {Node[]} [frames]
+     */
+    constructor(ruleset, frames) {
+        super();
+        this.ruleset = ruleset;
+        this.frames = frames;
+        this.evalFirst = true;
+        this.setParent(this.ruleset, this);
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        this.ruleset = visitor.visit(this.ruleset);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {DetachedRuleset}
+     */
+    eval(context) {
+        const frames = this.frames || copyArray(context.frames);
+        return new DetachedRuleset(this.ruleset, frames);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    callEval(context) {
+        return this.ruleset.eval(this.frames ? new contexts.Eval(context, this.frames.concat(context.frames)) : context);
+    }
+}
+
+// @ts-check
+const MATH = Math$1;
+
+class Operation extends Node {
+    get type() { return 'Operation'; }
+
+    /**
+     * @param {string} op
+     * @param {Node[]} operands
+     * @param {boolean} isSpaced
+     */
+    constructor(op, operands, isSpaced) {
+        super();
+        this.op = op.trim();
+        this.operands = operands;
+        this.isSpaced = isSpaced;
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        this.operands = visitor.visitArray(this.operands);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        let a = this.operands[0].eval(context), b = this.operands[1].eval(context), op;
+
+        if (context.isMathOn(this.op)) {
+            op = this.op === './' ? '/' : this.op;
+            if (a instanceof Dimension && b instanceof Color) {
+                a = /** @type {Dimension} */ (a).toColor();
+            }
+            if (b instanceof Dimension && a instanceof Color) {
+                b = /** @type {Dimension} */ (b).toColor();
+            }
+            if (!/** @type {Dimension | Color} */ (a).operate || !/** @type {Dimension | Color} */ (b).operate) {
+                if (
+                    (a instanceof Operation || b instanceof Operation)
+                    && /** @type {Operation} */ (a).op === '/' && context.math === MATH.PARENS_DIVISION
+                ) {
+                    return new Operation(this.op, [a, b], this.isSpaced);
+                }
+                throw { type: 'Operation',
+                    message: 'Operation on an invalid type' };
+            }
+
+            if (a instanceof Dimension) {
+                return a.operate(context, op, /** @type {Dimension} */ (b));
+            }
+            return /** @type {Color} */ (a).operate(context, op, /** @type {Color} */ (b));
+        } else {
+            return new Operation(this.op, [a, b], this.isSpaced);
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        this.operands[0].genCSS(context, output);
+        if (this.isSpaced) {
+            output.add(' ');
+        }
+        output.add(this.op);
+        if (this.isSpaced) {
+            output.add(' ');
+        }
+        this.operands[1].genCSS(context, output);
+    }
+}
+
+class functionCaller {
+    constructor(name, context, index, currentFileInfo) {
+        this.name = name.toLowerCase();
+        this.index = index;
+        this.context = context;
+        this.currentFileInfo = currentFileInfo;
+
+        this.func = context.frames[0].functionRegistry.get(this.name);
+    }
+
+    isValid() {
+        return Boolean(this.func);
+    }
+
+    call(args) {
+        if (!(Array.isArray(args))) {
+            args = [args];
+        }
+        const evalArgs = this.func.evalArgs;
+        if (evalArgs !== false) {
+            args = args.map(a => a.eval(this.context));
+        }
+        const commentFilter = item => !(item.type === 'Comment');
+
+        // This code is terrible and should be replaced as per this issue...
+        // https://github.com/less/less.js/issues/2477
+        args = args
+            .filter(commentFilter)
+            .map(item => {
+                if (item.type === 'Expression') {
+                    const subNodes = item.value.filter(commentFilter);
+                    if (subNodes.length === 1) {
+                        // https://github.com/less/less.js/issues/3616
+                        if (item.parens && subNodes[0].op === '/') {
+                            return item;
+                        }
+                        return subNodes[0];
+                    } else {
+                        return new Expression(subNodes);
+                    }
+                }
+                return item;
+            });
+
+        if (evalArgs === false) {
+            return this.func(this.context, ...args);
+        }
+
+        return this.func(...args);
+    }
+}
+
+// @ts-check
+
+//
+// A function call node.
+//
+class Call extends Node {
+    get type() { return 'Call'; }
+
+    /**
+     * @param {string} name
+     * @param {Node[]} args
+     * @param {number} index
+     * @param {FileInfo} currentFileInfo
+     */
+    constructor(name, args, index, currentFileInfo) {
+        super();
+        this.name = name;
+        this.args = args;
+        this.calc = name === 'calc';
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        if (this.args) {
+            this.args = visitor.visitArray(this.args);
+        }
+    }
+
+    //
+    // When evaluating a function call,
+    // we either find the function in the functionRegistry,
+    // in which case we call it, passing the  evaluated arguments,
+    // if this returns null or we cannot find the function, we
+    // simply print it out as it appeared originally [2].
+    //
+    // The reason why we evaluate the arguments, is in the case where
+    // we try to pass a variable to a function, like: `saturate(@color)`.
+    // The function should receive the value, not the variable.
+    //
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        /**
+         * Turn off math for calc(), and switch back on for evaluating nested functions
+         */
+        const currentMathContext = context.mathOn;
+        context.mathOn = !this.calc;
+        if (this.calc || context.inCalc) {
+            context.enterCalc();
+        }
+
+        const exitCalc = () => {
+            if (this.calc || context.inCalc) {
+                context.exitCalc();
+            }
+            context.mathOn = currentMathContext;
+        };
+
+        /** @type {Node | string | boolean | null | undefined} */
+        let result;
+        const funcCaller = new functionCaller(this.name, context, this.getIndex(), this.fileInfo());
+
+        if (funcCaller.isValid()) {
+            try {
+                result = funcCaller.call(this.args);
+                exitCalc();
+            } catch (e) {
+                // eslint-disable-next-line no-prototype-builtins
+                if (/** @type {Record<string, unknown>} */ (e).hasOwnProperty('line') && /** @type {Record<string, unknown>} */ (e).hasOwnProperty('column')) {
+                    throw e;
+                }
+                throw {
+                    type: /** @type {Record<string, string>} */ (e).type || 'Runtime',
+                    message: `Error evaluating function \`${this.name}\`${/** @type {Error} */ (e).message ? `: ${/** @type {Error} */ (e).message}` : ''}`,
+                    index: this.getIndex(),
+                    filename: this.fileInfo().filename,
+                    line: /** @type {Record<string, number>} */ (e).lineNumber,
+                    column: /** @type {Record<string, number>} */ (e).columnNumber
+                };
+            }
+        }
+
+        if (result !== null && result !== undefined) {
+            // Results that that are not nodes are cast as Anonymous nodes
+            // Falsy values or booleans are returned as empty nodes
+            if (!(result instanceof Node)) {
+                if (!result || result === true) {
+                    result = new Anonymous(null);
+                }
+                else {
+                    result = new Anonymous(result.toString());
+                }
+
+            }
+            result._index = this._index;
+            result._fileInfo = this._fileInfo;
+            return result;
+        }
+
+        const args = this.args.map(a => a.eval(context));
+        exitCalc();
+
+        return new Call(this.name, args, this.getIndex(), this.fileInfo());
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add(`${this.name}(`, this.fileInfo(), this.getIndex());
+
+        for (let i = 0; i < this.args.length; i++) {
+            this.args[i].genCSS(context, output);
+            if (i + 1 < this.args.length) {
+                output.add(', ');
+            }
+        }
+
+        output.add(')');
+    }
+}
+
+// @ts-check
+
+class Variable extends Node {
+    get type() { return 'Variable'; }
+
+    /**
+     * @param {string} name
+     * @param {number} [index]
+     * @param {FileInfo} [currentFileInfo]
+     */
+    constructor(name, index, currentFileInfo) {
+        super();
+        this.name = name;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        /** @type {boolean | undefined} */
+        this.evaluating = undefined;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        let variable, name = this.name;
+
+        if (name.indexOf('@@') === 0) {
+            name = `@${new Variable(name.slice(1), this.getIndex(), this.fileInfo()).eval(context).value}`;
+        }
+
+        if (this.evaluating) {
+            throw { type: 'Name',
+                message: `Recursive variable definition for ${name}`,
+                filename: this.fileInfo().filename,
+                index: this.getIndex() };
+        }
+
+        this.evaluating = true;
+
+        variable = this.find(context.frames, function (frame) {
+            const v = /** @type {Ruleset} */ (frame).variable(name);
+            if (v) {
+                if (v.important) {
+                    const importantScope = context.importantScope[context.importantScope.length - 1];
+                    importantScope.important = v.important;
+                }
+                // If in calc, wrap vars in a function call to cascade evaluate args first
+                if (context.inCalc) {
+                    return (new Call('_SELF', [v.value], 0, undefined)).eval(context);
+                }
+                else {
+                    return v.value.eval(context);
+                }
+            }
+        });
+        if (variable) {
+            this.evaluating = false;
+            return variable;
+        } else {
+            throw { type: 'Name',
+                message: `variable ${name} is undefined`,
+                filename: this.fileInfo().filename,
+                index: this.getIndex() };
+        }
+    }
+
+    /**
+     * @param {Node[]} obj
+     * @param {(frame: Node) => Node | undefined} fun
+     * @returns {Node | null}
+     */
+    find(obj, fun) {
+        for (let i = 0, r; i < obj.length; i++) {
+            r = fun.call(obj, obj[i]);
+            if (r) { return r; }
+        }
+        return null;
+    }
+}
+
+// @ts-check
+
+class Property extends Node {
+    get type() { return 'Property'; }
+
+    /**
+     * @param {string} name
+     * @param {number} index
+     * @param {FileInfo} currentFileInfo
+     */
+    constructor(name, index, currentFileInfo) {
+        super();
+        this.name = name;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        /** @type {boolean | undefined} */
+        this.evaluating = undefined;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        let property;
+        const name = this.name;
+        // TODO: shorten this reference
+        const mergeRules = /** @type {{ less: { visitors: { ToCSSVisitor: { prototype: { _mergeRules: (rules: Declaration[]) => void } } } } }} */ (context.pluginManager).less.visitors.ToCSSVisitor.prototype._mergeRules;
+
+        if (this.evaluating) {
+            throw { type: 'Name',
+                message: `Recursive property reference for ${name}`,
+                filename: this.fileInfo().filename,
+                index: this.getIndex() };
+        }
+
+        this.evaluating = true;
+
+        property = this.find(context.frames, function (/** @type {Node} */ frame) {
+            let v;
+            const vArr = /** @type {Ruleset} */ (frame).property(name);
+            if (vArr) {
+                for (let i = 0; i < vArr.length; i++) {
+                    v = vArr[i];
+
+                    vArr[i] = new Declaration(v.name,
+                        v.value,
+                        v.important,
+                        v.merge,
+                        v.index,
+                        v.currentFileInfo,
+                        v.inline,
+                        v.variable
+                    );
+                }
+                mergeRules(vArr);
+
+                v = vArr[vArr.length - 1];
+                if (v.important) {
+                    const importantScope = context.importantScope[context.importantScope.length - 1];
+                    importantScope.important = v.important;
+                }
+                v = v.value.eval(context);
+                return v;
+            }
+        });
+        if (property) {
+            this.evaluating = false;
+            return property;
+        } else {
+            throw { type: 'Name',
+                message: `Property '${name}' is undefined`,
+                filename: this.currentFileInfo.filename,
+                index: this.index };
+        }
+    }
+
+    /**
+     * @param {Node[]} obj
+     * @param {(frame: Node) => Node | undefined} fun
+     * @returns {Node | null}
+     */
+    find(obj, fun) {
+        for (let i = 0, r; i < obj.length; i++) {
+            r = fun.call(obj, obj[i]);
+            if (r) { return r; }
+        }
+        return null;
+    }
+}
+
+// @ts-check
+
+class Attribute extends Node {
+    get type() { return 'Attribute'; }
+
+    /**
+     * @param {string | Node} key
+     * @param {string} op
+     * @param {string | Node} value
+     * @param {string} cif
+     */
+    constructor(key, op, value, cif) {
+        super();
+        this.key = key;
+        this.op = op;
+        this.value = value;
+        this.cif = cif;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Attribute}
+     */
+    eval(context) {
+        return new Attribute(
+            /** @type {Node} */ (this.key).eval ? /** @type {Node} */ (this.key).eval(context) : /** @type {string} */ (this.key),
+            this.op,
+            (this.value && /** @type {Node} */ (this.value).eval) ? /** @type {Node} */ (this.value).eval(context) : this.value,
+            this.cif
+        );
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add(this.toCSS(context));
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {string}
+     */
+    toCSS(context) {
+        let value = /** @type {Node} */ (this.key).toCSS ? /** @type {Node} */ (this.key).toCSS(context) : /** @type {string} */ (this.key);
+
+        if (this.op) {
+            value += this.op;
+            value += (/** @type {Node} */ (this.value).toCSS ? /** @type {Node} */ (this.value).toCSS(context) : /** @type {string} */ (this.value));
+        }
+
+        if (this.cif) {
+            value = value + ' ' + this.cif;
+        }
+
+        return `[${value}]`;
+    }
+}
+
+// @ts-check
+
+class Quoted extends Node {
+    get type() { return 'Quoted'; }
+
+    /**
+     * @param {string} str
+     * @param {string} [content]
+     * @param {boolean} [escaped]
+     * @param {number} [index]
+     * @param {FileInfo} [currentFileInfo]
+     */
+    constructor(str, content, escaped, index, currentFileInfo) {
+        super();
+        /** @type {boolean} */
+        this.escaped = (escaped === undefined) ? true : escaped;
+        /** @type {string} */
+        this.value = content || '';
+        /** @type {string} */
+        this.quote = str.charAt(0);
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        /** @type {RegExp} */
+        this.variableRegex = /@\{([\w-]+)\}/g;
+        /** @type {RegExp} */
+        this.propRegex = /\$\{([\w-]+)\}/g;
+        /** @type {boolean | undefined} */
+        this.allowRoot = escaped;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        if (!this.escaped) {
+            output.add(this.quote, this.fileInfo(), this.getIndex());
+        }
+        output.add(/** @type {string} */ (this.value));
+        if (!this.escaped) {
+            output.add(this.quote);
+        }
+    }
+
+    /** @returns {RegExpMatchArray | null} */
+    containsVariables() {
+        return /** @type {string} */ (this.value).match(this.variableRegex);
+    }
+
+    /** @param {EvalContext} context */
+    eval(context) {
+        const that = this;
+        let value = /** @type {string} */ (this.value);
+        /**
+         * @param {string} _
+         * @param {string} name1
+         * @param {string} name2
+         * @returns {string}
+         */
+        const variableReplacement = function (_, name1, name2) {
+            const v = new Variable(`@${name1 ?? name2}`, that.getIndex(), that.fileInfo()).eval(context);
+            return (v instanceof Quoted) ? /** @type {string} */ (v.value) : v.toCSS(context);
+        };
+        /**
+         * @param {string} _
+         * @param {string} name1
+         * @param {string} name2
+         * @returns {string}
+         */
+        const propertyReplacement = function (_, name1, name2) {
+            const v = new Property(`$${name1 ?? name2}`, that.getIndex(), that.fileInfo()).eval(context);
+            return (v instanceof Quoted) ? /** @type {string} */ (v.value) : v.toCSS(context);
+        };
+        /**
+         * @param {string} value
+         * @param {RegExp} regexp
+         * @param {(substring: string, ...args: string[]) => string} replacementFnc
+         * @returns {string}
+         */
+        function iterativeReplace(value, regexp, replacementFnc) {
+            let evaluatedValue = value;
+            do {
+                value = evaluatedValue.toString();
+                evaluatedValue = value.replace(regexp, replacementFnc);
+            } while (value !== evaluatedValue);
+            return evaluatedValue;
+        }
+        value = iterativeReplace(value, this.variableRegex, variableReplacement);
+        value = iterativeReplace(value, this.propRegex, propertyReplacement);
+        return new Quoted(this.quote + value + this.quote, value, this.escaped, this.getIndex(), this.fileInfo());
+    }
+
+    /**
+     * @param {Node} other
+     * @returns {number | undefined}
+     */
+    compare(other) {
+        // when comparing quoted strings allow the quote to differ
+        if (other.type === 'Quoted' && !this.escaped && !/** @type {Quoted} */ (other).escaped) {
+            return Node.numericCompare(
+                /** @type {string} */ (this.value),
+                /** @type {string} */ (other.value)
+            );
+        } else {
+            return other.toCSS && this.toCSS(/** @type {EvalContext} */ ({})) === other.toCSS(/** @type {EvalContext} */ ({})) ? 0 : undefined;
+        }
+    }
+}
+
+// @ts-check
+
+/**
+ * @param {string} path
+ * @returns {string}
+ */
+function escapePath(path) {
+    return path.replace(/[()'"\s]/g, function(match) { return `\\${match}`; });
+}
+
+class URL extends Node {
+    get type() { return 'Url'; }
+
+    /**
+     * @param {Node} val
+     * @param {number} index
+     * @param {FileInfo} currentFileInfo
+     * @param {boolean} [isEvald]
+     */
+    constructor(val, index, currentFileInfo, isEvald) {
+        super();
+        this.value = val;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        /** @type {boolean | undefined} */
+        this.isEvald = isEvald;
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        this.value = visitor.visit(/** @type {Node} */ (this.value));
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add('url(');
+        /** @type {Node} */ (this.value).genCSS(context, output);
+        output.add(')');
+    }
+
+    /** @param {EvalContext} context */
+    eval(context) {
+        const val = /** @type {Node} */ (this.value).eval(context);
+        let rootpath;
+
+        if (!this.isEvald) {
+            // Add the rootpath if the URL requires a rewrite
+            rootpath = this.fileInfo() && this.fileInfo().rootpath;
+            if (typeof rootpath === 'string' &&
+                typeof val.value === 'string' &&
+                context.pathRequiresRewrite(/** @type {string} */ (val.value))) {
+                if (!/** @type {import('./quoted.js').default} */ (val).quote) {
+                    rootpath = escapePath(rootpath);
+                }
+                val.value = context.rewritePath(/** @type {string} */ (val.value), rootpath);
+            } else {
+                val.value = context.normalizePath(/** @type {string} */ (val.value));
+            }
+
+            // Add url args if enabled
+            if (context.urlArgs) {
+                if (!/** @type {string} */ (val.value).match(/^\s*data:/)) {
+                    const delimiter = /** @type {string} */ (val.value).indexOf('?') === -1 ? '?' : '&';
+                    const urlArgs = delimiter + context.urlArgs;
+                    if (/** @type {string} */ (val.value).indexOf('#') !== -1) {
+                        val.value = /** @type {string} */ (val.value).replace('#', `${urlArgs}#`);
+                    } else {
+                        val.value += urlArgs;
+                    }
+                }
+            }
+        }
+
+        return new URL(val, this.getIndex(), this.fileInfo(), true);
+    }
+}
+
+// @ts-check
+
+class Media extends AtRule {
+    get type() { return 'Media'; }
+
+    /**
+     * @param {Node[] | null} value
+     * @param {Node[]} features
+     * @param {number} [index]
+     * @param {FileInfo} [currentFileInfo]
+     * @param {VisibilityInfo} [visibilityInfo]
+     */
+    constructor(value, features, index, currentFileInfo, visibilityInfo) {
+        super();
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+
+        const selectors = (new Selector([], null, null, this._index, this._fileInfo)).createEmptySelectors();
+
+        /** @type {Value} */
+        this.features = new Value(features);
+        /** @type {RulesetLikeNode[]} */
+        this.rules = [new Ruleset(selectors, value)];
+        /** @type {RulesetLikeNode} */ (this.rules[0]).allowImports = true;
+        this.copyVisibilityInfo(visibilityInfo);
+        this.allowRoot = true;
+        this.setParent(selectors, /** @type {Node} */ (/** @type {unknown} */ (this)));
+        this.setParent(this.features, /** @type {Node} */ (/** @type {unknown} */ (this)));
+        this.setParent(this.rules, /** @type {Node} */ (/** @type {unknown} */ (this)));
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add('@media ', this._fileInfo, this._index);
+        this.features.genCSS(context, output);
+        this.outputRuleset(context, output, this.rules);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        if (!context.mediaBlocks) {
+            context.mediaBlocks = [];
+            context.mediaPath = [];
+        }
+
+        const media = new Media(null, [], this._index, this._fileInfo, this.visibilityInfo());
+        if (this.debugInfo) {
+            /** @type {RulesetLikeNode} */ (this.rules[0]).debugInfo = this.debugInfo;
+            media.debugInfo = this.debugInfo;
+        }
+
+        media.features = /** @type {Value} */ (this.features.eval(context));
+
+        context.mediaPath.push(/** @type {Node} */ (/** @type {unknown} */ (media)));
+        context.mediaBlocks.push(/** @type {Node} */ (/** @type {unknown} */ (media)));
+
+        const fr = /** @type {RulesetLikeNode} */ (context.frames[0]).functionRegistry;
+        if (fr) {
+            /** @type {RulesetLikeNode} */ (this.rules[0]).functionRegistry = fr.inherit();
+        }
+        context.frames.unshift(this.rules[0]);
+        media.rules = [/** @type {RulesetLikeNode} */ (this.rules[0].eval(context))];
+        context.frames.shift();
+
+        context.mediaPath.pop();
+
+        return context.mediaPath.length === 0 ? /** @type {NestableAtRuleThis} */ (/** @type {unknown} */ (media)).evalTop(context) :
+            /** @type {NestableAtRuleThis} */ (/** @type {unknown} */ (media)).evalNested(context);
+    }
+}
+
+// Apply NestableAtRulePrototype methods (accept, isRulesetLike override AtRule's versions)
+Object.assign(Media.prototype, NestableAtRulePrototype);
+
+// @ts-check
+
+/**
+ * @typedef {object} ImportOptions
+ * @property {boolean} [less]
+ * @property {boolean} [inline]
+ * @property {boolean} [isPlugin]
+ * @property {boolean} [reference]
+ */
+
+//
+// CSS @import node
+//
+// The general strategy here is that we don't want to wait
+// for the parsing to be completed, before we start importing
+// the file. That's because in the context of a browser,
+// most of the time will be spent waiting for the server to respond.
+//
+// On creation, we push the import path to our import queue, though
+// `import,push`, we also pass it a callback, which it'll call once
+// the file has been fetched, and parsed.
+//
+class Import extends Node {
+    get type() { return 'Import'; }
+
+    /**
+     * @param {Node} path
+     * @param {Node | null} features
+     * @param {ImportOptions} options
+     * @param {number} index
+     * @param {FileInfo} [currentFileInfo]
+     * @param {VisibilityInfo} [visibilityInfo]
+     */
+    constructor(path, features, options, index, currentFileInfo, visibilityInfo) {
+        super();
+        /** @type {ImportOptions} */
+        this.options = options;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        this.path = path;
+        /** @type {Node | null} */
+        this.features = features;
+        /** @type {boolean} */
+        this.allowRoot = true;
+
+        /** @type {boolean | undefined} */
+        this.css = undefined;
+        /** @type {boolean | undefined} */
+        this.layerCss = undefined;
+        /** @type {(Ruleset & { imports?: object, filename?: string, functions?: object, functionRegistry?: { addMultiple: (fns: object) => void } }) | undefined} */
+        this.root = undefined;
+        /** @type {string | undefined} */
+        this.importedFilename = undefined;
+        /** @type {boolean | (() => boolean) | undefined} */
+        this.skip = undefined;
+        /** @type {{ message: string, index: number, filename: string } | undefined} */
+        this.error = undefined;
+
+        if (this.options.less !== undefined || this.options.inline) {
+            this.css = !this.options.less || this.options.inline;
+        } else {
+            const pathValue = this.getPath();
+            if (pathValue && /[#.&?]css([?;].*)?$/.test(pathValue)) {
+                this.css = true;
+            }
+        }
+        this.copyVisibilityInfo(visibilityInfo);
+        if (this.features) {
+            this.setParent(this.features, /** @type {Node} */ (this));
+        }
+        this.setParent(this.path, /** @type {Node} */ (this));
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        if (this.features) {
+            this.features = visitor.visit(this.features);
+        }
+        this.path = visitor.visit(this.path);
+        if (!this.options.isPlugin && !this.options.inline && this.root) {
+            this.root = /** @type {Ruleset} */ (visitor.visit(this.root));
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        if (this.css && this.path._fileInfo.reference === undefined) {
+            output.add('@import ', this._fileInfo, this._index);
+            this.path.genCSS(context, output);
+            if (this.features) {
+                output.add(' ');
+                this.features.genCSS(context, output);
+            }
+            output.add(';');
+        }
+    }
+
+    /** @returns {string | undefined} */
+    getPath() {
+        return (this.path instanceof URL) ?
+            /** @type {string} */ (/** @type {Node} */ (this.path.value).value) :
+            /** @type {string | undefined} */ (this.path.value);
+    }
+
+    /** @returns {boolean | RegExpMatchArray | null} */
+    isVariableImport() {
+        let path = this.path;
+        if (path instanceof URL) {
+            path = /** @type {Node} */ (path.value);
+        }
+        if (path instanceof Quoted) {
+            return path.containsVariables();
+        }
+
+        return true;
+    }
+
+    /** @param {EvalContext} context */
+    evalForImport(context) {
+        let path = this.path;
+
+        if (path instanceof URL) {
+            path = /** @type {Node} */ (path.value);
+        }
+
+        return new Import(path.eval(context), this.features, this.options, this._index || 0, this._fileInfo, this.visibilityInfo());
+    }
+
+    /** @param {EvalContext} context */
+    evalPath(context) {
+        const path = this.path.eval(context);
+        const fileInfo = this._fileInfo;
+
+        if (!(path instanceof URL)) {
+            // Add the rootpath if the URL requires a rewrite
+            const pathValue = /** @type {string} */ (path.value);
+            if (fileInfo &&
+                pathValue &&
+                context.pathRequiresRewrite(pathValue)) {
+                path.value = context.rewritePath(pathValue, fileInfo.rootpath);
+            } else {
+                path.value = context.normalizePath(/** @type {string} */ (path.value));
+            }
+        }
+
+        return path;
+    }
+
+    /** @param {EvalContext} context */
+    // @ts-ignore - Import.eval returns Node | Node[] | Import (wider than Node.eval's Node return)
+    eval(context) {
+        const result = this.doEval(context);
+        if (this.options.reference || this.blocksVisibility()) {
+            if (Array.isArray(result)) {
+                result.forEach(function (node) {
+                    node.addVisibilityBlock();
+                });
+            } else {
+                /** @type {Node} */ (result).addVisibilityBlock();
+            }
+        }
+        return result;
+    }
+
+    /** @param {EvalContext} context */
+    doEval(context) {
+        /** @type {Ruleset | undefined} */
+        let ruleset;
+        const features = this.features && this.features.eval(context);
+
+        if (this.options.isPlugin) {
+            if (this.root && this.root.eval) {
+                try {
+                    this.root.eval(context);
+                }
+                catch (e) {
+                    const err = /** @type {{ message: string }} */ (e);
+                    err.message = 'Plugin error during evaluation';
+                    throw new LessError(
+                        /** @type {{ message: string, index?: number, filename?: string }} */ (e),
+                        /** @type {{ imports: object }} */ (/** @type {unknown} */ (this.root)).imports,
+                        /** @type {{ filename: string }} */ (/** @type {unknown} */ (this.root)).filename
+                    );
+                }
+            }
+            const frame0 = /** @type {Ruleset & { functionRegistry?: { addMultiple: (fns: object) => void } }} */ (context.frames[0]);
+            const registry = frame0 && frame0.functionRegistry;
+            if (registry && this.root && this.root.functions) {
+                registry.addMultiple(this.root.functions);
+            }
+
+            return [];
+        }
+
+        if (this.skip) {
+            if (typeof this.skip === 'function') {
+                this.skip = this.skip();
+            }
+            if (this.skip) {
+                return [];
+            }
+        }
+        if (this.features) {
+            let featureValue = /** @type {Node[]} */ (this.features.value);
+            if (Array.isArray(featureValue) && featureValue.length >= 1) {
+                const expr = featureValue[0];
+                if (expr.type === 'Expression' && Array.isArray(expr.value) && /** @type {Node[]} */ (expr.value).length >= 2) {
+                    featureValue = /** @type {Node[]} */ (expr.value);
+                    const isLayer = featureValue[0].type === 'Keyword' && featureValue[0].value === 'layer'
+                        && featureValue[1].type === 'Paren';
+                    if (isLayer) {
+                        this.css = false;
+                    }
+                }
+            }
+        }
+        if (this.options.inline) {
+            const contents = new Anonymous(
+                /** @type {string} */ (/** @type {unknown} */ (this.root)),
+                0,
+                {
+                    filename: this.importedFilename,
+                    reference: this.path._fileInfo && this.path._fileInfo.reference
+                },
+                true,
+                true
+            );
+
+            return this.features ? new Media([contents], /** @type {Node[]} */ (this.features.value)) : [contents];
+        } else if (this.css || this.layerCss) {
+            const newImport = new Import(this.evalPath(context), features, this.options, this._index || 0);
+            if (this.layerCss) {
+                newImport.css = this.layerCss;
+                newImport.path._fileInfo = this._fileInfo;
+            }
+            if (!newImport.css && this.error) {
+                throw this.error;
+            }
+            return newImport;
+        } else if (this.root) {
+            if (this.features) {
+                let featureValue = /** @type {Node[]} */ (this.features.value);
+                if (Array.isArray(featureValue) && featureValue.length === 1) {
+                    const expr = featureValue[0];
+                    if (expr.type === 'Expression' && Array.isArray(expr.value) && /** @type {Node[]} */ (expr.value).length >= 2) {
+                        featureValue = /** @type {Node[]} */ (expr.value);
+                        const isLayer = featureValue[0].type === 'Keyword' && featureValue[0].value === 'layer'
+                            && featureValue[1].type === 'Paren';
+                        if (isLayer) {
+                            this.layerCss = true;
+                            featureValue[0] = new Expression(/** @type {Node[]} */ (featureValue.slice(0, 2)));
+                            featureValue.splice(1, 1);
+                            /** @type {Expression} */ (featureValue[0]).noSpacing = true;
+                            return this;
+                        }
+                    }
+                }
+            }
+            ruleset = new Ruleset(null, copyArray(this.root.rules));
+            ruleset.evalImports(context);
+
+            return this.features ? new Media(ruleset.rules, /** @type {Node[]} */ (this.features.value)) : ruleset.rules;
+        } else {
+            if (this.features) {
+                let featureValue = /** @type {Node[]} */ (this.features.value);
+                if (Array.isArray(featureValue) && featureValue.length >= 1) {
+                    featureValue = /** @type {Node[]} */ (featureValue[0].value);
+                    if (Array.isArray(featureValue) && featureValue.length >= 2) {
+                        const isLayer = featureValue[0].type === 'Keyword' && featureValue[0].value === 'layer'
+                            && featureValue[1].type === 'Paren';
+                        if (isLayer) {
+                            this.css = true;
+                            featureValue[0] = new Expression(/** @type {Node[]} */ (featureValue.slice(0, 2)));
+                            featureValue.splice(1, 1);
+                            /** @type {Expression} */ (featureValue[0]).noSpacing = true;
+                            return this;
+                        }
+                    }
+                }
+            }
+            return [];
+        }
+    }
+}
+
+// @ts-check
+
+class JsEvalNode extends Node {
+    /**
+     * @param {string} expression
+     * @param {EvalContext} context
+     * @returns {string | number | boolean}
+     */
+    evaluateJavaScript(expression, context) {
+        let result;
+        const that = this;
+        /** @type {Record<string, { value: Node, toJS: () => string }>} */
+        const evalContext = {};
+
+        if (!context.javascriptEnabled) {
+            throw { message: 'Inline JavaScript is not enabled. Is it set in your options?',
+                filename: this.fileInfo().filename,
+                index: this.getIndex() };
+        }
+
+        expression = expression.replace(/@\{([\w-]+)\}/g, function (_, name) {
+            return that.jsify(new Variable(`@${name}`, that.getIndex(), that.fileInfo()).eval(context));
+        });
+
+        /** @type {Function} */
+        let expressionFunc;
+        try {
+            expressionFunc = new Function(`return (${expression})`);
+        } catch (e) {
+            throw { message: `JavaScript evaluation error: ${/** @type {Error} */ (e).message} from \`${expression}\`` ,
+                filename: this.fileInfo().filename,
+                index: this.getIndex() };
+        }
+
+        const variables = /** @type {Node & { variables: () => Record<string, { value: Node }> }} */ (context.frames[0]).variables();
+        for (const k in variables) {
+            // eslint-disable-next-line no-prototype-builtins
+            if (variables.hasOwnProperty(k)) {
+                evalContext[k.slice(1)] = {
+                    value: variables[k].value,
+                    toJS: function () {
+                        return this.value.eval(context).toCSS(context);
+                    }
+                };
+            }
+        }
+
+        try {
+            result = expressionFunc.call(evalContext);
+        } catch (e) {
+            throw { message: `JavaScript evaluation error: '${/** @type {Error} */ (e).name}: ${/** @type {Error} */ (e).message.replace(/["]/g, '\'')}'` ,
+                filename: this.fileInfo().filename,
+                index: this.getIndex() };
+        }
+        return result;
+    }
+
+    /**
+     * @param {Node} obj
+     * @returns {string}
+     */
+    jsify(obj) {
+        if (Array.isArray(obj.value) && (obj.value.length > 1)) {
+            return `[${obj.value.map(function (v) { return v.toCSS(/** @type {EvalContext} */ (undefined)); }).join(', ')}]`;
+        } else {
+            return obj.toCSS(/** @type {EvalContext} */ (undefined));
+        }
+    }
+}
+
+// @ts-check
+
+class JavaScript extends JsEvalNode {
+    get type() { return 'JavaScript'; }
+
+    /**
+     * @param {string} string
+     * @param {boolean} escaped
+     * @param {number} index
+     * @param {FileInfo} currentFileInfo
+     */
+    constructor(string, escaped, index, currentFileInfo) {
+        super();
+        this.escaped = escaped;
+        this.expression = string;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Dimension | Quoted | Anonymous}
+     */
+    eval(context) {
+        const result = this.evaluateJavaScript(this.expression, context);
+        const type = typeof result;
+
+        if (type === 'number' && !isNaN(/** @type {number} */ (result))) {
+            return new Dimension(/** @type {number} */ (result));
+        } else if (type === 'string') {
+            return new Quoted(`"${result}"`, /** @type {string} */ (result), this.escaped, this._index);
+        } else if (Array.isArray(result)) {
+            return new Anonymous(/** @type {string[]} */ (result).join(', '));
+        } else {
+            return new Anonymous(/** @type {string} */ (result));
+        }
+    }
+}
+
+// @ts-check
+
+class Assignment extends Node {
+    get type() { return 'Assignment'; }
+
+    /**
+     * @param {string} key
+     * @param {Node} val
+     */
+    constructor(key, val) {
+        super();
+        this.key = key;
+        this.value = val;
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        this.value = visitor.visit(/** @type {Node} */ (this.value));
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Assignment}
+     */
+    eval(context) {
+        if (/** @type {Node} */ (this.value).eval) {
+            return new Assignment(this.key, /** @type {Node} */ (this.value).eval(context));
+        }
+        return this;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add(`${this.key}=`);
+        if (/** @type {Node} */ (this.value).genCSS) {
+            /** @type {Node} */ (this.value).genCSS(context, output);
+        } else {
+            output.add(/** @type {string} */ (/** @type {unknown} */ (this.value)));
+        }
+    }
+}
+
+// @ts-check
+
+class Condition extends Node {
+    get type() { return 'Condition'; }
+
+    /**
+     * @param {string} op
+     * @param {Node} l
+     * @param {Node} r
+     * @param {number} i
+     * @param {boolean} negate
+     */
+    constructor(op, l, r, i, negate) {
+        super();
+        this.op = op.trim();
+        this.lvalue = l;
+        this.rvalue = r;
+        this._index = i;
+        this.negate = negate;
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        this.lvalue = visitor.visit(this.lvalue);
+        this.rvalue = visitor.visit(this.rvalue);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {boolean}
+     * @suppress {checkTypes}
+     */
+    // @ts-ignore - Condition.eval returns boolean, not Node (used as guard condition)
+    eval(context) {
+        const a = this.lvalue.eval(context);
+        const b = this.rvalue.eval(context);
+        /** @type {boolean} */
+        let result;
+
+        switch (this.op) {
+            case 'and': result = Boolean(a && b); break;
+            case 'or':  result = Boolean(a || b); break;
+            default:
+                switch (Node.compare(a, b)) {
+                    case -1:
+                        result = this.op === '<' || this.op === '=<' || this.op === '<=';
+                        break;
+                    case 0:
+                        result = this.op === '=' || this.op === '>=' || this.op === '=<' || this.op === '<=';
+                        break;
+                    case 1:
+                        result = this.op === '>' || this.op === '>=';
+                        break;
+                    default:
+                        result = false;
+                }
+        }
+
+        return this.negate ? !result : result;
+    }
+}
+
+// @ts-check
+
+class QueryInParens extends Node {
+    get type() { return 'QueryInParens'; }
+
+    /**
+     * @param {string} op
+     * @param {Node} l
+     * @param {Node} m
+     * @param {string | null} op2
+     * @param {Node | null} r
+     * @param {number} i
+     */
+    constructor(op, l, m, op2, r, i) {
+        super();
+        this.op = op.trim();
+        this.lvalue = l;
+        this.mvalue = m;
+        this.op2 = op2 ? op2.trim() : null;
+        /** @type {Node | null} */
+        this.rvalue = r;
+        this._index = i;
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        this.lvalue = visitor.visit(this.lvalue);
+        this.mvalue = visitor.visit(this.mvalue);
+        if (this.rvalue) {
+            this.rvalue = visitor.visit(this.rvalue);
+        }
+    }
+
+    /** @param {EvalContext} context */
+    eval(context) {
+        const node = new QueryInParens(
+            this.op,
+            this.lvalue.eval(context),
+            this.mvalue.eval(context),
+            this.op2,
+            this.rvalue ? this.rvalue.eval(context) : null,
+            this._index || 0
+        );
+        return node;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        this.lvalue.genCSS(context, output);
+        output.add(' ' + this.op + ' ');
+        this.mvalue.genCSS(context, output);
+        if (this.rvalue) {
+            output.add(' ' + this.op2 + ' ');
+            this.rvalue.genCSS(context, output);
+        }
+    }
+}
+
+// @ts-check
+
+/**
+ * @typedef {Ruleset & {
+ *   allowImports?: boolean,
+ *   debugInfo?: { lineNumber: number, fileName: string },
+ *   functionRegistry?: FunctionRegistry
+ * }} RulesetWithExtras
+ */
+
+class Container extends AtRule {
+    get type() { return 'Container'; }
+
+    /**
+     * @param {Node[] | null} value
+     * @param {Node[]} features
+     * @param {number} index
+     * @param {FileInfo} currentFileInfo
+     * @param {VisibilityInfo} visibilityInfo
+     */
+    constructor(value, features, index, currentFileInfo, visibilityInfo) {
+        super();
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+
+        const selectors = (new Selector([], null, null, this._index, this._fileInfo)).createEmptySelectors();
+
+        /** @type {Value} */
+        this.features = new Value(features);
+        /** @type {RulesetWithExtras[]} */
+        this.rules = [new Ruleset(selectors, value)];
+        this.rules[0].allowImports = true;
+        this.copyVisibilityInfo(visibilityInfo);
+        this.allowRoot = true;
+        this.setParent(selectors, /** @type {Node} */ (/** @type {unknown} */ (this)));
+        this.setParent(this.features, /** @type {Node} */ (/** @type {unknown} */ (this)));
+        this.setParent(this.rules, /** @type {Node} */ (/** @type {unknown} */ (this)));
+
+        /** @type {boolean | undefined} */
+        this._evaluated = undefined;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add('@container ', this._fileInfo, this._index);
+        this.features.genCSS(context, output);
+        this.outputRuleset(context, output, this.rules);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        if (this._evaluated) {
+            return /** @type {Node} */ (/** @type {unknown} */ (this));
+        }
+        if (!context.mediaBlocks) {
+            context.mediaBlocks = [];
+            context.mediaPath = [];
+        }
+
+        const media = new Container(null, [], this._index, this._fileInfo, this.visibilityInfo());
+        media._evaluated = true;
+        if (this.debugInfo) {
+            this.rules[0].debugInfo = this.debugInfo;
+            media.debugInfo = this.debugInfo;
+        }
+
+        media.features = /** @type {Value} */ (this.features.eval(context));
+
+        context.mediaPath.push(/** @type {Node} */ (/** @type {unknown} */ (media)));
+        context.mediaBlocks.push(/** @type {Node} */ (/** @type {unknown} */ (media)));
+
+        const fr = /** @type {RulesetWithExtras} */ (context.frames[0]).functionRegistry;
+        if (fr) {
+            this.rules[0].functionRegistry = fr.inherit();
+        }
+        context.frames.unshift(this.rules[0]);
+        media.rules = [/** @type {RulesetWithExtras} */ (this.rules[0].eval(context))];
+        context.frames.shift();
+
+        context.mediaPath.pop();
+
+        return context.mediaPath.length === 0 ? /** @type {NestableAtRuleThis} */ (/** @type {unknown} */ (media)).evalTop(context) :
+            /** @type {NestableAtRuleThis} */ (/** @type {unknown} */ (media)).evalNested(context);
+    }
+}
+
+// Apply NestableAtRulePrototype methods (accept, isRulesetLike override AtRule's versions)
+Object.assign(Container.prototype, NestableAtRulePrototype);
+
+// @ts-check
+
+class UnicodeDescriptor extends Node {
+    get type() { return 'UnicodeDescriptor'; }
+
+    /** @param {string} value */
+    constructor(value) {
+        super();
+        this.value = value;
+    }
+}
+
+// @ts-check
+
+class Negative extends Node {
+    get type() { return 'Negative'; }
+
+    /** @param {Node} node */
+    constructor(node) {
+        super();
+        this.value = node;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {CSSOutput} output
+     */
+    genCSS(context, output) {
+        output.add('-');
+        /** @type {Node} */ (this.value).genCSS(context, output);
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        if (context.isMathOn('*')) {
+            return (new Operation('*', [new Dimension(-1), /** @type {Node} */ (this.value)], false)).eval(context);
+        }
+        return new Negative(/** @type {Node} */ (this.value).eval(context));
+    }
+}
+
+// @ts-check
+
+class Extend extends Node {
+    get type() { return 'Extend'; }
+
+    /**
+     * @param {Selector} selector
+     * @param {string} option
+     * @param {number} index
+     * @param {FileInfo} currentFileInfo
+     * @param {VisibilityInfo} [visibilityInfo]
+     */
+    constructor(selector, option, index, currentFileInfo, visibilityInfo) {
+        super();
+        this.selector = selector;
+        this.option = option;
+        this.object_id = Extend.next_id++;
+        /** @type {number[]} */
+        this.parent_ids = [this.object_id];
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        this.copyVisibilityInfo(visibilityInfo);
+        /** @type {boolean} */
+        this.allowRoot = true;
+        /** @type {boolean} */
+        this.allowBefore = false;
+        /** @type {boolean} */
+        this.allowAfter = false;
+
+        switch (option) {
+            case '!all':
+            case 'all':
+                this.allowBefore = true;
+                this.allowAfter = true;
+                break;
+            default:
+                this.allowBefore = false;
+                this.allowAfter = false;
+                break;
+        }
+        this.setParent(this.selector, this);
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        this.selector = /** @type {Selector} */ (visitor.visit(this.selector));
+    }
+
+    /** @param {EvalContext} context */
+    eval(context) {
+        return new Extend(/** @type {Selector} */ (this.selector.eval(context)), this.option, this.getIndex(), this.fileInfo(), this.visibilityInfo());
+    }
+
+    // remove when Nodes have JSDoc types
+    // eslint-disable-next-line no-unused-vars
+    /** @param {EvalContext} [context] */
+    clone(context) {
+        return new Extend(this.selector, this.option, this.getIndex(), this.fileInfo(), this.visibilityInfo());
+    }
+
+    // it concatenates (joins) all selectors in selector array
+    /** @param {Selector[]} selectors */
+    findSelfSelectors(selectors) {
+        /** @type {import('./element.js').default[]} */
+        let selfElements = [];
+        let i, selectorElements;
+
+        for (i = 0; i < selectors.length; i++) {
+            selectorElements = selectors[i].elements;
+            // duplicate the logic in genCSS function inside the selector node.
+            // future TODO - move both logics into the selector joiner visitor
+            if (i > 0 && selectorElements.length && selectorElements[0].combinator.value === '') {
+                selectorElements[0].combinator.value = ' ';
+            }
+            selfElements = selfElements.concat(selectors[i].elements);
+        }
+
+        /** @type {Selector[]} */
+        this.selfSelectors = [new Selector(selfElements)];
+        this.selfSelectors[0].copyVisibilityInfo(this.visibilityInfo());
+    }
+}
+
+Extend.next_id = 0;
+
+// @ts-check
+
+class VariableCall extends Node {
+    get type() { return 'VariableCall'; }
+
+    /**
+     * @param {string} variable
+     * @param {number} index
+     * @param {FileInfo} currentFileInfo
+     */
+    constructor(variable, index, currentFileInfo) {
+        super();
+        this.variable = variable;
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        this.allowRoot = true;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        let rules;
+        /** @type {DetachedRuleset | Node} */
+        let detachedRuleset = new Variable(this.variable, this.getIndex(), this.fileInfo()).eval(context);
+        const error = new LessError({message: `Could not evaluate variable call ${this.variable}`});
+
+        if (!(/** @type {DetachedRuleset} */ (detachedRuleset)).ruleset) {
+            const dr = /** @type {Node & { rules?: Node[] }} */ (detachedRuleset);
+            if (dr.rules) {
+                rules = detachedRuleset;
+            }
+            else if (Array.isArray(detachedRuleset)) {
+                rules = new Ruleset(null, detachedRuleset);
+            }
+            else if (Array.isArray(detachedRuleset.value)) {
+                rules = new Ruleset(null, detachedRuleset.value);
+            }
+            else {
+                throw error;
+            }
+            detachedRuleset = new DetachedRuleset(rules);
+        }
+
+        const dr = /** @type {DetachedRuleset} */ (detachedRuleset);
+        if (dr.ruleset) {
+            return dr.callEval(context);
+        }
+        throw error;
+    }
+}
+
+// @ts-check
+
+class NamespaceValue extends Node {
+    get type() { return 'NamespaceValue'; }
+
+    /**
+     * @param {Node} ruleCall
+     * @param {string[]} lookups
+     * @param {number} index
+     * @param {FileInfo} fileInfo
+     */
+    constructor(ruleCall, lookups, index, fileInfo) {
+        super();
+        this.value = ruleCall;
+        this.lookups = lookups;
+        this._index = index;
+        this._fileInfo = fileInfo;
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        let i, name;
+        /** @type {Ruleset | Node | Node[]} */
+        let rules = this.value.eval(context);
+
+        for (i = 0; i < this.lookups.length; i++) {
+            name = this.lookups[i];
+
+            if (Array.isArray(rules)) {
+                rules = new Ruleset([new Selector()], rules);
+            }
+
+            const rs = /** @type {Ruleset} */ (rules);
+
+            if (name === '') {
+                rules = rs.lastDeclaration();
+            }
+            else if (name.charAt(0) === '@') {
+                if (name.charAt(1) === '@') {
+                    name = `@${new Variable(name.slice(1)).eval(context).value}`;
+                }
+                if (rs.variables) {
+                    rules = rs.variable(name);
+                }
+
+                if (!rules) {
+                    throw { type: 'Name',
+                        message: `variable ${name} not found`,
+                        filename: this.fileInfo().filename,
+                        index: this.getIndex() };
+                }
+            }
+            else {
+                if (name.substring(0, 2) === '$@') {
+                    name = `$${new Variable(name.slice(1)).eval(context).value}`;
+                }
+                else {
+                    name = name.charAt(0) === '$' ? name : `$${name}`;
+                }
+                if (rs.properties) {
+                    rules = rs.property(name);
+                }
+
+                if (!rules) {
+                    throw { type: 'Name',
+                        message: `property "${name.slice(1)}" not found`,
+                        filename: this.fileInfo().filename,
+                        index: this.getIndex() };
+                }
+                const rulesArr = /** @type {Node[]} */ (rules);
+                rules = rulesArr[rulesArr.length - 1];
+            }
+
+            const current = /** @type {Node} */ (rules);
+            if (current.value) {
+                rules = /** @type {Node} */ (current.eval(context).value);
+            }
+            const currentNode = /** @type {Node & { ruleset?: Node }} */ (rules);
+            if (currentNode.ruleset) {
+                rules = currentNode.ruleset.eval(context);
+            }
+        }
+        return /** @type {Node} */ (rules);
+    }
+}
+
+// @ts-check
+
+/**
+ * @typedef {object} MixinParam
+ * @property {string} [name]
+ * @property {Node} [value]
+ * @property {boolean} [variadic]
+ */
+
+/**
+ * @typedef {Ruleset & {
+ *   functionRegistry?: FunctionRegistry,
+ *   originalRuleset?: Node
+ * }} RulesetWithRegistry
+ */
+
+class Definition extends Ruleset {
+    get type() { return 'MixinDefinition'; }
+
+    /**
+     * @param {string | undefined} name
+     * @param {MixinParam[]} params
+     * @param {Node[]} rules
+     * @param {Node | null} [condition]
+     * @param {boolean} [variadic]
+     * @param {Node[] | null} [frames]
+     * @param {VisibilityInfo} [visibilityInfo]
+     */
+    constructor(name, params, rules, condition, variadic, frames, visibilityInfo) {
+        super(null, null);
+        /** @type {string} */
+        this.name = name || 'anonymous mixin';
+        this.selectors = [new Selector([new Element(null, name, false, this._index, this._fileInfo)])];
+        /** @type {MixinParam[]} */
+        this.params = params;
+        /** @type {Node | null | undefined} */
+        this.condition = condition;
+        /** @type {boolean | undefined} */
+        this.variadic = variadic;
+        /** @type {number} */
+        this.arity = params.length;
+        this.rules = rules;
+        this._lookups = {};
+        /** @type {string[]} */
+        const optionalParameters = [];
+        /** @type {number} */
+        this.required = params.reduce(function (/** @type {number} */ count, /** @type {MixinParam} */ p) {
+            if (!p.name || (p.name && !p.value)) {
+                return count + 1;
+            }
+            else {
+                optionalParameters.push(p.name);
+                return count;
+            }
+        }, 0);
+        /** @type {string[]} */
+        this.optionalParameters = optionalParameters;
+        /** @type {Node[] | null | undefined} */
+        this.frames = frames;
+        this.copyVisibilityInfo(visibilityInfo);
+        this.allowRoot = true;
+        /** @type {boolean} */
+        this.evalFirst = true;
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        if (this.params && this.params.length) {
+            this.params = /** @type {MixinParam[]} */ (/** @type {unknown} */ (visitor.visitArray(/** @type {Node[]} */ (/** @type {unknown} */ (this.params)))));
+        }
+        this.rules = visitor.visitArray(this.rules);
+        if (this.condition) {
+            this.condition = visitor.visit(this.condition);
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {EvalContext} mixinEnv
+     * @param {MixinArg[] | null} args
+     * @param {Node[]} evaldArguments
+     * @returns {Ruleset}
+     */
+    evalParams(context, mixinEnv, args, evaldArguments) {
+        /* jshint boss:true */
+        const frame = new Ruleset(null, null);
+
+        /** @type {Node[] | undefined} */
+        let varargs;
+        /** @type {MixinArg | undefined} */
+        let arg;
+        const params = /** @type {MixinParam[]} */ (copyArray(this.params));
+        /** @type {number} */
+        let i;
+        /** @type {number} */
+        let j;
+        /** @type {Node | undefined} */
+        let val;
+        /** @type {string | undefined} */
+        let name;
+        /** @type {boolean} */
+        let isNamedFound;
+        /** @type {number} */
+        let argIndex;
+        let argsLength = 0;
+
+        if (mixinEnv.frames && mixinEnv.frames[0] && /** @type {RulesetWithRegistry} */ (mixinEnv.frames[0]).functionRegistry) {
+            /** @type {RulesetWithRegistry} */ (frame).functionRegistry = /** @type {FunctionRegistry} */ (/** @type {RulesetWithRegistry} */ (mixinEnv.frames[0]).functionRegistry).inherit();
+        }
+        mixinEnv = new contexts.Eval(mixinEnv, /** @type {Node[]} */ ([frame]).concat(/** @type {Node[]} */ (mixinEnv.frames)));
+
+        if (args) {
+            args = /** @type {MixinArg[]} */ (copyArray(args));
+            argsLength = args.length;
+
+            for (i = 0; i < argsLength; i++) {
+                arg = args[i];
+                if (name = (arg && arg.name)) {
+                    isNamedFound = false;
+                    for (j = 0; j < params.length; j++) {
+                        if (!evaldArguments[j] && name === params[j].name) {
+                            evaldArguments[j] = arg.value.eval(context);
+                            frame.prependRule(new Declaration(name, arg.value.eval(context)));
+                            isNamedFound = true;
+                            break;
+                        }
+                    }
+                    if (isNamedFound) {
+                        args.splice(i, 1);
+                        i--;
+                        continue;
+                    } else {
+                        throw { type: 'Runtime', message: `Named argument for ${this.name} ${args[i].name} not found` };
+                    }
+                }
+            }
+        }
+        argIndex = 0;
+        for (i = 0; i < params.length; i++) {
+            if (evaldArguments[i]) { continue; }
+
+            arg = args && args[argIndex];
+
+            if (name = params[i].name) {
+                if (params[i].variadic) {
+                    varargs = [];
+                    for (j = argIndex; j < argsLength; j++) {
+                        varargs.push(/** @type {MixinArg[]} */ (args)[j].value.eval(context));
+                    }
+                    frame.prependRule(new Declaration(name, new Expression(varargs).eval(context)));
+                } else {
+                    val = arg && arg.value;
+                    if (val) {
+                        // This was a mixin call, pass in a detached ruleset of it's eval'd rules
+                        if (Array.isArray(val)) {
+                            val = /** @type {Node} */ (/** @type {unknown} */ (new DetachedRuleset(new Ruleset(null, /** @type {Node[]} */ (val)))));
+                        }
+                        else {
+                            val = val.eval(context);
+                        }
+                    } else if (params[i].value) {
+                        val = /** @type {Node} */ (params[i].value).eval(mixinEnv);
+                        frame.resetCache();
+                    } else {
+                        throw { type: 'Runtime', message: `wrong number of arguments for ${this.name} (${argsLength} for ${this.arity})` };
+                    }
+
+                    frame.prependRule(new Declaration(name, val));
+                    evaldArguments[i] = val;
+                }
+            }
+
+            if (params[i].variadic && args) {
+                for (j = argIndex; j < argsLength; j++) {
+                    evaldArguments[j] = args[j].value.eval(context);
+                }
+            }
+            argIndex++;
+        }
+
+        return frame;
+    }
+
+    /** @returns {Ruleset} */
+    makeImportant() {
+        const rules = !this.rules ? this.rules : this.rules.map(function (/** @type {Node & { makeImportant?: (important?: boolean) => Node }} */ r) {
+            if (r.makeImportant) {
+                return r.makeImportant(true);
+            } else {
+                return r;
+            }
+        });
+        const result = new Definition(this.name, this.params, rules, this.condition, this.variadic, this.frames);
+        return /** @type {Ruleset} */ (/** @type {unknown} */ (result));
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Definition}
+     */
+    eval(context) {
+        return new Definition(this.name, this.params, this.rules, this.condition, this.variadic, this.frames || copyArray(context.frames));
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @param {MixinArg[]} args
+     * @param {string | undefined} important
+     * @returns {Ruleset}
+     */
+    evalCall(context, args, important) {
+        /** @type {Node[]} */
+        const _arguments = [];
+        const mixinFrames = this.frames ? /** @type {Node[]} */ (this.frames).concat(/** @type {Node[]} */ (context.frames)) : /** @type {Node[]} */ (context.frames);
+        const frame = this.evalParams(context, new contexts.Eval(context, mixinFrames), args, _arguments);
+        /** @type {Node[]} */
+        let rules;
+        /** @type {Ruleset} */
+        let ruleset;
+
+        frame.prependRule(new Declaration('@arguments', new Expression(_arguments).eval(context)));
+
+        rules = copyArray(this.rules);
+
+        ruleset = new Ruleset(null, rules);
+        /** @type {RulesetWithRegistry} */ (ruleset).originalRuleset = this;
+        ruleset = /** @type {Ruleset} */ (ruleset.eval(new contexts.Eval(context, /** @type {Node[]} */ ([this, frame]).concat(mixinFrames))));
+        if (important) {
+            ruleset = /** @type {Ruleset} */ (ruleset.makeImportant());
+        }
+        return ruleset;
+    }
+
+    /**
+     * @param {MixinArg[] | null} args
+     * @param {EvalContext} context
+     * @returns {boolean}
+     */
+    matchCondition(args, context) {
+        if (this.condition && !this.condition.eval(
+            new contexts.Eval(context,
+                /** @type {Node[]} */ ([this.evalParams(context, /* the parameter variables */
+                    new contexts.Eval(context, this.frames ? /** @type {Node[]} */ (this.frames).concat(/** @type {Node[]} */ (context.frames)) : context.frames), args, [])])
+                    .concat(/** @type {Node[]} */ (this.frames || [])) // the parent namespace/mixin frames
+                    .concat(/** @type {Node[]} */ (context.frames))))) { // the current environment frames
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param {MixinArg[] | null} args
+     * @param {EvalContext} [context]
+     * @returns {boolean}
+     */
+    matchArgs(args, context) {
+        const allArgsCnt = (args && args.length) || 0;
+        let len;
+        const optionalParameters = this.optionalParameters;
+        const requiredArgsCnt = !args ? 0 : args.reduce(function (/** @type {number} */ count, /** @type {MixinArg} */ p) {
+            if (optionalParameters.indexOf(p.name) < 0) {
+                return count + 1;
+            } else {
+                return count;
+            }
+        }, 0);
+
+        if (!this.variadic) {
+            if (requiredArgsCnt < this.required) {
+                return false;
+            }
+            if (allArgsCnt > this.params.length) {
+                return false;
+            }
+        } else {
+            if (requiredArgsCnt < (this.required - 1)) {
+                return false;
+            }
+        }
+
+        // check patterns
+        len = Math.min(requiredArgsCnt, this.arity);
+
+        for (let i = 0; i < len; i++) {
+            if (!this.params[i].name && !this.params[i].variadic) {
+                if (/** @type {MixinArg[]} */ (args)[i].value.eval(context).toCSS(/** @type {EvalContext} */ ({})) != /** @type {Node} */ (this.params[i].value).eval(context).toCSS(/** @type {EvalContext} */ ({}))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+// @ts-check
+
+/**
+ * @typedef {{ name?: string, value: Node, expand?: boolean }} MixinArg
+ */
+
+/**
+ * @typedef {Node & {
+ *   rules?: Node[],
+ *   selectors?: Selector[],
+ *   originalRuleset?: Node,
+ *   matchArgs: (args: MixinArg[] | null, context: EvalContext) => boolean,
+ *   matchCondition?: (args: MixinArg[] | null, context: EvalContext) => boolean,
+ *   find: (selector: Selector, self?: Node | null, filter?: (rule: Node) => boolean) => Array<{ rule: Node & { rules?: Node[], originalRuleset?: Node, matchArgs: Function, matchCondition?: Function, evalCall?: Function }, path: Node[] }>,
+ *   functionRegistry?: FunctionRegistry
+ * }} MixinSearchFrame
+ */
+
+class MixinCall extends Node {
+    get type() { return 'MixinCall'; }
+
+    /**
+     * @param {import('./element.js').default[]} elements
+     * @param {MixinArg[]} [args]
+     * @param {number} [index]
+     * @param {FileInfo} [currentFileInfo]
+     * @param {string} [important]
+     */
+    constructor(elements, args, index, currentFileInfo, important) {
+        super();
+        /** @type {Selector} */
+        this.selector = new Selector(elements);
+        /** @type {MixinArg[]} */
+        this.arguments = args || [];
+        this._index = index;
+        this._fileInfo = currentFileInfo;
+        /** @type {string | undefined} */
+        this.important = important;
+        this.allowRoot = true;
+        this.setParent(this.selector, /** @type {Node} */ (/** @type {unknown} */ (this)));
+    }
+
+    /** @param {TreeVisitor} visitor */
+    accept(visitor) {
+        if (this.selector) {
+            this.selector = /** @type {Selector} */ (visitor.visit(this.selector));
+        }
+        if (this.arguments.length) {
+            this.arguments = /** @type {MixinArg[]} */ (/** @type {unknown} */ (visitor.visitArray(/** @type {Node[]} */ (/** @type {unknown} */ (this.arguments)))));
+        }
+    }
+
+    /**
+     * @param {EvalContext} context
+     * @returns {Node}
+     */
+    eval(context) {
+        /** @type {{ rule: Node & { rules?: Node[], originalRuleset?: Node, matchArgs: Function, matchCondition?: Function, evalCall?: Function }, path: Node[] }[] | undefined} */
+        let mixins;
+        /** @type {Node & { rules?: Node[], originalRuleset?: Node, matchArgs: Function, matchCondition?: Function, evalCall?: Function }} */
+        let mixin;
+        /** @type {Node[]} */
+        let mixinPath;
+        /** @type {MixinArg[]} */
+        const args = [];
+        /** @type {MixinArg} */
+        let arg;
+        /** @type {Node} */
+        let argValue;
+        /** @type {Node[]} */
+        const rules = [];
+        let match = false;
+        /** @type {number} */
+        let i;
+        /** @type {number} */
+        let m;
+        /** @type {number} */
+        let f;
+        /** @type {boolean} */
+        let isRecursive;
+        /** @type {boolean | undefined} */
+        let isOneFound;
+        /** @type {{ mixin: Node & { rules?: Node[], originalRuleset?: Node, matchArgs: Function, matchCondition?: Function, evalCall?: Function }, group: number }[]} */
+        const candidates = [];
+        /** @type {{ mixin: Node & { rules?: Node[], originalRuleset?: Node, matchArgs: Function, matchCondition?: Function, evalCall?: Function }, group: number } | number} */
+        let candidate;
+        /** @type {boolean[]} */
+        const conditionResult = [];
+        /** @type {number | undefined} */
+        let defaultResult;
+        const defFalseEitherCase = -1;
+        const defNone = 0;
+        const defTrue = 1;
+        const defFalse = 2;
+        /** @type {number[]} */
+        let count;
+        /** @type {Node | undefined} */
+        let originalRuleset;
+        /** @type {((rule: MixinSearchFrame) => boolean) | undefined} */
+        let noArgumentsFilter;
+
+        this.selector = /** @type {Selector} */ (this.selector.eval(context));
+
+        /**
+         * @param {Node & { matchCondition?: Function }} mixin
+         * @param {Node[]} mixinPath
+         */
+        function calcDefGroup(mixin, mixinPath) {
+            /** @type {number} */
+            let f;
+            /** @type {number} */
+            let p;
+            /** @type {Node & { matchCondition?: Function }} */
+            let namespace;
+
+            for (f = 0; f < 2; f++) {
+                conditionResult[f] = true;
+                defaultFunc.value(f);
+                for (p = 0; p < mixinPath.length && conditionResult[f]; p++) {
+                    namespace = mixinPath[p];
+                    if (namespace.matchCondition) {
+                        conditionResult[f] = conditionResult[f] && namespace.matchCondition(null, context);
+                    }
+                }
+                if (mixin.matchCondition) {
+                    conditionResult[f] = conditionResult[f] && mixin.matchCondition(args, context);
+                }
+            }
+            if (conditionResult[0] || conditionResult[1]) {
+                if (conditionResult[0] != conditionResult[1]) {
+                    return conditionResult[1] ?
+                        defTrue : defFalse;
+                }
+
+                return defNone;
+            }
+            return defFalseEitherCase;
+        }
+
+        for (i = 0; i < this.arguments.length; i++) {
+            arg = this.arguments[i];
+            argValue = arg.value.eval(context);
+            if (arg.expand && Array.isArray(argValue.value)) {
+                const expandedValues = /** @type {Node[]} */ (argValue.value);
+                for (m = 0; m < expandedValues.length; m++) {
+                    args.push({value: expandedValues[m]});
+                }
+            } else {
+                args.push({name: arg.name, value: argValue});
+            }
+        }
+
+        noArgumentsFilter = function(/** @type {MixinSearchFrame} */ rule) {return rule.matchArgs(null, context);};
+
+        for (i = 0; i < context.frames.length; i++) {
+            if ((mixins = /** @type {MixinSearchFrame} */ (context.frames[i]).find(this.selector, null, /** @type {(rule: Node) => boolean} */ (/** @type {unknown} */ (noArgumentsFilter)))).length > 0) {
+                isOneFound = true;
+
+                // To make `default()` function independent of definition order we have two "subpasses" here.
+                // At first we evaluate each guard *twice* (with `default() == true` and `default() == false`),
+                // and build candidate list with corresponding flags. Then, when we know all possible matches,
+                // we make a final decision.
+
+                for (m = 0; m < mixins.length; m++) {
+                    mixin = mixins[m].rule;
+                    mixinPath = mixins[m].path;
+                    isRecursive = false;
+                    for (f = 0; f < context.frames.length; f++) {
+                        if ((!(mixin instanceof Definition)) && mixin === (/** @type {Node & { originalRuleset?: Node }} */ (context.frames[f]).originalRuleset || context.frames[f])) {
+                            isRecursive = true;
+                            break;
+                        }
+                    }
+                    if (isRecursive) {
+                        continue;
+                    }
+
+                    if (mixin.matchArgs(args, context)) {
+                        candidate = {mixin, group: calcDefGroup(mixin, mixinPath)};
+
+                        if (/** @type {{ mixin: Node, group: number }} */ (candidate).group !== defFalseEitherCase) {
+                            candidates.push(/** @type {{ mixin: Node & { rules?: Node[], originalRuleset?: Node, matchArgs: Function, matchCondition?: Function, evalCall?: Function }, group: number }} */ (candidate));
+                        }
+
+                        match = true;
+                    }
+                }
+
+                defaultFunc.reset();
+
+                count = [0, 0, 0];
+                for (m = 0; m < candidates.length; m++) {
+                    count[candidates[m].group]++;
+                }
+
+                if (count[defNone] > 0) {
+                    defaultResult = defFalse;
+                } else {
+                    defaultResult = defTrue;
+                    if ((count[defTrue] + count[defFalse]) > 1) {
+                        throw { type: 'Runtime',
+                            message: `Ambiguous use of \`default()\` found when matching for \`${this.format(args)}\``,
+                            index: this.getIndex(), filename: this.fileInfo().filename };
+                    }
+                }
+
+                for (m = 0; m < candidates.length; m++) {
+                    candidate = candidates[m].group;
+                    if ((candidate === defNone) || (candidate === defaultResult)) {
+                        try {
+                            mixin = candidates[m].mixin;
+                            if (!(mixin instanceof Definition)) {
+                                originalRuleset = /** @type {Node & { originalRuleset?: Node }} */ (mixin).originalRuleset || mixin;
+                                mixin = new Definition('', [], mixin.rules, null, false, null, originalRuleset.visibilityInfo());
+                                /** @type {Node & { originalRuleset?: Node }} */ (mixin).originalRuleset = originalRuleset;
+                            }
+                            const newRules = /** @type {MixinDefinition} */ (mixin).evalCall(context, args, this.important).rules;
+                            this._setVisibilityToReplacement(newRules);
+                            Array.prototype.push.apply(rules, newRules);
+                        } catch (e) {
+                            throw { .../** @type {object} */ (e), index: this.getIndex(), filename: this.fileInfo().filename };
+                        }
+                    }
+                }
+
+                if (match) {
+                    return /** @type {Node} */ (/** @type {unknown} */ (rules));
+                }
+            }
+        }
+        if (isOneFound) {
+            throw { type:    'Runtime',
+                message: `No matching definition was found for \`${this.format(args)}\``,
+                index:   this.getIndex(), filename: this.fileInfo().filename };
+        } else {
+            throw { type:    'Name',
+                message: `${this.selector.toCSS(/** @type {EvalContext} */ ({})).trim()} is undefined`,
+                index:   this.getIndex(), filename: this.fileInfo().filename };
+        }
+    }
+
+    /** @param {Node[]} replacement */
+    _setVisibilityToReplacement(replacement) {
+        /** @type {number} */
+        let i;
+        /** @type {Node} */
+        let rule;
+        if (this.blocksVisibility()) {
+            for (i = 0; i < replacement.length; i++) {
+                rule = replacement[i];
+                rule.addVisibilityBlock();
+            }
+        }
+    }
+
+    /** @param {MixinArg[]} args */
+    format(args) {
+        return `${this.selector.toCSS(/** @type {EvalContext} */ ({})).trim()}(${args ? args.map(function (/** @type {MixinArg} */ a) {
+            let argValue = '';
+            if (a.name) {
+                argValue += `${a.name}:`;
+            }
+            if (a.value.toCSS) {
+                argValue += a.value.toCSS(/** @type {EvalContext} */ ({}));
+            } else {
+                argValue += '???';
+            }
+            return argValue;
+        }).join(', ') : ''})`;
+    }
+}
+
+// @ts-check
+
+var tree = {
+    Node, Color, AtRule, DetachedRuleset, Operation,
+    Dimension, Unit, Keyword, Variable, Property,
+    Ruleset, Element, Attribute, Combinator, Selector,
+    Quoted, Expression, Declaration, Call, URL, Import,
+    Comment, Anonymous, Value, JavaScript, Assignment,
+    Condition, Paren, Media, Container, QueryInParens,
+    UnicodeDescriptor, Negative, Extend, VariableCall,
+    NamespaceValue,
+    mixin: {
+        Call: MixinCall,
+        Definition: Definition
+    }
+};
+
+class AbstractPluginLoader {
+    constructor() {
+        // Implemented by Node.js plugin loader
+        this.require = function() {
+            return null;
+        };
+    }
+
+    evalPlugin(contents, context, imports, pluginOptions, fileInfo) {
+
+        let loader, registry, pluginObj, localModule, pluginManager, filename, result;
+
+        pluginManager = context.pluginManager;
+
+        if (fileInfo) {
+            if (typeof fileInfo === 'string') {
+                filename = fileInfo;
+            }
+            else {
+                filename = fileInfo.filename;
+            }
+        }
+        const shortname = (new this.less.FileManager()).extractUrlParts(filename).filename;
+
+        if (filename) {
+            pluginObj = pluginManager.get(filename);
+
+            if (pluginObj) {
+                result = this.trySetOptions(pluginObj, filename, shortname, pluginOptions);
+                if (result) {
+                    return result;
+                }
+                try {
+                    if (pluginObj.use) {
+                        pluginObj.use.call(this.context, pluginObj);
+                    }
+                }
+                catch (e) {
+                    e.message = e.message || 'Error during @plugin call';
+                    return new LessError(e, imports, filename);
+                }
+                return pluginObj;
+            }
+        }
+        localModule = {
+            exports: {},
+            pluginManager,
+            fileInfo
+        };
+        registry = functionRegistry.create();
+
+        const registerPlugin = function(obj) {
+            pluginObj = obj;
+        };
+
+        try {
+            loader = new Function('module', 'require', 'registerPlugin', 'functions', 'tree', 'less', 'fileInfo', contents);
+            loader(localModule, this.require(filename), registerPlugin, registry, this.less.tree, this.less, fileInfo);
+        }
+        catch (e) {
+            return new LessError(e, imports, filename);
+        }
+
+        if (!pluginObj) {
+            pluginObj = localModule.exports;
+        }
+        pluginObj = this.validatePlugin(pluginObj, filename, shortname);
+
+        if (pluginObj instanceof LessError) {
+            return pluginObj;
+        }
+
+        if (pluginObj) {
+            pluginObj.imports = imports;
+            pluginObj.filename = filename;
+
+            // For < 3.x (or unspecified minVersion) - setOptions() before install()
+            if (!pluginObj.minVersion || this.compareVersion('3.0.0', pluginObj.minVersion) < 0) {
+                result = this.trySetOptions(pluginObj, filename, shortname, pluginOptions);
+
+                if (result) {
+                    return result;
+                }
+            }
+
+            // Run on first load
+            pluginManager.addPlugin(pluginObj, fileInfo.filename, registry);
+            pluginObj.functions = registry.getLocalFunctions();
+
+            // Need to call setOptions again because the pluginObj might have functions
+            result = this.trySetOptions(pluginObj, filename, shortname, pluginOptions);
+            if (result) {
+                return result;
+            }
+
+            // Run every @plugin call
+            try {
+                if (pluginObj.use) {
+                    pluginObj.use.call(this.context, pluginObj);
+                }
+            }
+            catch (e) {
+                e.message = e.message || 'Error during @plugin call';
+                return new LessError(e, imports, filename);
+            }
+
+        }
+        else {
+            return new LessError({ message: 'Not a valid plugin' }, imports, filename);
+        }
+
+        return pluginObj;
+
+    }
+
+    trySetOptions(plugin, filename, name, options) {
+        if (options && !plugin.setOptions) {
+            return new LessError({
+                message: `Options have been provided but the plugin ${name} does not support any options.`
+            });
+        }
+        try {
+            plugin.setOptions && plugin.setOptions(options);
+        }
+        catch (e) {
+            return new LessError(e);
+        }
+    }
+
+    validatePlugin(plugin, filename, name) {
+        if (plugin) {
+            // support plugins being a function
+            // so that the plugin can be more usable programmatically
+            if (typeof plugin === 'function') {
+                plugin = new plugin();
+            }
+
+            if (plugin.minVersion) {
+                if (this.compareVersion(plugin.minVersion, this.less.version) < 0) {
+                    return new LessError({
+                        message: `Plugin ${name} requires version ${this.versionToString(plugin.minVersion)}`
+                    });
+                }
+            }
+            return plugin;
+        }
+        return null;
+    }
+
+    compareVersion(aVersion, bVersion) {
+        if (typeof aVersion === 'string') {
+            aVersion = aVersion.match(/^(\d+)\.?(\d+)?\.?(\d+)?/);
+            aVersion.shift();
+        }
+        for (let i = 0; i < aVersion.length; i++) {
+            if (aVersion[i] !== bVersion[i]) {
+                return parseInt(aVersion[i]) > parseInt(bVersion[i]) ? -1 : 1;
+            }
+        }
+        return 0;
+    }
+
+    versionToString(version) {
+        let versionString = '';
+        for (let i = 0; i < version.length; i++) {
+            versionString += (versionString ? '.' : '') + version[i];
+        }
+        return versionString;
+    }
+
+    printUsage(plugins) {
+        for (let i = 0; i < plugins.length; i++) {
+            const plugin = plugins[i];
+            if (plugin.printUsage) {
+                plugin.printUsage();
+            }
+        }
+    }
+}
+
+function boolean(condition) {
+    return condition ? Keyword.True : Keyword.False;
+}
+
+/**
+ * Functions with evalArgs set to false are sent context
+ * as the first argument.
+ */
+function If(context, condition, trueValue, falseValue) {
+    return condition.eval(context) ? trueValue.eval(context)
+        : (falseValue ? falseValue.eval(context) : new Anonymous);
+}
+If.evalArgs = false;
+
+function isdefined(context, variable) {
+    try {
+        variable.eval(context);
+        return Keyword.True;
+    } catch (e) {
+        return Keyword.False;
+    }
+}
+
+isdefined.evalArgs = false;
+
+var boolean$1 = { isdefined, boolean, 'if': If };
+
+let colorFunctions;
+
+function clamp(val) {
+    return Math.min(1, Math.max(0, val));
+}
+function hsla(origColor, hsl) {
+    const color = colorFunctions.hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    if (color) {
+        if (origColor.value && 
+            /^(rgb|hsl)/.test(origColor.value)) {
+            color.value = origColor.value;
+        } else {
+            color.value = 'rgb';
+        }
+        return color;
+    }
+}
+function toHSL(color) {
+    if (color.toHSL) {
+        return color.toHSL();
+    } else {
+        throw new Error('Argument cannot be evaluated to a color');
+    }
+}
+
+function toHSV(color) {
+    if (color.toHSV) {
+        return color.toHSV();
+    } else {
+        throw new Error('Argument cannot be evaluated to a color');
+    }
+}
+
+function number$1(n) {
+    if (n instanceof Dimension) {
+        return parseFloat(n.unit.is('%') ? n.value / 100 : n.value);
+    } else if (typeof n === 'number') {
+        return n;
+    } else {
+        throw {
+            type: 'Argument',
+            message: 'color functions take numbers as parameters'
+        };
+    }
+}
+function scaled(n, size) {
+    if (n instanceof Dimension && n.unit.is('%')) {
+        return parseFloat(n.value * size / 100);
+    } else {
+        return number$1(n);
+    }
+}
+colorFunctions = {
+    rgb: function (r, g, b) {
+        let a = 1;
+        /**
+         * Comma-less syntax
+         *   e.g. rgb(0 128 255 / 50%)
+         */
+        if (r instanceof Expression) {
+            const val = r.value;
+            r = val[0];
+            g = val[1];
+            b = val[2];
+            /** 
+             * @todo - should this be normalized in
+             *   function caller? Or parsed differently?
+             */
+            if (b instanceof Operation) {
+                const op = b;
+                b = op.operands[0];
+                a = op.operands[1];
+            }
+        }
+        const color = colorFunctions.rgba(r, g, b, a);
+        if (color) {
+            color.value = 'rgb';
+            return color;
+        }
+    },
+    rgba: function (r, g, b, a) {
+        try {
+            if (r instanceof Color) {
+                if (g) {
+                    a = number$1(g);
+                } else {
+                    a = r.alpha;
+                }
+                return new Color(r.rgb, a, 'rgba');
+            }
+            const rgb = [r, g, b].map(c => scaled(c, 255));
+            a = number$1(a);
+            return new Color(rgb, a, 'rgba');
+        }
+        catch (e) {}
+    },
+    hsl: function (h, s, l) {
+        let a = 1;
+        if (h instanceof Expression) {
+            const val = h.value;
+            h = val[0];
+            s = val[1];
+            l = val[2];
+
+            if (l instanceof Operation) {
+                const op = l;
+                l = op.operands[0];
+                a = op.operands[1];
+            }
+        }
+        const color = colorFunctions.hsla(h, s, l, a);
+        if (color) {
+            color.value = 'hsl';
+            return color;
+        }
+    },
+    hsla: function (h, s, l, a) {
+        let m1;
+        let m2;
+
+        function hue(h) {
+            h = h < 0 ? h + 1 : (h > 1 ? h - 1 : h);
+            if (h * 6 < 1) {
+                return m1 + (m2 - m1) * h * 6;
+            }
+            else if (h * 2 < 1) {
+                return m2;
+            }
+            else if (h * 3 < 2) {
+                return m1 + (m2 - m1) * (2 / 3 - h) * 6;
+            }
+            else {
+                return m1;
+            }
+        }
+
+        try {
+            if (h instanceof Color) {
+                if (s) {
+                    a = number$1(s);
+                } else {
+                    a = h.alpha;
+                }
+                return new Color(h.rgb, a, 'hsla');
+            }
+
+            h = (number$1(h) % 360) / 360;
+            s = clamp(number$1(s));l = clamp(number$1(l));a = clamp(number$1(a));
+
+            m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s;
+            m1 = l * 2 - m2;
+
+            const rgb = [
+                hue(h + 1 / 3) * 255,
+                hue(h)       * 255,
+                hue(h - 1 / 3) * 255
+            ];
+            a = number$1(a);
+            return new Color(rgb, a, 'hsla');
+        }
+        catch (e) {}
+    },
+
+    hsv: function(h, s, v) {
+        return colorFunctions.hsva(h, s, v, 1.0);
+    },
+
+    hsva: function(h, s, v, a) {
+        h = ((number$1(h) % 360) / 360) * 360;
+        s = number$1(s);v = number$1(v);a = number$1(a);
+
+        let i;
+        let f;
+        i = Math.floor((h / 60) % 6);
+        f = (h / 60) - i;
+
+        const vs = [v,
+            v * (1 - s),
+            v * (1 - f * s),
+            v * (1 - (1 - f) * s)];
+        const perm = [[0, 3, 1],
+            [2, 0, 1],
+            [1, 0, 3],
+            [1, 2, 0],
+            [3, 1, 0],
+            [0, 1, 2]];
+
+        return colorFunctions.rgba(vs[perm[i][0]] * 255,
+            vs[perm[i][1]] * 255,
+            vs[perm[i][2]] * 255,
+            a);
+    },
+
+    hue: function (color) {
+        return new Dimension(toHSL(color).h);
+    },
+    saturation: function (color) {
+        return new Dimension(toHSL(color).s * 100, '%');
+    },
+    lightness: function (color) {
+        return new Dimension(toHSL(color).l * 100, '%');
+    },
+    hsvhue: function(color) {
+        return new Dimension(toHSV(color).h);
+    },
+    hsvsaturation: function (color) {
+        return new Dimension(toHSV(color).s * 100, '%');
+    },
+    hsvvalue: function (color) {
+        return new Dimension(toHSV(color).v * 100, '%');
+    },
+    red: function (color) {
+        return new Dimension(color.rgb[0]);
+    },
+    green: function (color) {
+        return new Dimension(color.rgb[1]);
+    },
+    blue: function (color) {
+        return new Dimension(color.rgb[2]);
+    },
+    alpha: function (color) {
+        return new Dimension(toHSL(color).a);
+    },
+    luma: function (color) {
+        return new Dimension(color.luma() * color.alpha * 100, '%');
+    },
+    luminance: function (color) {
+        const luminance =
+            (0.2126 * color.rgb[0] / 255) +
+                (0.7152 * color.rgb[1] / 255) +
+                (0.0722 * color.rgb[2] / 255);
+
+        return new Dimension(luminance * color.alpha * 100, '%');
+    },
+    saturate: function (color, amount, method) {
+        // filter: saturate(3.2);
+        // should be kept as is, so check for color
+        if (!color.rgb) {
+            return null;
+        }
+        const hsl = toHSL(color);
+
+        if (typeof method !== 'undefined' && method.value === 'relative') {
+            hsl.s +=  hsl.s * amount.value / 100;
+        }
+        else {
+            hsl.s += amount.value / 100;
+        }
+        hsl.s = clamp(hsl.s);
+        return hsla(color, hsl);
+    },
+    desaturate: function (color, amount, method) {
+        const hsl = toHSL(color);
+
+        if (typeof method !== 'undefined' && method.value === 'relative') {
+            hsl.s -=  hsl.s * amount.value / 100;
+        }
+        else {
+            hsl.s -= amount.value / 100;
+        }
+        hsl.s = clamp(hsl.s);
+        return hsla(color, hsl);
+    },
+    lighten: function (color, amount, method) {
+        const hsl = toHSL(color);
+
+        if (typeof method !== 'undefined' && method.value === 'relative') {
+            hsl.l +=  hsl.l * amount.value / 100;
+        }
+        else {
+            hsl.l += amount.value / 100;
+        }
+        hsl.l = clamp(hsl.l);
+        return hsla(color, hsl);
+    },
+    darken: function (color, amount, method) {
+        const hsl = toHSL(color);
+
+        if (typeof method !== 'undefined' && method.value === 'relative') {
+            hsl.l -=  hsl.l * amount.value / 100;
+        }
+        else {
+            hsl.l -= amount.value / 100;
+        }
+        hsl.l = clamp(hsl.l);
+        return hsla(color, hsl);
+    },
+    fadein: function (color, amount, method) {
+        const hsl = toHSL(color);
+
+        if (typeof method !== 'undefined' && method.value === 'relative') {
+            hsl.a +=  hsl.a * amount.value / 100;
+        }
+        else {
+            hsl.a += amount.value / 100;
+        }
+        hsl.a = clamp(hsl.a);
+        return hsla(color, hsl);
+    },
+    fadeout: function (color, amount, method) {
+        const hsl = toHSL(color);
+
+        if (typeof method !== 'undefined' && method.value === 'relative') {
+            hsl.a -=  hsl.a * amount.value / 100;
+        }
+        else {
+            hsl.a -= amount.value / 100;
+        }
+        hsl.a = clamp(hsl.a);
+        return hsla(color, hsl);
+    },
+    fade: function (color, amount) {
+        const hsl = toHSL(color);
+
+        hsl.a = amount.value / 100;
+        hsl.a = clamp(hsl.a);
+        return hsla(color, hsl);
+    },
+    spin: function (color, amount) {
+        const hsl = toHSL(color);
+        const hue = (hsl.h + amount.value) % 360;
+
+        hsl.h = hue < 0 ? 360 + hue : hue;
+
+        return hsla(color, hsl);
+    },
+    //
+    // Copyright (c) 2006-2009 Hampton Catlin, Natalie Weizenbaum, and Chris Eppstein
+    // http://sass-lang.com
+    //
+    mix: function (color1, color2, weight) {
+        if (!weight) {
+            weight = new Dimension(50);
+        }
+        const p = weight.value / 100.0;
+        const w = p * 2 - 1;
+        const a = toHSL(color1).a - toHSL(color2).a;
+
+        const w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
+        const w2 = 1 - w1;
+
+        const rgb = [color1.rgb[0] * w1 + color2.rgb[0] * w2,
+            color1.rgb[1] * w1 + color2.rgb[1] * w2,
+            color1.rgb[2] * w1 + color2.rgb[2] * w2];
+
+        const alpha = color1.alpha * p + color2.alpha * (1 - p);
+
+        return new Color(rgb, alpha);
+    },
+    greyscale: function (color) {
+        return colorFunctions.desaturate(color, new Dimension(100));
+    },
+    contrast: function (color, dark, light, threshold) {
+        // filter: contrast(3.2);
+        // should be kept as is, so check for color
+        if (!color.rgb) {
+            return null;
+        }
+        if (typeof light === 'undefined') {
+            light = colorFunctions.rgba(255, 255, 255, 1.0);
+        }
+        if (typeof dark === 'undefined') {
+            dark = colorFunctions.rgba(0, 0, 0, 1.0);
+        }
+        // Figure out which is actually light and dark:
+        if (dark.luma() > light.luma()) {
+            const t = light;
+            light = dark;
+            dark = t;
+        }
+        if (typeof threshold === 'undefined') {
+            threshold = 0.43;
+        } else {
+            threshold = number$1(threshold);
+        }
+        if (color.luma() < threshold) {
+            return light;
+        } else {
+            return dark;
+        }
+    },
+    // Changes made in 2.7.0 - Reverted in 3.0.0
+    // contrast: function (color, color1, color2, threshold) {
+    //     // Return which of `color1` and `color2` has the greatest contrast with `color`
+    //     // according to the standard WCAG contrast ratio calculation.
+    //     // http://www.w3.org/TR/WCAG20/#contrast-ratiodef
+    //     // The threshold param is no longer used, in line with SASS.
+    //     // filter: contrast(3.2);
+    //     // should be kept as is, so check for color
+    //     if (!color.rgb) {
+    //         return null;
+    //     }
+    //     if (typeof color1 === 'undefined') {
+    //         color1 = colorFunctions.rgba(0, 0, 0, 1.0);
+    //     }
+    //     if (typeof color2 === 'undefined') {
+    //         color2 = colorFunctions.rgba(255, 255, 255, 1.0);
+    //     }
+    //     var contrast1, contrast2;
+    //     var luma = color.luma();
+    //     var luma1 = color1.luma();
+    //     var luma2 = color2.luma();
+    //     // Calculate contrast ratios for each color
+    //     if (luma > luma1) {
+    //         contrast1 = (luma + 0.05) / (luma1 + 0.05);
+    //     } else {
+    //         contrast1 = (luma1 + 0.05) / (luma + 0.05);
+    //     }
+    //     if (luma > luma2) {
+    //         contrast2 = (luma + 0.05) / (luma2 + 0.05);
+    //     } else {
+    //         contrast2 = (luma2 + 0.05) / (luma + 0.05);
+    //     }
+    //     if (contrast1 > contrast2) {
+    //         return color1;
+    //     } else {
+    //         return color2;
+    //     }
+    // },
+    argb: function (color) {
+        return new Anonymous(color.toARGB());
+    },
+    color: function(c) {
+        if ((c instanceof Quoted) &&
+            (/^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})$/i.test(c.value))) {
+            const val = c.value.slice(1);
+            return new Color(val, undefined, `#${val}`);
+        }
+        if ((c instanceof Color) || (c = Color.fromKeyword(c.value))) {
+            c.value = undefined;
+            return c;
+        }
+        throw {
+            type:    'Argument',
+            message: 'argument must be a color keyword or 3|4|6|8 digit hex e.g. #FFF'
+        };
+    },
+    tint: function(color, amount) {
+        return colorFunctions.mix(colorFunctions.rgb(255, 255, 255), color, amount);
+    },
+    shade: function(color, amount) {
+        return colorFunctions.mix(colorFunctions.rgb(0, 0, 0), color, amount);
+    }
+};
+
+var color = colorFunctions;
+
+// Color Blending
+// ref: http://www.w3.org/TR/compositing-1
+
+function colorBlend(mode, color1, color2) {
+    const ab = color1.alpha;        // result
+
+    let // backdrop
+        cb;
+
+    const as = color2.alpha;
+
+    let // source
+        cs;
+
+    let ar;
+    let cr;
+    const r = [];
+
+    ar = as + ab * (1 - as);
+    for (let i = 0; i < 3; i++) {
+        cb = color1.rgb[i] / 255;
+        cs = color2.rgb[i] / 255;
+        cr = mode(cb, cs);
+        if (ar) {
+            cr = (as * cs + ab * (cb -
+                  as * (cb + cs - cr))) / ar;
+        }
+        r[i] = cr * 255;
+    }
+
+    return new Color(r, ar);
+}
+
+const colorBlendModeFunctions = {
+    multiply: function(cb, cs) {
+        return cb * cs;
+    },
+    screen: function(cb, cs) {
+        return cb + cs - cb * cs;
+    },
+    overlay: function(cb, cs) {
+        cb *= 2;
+        return (cb <= 1) ?
+            colorBlendModeFunctions.multiply(cb, cs) :
+            colorBlendModeFunctions.screen(cb - 1, cs);
+    },
+    softlight: function(cb, cs) {
+        let d = 1;
+        let e = cb;
+        if (cs > 0.5) {
+            e = 1;
+            d = (cb > 0.25) ? Math.sqrt(cb)
+                : ((16 * cb - 12) * cb + 4) * cb;
+        }
+        return cb - (1 - 2 * cs) * e * (d - cb);
+    },
+    hardlight: function(cb, cs) {
+        return colorBlendModeFunctions.overlay(cs, cb);
+    },
+    difference: function(cb, cs) {
+        return Math.abs(cb - cs);
+    },
+    exclusion: function(cb, cs) {
+        return cb + cs - 2 * cb * cs;
+    },
+
+    // non-w3c functions:
+    average: function(cb, cs) {
+        return (cb + cs) / 2;
+    },
+    negation: function(cb, cs) {
+        return 1 - Math.abs(cb + cs - 1);
+    }
+};
+
+for (const f in colorBlendModeFunctions) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (colorBlendModeFunctions.hasOwnProperty(f)) {
+        colorBlend[f] = colorBlend.bind(null, colorBlendModeFunctions[f]);
+    }
+}
+
+var dataUri = environment => {
+    
+    const fallback = (functionThis, node) => new URL(node, functionThis.index, functionThis.currentFileInfo).eval(functionThis.context);    
+
+    return { 'data-uri': function(mimetypeNode, filePathNode) {
+
+        if (!filePathNode) {
+            filePathNode = mimetypeNode;
+            mimetypeNode = null;
+        }
+
+        let mimetype = mimetypeNode && mimetypeNode.value;
+        let filePath = filePathNode.value;
+        const currentFileInfo = this.currentFileInfo;
+        const currentDirectory = currentFileInfo.rewriteUrls ?
+            currentFileInfo.currentDirectory : currentFileInfo.entryPath;
+
+        const fragmentStart = filePath.indexOf('#');
+        let fragment = '';
+        if (fragmentStart !== -1) {
+            fragment = filePath.slice(fragmentStart);
+            filePath = filePath.slice(0, fragmentStart);
+        }
+        const context = clone(this.context);
+        context.rawBuffer = true;
+
+        const fileManager = environment.getFileManager(filePath, currentDirectory, context, environment, true);
+
+        if (!fileManager) {
+            return fallback(this, filePathNode);
+        }
+
+        let useBase64 = false;
+
+        // detect the mimetype if not given
+        if (!mimetypeNode) {
+
+            mimetype = environment.mimeLookup(filePath);
+
+            if (mimetype === 'image/svg+xml') {
+                useBase64 = false;
+            } else {
+                // use base 64 unless it's an ASCII or UTF-8 format
+                const charset = environment.charsetLookup(mimetype);
+                useBase64 = ['US-ASCII', 'UTF-8'].indexOf(charset) < 0;
+            }
+            if (useBase64) { mimetype += ';base64'; }
+        }
+        else {
+            useBase64 = /;base64$/.test(mimetype);
+        }
+
+        const fileSync = fileManager.loadFileSync(filePath, currentDirectory, context, environment);
+        if (!fileSync.contents) {
+            logger.warn(`Skipped data-uri embedding of ${filePath} because file not found`);
+            return fallback(this, filePathNode || mimetypeNode);
+        }
+        let buf = fileSync.contents;
+        if (useBase64 && !environment.encodeBase64) {
+            return fallback(this, filePathNode);
+        }
+
+        buf = useBase64 ? environment.encodeBase64(buf) : encodeURIComponent(buf);
+
+        const uri = `data:${mimetype},${buf}${fragment}`;
+
+        return new URL(new Quoted(`"${uri}"`, uri, false, this.index, this.currentFileInfo), this.index, this.currentFileInfo);
+    }};
+};
+
+const getItemsFromNode = node => {
+    // handle non-array values as an array of length 1
+    // return 'undefined' if index is invalid
+    const items = Array.isArray(node.value) ?
+        node.value : Array(node);
+
+    return items;
+};
+
+var list = {
+    _SELF: function(n) {
+        return n;
+    },
+    '~': function(...expr) {
+        if (expr.length === 1) {
+            return expr[0];
+        }
+        return new Value(expr);
+    },
+    extract: function(values, index) {
+        // (1-based index)
+        index = index.value - 1;
+
+        return getItemsFromNode(values)[index];
+    },
+    length: function(values) {
+        return new Dimension(getItemsFromNode(values).length);
+    },
+    /**
+     * Creates a Less list of incremental values.
+     * Modeled after Lodash's range function, also exists natively in PHP
+     * 
+     * @param {Dimension} [start=1]
+     * @param {Dimension} end  - e.g. 10 or 10px - unit is added to output
+     * @param {Dimension} [step=1] 
+     */
+    range: function(start, end, step) {
+        let from;
+        let to;
+        let stepValue = 1;
+        const list = [];
+        if (end) {
+            to = end;
+            from = start.value;
+            if (step) {
+                stepValue = step.value;
+            }
+        }
+        else {
+            from = 1;
+            to = start;
+        }
+
+        for (let i = from; i <= to.value; i += stepValue) {
+            list.push(new Dimension(i, to.unit));
+        }
+
+        return new Expression(list);
+    },
+    each: function(list, rs) {
+        const rules = [];
+        let newRules;
+        let iterator;
+
+        const tryEval = val => {
+            if (val instanceof Node) {
+                return val.eval(this.context);
+            }
+            return val;
+        };
+
+        if (list.value && !(list instanceof Quoted)) {
+            if (Array.isArray(list.value)) {
+                iterator = list.value.map(tryEval);
+            } else {
+                iterator = [tryEval(list.value)];
+            }
+        } else if (list.ruleset) {
+            iterator = tryEval(list.ruleset).rules;
+        } else if (list.rules) {
+            iterator = list.rules.map(tryEval);
+        } else if (Array.isArray(list)) {
+            iterator = list.map(tryEval);
+        } else {
+            iterator = [tryEval(list)];
+        }
+
+        let valueName = '@value';
+        let keyName = '@key';
+        let indexName = '@index';
+
+        if (rs.params) {
+            valueName = rs.params[0] && rs.params[0].name;
+            keyName = rs.params[1] && rs.params[1].name;
+            indexName = rs.params[2] && rs.params[2].name;
+            rs = rs.rules;
+        } else {
+            rs = rs.ruleset;
+        }
+
+        for (let i = 0; i < iterator.length; i++) {
+            let key;
+            let value;
+            const item = iterator[i];
+            if (item instanceof Declaration) {
+                key = typeof item.name === 'string' ? item.name : item.name[0].value;
+                value = item.value;
+            } else {
+                key = new Dimension(i + 1);
+                value = item;
+            }
+
+            if (item instanceof Comment) {
+                continue;
+            }
+
+            newRules = rs.rules.slice(0);
+            if (valueName) {
+                newRules.push(new Declaration(valueName,
+                    value,
+                    false, false, this.index, this.currentFileInfo));
+            }
+            if (indexName) {
+                newRules.push(new Declaration(indexName,
+                    new Dimension(i + 1),
+                    false, false, this.index, this.currentFileInfo));
+            }
+            if (keyName) {
+                newRules.push(new Declaration(keyName,
+                    key,
+                    false, false, this.index, this.currentFileInfo));
+            }
+
+            rules.push(new Ruleset([ new(Selector)([ new Element('', '&') ]) ],
+                newRules,
+                rs.strictImports,
+                rs.visibilityInfo()
+            ));
+        }
+
+        return new Ruleset([ new(Selector)([ new Element('', '&') ]) ],
+            rules,
+            rs.strictImports,
+            rs.visibilityInfo()
+        ).eval(this.context);
+    }
+};
+
+const MathHelper = (fn, unit, n) => {
+    if (!(n instanceof Dimension)) {
+        throw { type: 'Argument', message: 'argument must be a number' };
+    }
+    if (unit === null) {
+        unit = n.unit;
+    } else {
+        n = n.unify();
+    }
+    return new Dimension(fn(parseFloat(n.value)), unit);
+};
+
+const mathFunctions = {
+    // name,  unit
+    ceil:  null,
+    floor: null,
+    sqrt:  null,
+    abs:   null,
+    tan:   '',
+    sin:   '',
+    cos:   '',
+    atan:  'rad',
+    asin:  'rad',
+    acos:  'rad'
+};
+
+for (const f in mathFunctions) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (mathFunctions.hasOwnProperty(f)) {
+        mathFunctions[f] = MathHelper.bind(null, Math[f], mathFunctions[f]);
+    }
+}
+
+mathFunctions.round = (n, f) => {
+    const fraction = typeof f === 'undefined' ? 0 : f.value;
+    return MathHelper(num => num.toFixed(fraction), null, n);
+};
+
+const minMax = function (isMin, args) {
+    args = Array.prototype.slice.call(args);
+    switch (args.length) {
+        case 0: throw { type: 'Argument', message: 'one or more arguments required' };
+    }
+    let i; // key is the unit.toString() for unified Dimension values,
+    let j;
+    let current;
+    let currentUnified;
+    let referenceUnified;
+    let unit;
+    let unitStatic;
+    let unitClone;
+
+    const // elems only contains original argument values.
+        order  = [];
+
+    const values = {};
+    // value is the index into the order array.
+    for (i = 0; i < args.length; i++) {
+        current = args[i];
+        if (!(current instanceof Dimension)) {
+            if (Array.isArray(args[i].value)) {
+                Array.prototype.push.apply(args, Array.prototype.slice.call(args[i].value));
+                continue;
+            } else {
+                throw { type: 'Argument', message: 'incompatible types' };
+            }
+        }
+        currentUnified = current.unit.toString() === '' && unitClone !== undefined ? new Dimension(current.value, unitClone).unify() : current.unify();
+        unit = currentUnified.unit.toString() === '' && unitStatic !== undefined ? unitStatic : currentUnified.unit.toString();
+        unitStatic = unit !== '' && unitStatic === undefined || unit !== '' && order[0].unify().unit.toString() === '' ? unit : unitStatic;
+        unitClone = unit !== '' && unitClone === undefined ? current.unit.toString() : unitClone;
+        j = values[''] !== undefined && unit !== '' && unit === unitStatic ? values[''] : values[unit];
+        if (j === undefined) {
+            if (unitStatic !== undefined && unit !== unitStatic) {
+                throw { type: 'Argument', message: 'incompatible types' };
+            }
+            values[unit] = order.length;
+            order.push(current);
+            continue;
+        }
+        referenceUnified = order[j].unit.toString() === '' && unitClone !== undefined ? new Dimension(order[j].value, unitClone).unify() : order[j].unify();
+        if ( isMin && currentUnified.value < referenceUnified.value ||
+            !isMin && currentUnified.value > referenceUnified.value) {
+            order[j] = current;
+        }
+    }
+    if (order.length == 1) {
+        return order[0];
+    }
+    args = order.map(a => { return a.toCSS(this.context); }).join(this.context.compress ? ',' : ', ');
+    return new Anonymous(`${isMin ? 'min' : 'max'}(${args})`);
+};
+
+var number = {
+    min: function(...args) {
+        try {
+            return minMax.call(this, true, args);
+        } catch (e) {}
+    },
+    max: function(...args) {
+        try {
+            return minMax.call(this, false, args);
+        } catch (e) {}
+    },
+    convert: function (val, unit) {
+        return val.convertTo(unit.value);
+    },
+    pi: function () {
+        return new Dimension(Math.PI);
+    },
+    mod: function(a, b) {
+        return new Dimension(a.value % b.value, a.unit);
+    },
+    pow: function(x, y) {
+        if (typeof x === 'number' && typeof y === 'number') {
+            x = new Dimension(x);
+            y = new Dimension(y);
+        } else if (!(x instanceof Dimension) || !(y instanceof Dimension)) {
+            throw { type: 'Argument', message: 'arguments must be numbers' };
+        }
+
+        return new Dimension(Math.pow(x.value, y.value), x.unit);
+    },
+    percentage: function (n) {
+        const result = MathHelper(num => num * 100, '%', n);
+
+        return result;
+    }
+};
+
+var string = {
+    e: function (str) {
+        return new Quoted('"', str instanceof JavaScript ? str.evaluated : str.value, true);
+    },
+    escape: function (str) {
+        return new Anonymous(
+            encodeURI(str.value).replace(/=/g, '%3D').replace(/:/g, '%3A').replace(/#/g, '%23').replace(/;/g, '%3B')
+                .replace(/\(/g, '%28').replace(/\)/g, '%29'));
+    },
+    replace: function (string, pattern, replacement, flags) {
+        let result = string.value;
+        replacement = (replacement.type === 'Quoted') ?
+            replacement.value : replacement.toCSS();
+        result = result.replace(new RegExp(pattern.value, flags ? flags.value : ''), replacement);
+        return new Quoted(string.quote || '', result, string.escaped);
+    },
+    '%': function (string /* arg, arg, ... */) {
+        const args = Array.prototype.slice.call(arguments, 1);
+        let result = string.value;
+
+        for (let i = 0; i < args.length; i++) {
+            /* jshint loopfunc:true */
+            result = result.replace(/%[sda]/i, token => {
+                const value = ((args[i].type === 'Quoted') &&
+                    token.match(/s/i)) ? args[i].value : args[i].toCSS();
+                return token.match(/[A-Z]$/) ? encodeURIComponent(value) : value;
+            });
+        }
+        result = result.replace(/%%/g, '%');
+        return new Quoted(string.quote || '', result, string.escaped);
+    }
+};
+
+var svg = () => {
+    return { 'svg-gradient': function(direction) {
+        let stops;
+        let gradientDirectionSvg;
+        let gradientType = 'linear';
+        let rectangleDimension = 'x="0" y="0" width="1" height="1"';
+        const renderEnv = {compress: false};
+        let returner;
+        const directionValue = direction.toCSS(renderEnv);
+        let i;
+        let color;
+        let position;
+        let positionValue;
+        let alpha;
+
+        function throwArgumentDescriptor() {
+            throw { type: 'Argument',
+                message: 'svg-gradient expects direction, start_color [start_position], [color position,]...,' +
+                            ' end_color [end_position] or direction, color list' };
+        }
+
+        if (arguments.length == 2) {
+            if (arguments[1].value.length < 2) {
+                throwArgumentDescriptor();
+            }
+            stops = arguments[1].value;
+        } else if (arguments.length < 3) {
+            throwArgumentDescriptor();
+        } else {
+            stops = Array.prototype.slice.call(arguments, 1);
+        }
+
+        switch (directionValue) {
+            case 'to bottom':
+                gradientDirectionSvg = 'x1="0%" y1="0%" x2="0%" y2="100%"';
+                break;
+            case 'to right':
+                gradientDirectionSvg = 'x1="0%" y1="0%" x2="100%" y2="0%"';
+                break;
+            case 'to bottom right':
+                gradientDirectionSvg = 'x1="0%" y1="0%" x2="100%" y2="100%"';
+                break;
+            case 'to top right':
+                gradientDirectionSvg = 'x1="0%" y1="100%" x2="100%" y2="0%"';
+                break;
+            case 'ellipse':
+            case 'ellipse at center':
+                gradientType = 'radial';
+                gradientDirectionSvg = 'cx="50%" cy="50%" r="75%"';
+                rectangleDimension = 'x="-50" y="-50" width="101" height="101"';
+                break;
+            default:
+                throw { type: 'Argument', message: 'svg-gradient direction must be \'to bottom\', \'to right\',' +
+                    ' \'to bottom right\', \'to top right\' or \'ellipse at center\'' };
+        }
+        returner = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><${gradientType}Gradient id="g" ${gradientDirectionSvg}>`;
+
+        for (i = 0; i < stops.length; i += 1) {
+            if (stops[i] instanceof Expression) {
+                color = stops[i].value[0];
+                position = stops[i].value[1];
+            } else {
+                color = stops[i];
+                position = undefined;
+            }
+
+            if (!(color instanceof Color) || (!((i === 0 || i + 1 === stops.length) && position === undefined) && !(position instanceof Dimension))) {
+                throwArgumentDescriptor();
+            }
+            positionValue = position ? position.toCSS(renderEnv) : i === 0 ? '0%' : '100%';
+            alpha = color.alpha;
+            returner += `<stop offset="${positionValue}" stop-color="${color.toRGB()}"${alpha < 1 ? ` stop-opacity="${alpha}"` : ''}/>`;
+        }
+        returner += `</${gradientType}Gradient><rect ${rectangleDimension} fill="url(#g)" /></svg>`;
+
+        returner = encodeURIComponent(returner);
+
+        returner = `data:image/svg+xml,${returner}`;
+        return new URL(new Quoted(`'${returner}'`, returner, false, this.index, this.currentFileInfo), this.index, this.currentFileInfo);
+    }};
+};
+
+const isa = (n, Type) => (n instanceof Type) ? Keyword.True : Keyword.False;
+const isunit = (n, unit) => {
+    if (unit === undefined) {
+        throw { type: 'Argument', message: 'missing the required second argument to isunit.' };
+    }
+    unit = typeof unit.value === 'string' ? unit.value : unit;
+    if (typeof unit !== 'string') {
+        throw { type: 'Argument', message: 'Second argument to isunit should be a unit or a string.' };
+    }
+    return (n instanceof Dimension) && n.unit.is(unit) ? Keyword.True : Keyword.False;
+};
+
+var types = {
+    isruleset: function (n) {
+        return isa(n, DetachedRuleset);
+    },
+    iscolor: function (n) {
+        return isa(n, Color);
+    },
+    isnumber: function (n) {
+        return isa(n, Dimension);
+    },
+    isstring: function (n) {
+        return isa(n, Quoted);
+    },
+    iskeyword: function (n) {
+        return isa(n, Keyword);
+    },
+    isurl: function (n) {
+        return isa(n, URL);
+    },
+    ispixel: function (n) {
+        return isunit(n, 'px');
+    },
+    ispercentage: function (n) {
+        return isunit(n, '%');
+    },
+    isem: function (n) {
+        return isunit(n, 'em');
+    },
+    isunit,
+    unit: function (val, unit) {
+        if (!(val instanceof Dimension)) {
+            throw { type: 'Argument',
+                message: `the first argument to unit must be a number${val instanceof Operation ? '. Have you forgotten parenthesis?' : ''}` };
+        }
+        if (unit) {
+            if (unit instanceof Keyword) {
+                unit = unit.value;
+            } else {
+                unit = unit.toCSS();
+            }
+        } else {
+            unit = '';
+        }
+        return new Dimension(val.value, unit);
+    },
+    'get-unit': function (n) {
+        return new Anonymous(n.unit);
+    }
+};
+
+/** @param {*[]} args */
+const styleExpression = function (args) {
+    args = Array.prototype.slice.call(args);
+    if (args.length === 0) {
+        throw { type: 'Argument', message: 'one or more arguments required' };
+    }
+
+    const entityList = [new Variable(args[0].value, this.index, this.currentFileInfo).eval(this.context)];
+
+    const result = entityList.map(a => { return a.toCSS(this.context); }).join(this.context.compress ? ',' : ', ');
+
+    return new Anonymous(`style(${result})`);
+};
+
+var style = {
+    /** @param {...*} args */
+    style: function(...args) {
+        try {
+            return styleExpression.call(this, args);
+        } catch (e) {
+            // When style() is used as a CSS function (e.g. @container style(--responsive: true)),
+            // arguments won't be valid Less variables. Return undefined to let the
+            // parser fall through and treat it as plain CSS.
+        }
+    },
+};
+
+var functions = environment => {
+    const functions = { functionRegistry, functionCaller };
+
+    // register functions
+    functionRegistry.addMultiple(boolean$1);
+    functionRegistry.add('default', defaultFunc.eval.bind(defaultFunc));
+    functionRegistry.addMultiple(color);
+    functionRegistry.addMultiple(colorBlend);
+    functionRegistry.addMultiple(dataUri(environment));
+    functionRegistry.addMultiple(list);
+    functionRegistry.addMultiple(mathFunctions);
+    functionRegistry.addMultiple(number);
+    functionRegistry.addMultiple(string);
+    functionRegistry.addMultiple(svg());
+    functionRegistry.addMultiple(types);
+    functionRegistry.addMultiple(style);
+
+    return functions;
+};
+
+/**
+ * @param {import('./tree/node.js').default} root
+ * @param {{ variables?: Record<string, *>, compress?: boolean, pluginManager?: *, frames?: *[] }} options
+ * @returns {import('./tree/node.js').default}
+ */
+function transformTree(root, options) {
+    options = options || {};
+    let evaldRoot;
+    let variables = options.variables;
+    const evalEnv = new contexts.Eval(options);
+
+    //
+    // Allows setting variables with a hash, so:
+    //
+    //   `{ color: new tree.Color('#f01') }` will become:
+    //
+    //   new tree.Declaration('@color',
+    //     new tree.Value([
+    //       new tree.Expression([
+    //         new tree.Color('#f01')
+    //       ])
+    //     ])
+    //   )
+    //
+    if (typeof variables === 'object' && !Array.isArray(variables)) {
+        variables = Object.keys(variables).map(function (k) {
+            let value = variables[k];
+
+            if (!(value instanceof tree.Value)) {
+                if (!(value instanceof tree.Expression)) {
+                    value = new tree.Expression([value]);
+                }
+                value = new tree.Value([value]);
+            }
+            return new tree.Declaration(`@${k}`, value, false, null, 0);
+        });
+        evalEnv.frames = [new tree.Ruleset(null, variables)];
+    }
+
+    const visitors$1 = [
+        new visitors.JoinSelectorVisitor(),
+        new visitors.MarkVisibleSelectorsVisitor(true),
+        new visitors.ExtendVisitor(),
+        new visitors.ToCSSVisitor({compress: Boolean(options.compress)})
+    ];
+
+    const preEvalVisitors = [];
+    let v;
+    let visitorIterator;
+
+    /**
+     * first() / get() allows visitors to be added while visiting
+     * 
+     * @todo Add scoping for visitors just like functions for @plugin; right now they're global
+     */
+    if (options.pluginManager) {
+        visitorIterator = options.pluginManager.visitor();
+        for (let i = 0; i < 2; i++) {
+            visitorIterator.first();
+            while ((v = visitorIterator.get())) {
+                if (v.isPreEvalVisitor) {
+                    if (i === 0 || preEvalVisitors.indexOf(v) === -1) {
+                        preEvalVisitors.push(v);
+                        v.run(root);
+                    }
+                }
+                else {
+                    if (i === 0 || visitors$1.indexOf(v) === -1) {
+                        if (v.isPreVisitor) {
+                            visitors$1.unshift(v);
+                        }
+                        else {
+                            visitors$1.push(v);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    evaldRoot = root.eval(evalEnv);
+
+    for (let i = 0; i < visitors$1.length; i++) {
+        visitors$1[i].run(evaldRoot);
+    }
+
+    // Run any remaining visitors added after eval pass
+    if (options.pluginManager) {
+        visitorIterator.first();
+        while ((v = visitorIterator.get())) {
+            if (visitors$1.indexOf(v) === -1 && preEvalVisitors.indexOf(v) === -1) {
+                v.run(evaldRoot);
+            }
+        }
+    }
+
+    return evaldRoot;
+}
+
+/**
+ * Plugin Manager
+ */
+class PluginManager {
+    constructor(less) {
+        this.less = less;
+        this.visitors = [];
+        this.preProcessors = [];
+        this.postProcessors = [];
+        this.installedPlugins = [];
+        this.fileManagers = [];
+        this.iterator = -1;
+        this.pluginCache = {};
+        this.Loader = new less.PluginLoader(less);
+    }
+
+    /**
+     * Adds all the plugins in the array
+     * @param {Array} plugins
+     */
+    addPlugins(plugins) {
+        if (plugins) {
+            for (let i = 0; i < plugins.length; i++) {
+                this.addPlugin(plugins[i]);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param plugin
+     * @param {String} filename
+     */
+    addPlugin(plugin, filename, functionRegistry) {
+        this.installedPlugins.push(plugin);
+        if (filename) {
+            this.pluginCache[filename] = plugin;
+        }
+        if (plugin.install) {
+            plugin.install(this.less, this, functionRegistry || this.less.functions.functionRegistry);
+        }
+    }
+
+    /**
+     *
+     * @param filename
+     */
+    get(filename) {
+        return this.pluginCache[filename];
+    }
+
+    /**
+     * Adds a visitor. The visitor object has options on itself to determine
+     * when it should run.
+     * @param visitor
+     */
+    addVisitor(visitor) {
+        this.visitors.push(visitor);
+    }
+
+    /**
+     * Adds a pre processor object
+     * @param {object} preProcessor
+     * @param {number} priority - guidelines 1 = before import, 1000 = import, 2000 = after import
+     */
+    addPreProcessor(preProcessor, priority) {
+        let indexToInsertAt;
+        for (indexToInsertAt = 0; indexToInsertAt < this.preProcessors.length; indexToInsertAt++) {
+            if (this.preProcessors[indexToInsertAt].priority >= priority) {
+                break;
+            }
+        }
+        this.preProcessors.splice(indexToInsertAt, 0, {preProcessor, priority});
+    }
+
+    /**
+     * Adds a post processor object
+     * @param {object} postProcessor
+     * @param {number} priority - guidelines 1 = before compression, 1000 = compression, 2000 = after compression
+     */
+    addPostProcessor(postProcessor, priority) {
+        let indexToInsertAt;
+        for (indexToInsertAt = 0; indexToInsertAt < this.postProcessors.length; indexToInsertAt++) {
+            if (this.postProcessors[indexToInsertAt].priority >= priority) {
+                break;
+            }
+        }
+        this.postProcessors.splice(indexToInsertAt, 0, {postProcessor, priority});
+    }
+
+    /**
+     *
+     * @param manager
+     */
+    addFileManager(manager) {
+        this.fileManagers.push(manager);
+    }
+
+    /**
+     *
+     * @returns {Array}
+     * @private
+     */
+    getPreProcessors() {
+        const preProcessors = [];
+        for (let i = 0; i < this.preProcessors.length; i++) {
+            preProcessors.push(this.preProcessors[i].preProcessor);
+        }
+        return preProcessors;
+    }
+
+    /**
+     *
+     * @returns {Array}
+     * @private
+     */
+    getPostProcessors() {
+        const postProcessors = [];
+        for (let i = 0; i < this.postProcessors.length; i++) {
+            postProcessors.push(this.postProcessors[i].postProcessor);
+        }
+        return postProcessors;
+    }
+
+    /**
+     *
+     * @returns {Array}
+     * @private
+     */
+    getVisitors() {
+        return this.visitors;
+    }
+
+    visitor() {
+        const self = this;
+        return {
+            first: function() {
+                self.iterator = -1;
+                return self.visitors[self.iterator];
+            },
+            get: function() {
+                self.iterator += 1;
+                return self.visitors[self.iterator];
+            }
+        };
+    }
+
+    /**
+     *
+     * @returns {Array}
+     * @private
+     */
+    getFileManagers() {
+        return this.fileManagers;
+    }
+}
+
+let pm;
+
+const PluginManagerFactory = function(less, newFactory) {
+    if (newFactory || !pm) {
+        pm = new PluginManager(less);
+    }
+    return pm;
+};
+
+function SourceMapOutput (environment) {
+    class SourceMapOutput {
+        constructor(options) {
+            this._css = [];
+            this._rootNode = options.rootNode;
+            this._contentsMap = options.contentsMap;
+            this._contentsIgnoredCharsMap = options.contentsIgnoredCharsMap;
+            if (options.sourceMapFilename) {
+                this._sourceMapFilename = options.sourceMapFilename.replace(/\\/g, '/');
+            }
+            this._outputFilename = options.outputFilename ? options.outputFilename.replace(/\\/g, '/') : options.outputFilename;
+            this.sourceMapURL = options.sourceMapURL;
+            if (options.sourceMapBasepath) {
+                this._sourceMapBasepath = options.sourceMapBasepath.replace(/\\/g, '/');
+            }
+            if (options.sourceMapRootpath) {
+                this._sourceMapRootpath = options.sourceMapRootpath.replace(/\\/g, '/');
+                if (this._sourceMapRootpath.charAt(this._sourceMapRootpath.length - 1) !== '/') {
+                    this._sourceMapRootpath += '/';
+                }
+            } else {
+                this._sourceMapRootpath = '';
+            }
+            this._outputSourceFiles = options.outputSourceFiles;
+            this._sourceMapGeneratorConstructor = environment.getSourceMapGenerator();
+
+            this._lineNumber = 0;
+            this._column = 0;
+        }
+
+        removeBasepath(path) {
+            if (this._sourceMapBasepath && path.indexOf(this._sourceMapBasepath) === 0) {
+                path = path.substring(this._sourceMapBasepath.length);
+                if (path.charAt(0) === '\\' || path.charAt(0) === '/') {
+                    path = path.substring(1);
+                }
+            }
+
+            return path;
+        }
+
+        normalizeFilename(filename) {
+            filename = filename.replace(/\\/g, '/');
+            filename = this.removeBasepath(filename);
+            return (this._sourceMapRootpath || '') + filename;
+        }
+
+        add(chunk, fileInfo, index, mapLines) {
+
+            // ignore adding empty strings
+            if (!chunk) {
+                return;
+            }
+
+            let lines, sourceLines, columns, sourceColumns, i;
+
+            if (fileInfo && fileInfo.filename) {
+                let inputSource = this._contentsMap[fileInfo.filename];
+
+                // remove vars/banner added to the top of the file
+                if (this._contentsIgnoredCharsMap[fileInfo.filename]) {
+                    // adjust the index
+                    index -= this._contentsIgnoredCharsMap[fileInfo.filename];
+                    if (index < 0) { index = 0; }
+                    // adjust the source
+                    inputSource = inputSource.slice(this._contentsIgnoredCharsMap[fileInfo.filename]);
+                }
+
+                /** 
+                 * ignore empty content, or failsafe
+                 * if contents map is incorrect
+                 */
+                if (inputSource === undefined) {
+                    this._css.push(chunk);
+                    return;
+                }
+
+                inputSource = inputSource.substring(0, index);
+                sourceLines = inputSource.split('\n');
+                sourceColumns = sourceLines[sourceLines.length - 1];
+            }
+
+            lines = chunk.split('\n');
+            columns = lines[lines.length - 1];
+
+            if (fileInfo && fileInfo.filename) {
+                if (!mapLines) {
+                    this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + 1, column: this._column},
+                        original: { line: sourceLines.length, column: sourceColumns.length},
+                        source: this.normalizeFilename(fileInfo.filename)});
+                } else {
+                    for (i = 0; i < lines.length; i++) {
+                        this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + i + 1, column: i === 0 ? this._column : 0},
+                            original: { line: sourceLines.length + i, column: i === 0 ? sourceColumns.length : 0},
+                            source: this.normalizeFilename(fileInfo.filename)});
+                    }
+                }
+            }
+
+            if (lines.length === 1) {
+                this._column += columns.length;
+            } else {
+                this._lineNumber += lines.length - 1;
+                this._column = columns.length;
+            }
+
+            this._css.push(chunk);
+        }
+
+        isEmpty() {
+            return this._css.length === 0;
+        }
+
+        toCSS(context) {
+            this._sourceMapGenerator = new this._sourceMapGeneratorConstructor({ file: this._outputFilename, sourceRoot: null });
+
+            if (this._outputSourceFiles) {
+                for (const filename in this._contentsMap) {
+                    // eslint-disable-next-line no-prototype-builtins
+                    if (this._contentsMap.hasOwnProperty(filename)) {
+                        let source = this._contentsMap[filename];
+                        if (this._contentsIgnoredCharsMap[filename]) {
+                            source = source.slice(this._contentsIgnoredCharsMap[filename]);
+                        }
+                        this._sourceMapGenerator.setSourceContent(this.normalizeFilename(filename), source);
+                    }
+                }
+            }
+
+            this._rootNode.genCSS(context, this);
+
+            if (this._css.length > 0) {
+                let sourceMapURL;
+                const sourceMapContent = JSON.stringify(this._sourceMapGenerator.toJSON());
+
+                if (this.sourceMapURL) {
+                    sourceMapURL = this.sourceMapURL;
+                } else if (this._sourceMapFilename) {
+                    sourceMapURL = this._sourceMapFilename;
+                }
+                this.sourceMapURL = sourceMapURL;
+
+                this.sourceMap = sourceMapContent;
+            }
+
+            return this._css.join('');
+        }
+    }
+
+    return SourceMapOutput;
+}
+
+function SourceMapBuilder (SourceMapOutput, environment) {
+    class SourceMapBuilder {
+        constructor(options) {
+            this.options = options;
+        }
+
+        toCSS(rootNode, options, imports) {
+            const sourceMapOutput = new SourceMapOutput(
+                {
+                    contentsIgnoredCharsMap: imports.contentsIgnoredChars,
+                    rootNode,
+                    contentsMap: imports.contents,
+                    sourceMapFilename: this.options.sourceMapFilename,
+                    sourceMapURL: this.options.sourceMapURL,
+                    outputFilename: this.options.sourceMapOutputFilename,
+                    sourceMapBasepath: this.options.sourceMapBasepath,
+                    sourceMapRootpath: this.options.sourceMapRootpath,
+                    outputSourceFiles: this.options.outputSourceFiles,
+                    sourceMapGenerator: this.options.sourceMapGenerator,
+                    sourceMapFileInline: this.options.sourceMapFileInline,    
+                    disableSourcemapAnnotation: this.options.disableSourcemapAnnotation
+                });
+
+            const css = sourceMapOutput.toCSS(options);
+            this.sourceMap = sourceMapOutput.sourceMap;
+            this.sourceMapURL = sourceMapOutput.sourceMapURL;
+            if (this.options.sourceMapInputFilename) {
+                this.sourceMapInputFilename = sourceMapOutput.normalizeFilename(this.options.sourceMapInputFilename);
+            }
+            if (this.options.sourceMapBasepath !== undefined && this.sourceMapURL !== undefined) {
+                this.sourceMapURL = sourceMapOutput.removeBasepath(this.sourceMapURL);
+            }
+            return css + this.getCSSAppendage();
+        }
+
+        getCSSAppendage() {
+
+            let sourceMapURL = this.sourceMapURL;
+            if (this.options.sourceMapFileInline) {
+                if (this.sourceMap === undefined) {
+                    return '';
+                }
+                sourceMapURL = `data:application/json;base64,${environment.encodeBase64(this.sourceMap)}`;
+            }
+
+            if (this.options.disableSourcemapAnnotation) {
+                return '';
+            }
+
+            if (sourceMapURL) {
+                return `/*# sourceMappingURL=${sourceMapURL} */`;
+            }
+            return '';
+        }
+
+        getExternalSourceMap() {
+            return this.sourceMap;
+        }
+
+        setExternalSourceMap(sourceMap) {
+            this.sourceMap = sourceMap;
+        }
+
+        isInline() {
+            return this.options.sourceMapFileInline;
+        }
+
+        getSourceMapURL() {
+            return this.sourceMapURL;
+        }
+
+        getOutputFilename() {
+            return this.options.sourceMapOutputFilename;
+        }
+
+        getInputFilename() {
+            return this.sourceMapInputFilename;
+        }
+    }
+
+    return SourceMapBuilder;
+}
+
+function ParseTree(SourceMapBuilder) {
+    class ParseTree {
+        constructor(root, imports) {
+            this.root = root;
+            this.imports = imports;
+        }
+
+        toCSS(options) {
+            let evaldRoot;
+            const result = {};
+            let sourceMapBuilder;
+            try {
+                evaldRoot = transformTree(this.root, options);
+            } catch (e) {
+                throw new LessError(e, this.imports);
+            }
+
+            try {
+                const compress = Boolean(options.compress);
+                if (compress) {
+                    logger.warn('The compress option has been deprecated. ' + 
+                        'We recommend you use a dedicated css minifier, for instance see less-plugin-clean-css.');
+                }
+
+                const toCSSOptions = {
+                    compress,
+                    // @deprecated The dumpLineNumbers option is deprecated. Use sourcemaps instead. All modes will be removed in a future version.
+                    dumpLineNumbers: options.dumpLineNumbers,
+                    strictUnits: Boolean(options.strictUnits),
+                    numPrecision: 8};
+
+                if (options.sourceMap) {
+                    // Normalize sourceMap option: if it's just true, convert to object
+                    if (options.sourceMap === true) {
+                        options.sourceMap = {};
+                    }
+                    const sourceMapOpts = options.sourceMap;
+                    
+                    // Set sourceMapInputFilename if not set and filename is available
+                    if (!sourceMapOpts.sourceMapInputFilename && options.filename) {
+                        sourceMapOpts.sourceMapInputFilename = options.filename;
+                    }
+                    
+                    // Default sourceMapBasepath to the input file's directory if not set
+                    // This matches the behavior documented and implemented in bin/lessc
+                    if (sourceMapOpts.sourceMapBasepath === undefined && options.filename) {
+                        // Get directory from filename using string manipulation (works cross-platform)
+                        const lastSlash = Math.max(options.filename.lastIndexOf('/'), options.filename.lastIndexOf('\\'));
+                        if (lastSlash >= 0) {
+                            sourceMapOpts.sourceMapBasepath = options.filename.substring(0, lastSlash);
+                        } else {
+                            // No directory separator found, use current directory
+                            sourceMapOpts.sourceMapBasepath = '.';
+                        }
+                    }
+                    
+                    // Handle sourceMapFullFilename (CLI-specific: --source-map=filename)
+                    // This is converted to sourceMapFilename and sourceMapOutputFilename
+                    if (sourceMapOpts.sourceMapFullFilename && !sourceMapOpts.sourceMapFileInline) {
+                        // This case is handled by lessc before calling render
+                        // We just need to ensure sourceMapFilename is set if sourceMapFullFilename is provided
+                        if (!sourceMapOpts.sourceMapFilename && !sourceMapOpts.sourceMapURL) {
+                            // Extract just the basename for the sourceMappingURL comment
+                            const mapBase = sourceMapOpts.sourceMapFullFilename.split(/[/\\]/).pop();
+                            sourceMapOpts.sourceMapFilename = mapBase;
+                        }
+                    } else if (!sourceMapOpts.sourceMapFilename && !sourceMapOpts.sourceMapURL) {
+                        // If sourceMapFilename is not set and sourceMapURL is not set,
+                        // derive it from the output filename (if available) or input filename
+                        if (sourceMapOpts.sourceMapOutputFilename) {
+                            // Use output filename + .map
+                            sourceMapOpts.sourceMapFilename = sourceMapOpts.sourceMapOutputFilename + '.map';
+                        } else if (options.filename) {
+                            // Fallback to input filename + .css.map (basename only)
+                            const inputBasename = options.filename.split(/[/\\]/).pop().replace(/\.[^/.]+$/, '');
+                            sourceMapOpts.sourceMapFilename = inputBasename + '.css.map';
+                        }
+                    }
+                    
+                    // Default sourceMapOutputFilename if not set
+                    if (!sourceMapOpts.sourceMapOutputFilename) {
+                        if (options.filename) {
+                            const inputBasename = options.filename.split(/[/\\]/).pop().replace(/\.[^/.]+$/, '');
+                            sourceMapOpts.sourceMapOutputFilename = inputBasename + '.css';
+                        } else {
+                            sourceMapOpts.sourceMapOutputFilename = 'output.css';
+                        }
+                    }
+                    
+                    sourceMapBuilder = new SourceMapBuilder(sourceMapOpts);
+                    result.css = sourceMapBuilder.toCSS(evaldRoot, toCSSOptions, this.imports);
+                } else {
+                    result.css = evaldRoot.toCSS(toCSSOptions);
+                }
+            } catch (e) {
+                throw new LessError(e, this.imports);
+            }
+
+            if (options.pluginManager) {
+                const postProcessors = options.pluginManager.getPostProcessors();
+                for (let i = 0; i < postProcessors.length; i++) {
+                    result.css = postProcessors[i].process(result.css, { sourceMap: sourceMapBuilder, options, imports: this.imports });
+                }
+            }
+            if (options.sourceMap) {
+                result.map = sourceMapBuilder.getExternalSourceMap();
+            }
+
+            result.imports = [];
+            for (const file in this.imports.files) {
+                if (Object.prototype.hasOwnProperty.call(this.imports.files, file) && file !== this.imports.rootFilename) {
+                    result.imports.push(file);
+                }
+            }
+            return result;
+        }
+    }
+
+    return ParseTree;
+}
+
+function ImportManager(environment) {
+    // FileInfo = {
+    //  'rewriteUrls' - option - whether to adjust URL's to be relative
+    //  'filename' - full resolved filename of current file
+    //  'rootpath' - path to append to normal URLs for this node
+    //  'currentDirectory' - path to the current file, absolute
+    //  'rootFilename' - filename of the base file
+    //  'entryPath' - absolute path to the entry file
+    //  'reference' - whether the file should not be output and only output parts that are referenced
+
+    class ImportManager {
+        constructor(less, context, rootFileInfo) {
+            this.less = less;
+            this.rootFilename = rootFileInfo.filename;
+            this.paths = context.paths || [];  // Search paths, when importing
+            this.contents = {};             // map - filename to contents of all the files
+            this.contentsIgnoredChars = {}; // map - filename to lines at the beginning of each file to ignore
+            this.mime = context.mime;
+            this.error = null;
+            this.context = context;
+            // Deprecated? Unused outside of here, could be useful.
+            this.queue = [];        // Files which haven't been imported yet
+            this.files = {};        // Holds the imported parse trees.
+        }
+
+        /**
+         * Add an import to be imported
+         * @param path - the raw path
+         * @param tryAppendExtension - whether to try appending a file extension (.less or .js if the path has no extension)
+         * @param currentFileInfo - the current file info (used for instance to work out relative paths)
+         * @param importOptions - import options
+         * @param callback - callback for when it is imported
+         */
+        push(path, tryAppendExtension, currentFileInfo, importOptions, callback) {
+            const importManager = this, pluginLoader = this.context.pluginManager.Loader;
+
+            this.queue.push(path);
+
+            const fileParsedFunc = function (e, root, fullPath) {
+                importManager.queue.splice(importManager.queue.indexOf(path), 1); // Remove the path from the queue
+
+                const importedEqualsRoot = fullPath === importManager.rootFilename;
+                if (importOptions.optional && e) {
+                    callback(null, {rules:[]}, false, null);
+                    logger.info(`The file ${fullPath} was skipped because it was not found and the import was marked optional.`);
+                }
+                else {
+                    // Inline imports aren't cached here.
+                    // If we start to cache them, please make sure they won't conflict with non-inline imports of the
+                    // same name as they used to do before this comment and the condition below have been added.
+                    if (!importManager.files[fullPath] && !importOptions.inline) {
+                        importManager.files[fullPath] = { root, options: importOptions };
+                    }
+                    if (e && !importManager.error) { importManager.error = e; }
+                    callback(e, root, importedEqualsRoot, fullPath);
+                }
+            };
+
+            const newFileInfo = {
+                rewriteUrls: this.context.rewriteUrls,
+                entryPath: currentFileInfo.entryPath,
+                rootpath: currentFileInfo.rootpath,
+                rootFilename: currentFileInfo.rootFilename
+            };
+
+            const fileManager = environment.getFileManager(path, currentFileInfo.currentDirectory, this.context, environment);
+
+            if (!fileManager) {
+                fileParsedFunc({ message: `Could not find a file-manager for ${path}` });
+                return;
+            }
+
+            const loadFileCallback = function(loadedFile) {
+                let plugin;
+                const resolvedFilename = loadedFile.filename;
+                const contents = loadedFile.contents.replace(/^\uFEFF/, '');
+
+                // Pass on an updated rootpath if path of imported file is relative and file
+                // is in a (sub|sup) directory
+                //
+                // Examples:
+                // - If path of imported file is 'module/nav/nav.less' and rootpath is 'less/',
+                //   then rootpath should become 'less/module/nav/'
+                // - If path of imported file is '../mixins.less' and rootpath is 'less/',
+                //   then rootpath should become 'less/../'
+                newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
+                if (newFileInfo.rewriteUrls) {
+                    newFileInfo.rootpath = fileManager.join(
+                        (importManager.context.rootpath || ''),
+                        fileManager.pathDiff(newFileInfo.currentDirectory, newFileInfo.entryPath));
+
+                    if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
+                        newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
+                    }
+                }
+                newFileInfo.filename = resolvedFilename;
+
+                const newEnv = new contexts.Parse(importManager.context);
+
+                newEnv.processImports = false;
+                importManager.contents[resolvedFilename] = contents;
+
+                if (currentFileInfo.reference || importOptions.reference) {
+                    newFileInfo.reference = true;
+                }
+
+                if (importOptions.isPlugin) {
+                    plugin = pluginLoader.evalPlugin(contents, newEnv, importManager, importOptions.pluginArgs, newFileInfo);
+                    if (plugin instanceof LessError) {
+                        fileParsedFunc(plugin, null, resolvedFilename);
+                    }
+                    else {
+                        fileParsedFunc(null, plugin, resolvedFilename);
+                    }
+                } else if (importOptions.inline) {
+                    fileParsedFunc(null, contents, resolvedFilename);
+                } else {
+                    // import (multiple) parse trees apparently get altered and can't be cached.
+                    // TODO: investigate why this is
+                    if (importManager.files[resolvedFilename]
+                        && !importManager.files[resolvedFilename].options.multiple
+                        && !importOptions.multiple) {
+
+                        fileParsedFunc(null, importManager.files[resolvedFilename].root, resolvedFilename);
+                    }
+                    else {
+                        new Parser(newEnv, importManager, newFileInfo).parse(contents, function (e, root) {
+                            fileParsedFunc(e, root, resolvedFilename);
+                        });
+                    }
+                }
+            };
+            let loadedFile;
+            let promise;
+            const context = clone(this.context);
+
+            if (tryAppendExtension) {
+                context.ext = importOptions.isPlugin ? '.js' : '.less';
+            }
+
+            if (importOptions.isPlugin) {
+                context.mime = 'application/javascript';
+
+                if (context.syncImport) {
+                    loadedFile = pluginLoader.loadPluginSync(path, currentFileInfo.currentDirectory, context, environment, fileManager);
+                } else {
+                    promise = pluginLoader.loadPlugin(path, currentFileInfo.currentDirectory, context, environment, fileManager);
+                }
+            }
+            else {
+                if (context.syncImport) {
+                    loadedFile = fileManager.loadFileSync(path, currentFileInfo.currentDirectory, context, environment);
+                } else {
+                    promise = fileManager.loadFile(path, currentFileInfo.currentDirectory, context, environment,
+                        (err, loadedFile) => {
+                            if (err) {
+                                fileParsedFunc(err);
+                            } else {
+                                loadFileCallback(loadedFile);
+                            }
+                        });
+                }
+            }
+            if (loadedFile) {
+                if (!loadedFile.filename) {
+                    fileParsedFunc(loadedFile);
+                } else {
+                    loadFileCallback(loadedFile);
+                }
+            } else if (promise) {
+                promise.then(loadFileCallback, fileParsedFunc);
+            }
+        }
+    }
+
+    return ImportManager;
+}
+
+function Parse(environment, ParseTree, ImportManager) {
+    const parse = function (input, options, callback) {
+
+        if (typeof options === 'function') {
+            callback = options;
+            options = copyOptions(this.options, {});
+        }
+        else {
+            options = copyOptions(this.options, options || {});
+        }
+
+        if (!callback) {
+            const self = this;
+            return new Promise(function (resolve, reject) {
+                parse.call(self, input, options, function(err, output) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(output);
+                    }
+                });
+            });
+        } else {
+            let context;
+            let rootFileInfo;
+            const pluginManager = new PluginManagerFactory(this, !options.reUsePluginManager);
+
+            options.pluginManager = pluginManager;
+
+            context = new contexts.Parse(options);
+
+            if (options.rootFileInfo) {
+                rootFileInfo = options.rootFileInfo;
+            } else {
+                const filename = options.filename || 'input';
+                const entryPath = filename.replace(/[^/\\]*$/, '');
+                rootFileInfo = {
+                    filename,
+                    rewriteUrls: context.rewriteUrls,
+                    rootpath: context.rootpath || '',
+                    currentDirectory: entryPath,
+                    entryPath,
+                    rootFilename: filename
+                };
+                // add in a missing trailing slash
+                if (rootFileInfo.rootpath && rootFileInfo.rootpath.slice(-1) !== '/') {
+                    rootFileInfo.rootpath += '/';
+                }
+            }
+
+            const imports = new ImportManager(this, context, rootFileInfo);
+            this.importManager = imports;
+
+            // TODO: allow the plugins to be just a list of paths or names
+            // Do an async plugin queue like lessc
+
+            if (options.plugins) {
+                options.plugins.forEach(function(plugin) {
+                    let evalResult, contents;
+                    if (plugin.fileContent) {
+                        contents = plugin.fileContent.replace(/^\uFEFF/, '');
+                        evalResult = pluginManager.Loader.evalPlugin(contents, context, imports, plugin.options, plugin.filename);
+                        if (evalResult instanceof LessError) {
+                            return callback(evalResult);
+                        }
+                    }
+                    else {
+                        pluginManager.addPlugin(plugin);
+                    }
+                });
+            }
+
+            new Parser(context, imports, rootFileInfo)
+                .parse(input, function (e, root) {
+                    if (e) { return callback(e); }
+                    callback(null, root, imports, options);
+                }, options);
+        }
+    };
+    return parse;
+}
+
+function Render(environment, ParseTree) {
+    const render = function (input, options, callback) {
+        if (typeof options === 'function') {
+            callback = options;
+            options = copyOptions(this.options, {});
+        }
+        else {
+            options = copyOptions(this.options, options || {});
+        }
+
+        if (!callback) {
+            const self = this;
+            return new Promise(function (resolve, reject) {
+                render.call(self, input, options, function(err, output) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(output);
+                    }
+                });
+            });
+        } else {
+            this.parse(input, options, function(err, root, imports, options) {
+                if (err) { return callback(err); }
+
+                let result;
+                try {
+                    const parseTree = new ParseTree(root, imports);
+                    result = parseTree.toCSS(options);
+                }
+                catch (err) { return callback(err); }
+
+                callback(null, result);
+            });
+        }
+    };
+
+    return render;
+}
+
+function parseNodeVersion(version) {
+  var match = version.match(/^v(\d{1,2})\.(\d{1,2})\.(\d{1,2})(?:-([0-9A-Za-z-.]+))?(?:\+([0-9A-Za-z-.]+))?$/); // eslint-disable-line max-len
+  if (!match) {
+    throw new Error('Unable to parse: ' + version);
+  }
+
+  var res = {
+    major: parseInt(match[1], 10),
+    minor: parseInt(match[2], 10),
+    patch: parseInt(match[3], 10),
+    pre: match[4] || '',
+    build: match[5] || '',
+  };
+
+  return res;
+}
+
+var parseNodeVersion_1 = parseNodeVersion;
+
+function createFromEnvironment(environment, fileManagers, version = '0.0.0') {
+    let sourceMapOutput, sourceMapBuilder, parseTree, importManager;
+
+    environment = new Environment(environment, fileManagers);
+    sourceMapOutput = SourceMapOutput(environment);
+    sourceMapBuilder = SourceMapBuilder(sourceMapOutput, environment);
+    parseTree = ParseTree(sourceMapBuilder);
+    importManager = ImportManager(environment);
+
+    const render = Render(environment, parseTree);
+    const parse = Parse(environment, parseTree, importManager);
+
+    const v = parseNodeVersion_1(`v${version}`);
+    const initial = {
+        version: [v.major, v.minor, v.patch],
+        data,
+        tree,
+        Environment,
+        AbstractFileManager,
+        AbstractPluginLoader,
+        environment,
+        visitors,
+        Parser,
+        functions: functions(environment),
+        contexts,
+        SourceMapOutput: sourceMapOutput,
+        SourceMapBuilder: sourceMapBuilder,
+        ParseTree: parseTree,
+        ImportManager: importManager,
+        render,
+        parse,
+        LessError,
+        transformTree,
+        utils,
+        PluginManager: PluginManagerFactory,
+        logger
+    };
+
+    // Create a public API
+
+    const ctor = function(t) {
+        return function(...args) {
+            return new t(...args);
+        };
+    };
+    let t;
+    const api = Object.create(initial);
+    for (const n in initial.tree) {
+        /* eslint guard-for-in: 0 */
+        t = initial.tree[n];
+        if (typeof t === 'function') {
+            api[n.toLowerCase()] = ctor(t);
+        }
+        else {
+            api[n] = Object.create(null);
+            for (const o in t) {
+                /* eslint guard-for-in: 0 */
+                api[n][o.toLowerCase()] = ctor(t[o]);
+            }
+        }
+    }
+
+    /**
+     * Some of the functions assume a `this` context of the API object,
+     * which causes it to fail when wrapped for ES6 imports.
+     * 
+     * An assumed `this` should be removed in the future.
+     */
+    initial.parse = initial.parse.bind(api);
+    initial.render = initial.render.bind(api);
+
+    return api;
+}
+
+// lessc_helper.js
+//
+//      helper functions for lessc
+const lessc_helper = {
+
+    // Stylize a string
+    stylize : function(str, style) {
+        const styles = {
+            'reset'     : [0,   0],
+            'bold'      : [1,  22],
+            'inverse'   : [7,  27],
+            'underline' : [4,  24],
+            'yellow'    : [33, 39],
+            'green'     : [32, 39],
+            'red'       : [31, 39],
+            'grey'      : [90, 39]
+        };
+        return `\x1b[${styles[style][0]}m${str}\x1b[${styles[style][1]}m`;
+    },
+
+    // Print command line options
+    printUsage: function() {
+        console.log('usage: lessc [option option=parameter ...] <source> [destination]');
+        console.log('');
+        console.log('If source is set to `-\' (dash or hyphen-minus), input is read from stdin.');
+        console.log('');
+        console.log('options:');
+        console.log('  -h, --help                   Prints help (this message) and exit.');
+        console.log('  --include-path=PATHS         Sets include paths. Separated by `:\'. `;\' also supported on windows.');
+        console.log('  -M, --depends                Outputs a makefile import dependency list to stdout.');
+        console.log('  --no-color                   Disables colorized output.');
+        console.log('  --ie-compat                  Enables IE8 compatibility checks.');
+        console.log('  --js                         Enables inline JavaScript in less files');
+        console.log('  -l, --lint                   Syntax check only (lint).');
+        console.log('  -s, --silent                 Suppresses output of error messages.');
+        console.log('  --quiet                      Suppresses output of warnings.');
+        console.log('  --strict-imports             (DEPRECATED) Ignores .less imports inside selector blocks. Has confusing behavior.');
+        console.log('  --insecure                   Allows imports from insecure https hosts.');
+        console.log('  -v, --version                Prints version number and exit.');
+        console.log('  --verbose                    Be verbose.');
+        console.log('  --source-map[=FILENAME]      Outputs a v3 sourcemap to the filename (or output filename.map).');
+        console.log('  --source-map-rootpath=X      Adds this path onto the sourcemap filename and less file paths.');
+        console.log('  --source-map-basepath=X      Sets sourcemap base path, defaults to current working directory.');
+        console.log('  --source-map-include-source  Puts the less files into the map instead of referencing them.');
+        console.log('  --source-map-inline          Puts the map (and any less files) as a base64 data uri into the output css file.');
+        console.log('  --source-map-url=URL         Sets a custom URL to map file, for sourceMappingURL comment');
+        console.log('                               in generated CSS file.');
+        console.log('  --source-map-no-annotation   Excludes the sourceMappingURL comment from the output css file.');
+        console.log('  -rp, --rootpath=URL          Sets rootpath for url rewriting in relative imports and urls');
+        console.log('                               Works with or without the relative-urls option.');
+        console.log('  -ru=, --rewrite-urls=        Rewrites URLs to make them relative to the base less file.');
+        console.log('    all|local|off              \'all\' rewrites all URLs, \'local\' just those starting with a \'.\'');
+        console.log('');
+        console.log('  -m=, --math=');
+        console.log('     always                    Less will eagerly perform math operations always.');
+        console.log('     parens-division           Math performed except for division (/) operator');
+        console.log('     parens | strict           Math only performed inside parentheses');
+        console.log('     strict-legacy             Parens required in very strict terms (legacy --strict-math)');
+        console.log('');
+        console.log('  -su=on|off                   Allows mixed units, e.g. 1px+1em or 1px*1px which have units');
+        console.log('  --strict-units=on|off        that cannot be represented.');
+        console.log('  --global-var=\'VAR=VALUE\'     Defines a variable that can be referenced by the file.');
+        console.log('  --modify-var=\'VAR=VALUE\'     Modifies a variable already declared in the file.');
+        console.log('  --url-args=\'QUERYSTRING\'     Adds params into url tokens (e.g. 42, cb=42 or \'a=1&b=2\')');
+        console.log('  --plugin=PLUGIN=OPTIONS      Loads a plugin. You can also omit the --plugin= if the plugin begins');
+        console.log('                               less-plugin. E.g. the clean css plugin is called less-plugin-clean-css');
+        console.log('                               once installed (npm install less-plugin-clean-css), use either with');
+        console.log('                               --plugin=less-plugin-clean-css or just --clean-css');
+        console.log('                               specify options afterwards e.g. --plugin=less-plugin-clean-css="advanced"');
+        console.log('                               or --clean-css="advanced"');
+        console.log('  --disable-plugin-rule        Disallow @plugin statements');
+        console.log('');
+        console.log('  --quiet-deprecations         Suppress deprecation warnings only (keeps other warnings).');
+        console.log('');
+        console.log('-------------------------- Deprecated ----------------');
+        console.log('  -sm=on|off               Legacy parens-only math. Use --math');
+        console.log('  --strict-math=on|off     ');
+        console.log('');
+        console.log('  --line-numbers=TYPE      (DEPRECATED) Outputs filename and line numbers.');
+        console.log('                           TYPE can be either \'comments\', \'mediaquery\', or \'all\'.');
+        console.log('                           The entire dumpLineNumbers option is deprecated.');
+        console.log('                           Use sourcemaps (--source-map) instead.');
+        console.log('                           All modes will be removed in a future version.');
+        console.log('                           Note: \'mediaquery\' and \'all\' modes generate @media -sass-debug-info');
+        console.log('                           which had short-lived usage and is no longer recommended.');
+        console.log('  -x, --compress           Compresses output by removing some whitespaces.');
+        console.log('                           We recommend you use a dedicated minifer like less-plugin-clean-css');
+        console.log('');
+        console.log('Report bugs to: http://github.com/less/less.js/issues');
+        console.log('Home page: <http://lesscss.org/>');
+    }
+};
+
+const require$2 = createRequire();
+
+/**
+ * Node Plugin Loader
+ */
+const PluginLoader = function(less) {
+    this.less = less;
+    this.require = prefix => {
+        prefix = path__default["default"].dirname(prefix);
+        return id => {
+            const str = id.slice(0, 2);
+            if (str === '..' || str === './') {
+                return require$2(path__default["default"].join(prefix, id));
+            }
+            else {
+                return require$2(id);
+            }
+        };
+    };
+};
+
+PluginLoader.prototype = Object.assign(new AbstractPluginLoader(), {
+    loadPlugin(filename, basePath, context, environment, fileManager) {
+        const prefix = filename.slice(0, 1);
+        const explicit = prefix === '.' || prefix === '/' || filename.slice(-3).toLowerCase() === '.js';
+        if (!explicit) {
+            context.prefixes = ['less-plugin-', ''];
+        }
+
+        if (context.syncImport) {
+            return fileManager.loadFileSync(filename, basePath, context, environment);
+        }
+
+        return new Promise((fulfill, reject) => {
+            fileManager.loadFile(filename, basePath, context, environment).then(
+                data => {
+                    try {
+                        fulfill(data);
+                    }
+                    catch (e) {
+                        console.log(e);
+                        reject(e);
+                    }
+                }
+            ).catch(err => {
+                reject(err);
+            });
+        });
+    },
+
+    loadPluginSync(filename, basePath, context, environment, fileManager) {
+        context.syncImport = true;
+        return this.loadPlugin(filename, basePath, context, environment, fileManager);
+    }
+});
+
+// Export a new default each time
+function defaultOptions() {
+    return {
+        /* Inline Javascript - @plugin still allowed */
+        javascriptEnabled: false,
+
+        /* Outputs a makefile import dependency list to stdout. */
+        depends: false,
+
+        /* (DEPRECATED) Compress using less built-in compression. 
+         * This does an okay job but does not utilise all the tricks of 
+         * dedicated css compression. */
+        compress: false,
+
+        /* Runs the less parser and just reports errors without any output. */
+        lint: false,
+
+        /* Sets available include paths.
+         * If the file in an @import rule does not exist at that exact location, 
+         * less will look for it at the location(s) passed to this option. 
+         * You might use this for instance to specify a path to a library which 
+         * you want to be referenced simply and relatively in the less files. */
+        paths: [],
+
+        /* color output in the terminal */
+        color: true,
+
+        /**
+         * @deprecated This option has confusing behavior and may be removed in a future version.
+         * 
+         * When true, prevents @import statements for .less files from being evaluated inside
+         * selector blocks (rulesets). The imports are silently ignored and not output.
+         * 
+         * Behavior:
+         * - @import at root level: Always processed
+         * - @import inside @-rules (@media, @supports, etc.): Processed (these are not selector blocks)
+         * - @import inside selector blocks (.class, #id, etc.): NOT processed (silently ignored)
+         * 
+         * When false (default): All @import statements are processed regardless of context.
+         * 
+         * Note: Despite the name "strict", this option does NOT throw an error when imports
+         * are used in selector blocks - it silently ignores them. This is confusing
+         * behavior that may catch users off guard.
+         * 
+         * Note: Only affects .less file imports. CSS imports (url(...) or .css files) are
+         * always output as CSS @import statements regardless of this setting.
+         * 
+         * @see https://github.com/less/less.js/issues/656
+         */
+        strictImports: false,
+
+        /* Allow Imports from Insecure HTTPS Hosts */
+        insecure: false,
+
+        /* Allows you to add a path to every generated import and url in your css. 
+         * This does not affect less import statements that are processed, just ones 
+         * that are left in the output css. */
+        rootpath: '',
+
+        /* By default URLs are kept as-is, so if you import a file in a sub-directory 
+         * that references an image, exactly the same URL will be output in the css. 
+         * This option allows you to re-write URL's in imported files so that the 
+         * URL is always relative to the base imported file */
+        rewriteUrls: false,
+
+        /* How to process math 
+         *   0 always           - eagerly try to solve all operations
+         *   1 parens-division  - require parens for division "/"
+         *   2 parens | strict  - require parens for all operations
+         *   3 strict-legacy    - legacy strict behavior (super-strict)
+         */
+        math: 1,
+
+        /* Without this option, less attempts to guess at the output unit when it does maths. */
+        strictUnits: false,
+
+        /* Effectively the declaration is put at the top of your base Less file, 
+         * meaning it can be used but it also can be overridden if this variable 
+         * is defined in the file. */
+        globalVars: null,
+
+        /* As opposed to the global variable option, this puts the declaration at the
+         * end of your base file, meaning it will override anything defined in your Less file. */
+        modifyVars: null,
+
+        /* This option allows you to specify a argument to go on to every URL.  */
+        urlArgs: ''
+    }
+}
+
+const require$1 = createRequire();
+
+var imageSize = environment => {
+
+    function imageSize(functionContext, filePathNode) {
+        let filePath = filePathNode.value;
+        const currentFileInfo = functionContext.currentFileInfo;
+        const currentDirectory = currentFileInfo.rewriteUrls ?
+            currentFileInfo.currentDirectory : currentFileInfo.entryPath;
+
+        const fragmentStart = filePath.indexOf('#');
+        if (fragmentStart !== -1) {
+            filePath = filePath.slice(0, fragmentStart);
+        }
+
+        const fileManager = environment.getFileManager(filePath, currentDirectory, functionContext.context, environment, true);
+
+        if (!fileManager) {
+            throw {
+                type: 'File',
+                message: `Can not set up FileManager for ${filePathNode}`
+            };
+        }
+
+        const fileSync = fileManager.loadFileSync(filePath, currentDirectory, functionContext.context, environment);
+
+        if (fileSync.error) {
+            throw fileSync.error;
+        }
+
+        const sizeOf = require$1('image-size');
+        return sizeOf ? sizeOf(fileSync.filename) : {width: 0, height: 0};
+    }
+
+    const imageFunctions = {
+        'image-size': function(filePathNode) {
+            const size = imageSize(this, filePathNode);
+            return new Expression([
+                new Dimension(size.width, 'px'),
+                new Dimension(size.height, 'px')
+            ]);
+        },
+        'image-width': function(filePathNode) {
+            const size = imageSize(this, filePathNode);
+            return new Dimension(size.width, 'px');
+        },
+        'image-height': function(filePathNode) {
+            const size = imageSize(this, filePathNode);
+            return new Dimension(size.height, 'px');
+        }
+    };
+
+    functionRegistry.addMultiple(imageFunctions);
+};
+
+createRequire();
+const version = "4.6.4";
+
+const less = createFromEnvironment(environment, [new FileManager(), new UrlFileManager()], version);
+
+// allow people to create less with their own environment
+less.createFromEnvironment = createFromEnvironment;
+less.lesscHelper = lessc_helper;
+less.PluginLoader = PluginLoader;
+less.fs = fs$1;
+less.FileManager = FileManager;
+less.UrlFileManager = UrlFileManager;
+
+// Set up options
+less.options = defaultOptions();
+
+// provide image-size functionality
+imageSize(less.environment);
+
+module.exports = less;
