@@ -19,6 +19,9 @@ COPY playedu-api /app
 
 WORKDIR /app
 
+# 使用国内 Maven 镜像源
+RUN mkdir -p /root/.m2 && echo '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"><mirrors><mirror><id>aliyun</id><name>Aliyun Maven</name><url>https://maven.aliyun.com/repository/public</url><mirrorOf>*</mirrorOf></mirror></mirrors></settings>' > /root/.m2/settings.xml
+
 RUN /app/mvnw -Dmaven.test.skip=true clean package
 
 FROM registry.cn-hangzhou.aliyuncs.com/hzbs/eclipse-temurin:17 AS base
