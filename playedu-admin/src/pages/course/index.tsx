@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -159,7 +159,7 @@ const CoursePage = () => {
     },
   ];
 
-  const columns: ColumnsType<DataType> = [
+  const columns: ColumnsType<DataType> = useMemo(() => [
     {
       title: "课程名称",
       width: 350,
@@ -189,7 +189,7 @@ const CoursePage = () => {
       dataIndex: "id",
       render: (id: number) => (
         <div className="float-left">
-          {course_category_ids[id].map((item: any, index: number) => {
+          {course_category_ids[id]?.map((item: any, index: number) => {
             return (
               <span key={index}>
                 {index === course_category_ids[id].length - 1
@@ -347,10 +347,21 @@ const CoursePage = () => {
         );
       },
     },
-  ];
+  ], [resourceUrl, course_category_ids, categories, course_dep_ids, departments, adminUsers, navigate, delItem]);
+
+  // 重置列表
+  const resetList = useCallback(() => {
+    resetLocalSearchParams({
+      page: 1,
+      size: 10,
+      title: "",
+    });
+    setList([]);
+    setRefresh(!refresh);
+  }, [refresh, resetLocalSearchParams]);
 
   // 删除课程
-  const delItem = (id: number) => {
+  const delItem = useCallback((id: number) => {
     if (id === 0) {
       return;
     }
@@ -371,10 +382,10 @@ const CoursePage = () => {
         console.log("Cancel");
       },
     });
-  };
+  }, [resetList]);
 
   // 获取列表
-  const getList = () => {
+  const getList = useCallback(() => {
     setLoading(true);
     let categoryIds = "";
     let depIds = "";
@@ -399,35 +410,9 @@ const CoursePage = () => {
       .catch((err: any) => {
         console.log("错误,", err);
       });
-  };
-  // 重置列表
-  const resetList = () => {
-    resetLocalSearchParams({
-      page: 1,
-      size: 10,
-      title: "",
-    });
-    setList([]);
-    setRefresh(!refresh);
-  };
+  }, [page, size, title, tabKey, category_ids, dep_ids]);
 
-  const paginationProps = {
-    current: page, //当前页码
-    pageSize: size,
-    total: total, // 总条数
-    onChange: (page: number, pageSize: number) =>
-      handlePageChange(page, pageSize), //改变页码的函数
-    showSizeChanger: true,
-  };
-
-  const handlePageChange = (page: number, pageSize: number) => {
-    resetLocalSearchParams({
-      page: page,
-      size: pageSize,
-    });
-  };
-
-  const resetLocalSearchParams = (params: LocalSearchParamsInterface) => {
+  const resetLocalSearchParams = useCallback((params: LocalSearchParamsInterface) => {
     setSearchParams(
       (prev) => {
         if (typeof params.title !== "undefined") {
@@ -443,11 +428,26 @@ const CoursePage = () => {
       },
       { replace: true }
     );
-  };
+  }, [setSearchParams]);
 
-  const onChange = (key: string) => {
+  const handlePageChange = useCallback((page: number, pageSize: number) => {
+    resetLocalSearchParams({
+      page: page,
+      size: pageSize,
+    });
+  }, [resetLocalSearchParams]);
+
+  const paginationProps = useMemo(() => ({
+    current: page, //当前页码
+    pageSize: size,
+    total: total, // 总条数
+    onChange: handlePageChange, //改变页码的函数
+    showSizeChanger: true,
+  }), [page, size, total, handlePageChange]);
+
+  const onChange = useCallback((key: string) => {
     setTabKey(key);
-  };
+  }, []);
 
   return (
     <>

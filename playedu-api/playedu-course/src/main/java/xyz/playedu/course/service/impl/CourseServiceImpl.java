@@ -31,6 +31,7 @@ import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.CourseCategory;
 import xyz.playedu.course.domain.CourseDepartmentUser;
 import xyz.playedu.course.mapper.CourseMapper;
+import xyz.playedu.common.util.RedisUtil;
 import xyz.playedu.course.service.CourseCategoryService;
 import xyz.playedu.course.service.CourseDepartmentUserService;
 import xyz.playedu.course.service.CourseService;
@@ -46,6 +47,8 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     @Autowired private CourseDepartmentUserService courseDepartmentUserService;
 
     @Autowired private CourseCategoryService courseCategoryService;
+
+    @Autowired private RedisUtil redisUtil;
 
     @Override
     public PaginationResult<Course> paginate(int page, int size, CoursePaginateFiler filter) {
@@ -166,16 +169,32 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
         updateById(newCourse);
 
+        // 清除缓存
+        String cacheKey = "course:" + newCourse.getId();
+        redisUtil.delete(cacheKey);
+
         resetRelateCategories(newCourse, categoryIds);
         resetRelateDepartments(newCourse, depIds);
     }
 
     @Override
     public Course findOrFail(Integer id) throws NotFoundException {
-        Course course = getOne(query().getWrapper().eq("id", id));
+        // 尝试从缓存获取
+        String cacheKey = "course:" + id;
+        Course course = (Course) redisUtil.get(cacheKey);
+        if (course != null) {
+            return course;
+        }
+        
+        // 从数据库获取
+        course = getOne(query().getWrapper().eq("id", id));
         if (course == null) {
             throw new NotFoundException("课程不存在");
         }
+        
+        // 存入缓存
+        redisUtil.set(cacheKey, course);
+        
         return course;
     }
 
@@ -195,6 +214,10 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         course.setId(courseId);
         course.setClassHour(classHour);
         updateById(course);
+        
+        // 清除缓存
+        String cacheKey = "course:" + courseId;
+        redisUtil.delete(cacheKey);
     }
 
     @Override
@@ -212,7 +235,34 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         if (ids == null || ids.size() == 0) {
             return new ArrayList<>();
         }
-        return list(query().getWrapper().in("id", ids));
+        
+        List<Course> courses = new ArrayList<>();
+        List<Integer> uncachedIds = new ArrayList<>();
+        
+        // 尝试从缓存获取
+        for (Integer id : ids) {
+            String cacheKey = "course:" + id;
+            Course course = (Course) redisUtil.get(cacheKey);
+            if (course != null) {
+                courses.add(course);
+            } else {
+                uncachedIds.add(id);
+            }
+        }
+        
+        // 从数据库获取未缓存的课程
+        if (!uncachedIds.isEmpty()) {
+            List<Course> uncachedCourses = list(query().getWrapper().in("id", uncachedIds));
+            courses.addAll(uncachedCourses);
+            
+            // 缓存新获取的课程
+            for (Course course : uncachedCourses) {
+                String cacheKey = "course:" + course.getId();
+                redisUtil.set(cacheKey, course);
+            }
+        }
+        
+        return courses;
     }
 
     @Override
