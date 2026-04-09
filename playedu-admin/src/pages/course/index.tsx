@@ -159,6 +159,88 @@ const CoursePage = () => {
     },
   ];
 
+  // 重置搜索参数
+  const resetLocalSearchParams = useCallback((params: LocalSearchParamsInterface) => {
+    setSearchParams(
+      (prev) => {
+        if (typeof params.title !== "undefined") {
+          prev.set("title", params.title);
+        }
+        if (typeof params.page !== "undefined") {
+          prev.set("page", params.page + "");
+        }
+        if (typeof params.size !== "undefined") {
+          prev.set("size", params.size + "");
+        }
+        return prev;
+      },
+      { replace: true }
+    );
+  }, [setSearchParams]);
+
+  // 重置列表
+  const resetList = useCallback(() => {
+    resetLocalSearchParams({
+      page: 1,
+      size: 10,
+      title: "",
+    });
+    setList([]);
+    setRefresh(!refresh);
+  }, [refresh, resetLocalSearchParams]);
+
+  // 删除课程
+  const delItem = useCallback((id: number) => {
+    if (id === 0) {
+      return;
+    }
+    confirm({
+      title: "操作确认",
+      icon: <ExclamationCircleFilled />,
+      content: "确认删除此课程？",
+      centered: true,
+      okText: "确认",
+      cancelText: "取消",
+      onOk() {
+        course.destroyCourse(id).then(() => {
+          message.success("删除成功");
+          resetList();
+        });
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  }, [resetList]);
+
+  // 获取列表
+  const getList = useCallback(() => {
+    setLoading(true);
+    let categoryIds = "";
+    let depIds = "";
+    if (tabKey === "1") {
+      categoryIds = category_ids.join(",");
+    } else {
+      depIds = dep_ids.join(",");
+    }
+    course
+      .courseList(page, size, "", "", title ? title : "", depIds, categoryIds)
+      .then((res: any) => {
+        setTotal(res.data.total);
+        setList(res.data.data);
+        setCourseCategoryIds(res.data.course_category_ids);
+        setCourseDepIds(res.data.course_dep_ids);
+        setCategories(res.data.categories);
+        setDepartments(res.data.departments);
+        setAdminUsers(res.data.admin_users);
+        setResourceUrl(res.data.resource_url)
+        setLoading(false);
+      })
+      .catch((err: any) => {
+        console.log("错误,", err);
+      });
+  }, [page, size, title, tabKey, category_ids, dep_ids]);
+
   const columns: ColumnsType<DataType> = useMemo(() => [
     {
       title: "课程名称",
@@ -348,87 +430,6 @@ const CoursePage = () => {
       },
     },
   ], [resourceUrl, course_category_ids, categories, course_dep_ids, departments, adminUsers, navigate, delItem]);
-
-  // 重置列表
-  const resetList = useCallback(() => {
-    resetLocalSearchParams({
-      page: 1,
-      size: 10,
-      title: "",
-    });
-    setList([]);
-    setRefresh(!refresh);
-  }, [refresh, resetLocalSearchParams]);
-
-  // 删除课程
-  const delItem = useCallback((id: number) => {
-    if (id === 0) {
-      return;
-    }
-    confirm({
-      title: "操作确认",
-      icon: <ExclamationCircleFilled />,
-      content: "确认删除此课程？",
-      centered: true,
-      okText: "确认",
-      cancelText: "取消",
-      onOk() {
-        course.destroyCourse(id).then(() => {
-          message.success("删除成功");
-          resetList();
-        });
-      },
-      onCancel() {
-        console.log("Cancel");
-      },
-    });
-  }, [resetList]);
-
-  // 获取列表
-  const getList = useCallback(() => {
-    setLoading(true);
-    let categoryIds = "";
-    let depIds = "";
-    if (tabKey === "1") {
-      categoryIds = category_ids.join(",");
-    } else {
-      depIds = dep_ids.join(",");
-    }
-    course
-      .courseList(page, size, "", "", title ? title : "", depIds, categoryIds)
-      .then((res: any) => {
-        setTotal(res.data.total);
-        setList(res.data.data);
-        setCourseCategoryIds(res.data.course_category_ids);
-        setCourseDepIds(res.data.course_dep_ids);
-        setCategories(res.data.categories);
-        setDepartments(res.data.departments);
-        setAdminUsers(res.data.admin_users);
-        setResourceUrl(res.data.resource_url)
-        setLoading(false);
-      })
-      .catch((err: any) => {
-        console.log("错误,", err);
-      });
-  }, [page, size, title, tabKey, category_ids, dep_ids]);
-
-  const resetLocalSearchParams = useCallback((params: LocalSearchParamsInterface) => {
-    setSearchParams(
-      (prev) => {
-        if (typeof params.title !== "undefined") {
-          prev.set("title", params.title);
-        }
-        if (typeof params.page !== "undefined") {
-          prev.set("page", params.page + "");
-        }
-        if (typeof params.size !== "undefined") {
-          prev.set("size", params.size + "");
-        }
-        return prev;
-      },
-      { replace: true }
-    );
-  }, [setSearchParams]);
 
   const handlePageChange = useCallback((page: number, pageSize: number) => {
     resetLocalSearchParams({
