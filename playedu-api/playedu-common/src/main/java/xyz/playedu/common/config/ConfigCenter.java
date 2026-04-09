@@ -25,7 +25,7 @@ public class ConfigCenter {
      * 重新加载配置
      */
     public void reloadConfig() {
-        Map<String, String> configs = appConfigService.getAll();
+        Map<String, String> configs = appConfigService.keyValues();
         configMap.clear();
         configMap.putAll(configs);
     }

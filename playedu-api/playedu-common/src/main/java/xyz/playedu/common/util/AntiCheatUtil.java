@@ -51,7 +51,7 @@ public class AntiCheatUtil {
         // 检测学习完成时的异常行为
         if (currentTime >= totalDuration - 1) {
             long learningDuration = currentTimestamp - behavior.getStartTime();
-            long expectedDuration = totalDuration * 1000 * 0.8; // 至少需要80%的时间
+            long expectedDuration = (long) (totalDuration * 1000 * 0.8); // 至少需要80%的时间
             if (learningDuration < expectedDuration) {
                 behavior.setCheatDetected(true);
                 return true;
