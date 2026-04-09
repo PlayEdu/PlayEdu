@@ -110,7 +110,7 @@ PlayEdu 采用前后端分离的微服务架构，主要包含以下模块：
 
 ## 🔰️ 软件安全
 
-安全问题应该通过邮件私下报告给 tengyongzhi@meedu.vip。 您将在 24 小时内收到回复，如果因为某些原因您没有收到回复，请通过回复原始邮件的方式跟进，以确保我们收到了您的原始邮件。
+安全问题应该通过邮件私下报告给 tingfe@gmail.com。 您将在 24 小时内收到回复，如果因为某些原因您没有收到回复，请通过回复原始邮件的方式跟进，以确保我们收到了您的原始邮件。
 
 ## 👁 界面预览
 
@@ -140,4 +140,4 @@ PlayEdu 开源版采用 [Apache License 2.0](https://opensource.org/licenses/Apa
 ## 联系我们
 
 - **GitHub仓库**：[https://github.com/Tingfe/PlayEdu](https://github.com/Tingfe/PlayEdu)
-- **技术交流**：tengyongzhi@meedu.vip
+- **技术交流**：tingfe@gmail.com
