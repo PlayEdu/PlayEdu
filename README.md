@@ -3,15 +3,16 @@
 </p>
 
 <h4 align="center">
+  <a href="https://github.com/Tingfe/PlayEdu">GitHub仓库</a> |
   <a href="http://www.playeduos.com">PlayEdu官网</a> |
-  <a href="https://www.playeduos.com/function.html">PlayEdu商业版</a> |
-  <a href="https://faq.playeduos.com/opensource-maintenance-handbook/article/t08o2iHfLR">部署文档</a> |
-  <a href="https://www.playeduos.com/demo.html">开源版演示站</a>
+  <a href="https://faq.playeduos.com/opensource-maintenance-handbook/article/t08o2iHfLR">部署文档</a>
 </h4>
 
 ## 项目简介
 
-PlayEdu 是由白书科技团队经营多年线上教培领域打造出的一款业内领先的线上培训解决方案。PlayEdu 基于 Java + MySQL 开发，采用前后端分离模式，前端核心框架为 React18，后端核心框架为 SpringBoot3。
+PlayEdu 是一款业内领先的线上培训解决方案，基于 Java + MySQL 开发，采用前后端分离模式，前端核心框架为 React18，后端核心框架为 SpringBoot3。
+
+本项目是基于原 PlayEdu 开源版的增强版本，添加了更多企业级功能和性能优化。
 
 ### 核心功能
 
@@ -20,8 +21,13 @@ PlayEdu 是由白书科技团队经营多年线上教培领域打造出的一款
 - **在线视频学习**：支持视频课程上传、章节管理、课时安排
 - **学员进度追踪**：实时监控学员学习状态和进度
 - **视频私有化存储**：支持阿里云OSS和腾讯云COS存储
-- **培训分析**：提供培训数据统计和分析功能
 - **LDAP集成**：支持LDAP用户同步和登录
+
+### ✨ 新增功能
+
+- **培训分析**：提供培训数据统计和分析功能，帮助企业了解培训效果和学员学习情况
+- **课程管理优化**：调整课程管理页面代码结构，提升系统性能和用户体验
+- **依赖升级**：升级pnpm lockfile版本，确保依赖管理的稳定性
 
 **针对企业级培训场景，我们精心打造了"功能更多、响应更快、并发更强"的企业版本，满足企业多样化的培训需求。企业版本支持音视频学习、文档在线预览、线上考试、学习任务等多种学习方式，并提供多重安全防护，如视频转码加密、防盗链、学习防快进、防挂机等。同时，我们集成了企业微信、钉钉、飞书等主流办公系统，帮助企业快速部署专属培训平台！**
 
@@ -49,7 +55,7 @@ PlayEdu 是由白书科技团队经营多年线上教培领域打造出的一款
 ### 拉取代码
 
 ```bash
-git clone --branch main https://gitee.com/playeduxyz/playedu.git playedu
+git clone --branch main https://github.com/Tingfe/PlayEdu.git playedu
 ```
 
 ### 构建镜像
@@ -133,7 +139,5 @@ PlayEdu 开源版采用 [Apache License 2.0](https://opensource.org/licenses/Apa
 
 ## 联系我们
 
-- **官方网站**：[http://www.playeduos.com](http://www.playeduos.com)
-- **技术支持**：[https://faq.playeduos.com](https://faq.playeduos.com)
-- **商务合作**：contact@playeduos.com
+- **GitHub仓库**：[https://github.com/Tingfe/PlayEdu](https://github.com/Tingfe/PlayEdu)
 - **技术交流**：tengyongzhi@meedu.vip
