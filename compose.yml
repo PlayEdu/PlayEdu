@@ -28,6 +28,7 @@ services:
       - DB_POOL_MAX_LIFETIME=${PLAYEDU_DB_POOL_MAX_LIFETIME:-1800000}
       - SA_TOKEN_IS_CONCURRENT=${PLAYEDU_SA_TOKEN_IS_CONCURRENT:-false}
       - SA_TOKEN_JWT_SECRET_KEY=${PLAYEDU_JWT_KEY:-playeduxyz}
+      - TZ=${PLAYEDU_TZ:-Asia/Shanghai}
     ports:
       - "${PLAYEDU_API_PORT:-9700}:9898"
       - "${PLAYEDU_PC_PORT:-9800}:9800"
@@ -45,7 +46,7 @@ services:
     environment:
       - MYSQL_DATABASE=${PLAYEDU_DB_NAME:-playedu}
       - MYSQL_ROOT_PASSWORD=${PLAYEDU_DB_PASS:-playeduxyz}
-      - TZ=UTC
+      - TZ=${PLAYEDU_TZ:-Asia/Shanghai}
     volumes:
       - mysql-data:/var/lib/mysql
     ports:
