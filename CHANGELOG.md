@@ -1,5 +1,6 @@
 ## Unreleased
 
+- 优化:Dockerfile 拆分依赖层,前端先 `COPY package.json/pnpm-lock.yaml` 再 `pnpm i`,Java 先 `COPY pom.xml` 并 `dependency:go-offline` 预热依赖,源码变更不再触发依赖重装,显著缩短增量构建耗时
 - 修复:后台批量导入学员、章节/课时/附件排序接口缺少权限注解导致的越权问题
 - 优化:后台配置项改为由 `application.yml` 直接读取环境变量，移除 Dockerfile 中的命令行参数映射
 - 新增:数据库连接池可通过环境变量配置 (`DB_POOL_MIN_IDLE` / `DB_POOL_MAX_SIZE` / `DB_POOL_CONN_TIMEOUT` / `DB_POOL_IDLE_TIMEOUT` / `DB_POOL_MAX_LIFETIME`)
