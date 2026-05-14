@@ -18,3 +18,9 @@
 /playedu-admin/.env.development/
 /playedu-admin/.env.production/
 /playedu-admin/build/
+
+**/target/
+**/.git/
+**/.idea/
+**/.vscode/
+**/*.log

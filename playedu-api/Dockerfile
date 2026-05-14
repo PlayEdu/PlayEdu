@@ -1,10 +1,21 @@
 FROM registry.cn-hangzhou.aliyuncs.com/hzbs/eclipse-temurin:17 AS builder
 
-COPY . /app
-
 WORKDIR /app
 
-RUN /app/mvnw -Dmaven.test.skip=true clean package
+COPY mvnw          /app/mvnw
+COPY .mvn          /app/.mvn
+COPY pom.xml                    /app/pom.xml
+COPY playedu-api/pom.xml        /app/playedu-api/pom.xml
+COPY playedu-common/pom.xml     /app/playedu-common/pom.xml
+COPY playedu-course/pom.xml     /app/playedu-course/pom.xml
+COPY playedu-resource/pom.xml   /app/playedu-resource/pom.xml
+COPY playedu-system/pom.xml     /app/playedu-system/pom.xml
+
+RUN /app/mvnw -B -DskipTests dependency:go-offline
+
+COPY . /app
+
+RUN /app/mvnw -B -Dmaven.test.skip=true package
 
 FROM registry.cn-hangzhou.aliyuncs.com/hzbs/eclipse-temurin:17 AS base
 

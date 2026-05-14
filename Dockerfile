@@ -1,25 +1,42 @@
 FROM registry.cn-hangzhou.aliyuncs.com/hzbs/node:20-alpine AS node-builder
 
+WORKDIR /app
+
+COPY playedu-admin/package.json playedu-admin/pnpm-lock.yaml /app/admin/
+COPY playedu-pc/package.json    playedu-pc/pnpm-lock.yaml    /app/pc/
+COPY playedu-h5/package.json    playedu-h5/pnpm-lock.yaml    /app/h5/
+
+RUN cd /app/admin && pnpm i
+RUN cd /app/pc    && pnpm i
+RUN cd /app/h5    && pnpm i
+
 COPY playedu-admin /app/admin
+RUN cd /app/admin && VITE_APP_URL=/api/ pnpm build
+
 COPY playedu-pc /app/pc
+RUN cd /app/pc && VITE_APP_URL=/api/ pnpm build
+
 COPY playedu-h5 /app/h5
-
-WORKDIR /app/admin
-RUN pnpm i && VITE_APP_URL=/api/ pnpm build
-
-WORKDIR /app/pc
-RUN pnpm i && VITE_APP_URL=/api/ pnpm build
-
-WORKDIR /app/h5
-RUN pnpm i && VITE_APP_URL=/api/ pnpm build
+RUN cd /app/h5 && VITE_APP_URL=/api/ pnpm build
 
 FROM registry.cn-hangzhou.aliyuncs.com/hzbs/eclipse-temurin:17 AS java-builder
 
-COPY playedu-api /app
-
 WORKDIR /app
 
-RUN /app/mvnw -Dmaven.test.skip=true clean package
+COPY playedu-api/mvnw          /app/mvnw
+COPY playedu-api/.mvn          /app/.mvn
+COPY playedu-api/pom.xml                     /app/pom.xml
+COPY playedu-api/playedu-api/pom.xml         /app/playedu-api/pom.xml
+COPY playedu-api/playedu-common/pom.xml      /app/playedu-common/pom.xml
+COPY playedu-api/playedu-course/pom.xml      /app/playedu-course/pom.xml
+COPY playedu-api/playedu-resource/pom.xml    /app/playedu-resource/pom.xml
+COPY playedu-api/playedu-system/pom.xml      /app/playedu-system/pom.xml
+
+RUN /app/mvnw -B -DskipTests dependency:go-offline
+
+COPY playedu-api /app
+
+RUN /app/mvnw -B -Dmaven.test.skip=true package
 
 FROM registry.cn-hangzhou.aliyuncs.com/hzbs/eclipse-temurin:17 AS base
 
