@@ -1,8 +1,8 @@
 server:
-  port: 9898
+  port: ${SERVER_PORT:9898}
 spring:
   profiles:
-    active: "dev"
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   aop:
     auto: true
     proxy-target-class: true
@@ -13,9 +13,9 @@ spring:
       max-file-size: 10MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: "jdbc:mysql://127.0.0.1:3306/dbname?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true"
-    username: ""
-    password: ""
+    url: "jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:playedu}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true"
+    username: ${DB_USER:root}
+    password: ${DB_PASS:}
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       minimum-idle: 1       # 最小连接数
@@ -44,9 +44,9 @@ sa-token:
   is-print: false
   token-name: "Authorization"
   timeout: 1296000 #token有效期[单位:秒,默认15天]
-  is-concurrent: false #限制同时登录
+  is-concurrent: ${SA_TOKEN_IS_CONCURRENT:false} #限制同时登录
   is-share: false
-  jwt-secret-key: "playeduxyz"
+  jwt-secret-key: ${SA_TOKEN_JWT_SECRET_KEY:playeduxyz}
   token-prefix: "Bearer"
   is-log: false
   log-level: "warn"
