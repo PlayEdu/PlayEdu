@@ -20,7 +20,12 @@ services:
       - DB_PORT=3306
       - DB_NAME=playedu
       - DB_USER=root
-      - DB_PASS=playeduxyz
+      - DB_PASS=${PLAYEDU_DB_PASS:-playeduxyz}
+      - DB_POOL_MIN_IDLE=${PLAYEDU_DB_POOL_MIN_IDLE:-1}
+      - DB_POOL_MAX_SIZE=${PLAYEDU_DB_POOL_MAX_SIZE:-10}
+      - DB_POOL_CONN_TIMEOUT=${PLAYEDU_DB_POOL_CONN_TIMEOUT:-30000}
+      - DB_POOL_IDLE_TIMEOUT=${PLAYEDU_DB_POOL_IDLE_TIMEOUT:-600000}
+      - DB_POOL_MAX_LIFETIME=${PLAYEDU_DB_POOL_MAX_LIFETIME:-1800000}
       - SA_TOKEN_IS_CONCURRENT=false
       - SA_TOKEN_JWT_SECRET_KEY=${PLAYEDU_JWT_KEY:-playeduxyz}
     ports:
@@ -39,7 +44,7 @@ services:
     restart: always
     environment:
       - MYSQL_DATABASE=playedu
-      - MYSQL_ROOT_PASSWORD=playeduxyz
+      - MYSQL_ROOT_PASSWORD=${PLAYEDU_DB_PASS:-playeduxyz}
       - TZ=UTC
     volumes:
       - mysql-data:/var/lib/mysql

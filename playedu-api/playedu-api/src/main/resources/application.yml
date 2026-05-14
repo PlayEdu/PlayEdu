@@ -18,9 +18,12 @@ spring:
     password: ${DB_PASS:}
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
-      minimum-idle: 1       # 最小连接数
-      maximum-pool-size: 10 # 最大连接数
-      auto-commit: true     # 自动提交
+      minimum-idle: ${DB_POOL_MIN_IDLE:1}              # 最小连接数
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}        # 最大连接数
+      connection-timeout: ${DB_POOL_CONN_TIMEOUT:30000} # 获取连接超时时间(ms)
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT:600000}     # 空闲连接超时时间(ms)
+      max-lifetime: ${DB_POOL_MAX_LIFETIME:1800000}    # 连接最大存活时间(ms)
+      auto-commit: true                                # 自动提交
   # 线程池配置
   task:
     execution:
