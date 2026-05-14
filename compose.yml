@@ -16,10 +16,10 @@ services:
     image: registry.cn-hangzhou.aliyuncs.com/playedu/light:2.0
     restart: always
     environment:
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_NAME=playedu
-      - DB_USER=root
+      - DB_HOST=${PLAYEDU_DB_HOST:-mysql}
+      - DB_PORT=${PLAYEDU_DB_PORT:-3306}
+      - DB_NAME=${PLAYEDU_DB_NAME:-playedu}
+      - DB_USER=${PLAYEDU_DB_USER:-root}
       - DB_PASS=${PLAYEDU_DB_PASS:-playeduxyz}
       - DB_POOL_MIN_IDLE=${PLAYEDU_DB_POOL_MIN_IDLE:-1}
       - DB_POOL_MAX_SIZE=${PLAYEDU_DB_POOL_MAX_SIZE:-10}
@@ -43,7 +43,7 @@ services:
     build: ./docker/mysql
     restart: always
     environment:
-      - MYSQL_DATABASE=playedu
+      - MYSQL_DATABASE=${PLAYEDU_DB_NAME:-playedu}
       - MYSQL_ROOT_PASSWORD=${PLAYEDU_DB_PASS:-playeduxyz}
       - TZ=UTC
     volumes:
