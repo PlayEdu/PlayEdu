@@ -15,17 +15,45 @@
  */
 package xyz.playedu.common.util;
 
-import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
+import org.lionsoul.ip2region.xdb.Searcher;
 
 @Slf4j
 public class IpUtil {
+
+    private static final String XDB_CLASSPATH = "ip2region/ip2region.xdb";
+    private static volatile Searcher ipSearcher;
+
+    private static Searcher getSearcher() {
+        if (ipSearcher == null) {
+            synchronized (IpUtil.class) {
+                if (ipSearcher == null) {
+                    try (InputStream in =
+                            IpUtil.class.getClassLoader().getResourceAsStream(XDB_CLASSPATH)) {
+                        if (in == null) {
+                            log.error("ip2region xdb 资源未找到: {}", XDB_CLASSPATH);
+                            return null;
+                        }
+                        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+                        byte[] chunk = new byte[8192];
+                        int n;
+                        while ((n = in.read(chunk)) != -1) {
+                            buf.write(chunk, 0, n);
+                        }
+                        ipSearcher = Searcher.newWithBuffer(buf.toByteArray());
+                    } catch (Exception e) {
+                        log.error("初始化 ip2region 失败 msg={}", e.getMessage());
+                    }
+                }
+            }
+        }
+        return ipSearcher;
+    }
 
     /**
      * 获取客户端IP
@@ -67,33 +95,52 @@ public class IpUtil {
      * @author fzr
      */
     public static String getRealAddressByIP(String ip) {
-        String IP_URL = "https://whois.pconline.com.cn/ipJson.jsp";
         String UNKNOWN = "未知";
+
+        if (StringUtil.isEmpty(ip)) {
+            return UNKNOWN;
+        }
 
         if (IpUtil.internalIp(ip)) {
             return "内网";
         }
 
+        Searcher searcher = getSearcher();
+        if (searcher == null) {
+            return UNKNOWN;
+        }
+
         try {
-            String rspStr =
-                    HttpUtil.get(
-                            IP_URL,
-                            new HashMap<>() {
-                                {
-                                    put("ip", ip);
-                                    put("json", true);
-                                }
-                            });
-            if (StringUtil.isEmpty(rspStr)) {
-                log.error("获取地理位置异常1 {}", ip);
+            // xdb 返回格式：国家|省份|城市|ISP|国家代码，例如 "中国|浙江省|杭州市|电信|CN"
+            String region = searcher.search(ip);
+            if (StringUtil.isEmpty(region)) {
                 return UNKNOWN;
             }
-            JSONObject json = JSONUtil.parseObj(rspStr);
-            return String.format("%s-%s", json.getStr("pro"), json.getStr("city"));
+            String[] parts = region.split("\\|", -1);
+            String country = parts.length > 0 ? cleanField(parts[0]) : "";
+            String pro = parts.length > 1 ? cleanField(parts[1]) : "";
+            String city = parts.length > 2 ? cleanField(parts[2]) : "";
+            if (!StringUtil.isEmpty(pro) && !StringUtil.isEmpty(city)) {
+                return String.format("%s-%s", pro, city);
+            }
+            if (!StringUtil.isEmpty(pro)) {
+                return pro;
+            }
+            if (!StringUtil.isEmpty(country)) {
+                return country;
+            }
+            return UNKNOWN;
         } catch (Exception e) {
-            log.error("获取地理位置异常2 {} msg {}", ip, e.getMessage());
+            log.warn("获取地理位置异常 ip={} msg={}", ip, e.getMessage());
         }
         return UNKNOWN;
+    }
+
+    private static String cleanField(String s) {
+        if (s == null || "0".equals(s)) {
+            return "";
+        }
+        return s.trim();
     }
 
     /**
