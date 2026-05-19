@@ -27,6 +27,7 @@ import xyz.playedu.api.request.backend.ResourceDestroyMultiRequest;
 import xyz.playedu.api.request.backend.ResourceUpdateRequest;
 import xyz.playedu.common.annotation.Log;
 import xyz.playedu.common.bus.BackendBus;
+import xyz.playedu.common.config.PlayEduConfig;
 import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.BusinessTypeConstant;
 import xyz.playedu.common.context.BCtx;
@@ -62,6 +63,8 @@ public class ResourceController {
     @Autowired private BackendBus backendBus;
 
     @Autowired private CategoryService categoryService;
+
+    @Autowired private PlayEduConfig playEduConfig;
 
     @GetMapping("/index")
     @Log(title = "资源-列表", businessType = BusinessTypeConstant.GET)
@@ -169,7 +172,10 @@ public class ResourceController {
         }
 
         // 删除文件
-        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+        S3Util s3Util =
+                new S3Util(
+                        appConfigService.getS3Config(),
+                        Boolean.TRUE.equals(playEduConfig.getDemoEnabled()));
         s3Util.removeByPath(resource.getPath());
         // 如果是视频资源文件则删除对应的时长关联记录
         if (BackendConstant.RESOURCE_TYPE_VIDEO.equals(resource.getType())) {
@@ -193,7 +199,10 @@ public class ResourceController {
             return JsonResponse.success();
         }
 
-        S3Util s3Util = new S3Util(appConfigService.getS3Config());
+        S3Util s3Util =
+                new S3Util(
+                        appConfigService.getS3Config(),
+                        Boolean.TRUE.equals(playEduConfig.getDemoEnabled()));
 
         for (Resource resourceItem : resources) {
             // 权限校验
