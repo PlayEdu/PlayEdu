@@ -34,4 +34,8 @@ public class PlayEduConfig {
 
     @Value("${playedu.limiter.limit}")
     private Long limiterLimit;
+
+    /** 演示模式开关：true 时 S3 文件删除会被跳过（仅删 DB 记录），用于演示站。 */
+    @Value("${playedu.demo.enabled:false}")
+    private Boolean demoEnabled;
 }
