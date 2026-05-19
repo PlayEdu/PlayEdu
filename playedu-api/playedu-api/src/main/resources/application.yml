@@ -60,3 +60,8 @@ playedu:
   limiter:
     duration: 60
     limit: 360
+  demo:
+    # 演示模式开关。开启后，资源删除接口将仅删除 DB 记录，
+    # 跳过 S3 文件删除，用于配合 DB 定时恢复搭建演示站。
+    # 通过环境变量 DEMO_MODE 控制（docker-compose 里映射为 PLAYEDU_DEMO_MODE）。
+    enabled: ${DEMO_MODE:false}
