@@ -31,6 +31,7 @@ services:
       - SA_TOKEN_IS_CONCURRENT=${PLAYEDU_SA_TOKEN_IS_CONCURRENT:-false}
       - SA_TOKEN_JWT_SECRET_KEY=${PLAYEDU_JWT_KEY:-playeduxyz}
       - TZ=${PLAYEDU_TZ:-Asia/Shanghai}
+      - DEMO_MODE=${PLAYEDU_DEMO_MODE:-false}
     ports:
       - "${PLAYEDU_API_PORT:-9700}:9898"
       - "${PLAYEDU_PC_PORT:-9800}:9800"
