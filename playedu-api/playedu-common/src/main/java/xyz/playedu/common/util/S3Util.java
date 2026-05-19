@@ -43,12 +43,20 @@ public class S3Util {
 
     private S3Config defaultConfig;
 
+    /** 演示模式开关：true 时 removeByPath 会跳过真实的 S3 删除调用。 */
+    private boolean demoEnabled;
+
     public S3Config getS3Config() {
         return defaultConfig;
     }
 
     public S3Util(S3Config s3Config) {
-        defaultConfig = s3Config;
+        this(s3Config, false);
+    }
+
+    public S3Util(S3Config s3Config, boolean demoEnabled) {
+        this.defaultConfig = s3Config;
+        this.demoEnabled = demoEnabled;
     }
 
     public S3Util setConfig(S3Config config) {
@@ -203,6 +211,13 @@ public class S3Util {
     }
 
     public void removeByPath(String path) {
+        if (demoEnabled) {
+            log.warn(
+                    "[demo-mode] skip S3 delete: bucket={}, path={}",
+                    defaultConfig.getBucket(),
+                    path);
+            return;
+        }
         DeleteObjectRequest request = new DeleteObjectRequest(defaultConfig.getBucket(), path);
         getClient().deleteObject(request);
     }
