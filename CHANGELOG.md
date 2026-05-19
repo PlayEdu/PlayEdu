@@ -1,3 +1,7 @@
+## Unreleased
+
+- 修复:IP 地理位置解析改用 `ip2region` 本地离线库,移除对外部接口 `whois.pconline.com.cn` 的依赖,消除 "Unexpected end of file from server" 等因外部接口抖动导致的异常日志与出网调用
+
 ## 2.1
 
 - 优化:Dockerfile 拆分依赖层,前端先 `COPY package.json/pnpm-lock.yaml` 再 `pnpm i`,Java 先 `COPY pom.xml` 并 `dependency:go-offline` 预热依赖,源码变更不再触发依赖重装,显著缩短增量构建耗时
