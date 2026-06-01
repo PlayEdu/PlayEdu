@@ -24,7 +24,6 @@ const CoursePlayPage = () => {
   const systemConfig = useSelector((state: any) => state.systemConfig.value);
   const user = useSelector((state: any) => state.loginUser.value.user);
   const [playUrl, setPlayUrl] = useState("");
-  const [playDuration, setPlayDuration] = useState(0);
   const [playendedStatus, setPlayendedStatus] = useState(false);
   const [lastSeeValue, setLastSeeValue] = useState({});
   const [course, setCourse] = useState<CourseModel | null>(null);
@@ -42,15 +41,14 @@ const CoursePlayPage = () => {
   const playRef = useRef(0);
   const watchRef = useRef(0);
   const totalRef = useRef(0);
+  const hourIdRef = useRef<number>(0);
 
   useEffect(() => {
+    myRef.current = 0;
+    hourIdRef.current = Number(params.hourId);
     getCourse();
     getDetail();
   }, [params.courseId, params.hourId]);
-
-  useEffect(() => {
-    myRef.current = playDuration;
-  }, [playDuration]);
 
   useEffect(() => {
     playRef.current = playingTime;
@@ -87,7 +85,7 @@ const CoursePlayPage = () => {
       }
       //判断是否是最后的课时
       const index = totalHours.findIndex(
-        (i: any) => i.id === Number(params.hourId)
+        (i: any) => i.id === Number(params.hourId),
       );
       if (index === totalHours.length - 1) {
         setIsLastpage(true);
@@ -134,7 +132,7 @@ const CoursePlayPage = () => {
         window.player && window.player.destroy();
         setPlayUrl(res.data.resource_url[rid]);
         initDPlayer(res.data.resource_url[rid], 0, data);
-      }
+      },
     );
   };
 
@@ -200,21 +198,19 @@ const CoursePlayPage = () => {
 
   const playTimeUpdate = (duration: number, isEnd: boolean) => {
     if (duration - myRef.current >= 10 || isEnd === true) {
-      setPlayDuration(duration);
-      Course.record(
-        Number(params.courseId),
-        Number(params.hourId),
-        duration
-      ).then((res: any) => {});
-      Course.playPing(Number(params.courseId), Number(params.hourId)).then(
-        (res: any) => {}
+      myRef.current = duration;
+      Course.record(Number(params.courseId), hourIdRef.current, duration).then(
+        (res: any) => {},
+      );
+      Course.playPing(Number(params.courseId), hourIdRef.current).then(
+        (res: any) => {},
       );
     }
   };
 
   const goNextVideo = () => {
     const index = totalHours.findIndex(
-      (i: any) => i.id === Number(params.hourId)
+      (i: any) => i.id === Number(params.hourId),
     );
     if (index === totalHours.length - 1) {
       setIsLastpage(true);
