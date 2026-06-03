@@ -3,12 +3,23 @@ import styles from "./video.module.scss";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { course as Course } from "../../api/index";
-import { Toast, Image } from "antd-mobile";
+import { Toast, Image, Dialog } from "antd-mobile";
 import backIcon from "../../assets/images/commen/icon-back-n.png";
 import { Empty } from "../../components";
 import { HourCompenent } from "./compenents/videoHour";
 
 declare const window: any;
+
+/**
+ * 检测是否为夸克浏览器
+ * 夸克浏览器的 User-Agent 特征：
+ * - 包含 "Quark"
+ * - 包含 "QBrowse"
+ */
+const isQuarkBrowser = (): boolean => {
+  const ua = navigator.userAgent.toLowerCase();
+  return ua.includes("quark") || ua.includes("qbrowse");
+};
 
 type LocalUserLearnHourRecordModel = {
   [key: number]: UserLearnHourRecordModel;

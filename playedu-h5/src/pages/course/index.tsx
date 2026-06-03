@@ -39,7 +39,7 @@ const CoursePage = () => {
   const [chapters, setChapters] = useState<ChapterModel[]>([]);
   const [hours, setHours] = useState<LocalCourseHour | null>(null);
   const [learnRecord, setLearnRecord] = useState<UserLearnRecordModel | null>(
-    null
+    null,
   );
   const [learnHourRecord, setLearnHourRecord] =
     useState<LocalUserLearnHourRecordModel>({});
@@ -61,7 +61,9 @@ const CoursePage = () => {
       document.title = courseItem.title || "课程详情";
       setCourse(courseItem);
       setChapters(res.data.chapters);
-      setHours(res.data.hours);
+      if (!isEmptyObject(res.data.hours)) {
+        setHours(res.data.hours);
+      }
       if (res.data.learn_record) {
         setLearnRecord(res.data.learn_record);
       }
