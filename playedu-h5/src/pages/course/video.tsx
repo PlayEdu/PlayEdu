@@ -66,10 +66,6 @@ const CoursePlayPage = () => {
   const hourIdRef = useRef<number>(0);
 
   useEffect(() => {
-    myRef.current = 0;
-    hourIdRef.current = Number(params.hourId);
-    getCourse();
-    getDetail();
     // 检测是否为 iOS 夸克浏览器
     if (isIOSQuarkBrowser()) {
       Dialog.alert({
@@ -82,6 +78,10 @@ const CoursePlayPage = () => {
       });
       return;
     }
+    myRef.current = 0;
+    hourIdRef.current = Number(params.hourId);
+    getCourse();
+    getDetail();
   }, [params.courseId, params.hourId]);
 
   useEffect(() => {
