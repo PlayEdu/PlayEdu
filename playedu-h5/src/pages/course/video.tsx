@@ -69,7 +69,8 @@ const CoursePlayPage = () => {
     myRef.current = 0;
     hourIdRef.current = Number(params.hourId);
     getCourse();
-    getDetail(); // 检测是否为 iOS 夸克浏览器
+    getDetail();
+    // 检测是否为 iOS 夸克浏览器
     if (isIOSQuarkBrowser()) {
       Dialog.alert({
         content:
