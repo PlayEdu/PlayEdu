@@ -11,14 +11,25 @@ import { HourCompenent } from "./compenents/videoHour";
 declare const window: any;
 
 /**
+ * 检测是否为 iOS 设备
+ */
+const isIOS = (): boolean => {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+};
+
+/**
  * 检测是否为夸克浏览器
- * 夸克浏览器的 User-Agent 特征：
- * - 包含 "Quark"
- * - 包含 "QBrowse"
  */
 const isQuarkBrowser = (): boolean => {
   const ua = navigator.userAgent.toLowerCase();
   return ua.includes("quark") || ua.includes("qbrowse");
+};
+
+/**
+ * 检测是否为 iOS 夸克浏览器
+ */
+const isIOSQuarkBrowser = (): boolean => {
+  return isIOS() && isQuarkBrowser();
 };
 
 type LocalUserLearnHourRecordModel = {
@@ -58,7 +69,18 @@ const CoursePlayPage = () => {
     myRef.current = 0;
     hourIdRef.current = Number(params.hourId);
     getCourse();
-    getDetail();
+    getDetail(); // 检测是否为 iOS 夸克浏览器
+    if (isIOSQuarkBrowser()) {
+      Dialog.alert({
+        content:
+          "当前夸克浏览器环境下无法记录学习数据，请前往其他浏览器（如 Safari、Chrome）打开学习",
+        confirmText: "知道了",
+        onConfirm: () => {
+          navigate(-1);
+        },
+      });
+      return;
+    }
   }, [params.courseId, params.hourId]);
 
   useEffect(() => {
