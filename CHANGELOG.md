@@ -1,12 +1,15 @@
-## Unreleased
+## 2.3
 
 - 修复:LDAP 登录过滤器注入漏洞
 - 修复:学员头像上传未校验文件类型
 - 修复:更换账号可绕过登录限流
+- 新增:[H5]iOS 夸克浏览器提示更换浏览器学习
+- 优化:[PC/H5]课程详情报错处理
+- 优化:[H5]播放页 ping 接口传递 hourId
 
 ## 2.2
 
-- 修复:IP 地理位置解析改用 `ip2region` 本地离线库,移除对外部接口 `whois.pconline.com.cn` 的依赖,消除 "Unexpected end of file from server" 等因外部接口抖动导致的异常日志与出网调用
+- 修复:IP 地理位置解析改用 `ip2region` 离线库
 
 ## 2.1
 
