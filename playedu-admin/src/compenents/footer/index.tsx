@@ -36,7 +36,7 @@ export const Footer: React.FC<PropInterface> = ({ type }) => {
           className="ml-5"
           style={{ color: "#D7D7D7", fontSize: 12, marginTop: -5 }}
         >
-          Version 2.2
+          Version 2.3
         </span>
       </Link>
     </Layout.Footer>

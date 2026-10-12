@@ -17,7 +17,7 @@ package xyz.playedu.common.constant;
 
 public class SystemConstant {
 
-    public static final String VERSION = "v2.2";
+    public static final String VERSION = "v2.3";
 
     public static final String ENV_PROD = "prod";
 
