@@ -1,3 +1,9 @@
+## Unreleased
+
+- 修复:LDAP 登录过滤器注入漏洞
+- 修复:学员头像上传未校验文件类型
+- 修复:更换账号可绕过登录限流
+
 ## 2.2
 
 - 修复:IP 地理位置解析改用 `ip2region` 本地离线库,移除对外部接口 `whois.pconline.com.cn` 的依赖,消除 "Unexpected end of file from server" 等因外部接口抖动导致的异常日志与出网调用
