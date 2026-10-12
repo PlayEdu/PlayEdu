@@ -1,15 +1,24 @@
+## 2.3
+
+- 修复:LDAP 登录过滤器注入漏洞
+- 修复:学员头像上传未校验文件类型
+- 修复:更换账号可绕过登录限流
+- 新增:[H5]iOS 夸克浏览器提示更换浏览器学习
+- 优化:[PC/H5]课程详情报错处理
+- 优化:[H5]播放页 ping 接口传递 hourId
+
 ## 2.2
 
-- 修复:IP 地理位置解析改用 `ip2region` 本地离线库,移除对外部接口 `whois.pconline.com.cn` 的依赖,消除 "Unexpected end of file from server" 等因外部接口抖动导致的异常日志与出网调用
+- 修复:IP 地理位置解析改用 `ip2region` 离线库
 
 ## 2.1
 
-- 优化:Dockerfile 拆分依赖层,前端先 `COPY package.json/pnpm-lock.yaml` 再 `pnpm i`,Java 先 `COPY pom.xml` 并 `dependency:go-offline` 预热依赖,源码变更不再触发依赖重装,显著缩短增量构建耗时
-- 优化:新增 `playedu-api/.mvn/settings.xml` 与 `.mvn/maven.config`,默认走阿里云 Maven 镜像并启用 `-T 1C` 并行构建,加速 `mvnw` 依赖下载与编译
-- 修复:后台批量导入学员、章节/课时/附件排序接口缺少权限注解导致的越权问题
-- 优化:后台配置项改为由 `application.yml` 直接读取环境变量，移除 Dockerfile 中的命令行参数映射
-- 新增:数据库连接池可通过环境变量配置 (`DB_POOL_MIN_IDLE` / `DB_POOL_MAX_SIZE` / `DB_POOL_CONN_TIMEOUT` / `DB_POOL_IDLE_TIMEOUT` / `DB_POOL_MAX_LIFETIME`)
-- 新增:`compose.yml` 中 MySQL 密码改为通过 `PLAYEDU_DB_PASS` 环境变量配置，与应用端 `DB_PASS` 共用同一变量
+- 新增:数据库连接池支持环境变量配置
+- 新增:`compose.yml` 的 MySQL 密码支持环境变量配置
+- 修复:后台导入与排序接口越权问题
+- 优化:Dockerfile 拆分依赖层以复用构建缓存
+- 优化:Maven 默认阿里云镜像并启用并行构建
+- 优化:配置项改由 `application.yml` 读取环境变量
 
 ## 2.0
 

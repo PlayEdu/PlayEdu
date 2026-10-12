@@ -52,10 +52,10 @@ const CoursePage = () => {
   const [chapters, setChapters] = useState<ChapterModel[]>([]);
   const [hours, setHours] = useState<HoursModel>({});
   const [learnRecord, setLearnRecord] = useState<CourseRecordModel | null>(
-    null
+    null,
   );
   const [learnHourRecord, setLearnHourRecord] = useState<LearnHourRecordsModel>(
-    {}
+    {},
   );
   const [tabKey, setTabKey] = useState(Number(result.get("tab") || 1));
   const [attachments, setAttachments] = useState<AttachModel[]>([]);
@@ -73,7 +73,9 @@ const CoursePage = () => {
         document.title = res.data.course.title;
         setCourse(res.data.course);
         setChapters(res.data.chapters);
-        setHours(res.data.hours);
+        if (JSON.stringify(res.data.hours) !== "{}") {
+          setHours(res.data.hours);
+        }
         setResourceUrl(res.data.resource_url);
         if (res.data.learn_record) {
           setLearnRecord(res.data.learn_record);
@@ -114,7 +116,7 @@ const CoursePage = () => {
     id: number,
     rid: number,
     fileName: string,
-    type: string
+    type: string,
   ) => {
     Course.downloadAttachment(cid, id).then((res: any) => {
       if (type === "TXT") {
@@ -172,10 +174,10 @@ const CoursePage = () => {
                       course.thumb === -1
                         ? defaultThumb1
                         : course.thumb === -2
-                        ? defaultThumb2
-                        : course.thumb === -3
-                        ? defaultThumb3
-                        : resourceUrl[course.thumb]
+                          ? defaultThumb2
+                          : course.thumb === -3
+                            ? defaultThumb3
+                            : resourceUrl[course.thumb]
                     }
                   />
                 ) : null}
@@ -374,7 +376,7 @@ const CoursePage = () => {
                         item.id,
                         item.rid,
                         `${item.title}.${item.ext}`,
-                        item.type
+                        item.type,
                       )
                     }
                   >

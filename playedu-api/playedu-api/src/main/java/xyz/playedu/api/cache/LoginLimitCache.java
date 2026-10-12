@@ -30,20 +30,40 @@ public class LoginLimitCache {
     @Autowired private PlayEduConfig playEduConfig;
 
     public void check(String email) throws ServiceException {
-        String limitKey = cacheKey(email);
-        Long reqCount = rateLimiterService.current(limitKey, 600L);
-        if (reqCount >= 10 && !playEduConfig.getTesting()) {
-            Long exp = MemoryCacheUtil.ttlWithoutPrefix(limitKey);
-            String msg = String.format("您的账号已被锁定，请%s后重试", exp > 60 ? exp / 60 + "分钟" : exp + "秒");
-            throw new ServiceException(msg);
-        }
+        checkKey(cacheKey(email), 10L, "您的账号已被锁定");
+    }
+
+    // 按客户端IP计数,避免旋转username绕过账号维度的限流
+    public void checkIp(String ip) throws ServiceException {
+        checkKey(ipCacheKey(ip), 30L, "登录尝试过于频繁");
     }
 
     public void destroy(String email) {
         MemoryCacheUtil.del(cacheKey(email));
     }
 
+    // 登录成功仅退还本次计数,不清零,防止攻击者用自有账号登录重置整个IP的失败计数
+    public void releaseIp(String ip) {
+        String limitKey = ipCacheKey(ip);
+        if (MemoryCacheUtil.exists(limitKey)) {
+            MemoryCacheUtil.increment(limitKey, -1L, 600L);
+        }
+    }
+
+    private void checkKey(String limitKey, long limit, String reason) throws ServiceException {
+        Long reqCount = rateLimiterService.current(limitKey, 600L);
+        if (reqCount >= limit && !playEduConfig.getTesting()) {
+            Long exp = MemoryCacheUtil.ttlWithoutPrefix(limitKey);
+            String msg = String.format("%s，请%s后重试", reason, exp > 60 ? exp / 60 + "分钟" : exp + "秒");
+            throw new ServiceException(msg);
+        }
+    }
+
     private String cacheKey(String email) {
         return "login-limit:" + email;
+    }
+
+    private String ipCacheKey(String ip) {
+        return "login-limit-ip:" + ip;
     }
 }

@@ -40,4 +40,6 @@ public class FrontendConstant {
     public static final String USER_UPLOAD_IMAGE_SCENE_AVATAR = "avatar";
 
     public static final String DIR_AVATAR = "user/avatar/";
+
+    public static final int AVATAR_MAX_SIZE = 5 * 1024 * 1024;
 }
