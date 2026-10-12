@@ -88,6 +88,47 @@ public class IpUtil {
     }
 
     /**
+     * 获取可信的客户端IP,用于限流等安全场景
+     *
+     * <p>getIpAddress 直接信任客户端可伪造的请求头,不能用于安全判断。
+     *
+     * <p>这里以TCP连接的remoteAddr为起点,仅当其为内网/回环地址(受信代理)时才从X-Forwarded-For最右侧逐级回溯,
+     * 遇到第一个非受信地址即为客户端IP,客户端在X-Forwarded-For左侧伪造的值不会被采用。
+     *
+     * @return IP地址
+     */
+    public static String getClientIp() {
+        HttpServletRequest request = RequestUtil.handler();
+        if (request == null) {
+            return "unknown";
+        }
+        String ip = request.getRemoteAddr();
+        String xff = request.getHeader("X-Forwarded-For");
+        if (StringUtil.isNotBlank(xff)) {
+            String[] hops = xff.split(",");
+            for (int i = hops.length - 1; i >= 0 && isTrustedProxy(ip); i--) {
+                String hop = hops[i].trim();
+                if (isUnknown(hop)) {
+                    break;
+                }
+                ip = hop;
+            }
+        }
+        return "0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : ip;
+    }
+
+    private static boolean isTrustedProxy(String ip) {
+        if (ip == null) {
+            return false;
+        }
+        if ("0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip)) {
+            return true;
+        }
+        byte[] address = textToNumericFormatV4(ip);
+        return address != null && (address[0] == 0x7F || internalIp(address));
+    }
+
+    /**
      * 根据IP获取所在地址
      *
      * @param ip Ip地址

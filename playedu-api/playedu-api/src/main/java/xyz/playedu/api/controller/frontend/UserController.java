@@ -15,6 +15,7 @@
  */
 package xyz.playedu.api.controller.frontend;
 
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
@@ -25,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import xyz.playedu.api.request.frontend.ChangePasswordRequest;
+import xyz.playedu.common.constant.BackendConstant;
 import xyz.playedu.common.constant.CommonConstant;
 import xyz.playedu.common.constant.FrontendConstant;
 import xyz.playedu.common.context.FCtx;
@@ -38,6 +40,7 @@ import xyz.playedu.common.types.JsonResponse;
 import xyz.playedu.common.types.UploadFileInfo;
 import xyz.playedu.common.types.config.S3Config;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordCourseCountMapper;
+import xyz.playedu.common.util.HelperUtil;
 import xyz.playedu.common.util.StringUtil;
 import xyz.playedu.course.domain.*;
 import xyz.playedu.course.service.*;
@@ -100,8 +103,33 @@ public class UserController {
         return JsonResponse.data(data);
     }
 
+    @SneakyThrows
     @PutMapping("/avatar")
     public JsonResponse changeAvatar(MultipartFile file) {
+        if (file == null || file.isEmpty() || StringUtil.isEmpty(file.getOriginalFilename())) {
+            throw new ServiceException("请上传文件");
+        }
+
+        // 扩展名
+        String ext = HelperUtil.fileExt(file.getOriginalFilename());
+        // 头像仅支持图片格式
+        if (!BackendConstant.RESOURCE_TYPE_IMAGE.equals(
+                BackendConstant.RESOURCE_EXT_2_TYPE.get(ext))) {
+            return JsonResponse.error("当前格式不支持");
+        }
+        // 头像大小限制
+        if (file.getSize() > FrontendConstant.AVATAR_MAX_SIZE) {
+            return JsonResponse.error("头像大小不能超过5MB");
+        }
+        // 校验文件头(魔数)与扩展名一致
+        byte[] header;
+        try (InputStream in = file.getInputStream()) {
+            header = in.readNBytes(8);
+        }
+        if (!HelperUtil.matchImageHeader(header, ext)) {
+            return JsonResponse.error("当前格式不支持");
+        }
+
         // 校验存储配置是否完整
         S3Config s3Config = appConfigService.getS3Config();
         if (StringUtil.isEmpty(s3Config.getAccessKey())

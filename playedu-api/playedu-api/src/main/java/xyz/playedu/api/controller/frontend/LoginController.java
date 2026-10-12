@@ -69,6 +69,10 @@ public class LoginController {
             return JsonResponse.error("请使用LDAP登录");
         }
 
+        // IP维度限流需在查询用户之前执行,否则不存在的邮箱会绕过计数
+        String ip = IpUtil.getClientIp();
+        loginLimitCache.checkIp(ip);
+
         String email = req.getEmail();
 
         User user = userService.find(email);
@@ -87,6 +91,7 @@ public class LoginController {
         }
 
         loginLimitCache.destroy(email);
+        loginLimitCache.releaseIp(ip);
 
         return JsonResponse.data(loginBus.tokenByUser(user));
     }
@@ -107,6 +112,8 @@ public class LoginController {
         }
 
         // 限流控制
+        String ip = IpUtil.getClientIp();
+        loginLimitCache.checkIp(ip);
         loginLimitCache.check(username);
 
         // 锁控制-防止并发登录重复写入数据
@@ -125,6 +132,7 @@ public class LoginController {
 
             // 删除限流控制
             loginLimitCache.destroy(username);
+            loginLimitCache.releaseIp(ip);
 
             return JsonResponse.data(data);
         } catch (ServiceException e) {

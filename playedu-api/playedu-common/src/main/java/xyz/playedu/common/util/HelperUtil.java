@@ -185,4 +185,40 @@ public class HelperUtil {
         String[] array = filename.split("\\.");
         return array[array.length - 1].toLowerCase();
     }
+
+    /**
+     * 校验文件头部(魔数)与图片扩展名是否匹配
+     *
+     * @param header 文件头部字节,建议至少8字节
+     * @param extension 文件扩展名,小写,不含点
+     * @return boolean
+     */
+    public static boolean matchImageHeader(byte[] header, String extension) {
+        if (header == null || extension == null) {
+            return false;
+        }
+        switch (extension) {
+            case "png":
+                return startsWith(header, 0, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A);
+            case "jpg":
+            case "jpeg":
+                return startsWith(header, 0, 0xFF, 0xD8, 0xFF);
+            case "gif":
+                return startsWith(header, 0, 0x47, 0x49, 0x46, 0x38);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean startsWith(byte[] data, int offset, int... prefix) {
+        if (data.length < offset + prefix.length) {
+            return false;
+        }
+        for (int i = 0; i < prefix.length; i++) {
+            if ((data[offset + i] & 0xFF) != prefix[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

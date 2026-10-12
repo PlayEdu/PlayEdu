@@ -236,12 +236,15 @@ public class LdapUtil {
         controls.setReturningObjFlag(true);
         controls.setCountLimit(1);
 
-        String userFilter = "";
+        // 使用JNDI参数化过滤器,由JNDI按RFC 4515转义用户输入,防止过滤器注入
+        String userFilter;
+        Object[] filterArgs;
         if (StringUtil.isNotEmpty(mail)) {
-            userFilter =
-                    String.format("(|(mail=%s)(email=%s)(userPrincipalName=%s))", mail, mail, mail);
-        } else if (StringUtil.isNotEmpty(uid)) {
-            userFilter = String.format("(|(uid=%s)(sAMAccountName=%s))", uid, uid);
+            userFilter = "(|(mail={0})(email={0})(userPrincipalName={0}))";
+            filterArgs = new Object[] {mail};
+        } else {
+            userFilter = "(|(uid={0})(sAMAccountName={0}))";
+            filterArgs = new Object[] {uid};
         }
 
         String filter = String.format("(&%s%s)", userFilter, USER_OBJECT_CLASS);
@@ -251,7 +254,7 @@ public class LdapUtil {
                         ldapConfig.getUrl(), ldapConfig.getAdminUser(), ldapConfig.getAdminPass());
         NamingEnumeration<SearchResult> result = null;
         try {
-            result = ldapContext.search(ldapConfig.getBaseDN(), filter, controls);
+            result = ldapContext.search(ldapConfig.getBaseDN(), filter, filterArgs, controls);
         } catch (NamingException e) {
             log.error("LDAP-通过mail或uid登录失败", e);
         } finally {
@@ -326,12 +329,18 @@ public class LdapUtil {
 
         if (attributes.get("uSNCreated") != null) {
             // Window AD域
-            ldapUser.setId((String) attributes.get("uSNCreated").get());
-            ldapUser.setUid((String) attributes.get("sAMAccountName").get());
+            ldapUser.setId(getAttribute(attributes, "uSNCreated"));
+            ldapUser.setUid(getAttribute(attributes, "sAMAccountName"));
         } else {
             // OpenLDAP
-            ldapUser.setId((String) attributes.get("entryUUID").get());
-            ldapUser.setUid((String) attributes.get("uid").get());
+            ldapUser.setId(getAttribute(attributes, "entryUUID"));
+            ldapUser.setUid(getAttribute(attributes, "uid"));
+        }
+
+        // 关键属性缺失时按无效用户处理，避免异常信息暴露条目属性差异
+        if (StringUtil.isEmpty(ldapUser.getId()) || StringUtil.isEmpty(ldapUser.getUid())) {
+            log.info("LDAP-用户属性缺失|id={}|uid={}", ldapUser.getId(), ldapUser.getUid());
+            return null;
         }
 
         // ou计算
